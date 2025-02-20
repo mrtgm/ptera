@@ -8,13 +8,14 @@ export interface UserState {
 	saveData: {
 		[gameId: string]: {
 			currentSceneId: string;
+			currentEventIndex: number;
 			playHistory: string[]; // 訪れたシーンのID履歴
 			timestamp: number;
 		};
 	};
 
 	setUserId: (userId: string) => void;
-	savePath: (gameId: string, sceneId: string) => void;
+	savePath: (gameId: string, sceneId: string, eventIndex: number) => void;
 }
 
 export const createUserSlice: StateCreator<
@@ -30,11 +31,17 @@ export const createUserSlice: StateCreator<
 
 	setUserId: (userId: string) => _set({ userId }),
 
-	savePath: (gameId: string, sceneId: string) =>
+	savePath: (gameId: string, sceneId: string, eventIndex: number) =>
 		_set((state) => {
 			const saveData = state.saveData[gameId] ?? [];
 			saveData.currentSceneId = sceneId;
-			saveData.playHistory = [...saveData.playHistory, sceneId];
+			saveData.currentEventIndex = eventIndex;
+			saveData.playHistory = [
+				...(saveData.playHistory && saveData.playHistory.length > 0
+					? saveData.playHistory
+					: []),
+				sceneId,
+			];
 			saveData.timestamp = Date.now();
 			state.saveData[gameId] = saveData;
 			return state;

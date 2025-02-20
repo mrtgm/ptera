@@ -5,30 +5,30 @@ interface Game {
 	scenes: Scene[];
 }
 
-type Scene = StartScene | GotoScene | ChoiceScene | EndScene;
+type Scene = GotoScene | ChoiceScene | EndScene;
 
 type GotoScene = {
 	id: string;
 	sceneType: "goto";
-	events: Event[];
+	events: GameEvent[];
 	nextSceneId: string;
 };
 
 type ChoiceScene = {
 	id: string;
 	sceneType: "choice";
-	events: Event[];
+	events: GameEvent[];
 	choices: Choice[];
 };
 
 type EndScene = {
 	id: string;
 	sceneType: "end";
-	events: Event[];
+	events: GameEvent[];
 };
 
-type Event =
-	| TextEvent
+type GameEvent =
+	| TextRenderEvent
 	| AppearMessageWindowEvent
 	| HideMessageWindowEvent
 	| AppearCharacterEvent
@@ -46,7 +46,7 @@ interface EventBase {
 	category: string;
 }
 
-interface TextEvent extends EventBase {
+interface TextRenderEvent extends EventBase {
 	type: "text";
 	category: "message";
 	text: string;

@@ -4,6 +4,7 @@ import type { State } from ".";
 export interface PlayerState {
 	currentGame: Game | null;
 	currentScene: Scene | null;
+	currentResources: GameResources | null;
 	currentEventIndex: number;
 	isAutoMode: boolean;
 	isSkipMode: boolean;
@@ -11,6 +12,7 @@ export interface PlayerState {
 
 	loadGame: (game: Game) => void;
 	setScene: (sceneId: string) => void;
+	setCurrentResources: (resources: GameResources) => void;
 	nextEvent: () => void;
 	toggleAutoMode: () => void;
 	toggleSkipMode: () => void;
@@ -25,6 +27,7 @@ export const createPlayerSlice: StateCreator<
 > = (_set, _get) => ({
 	currentGame: null,
 	currentScene: null,
+	currentResources: null,
 	currentEventIndex: 0,
 
 	isAutoMode: false,
@@ -41,6 +44,10 @@ export const createPlayerSlice: StateCreator<
 		if (scene) {
 			_set({ currentScene: scene, currentEventIndex: 0 });
 		}
+	},
+
+	setCurrentResources: (resources: GameResources) => {
+		_set({ currentResources: resources });
 	},
 
 	nextEvent: () =>
