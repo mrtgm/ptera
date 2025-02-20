@@ -1,0 +1,66 @@
+{
+  "characters": {
+    "mysterious-girl": {
+      "id": "mysterious-girl",
+      "name": "謎の少女",
+      "images": [
+        {
+          "id": "mysterious-girl-smile",
+          "filename": "mysterious-girl-smile.png",
+          "url": "/assets/characters/mysterious-girl/smile.png",
+          "metadata": {
+            "size": 1024000
+          }
+        },
+        {
+          "id": "mysterious-girl-happy",
+          "filename": "mysterious-girl-happy.png",
+          "url": "/assets/characters/mysterious-girl/happy.png",
+          "metadata": {
+            "size": 1024000
+          }
+        },
+        {
+          "id": "mysterious-girl-sad",
+          "filename": "mysterious-girl-sad.png",
+          "url": "/assets/characters/mysterious-girl/sad.png",
+          "metadata": {
+            "size": 1024000
+          }
+        }
+      ]
+    }
+  },
+  "backgroundImages": {
+    "park-day": {
+      "id": "park-day",
+      "filename": "park-day.jpg",
+      "url": "/assets/backgrounds/park-day.jpeg",
+      "metadata": {
+        "size": 2048000
+      }
+    }
+  },
+  "soundEffects": {
+    "footsteps": {
+      "id": "footsteps",
+      "filename": "footsteps.mp3",
+      "url": "/assets/sounds/footsteps.mp3",
+      "metadata": {
+        "duration": 2.5,
+        "size": 102400
+      }
+    }
+  },
+  "bgms": {
+    "peaceful-day": {
+      "id": "peaceful-day",
+      "filename": "peaceful-day.mp3",
+      "url": "/assets/bgm/peaceful-day.mp3",
+      "metadata": {
+        "duration": 180.0,
+        "size": 4096000
+      }
+    }
+  }
+}

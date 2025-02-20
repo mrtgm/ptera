@@ -1,0 +1,184 @@
+{
+  "id": "mystery-in-the-park",
+  "name": "公園での出会い",
+  "description": "穏やかな春の日、主人公は公園で不思議な少女と出会う。",
+  "scenes": [
+    {
+      "id": "opening",
+      "sceneType": "goto",
+      "events": [
+        {
+          "id": "ev1",
+          "type": "changeBackground",
+          "category": "background",
+          "backgroundId": "park-day"
+        },
+        {
+          "id": "ev2",
+          "type": "bgmStart",
+          "category": "media",
+          "bgmId": "peaceful-day",
+          "volume": 0.7,
+          "fadeDuration": 2000
+        },
+        {
+          "id": "ev3",
+          "type": "appearMessageWindow",
+          "category": "message"
+        },
+        {
+          "id": "ev4",
+          "type": "text",
+          "category": "message",
+          "text": "春の陽気に誘われて、私は久しぶりに公園へ散歩に来ていた。"
+        },
+        {
+          "id": "ev5",
+          "type": "text",
+          "category": "message",
+          "text": "桜の花びらが風に舞い、まるで淡いピンク色の雪が降っているかのようだ。"
+        }
+      ],
+      "nextSceneId": "mysterious-girl"
+    },
+    {
+      "id": "mysterious-girl",
+      "sceneType": "goto",
+      "events": [
+        {
+          "id": "ev6",
+          "type": "appearCharacter",
+          "category": "character",
+          "characterId": "mysterious-girl",
+          "characterImageId": "mysterious-girl-smile",
+          "position": [0.7, 0.5],
+          "scale": 1.0,
+          "transition": {
+            "type": "fade",
+            "duration": 1000
+          }
+        },
+        {
+          "id": "ev7",
+          "type": "soundEffect",
+          "category": "media",
+          "soundEffectId": "footsteps",
+          "volume": 0.5,
+          "duration": 2.5
+        },
+        {
+          "id": "ev8",
+          "type": "text",
+          "category": "message",
+          "text": "ふと視線を感じて振り返ると、そこには白いワンピースを着た少女が立っていた。"
+        },
+        {
+          "id": "ev9",
+          "type": "text",
+          "category": "message",
+          "text": "「こんにちは。」"
+        }
+      ],
+      "nextSceneId": "first-choice"
+    },
+    {
+      "id": "first-choice",
+      "sceneType": "choice",
+      "events": [
+        {
+          "id": "ev10",
+          "type": "text",
+          "category": "message",
+          "text": "不思議な雰囲気を持つ少女に、私は──"
+        }
+      ],
+      "choices": [
+        {
+          "id": "choice1",
+          "text": "笑顔で挨拶を返す",
+          "nextSceneId": "friendly-response"
+        },
+        {
+          "id": "choice2",
+          "text": "戸惑いながらも軽く会釈する",
+          "nextSceneId": "hesitant-response"
+        }
+      ]
+    },
+    {
+      "id": "friendly-response",
+      "sceneType": "goto",
+      "events": [
+        {
+          "id": "ev11",
+          "type": "text",
+          "category": "message",
+          "text": "「こんにちは。素敵な日和ですね。」"
+        },
+        {
+          "id": "ev12",
+          "type": "appearCharacter",
+          "category": "character",
+          "characterId": "mysterious-girl",
+          "characterImageId": "mysterious-girl-happy",
+          "position": [0.7, 0.5],
+          "scale": 1.0
+        },
+        {
+          "id": "ev13",
+          "type": "text",
+          "category": "message",
+          "text": "少女は満面の笑みを浮かべ、桜の花びらが舞う中、一歩私に近づいてきた。"
+        }
+      ],
+      "nextSceneId": "story-continues"
+    },
+    {
+      "id": "hesitant-response",
+      "sceneType": "goto",
+      "events": [
+        {
+          "id": "ev14",
+          "type": "text",
+          "category": "message",
+          "text": "軽く頭を下げると、少女は少し寂しそうな表情を見せた。"
+        },
+        {
+          "id": "ev15",
+          "type": "appearCharacter",
+          "category": "character",
+          "characterId": "mysterious-girl",
+          "characterImageId": "mysterious-girl-sad",
+          "position": [0.7, 0.5],
+          "scale": 1.0
+        },
+        {
+          "id": "ev16",
+          "type": "text",
+          "category": "message",
+          "text": "「あなたも...この桜を見に来たんですか？」"
+        }
+      ],
+      "nextSceneId": "story-continues"
+    },
+    {
+      "id": "story-continues",
+      "sceneType": "end",
+      "events": [
+        {
+          "id": "ev17",
+          "type": "effect",
+          "category": "effect",
+          "effectType": "fadeOut",
+          "duration": 2000
+        },
+        {
+          "id": "ev18",
+          "type": "bgmStop",
+          "category": "media",
+          "bgmId": "peaceful-day"
+        }
+      ]
+    }
+  ]
+}
