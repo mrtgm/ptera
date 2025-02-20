@@ -1,13 +1,16 @@
 import { type StoreApi, type UseBoundStore, create } from "zustand";
 import { devtools, subscribeWithSelector } from "zustand/middleware";
+import { type PlayerState, createPlayerSlice } from "./player";
 import { type UserState, createUserSlice } from "./user";
 
 const sliceDefinitions = {
 	user: createUserSlice,
+	player: createPlayerSlice,
 } as const;
 
 type SliceStates = {
 	user: UserState;
+	player: PlayerState;
 };
 
 // https://stackoverflow.com/questions/50374908/transform-union-type-to-intersection-type
@@ -83,11 +86,10 @@ export const useStore = createSelectors(
 				const sliceState = Object.entries(sliceDefinitions).reduce(
 					(acc, [_key, createSlice]) => {
 						const sliceValue = createSlice(set, get, store);
-						for (const key of Object.keys(
-							sliceValue,
-						) as (keyof typeof sliceValue)[]) {
-							acc[key] = sliceValue[key] as string &
-								((state: Partial<UserState>) => void);
+						for (const key of Object.keys(sliceValue) as Array<
+							keyof typeof sliceValue
+						>) {
+							acc[key] = sliceValue[key] as never;
 						}
 						return acc;
 					},
