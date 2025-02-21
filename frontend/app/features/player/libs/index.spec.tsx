@@ -33,7 +33,7 @@ describe("Player Library", () => {
 				characters: [],
 				dialog: {
 					isVisible: false,
-					lines: [],
+					text: "",
 					characterName: "",
 				},
 				soundEffect: null,
@@ -45,7 +45,7 @@ describe("Player Library", () => {
 
 		expect(stage.dialog).toEqual({
 			isVisible: true,
-			lines: ["「あなたも...この桜を見に来たんですか？」"],
+			text: "「あなたも...この桜を見に来たんですか？」",
 			characterName: "???",
 		});
 	});

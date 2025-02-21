@@ -175,7 +175,7 @@ type Stage = {
 	}[];
 	dialog: {
 		isVisible: boolean;
-		lines: string[];
+		text: string;
 		characterName: string;
 	};
 	soundEffect: SoundEffect | null;

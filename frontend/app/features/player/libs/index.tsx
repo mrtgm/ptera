@@ -83,7 +83,7 @@ export const handleEvent = (
 				...stage,
 				dialog: {
 					...stage.dialog,
-					lines: event.lines,
+					text: event.lines.at(-1) || "",
 					characterName: event.characterName || "",
 				},
 			};
