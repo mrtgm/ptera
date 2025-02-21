@@ -1,6 +1,7 @@
 {
   "id": "mystery-in-the-park",
-  "name": "公園での出会い",
+  "title": "公園での出会い",
+  "author": "MysteryWriter",
   "description": "穏やかな春の日、主人公は公園で不思議な少女と出会う。",
   "version": "0.1",
   "scenes": [
@@ -19,7 +20,7 @@
           "id": "ev2",
           "type": "bgmStart",
           "category": "media",
-          "bgmId": "peaceful-day",
+          "bgmId": "jazzy",
           "volume": 0.7,
           "duration": 2000
         },
@@ -54,7 +55,7 @@
           "category": "character",
           "characterId": "mysterious-girl",
           "characterImageId": "mysterious-girl-smile",
-          "position": [0.7, 0.5],
+          "position": [0, 0],
           "scale": 1.0,
           "transitionType": "fade",
           "duration": 1000
@@ -64,8 +65,7 @@
           "type": "soundEffect",
           "category": "media",
           "soundEffectId": "footsteps",
-          "volume": 0.5,
-          "duration": 2.5
+          "volume": 1
         },
         {
           "id": "ev8",
@@ -123,7 +123,7 @@
           "category": "character",
           "characterId": "mysterious-girl",
           "characterImageId": "mysterious-girl-happy",
-          "position": [0.7, 0.5],
+          "position": [0, 0],
           "scale": 1.0,
           "transitionType": "fade",
           "duration": 1000
@@ -142,21 +142,21 @@
       "sceneType": "goto",
       "events": [
         {
-          "id": "ev14",
-          "type": "text",
-          "category": "message",
-          "lines": ["軽く頭を下げると、少女は少し寂しそうな表情を見せた。"]
-        },
-        {
           "id": "ev15",
           "type": "appearCharacter",
           "category": "character",
           "characterId": "mysterious-girl",
           "characterImageId": "mysterious-girl-sad",
-          "position": [0.7, 0.5],
+          "position": [0, 0],
           "scale": 1.0,
           "transitionType": "fade",
           "duration": 1000
+        },
+        {
+          "id": "ev14",
+          "type": "text",
+          "category": "message",
+          "lines": ["軽く頭を下げると、少女は少し寂しそうな表情を見せた。"]
         },
         {
           "id": "ev16",
@@ -170,21 +170,189 @@
     },
     {
       "id": "story-continues",
+      "sceneType": "goto",
+      "events": [
+        {
+          "id": "ev19",
+          "type": "text",
+          "category": "message",
+          "lines": ["少女は静かに桜の木の方へ歩き始めた。"]
+        },
+        {
+          "id": "ev20",
+          "type": "soundEffect",
+          "category": "media",
+          "soundEffectId": "footsteps",
+          "volume": 0.3,
+          "duration": 2.0
+        },
+        {
+          "id": "ev20-2",
+          "type": "characterEffect",
+          "category": "character",
+          "characterId": "mysterious-girl",
+          "effectType": "bounce",
+          "duration": 500
+        },
+        {
+          "id": "ev21",
+          "type": "text",
+          "category": "message",
+          "characterName": "???",
+          "lines": ["「この公園には、昔から伝わる不思議な言い伝えがあるんです。」"]
+        }
+      ],
+      "nextSceneId": "legend-choice"
+    },
+    {
+      "id": "legend-choice",
+      "sceneType": "choice",
+      "events": [
+        {
+          "id": "ev22",
+          "type": "text",
+          "category": "message",
+          "lines": ["言い伝え...？"]
+        }
+      ],
+      "choices": [
+        {
+          "id": "choice3",
+          "text": "興味を持って聞く",
+          "nextSceneId": "interested-response"
+        },
+        {
+          "id": "choice4",
+          "text": "距離を置こうとする",
+          "nextSceneId": "cautious-response"
+        }
+      ]
+    },
+    {
+      "id": "interested-response",
+      "sceneType": "goto",
+      "events": [
+        {
+          "id": "ev23",
+          "type": "text",
+          "category": "message",
+          "lines": ["「どんな言い伝えなんですか？」", "私は思わず一歩前に出て尋ねた。"]
+        },
+        {
+          "id": "ev24",
+          "type": "appearCharacter",
+          "category": "character",
+          "characterId": "mysterious-girl",
+          "characterImageId": "mysterious-girl-smile",
+          "position": [0, 0],
+          "scale": 1.0,
+          "transitionType": "fade",
+          "duration": 1000
+        },
+        {
+          "id": "ev25",
+          "type": "text",
+          "category": "message",
+          "characterName": "???",
+          "lines": ["「満開の桜の下で出会った二人は、不思議な縁で結ばれるという...」"]
+        }
+      ],
+      "nextSceneId": "legend-reveal"
+    },
+    {
+      "id": "cautious-response",
+      "sceneType": "goto",
+      "events": [
+        {
+          "id": "ev27",
+          "type": "text",
+          "category": "message",
+          "lines": ["「あの、すみません。そろそろ行かないと...」", "私は少し後ずさりながら言った。"]
+        },
+        {
+          "id": "ev28",
+          "type": "appearCharacter",
+          "category": "character",
+          "characterId": "mysterious-girl",
+          "characterImageId": "mysterious-girl-sad",
+          "position": [0, 0],
+          "scale": 1.0,
+          "transitionType": "fade",
+          "duration": 1000
+        },
+        {
+          "id": "ev29",
+          "type": "text",
+          "category": "message",
+          "characterName": "???",
+          "lines": ["「そう...ですか。でも、もしかしたら...」"]
+        }
+      ],
+      "nextSceneId": "legend-reveal"
+    },
+    {
+      "id": "legend-reveal",
+      "sceneType": "goto",
+      "events": [
+        {
+          "id": "ev30",
+          "type": "effect",
+          "category": "effect",
+          "effectType": "shake",
+          "duration": 1000
+        },
+        {
+          "id": "ev31",
+          "type": "text",
+          "category": "message",
+          "lines": ["突然、強い風が吹き、桜の花びらが舞い上がった。"]
+        },
+        {
+          "id": "ev32",
+          "type": "text",
+          "category": "message",
+          "characterName": "???",
+          "lines": ["「私たちの出会いも、もしかしたら...」"]
+        },
+        {
+          "id": "ev32-2",
+          "type": "hideCharacter",
+          "category": "character",
+          "characterId": "mysterious-girl",
+          "duration": 1000
+        },
+        {
+          "id": "ev33",
+          "type": "text",
+          "category": "message",
+          "lines": ["風が収まると、少女の姿は消えていた。", "残されたのは、一枚の古びた写真。", "そこには、50年前の日付と、今の少女とそっくりな人物が写っていた。"]
+        }
+      ],
+      "nextSceneId": "true-ending"
+    },
+    {
+      "id": "true-ending",
       "sceneType": "end",
       "events": [
         {
-          "id": "ev17",
+          "id": "ev34",
           "type": "effect",
           "category": "effect",
           "effectType": "fadeOut",
+          "duration": 3000
+        },
+        {
+          "id": "ev35",
+          "type": "bgmStop",
+          "category": "media",
+          "bgmId": "jazzy",
           "duration": 2000
         },
         {
-          "id": "ev18",
-          "type": "bgmStop",
-          "category": "media",
-          "bgmId": "peaceful-day",
-          "duration": 1000
+          "id": "ev36",
+          "type": "text",
+          "category": "message",
+          "lines": ["あれは、本当に偶然の出会いだったのだろうか..."]
         }
       ]
     }

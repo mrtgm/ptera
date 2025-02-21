@@ -1,10 +1,92 @@
 import type { Config } from "tailwindcss";
 
+// @keyframes character-bounce {
+//   0%, 100% { transform: translateY(0); }
+//   50% { transform: translateY(-20px); }
+// }
+
+// @keyframes character-sway {
+//   0%, 100% { transform: translateX(0); }
+//   25% { transform: translateX(-10px); }
+//   75% { transform: translateX(10px); }
+// }
+
+// @keyframes character-wobble {
+//   0%, 100% { transform: rotate(0deg); }
+//   25% { transform: rotate(-5deg); }
+//   75% { transform: rotate(5deg); }
+// }
+
+// @keyframes character-flash {
+//   0%, 100% { opacity: 1; }
+//   50% { opacity: 0; }
+// }
 export default {
 	darkMode: ["class"],
 	content: ["./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}"],
 	theme: {
 		extend: {
+			animation: {
+				bounce: "bounce 1s cubic-bezier(.36,.07,.19,.97) infinite",
+				sway: "sway 1s cubic-bezier(.36,.07,.19,.97) infinite",
+				wobble: "wobble 1s cubic-bezier(.36,.07,.19,.97) infinite",
+				flash: "flash 1s cubic-bezier(.36,.07,.19,.97) infinite",
+				shake: "shake 0.82s cubic-bezier(.36,.07,.19,.97) both infinite",
+			},
+			keyframes: {
+				bounce: {
+					"0%, 100%": {
+						transform: "translateY(0)",
+					},
+					"50%": {
+						transform: "translateY(5px)",
+					},
+				},
+				sway: {
+					"0%, 100%": {
+						transform: "translateX(0)",
+					},
+					"25%": {
+						transform: "translateX(-10px)",
+					},
+					"75%": {
+						transform: "translateX(10px)",
+					},
+				},
+				wobble: {
+					"0%, 100%": {
+						transform: "rotate(0deg)",
+					},
+					"25%": {
+						transform: "rotate(-5deg)",
+					},
+					"75%": {
+						transform: "rotate(5deg)",
+					},
+				},
+				flash: {
+					"0%, 100%": {
+						opacity: "1",
+					},
+					"50%": {
+						opacity: "0",
+					},
+				},
+				shake: {
+					"10%, 90%": {
+						transform: "translate3d(-1px, 0, 0)",
+					},
+					"20%, 80%": {
+						transform: "translate3d(2px, 0, 0)",
+					},
+					"30%, 50%, 70%": {
+						transform: "translate3d(-4px, 0, 0)",
+					},
+					"40%, 60%": {
+						transform: "translate3d(4px, 0, 0)",
+					},
+				},
+			},
 			fontFamily: {
 				sans: [
 					"Inter",

@@ -17,6 +17,7 @@
   "dependencies": {
     "@remix-run/node": "^2.15.3",
     "@remix-run/react": "^2.15.3",
+    "@types/howler": "^2.2.12",
     "@vitejs/plugin-react": "^4.3.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -24,6 +25,7 @@
     "immer": "^10.1.1",
     "isbot": "^4",
     "lucide-react": "^0.475.0",
+    "mitt": "^3.0.1",
     "motion": "^12.4.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

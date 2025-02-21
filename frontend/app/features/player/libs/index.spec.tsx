@@ -36,7 +36,6 @@ describe("Player Library", () => {
 					text: "",
 					characterName: "",
 				},
-				soundEffect: null,
 				bgm: null,
 				effect: null,
 			},

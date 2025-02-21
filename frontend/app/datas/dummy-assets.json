@@ -46,7 +46,7 @@
     "footsteps": {
       "id": "footsteps",
       "filename": "footsteps.mp3",
-      "url": "/presets/sounds/footsteps.mp3",
+      "url": "/presets/sounds/footsteps.m4a",
       "metadata": {
         "duration": 2.5,
         "size": 102400
@@ -58,6 +58,15 @@
       "id": "peaceful-day",
       "filename": "peaceful-day.mp3",
       "url": "/presets/bgm/peaceful-day.mp3",
+      "metadata": {
+        "duration": 180.0,
+        "size": 4096000
+      }
+    },
+    "jazzy": {
+      "id": "jazzy",
+      "filename": "jazzy.mp3",
+      "url": "/presets/bgm/jazzy.mp3",
       "metadata": {
         "duration": 180.0,
         "size": 4096000

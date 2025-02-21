@@ -69,10 +69,6 @@ export const handleEvent = (
 	stage: Stage,
 	resources: GameResources | null,
 ): Stage => {
-	if (event.type !== "soundEffect") {
-		stage.soundEffect = null;
-	}
-
 	switch (event.type) {
 		case "appearMessageWindow":
 			return { ...stage, dialog: { ...stage.dialog, isVisible: true } };
@@ -113,17 +109,14 @@ export const handleEvent = (
 				...stage,
 				background: resources.backgroundImages[event.backgroundId],
 			};
-		case "soundEffect":
-			if (!resources) return stage;
-			return {
-				...stage,
-				soundEffect: resources.soundEffects[event.soundEffectId],
-			};
 		case "bgmStart":
 			if (!resources) return stage;
 			return {
 				...stage,
-				bgm: resources.bgms[event.bgmId],
+				bgm: new Howl({
+					src: [resources.bgms[event.bgmId].url],
+					loop: true,
+				}),
 			};
 		case "bgmStop":
 			return { ...stage, bgm: null };

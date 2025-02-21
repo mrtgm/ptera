@@ -1,6 +1,7 @@
 interface Game {
 	id: string;
-	name: string;
+	title: string;
+	author: string;
 	description: string;
 	scenes: Scene[];
 	version: string;
@@ -39,7 +40,8 @@ type GameEvent =
 	| BGMStopEvent
 	| SoundEffectEvent
 	| ChangeBackgroundEvent
-	| EffectEvent;
+	| EffectEvent
+	| CharacterEffectEvent;
 
 interface EventBase {
 	id: string;
@@ -129,6 +131,14 @@ interface EffectEvent extends EventBase {
 	duration: number;
 }
 
+interface CharacterEffectEvent extends EventBase {
+	type: "characterEffect";
+	category: "effect";
+	characterId: string;
+	effectType: "shake" | "flash" | "bounce" | "sway" | "wobble";
+	duration: number;
+}
+
 interface Choice {
 	id: string;
 	text: string;
@@ -178,7 +188,6 @@ type Stage = {
 		text: string;
 		characterName: string;
 	};
-	soundEffect: SoundEffect | null;
-	bgm: BGM | null;
+	bgm: Howl | null;
 	effect: GameEvent | null;
 };
