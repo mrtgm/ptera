@@ -1,20 +1,18 @@
+import { enableMapSet } from "immer";
 import { type StoreApi, type UseBoundStore, create } from "zustand";
 import { devtools, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { type EditorState, createEditorSlice } from "./editor";
-import { type PlayerState, createPlayerSlice } from "./player";
 import { type UserState, createUserSlice } from "./user";
 
 const sliceDefinitions = {
 	user: createUserSlice,
-	player: createPlayerSlice,
 	editor: createEditorSlice,
 } as const;
 
 type SliceStates = {
 	user: UserState;
 	editor: EditorState;
-	player: PlayerState;
 };
 
 // https://stackoverflow.com/questions/50374908/transform-union-type-to-intersection-type
@@ -47,6 +45,8 @@ type StoreWithSliceSelectors<S> = S extends {
 export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(
 	_store: S,
 ) => {
+	enableMapSet();
+
 	const store = _store as StoreWithSliceSelectors<typeof _store>;
 
 	store.use = {} as StoreWithSliceSelectors<typeof _store>["use"];

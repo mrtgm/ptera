@@ -1,4 +1,7 @@
+import { checkIfEventIsCanceled, player } from "~/stores/player";
+
 export const fadeIn = (
+	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
@@ -7,6 +10,14 @@ export const fadeIn = (
 		const animate = (currentTime: number, element: HTMLElement) => {
 			if (!start) start = currentTime;
 			const progress = (currentTime - start) / duration;
+
+			// トランジションをスキップ
+			if (checkIfEventIsCanceled(eventId)) {
+				element.style.opacity = "1";
+				player.removeCancelRequest(eventId);
+				resolve();
+				return;
+			}
 
 			if (progress < 1) {
 				element.style.opacity = String(Math.min(progress, 1));
@@ -21,6 +32,7 @@ export const fadeIn = (
 };
 
 export const fadeOut = (
+	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
@@ -29,6 +41,14 @@ export const fadeOut = (
 		const animate = (currentTime: number, element: HTMLElement) => {
 			if (!start) start = currentTime;
 			const progress = (currentTime - start) / duration;
+
+			// トランジションをスキップ
+			if (checkIfEventIsCanceled(eventId)) {
+				element.style.opacity = "1";
+				player.removeCancelRequest(eventId);
+				resolve();
+				return;
+			}
 
 			if (progress < 1) {
 				element.style.opacity = String(1 - Math.min(progress, 1));
@@ -43,6 +63,7 @@ export const fadeOut = (
 };
 
 export const crossFade = (
+	eventId: string,
 	elementOut: HTMLElement,
 	elementIn: HTMLElement,
 	duration = 500,
@@ -56,6 +77,15 @@ export const crossFade = (
 		const animate = (currentTime: number) => {
 			if (!start) start = currentTime;
 			const progress = (currentTime - start) / duration;
+
+			// トランジションをスキップ
+			if (checkIfEventIsCanceled(eventId)) {
+				elementOut.style.opacity = "0";
+				elementIn.style.opacity = "1";
+				player.removeCancelRequest(eventId);
+				resolve();
+				return;
+			}
 
 			if (progress < 1) {
 				elementOut.style.opacity = String(1 - Math.min(progress, 1));

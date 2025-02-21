@@ -2,31 +2,26 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 import dummyAssets from "~/datas/dummy-assets.json";
 import dummyGame from "~/datas/dummy-game.json";
-import { useStore } from "~/stores";
+import { player } from "~/stores/player";
 
 export const Player = () => {
-	const playerStore = useStore.useSlice.player();
-
 	useEffect(() => {
-		console.log("playerStore.stage", playerStore.stage);
-	}, [playerStore.stage]);
+		player.loadGame(dummyGame as Game);
+		player.setCurrentResources(dummyAssets as GameResources);
+		if (player.currentScene && !player.isStarted)
+			player.runEvents(player.currentScene?.events);
+	}, []);
 
-	useEffect(() => {
-		playerStore.loadGame(dummyGame as Game);
-		playerStore.setCurrentResources(dummyAssets as GameResources);
-
-		if (playerStore.currentScene) {
-			playerStore.runEvents(playerStore.currentScene.events);
-		}
-	}, [
-		playerStore.loadGame,
-		playerStore.runEvents,
-		playerStore.setCurrentResources,
-		playerStore.currentScene,
-	]);
+	const handleTapScreen = () => {
+		if (player.currentEvent) player.addCancelRequest(player.currentEvent.id);
+	};
 
 	return (
-		<div className="w-dvw h-[calc(100dvh-64px)] max-w-[1000px] min-w-[320px] min-h-[500px] relative bg-white overflow-hidden">
+		<div
+			className="w-dvw h-[calc(100dvh-64px)] max-w-[1000px] min-w-[320px] min-h-[500px] relative bg-white overflow-hidden"
+			onClick={handleTapScreen}
+			onKeyDown={() => {}}
+		>
 			{/* bg-image */}
 			<Background />
 
@@ -56,27 +51,22 @@ export const Player = () => {
 
 			{/* dialog */}
 
-			<Dialog
-				characterName={playerStore.stage.dialog.characterName}
-				text={playerStore.stage.dialog.text}
-			/>
+			<Dialog />
 		</div>
 	);
 };
 
-const Dialog = ({
-	characterName,
-	text,
-}: { characterName: string; text: string }) => {
+const Dialog = () => {
 	return (
 		<div
 			id="dialog"
 			className="opacity-0 bg-gray-900 bg-opacity-90 absolute bottom-1 w-[calc(100%-16px)] h-[200px] m-auto left-0 right-0 text-white p-4"
 		>
-			<div className="text-lg absolute -top-12 left-0 bg-opacity-90 bg-gray-900 p-2">
-				{characterName}
-			</div>
-			{text}
+			<div
+				id="dialog-character-name"
+				className="text-lg absolute -top-12 left-0 bg-opacity-90"
+			/>
+			<span id="dialog-text" />
 		</div>
 	);
 };

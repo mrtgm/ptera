@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, test } from "vitest";
-import { useStore } from "./index";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+import { Player } from "./player";
 
 // テスト用のモックデータ
-const mockGame: Game = {
+const mockGame = {
 	id: "test-game",
 	name: "Test Game",
 	description: "Test Description",
@@ -31,61 +31,163 @@ const mockGame: Game = {
 			],
 		},
 	],
-};
+} as Game;
 
-// 各テスト前にストアをリセット
-beforeEach(() => {
-	useStore.setState({
-		userId: undefined,
-		saveData: {},
-		currentGame: null,
-		currentScene: null,
-		currentEventIndex: 0,
-		messageHistory: [],
+const mockResources = {
+	backgroundImages: {
+		bg1: {
+			id: "bg1",
+			filename: "bg1.jpg",
+			url: "https://example.com/bg1.jpg",
+		},
+	},
+	characters: {},
+	bgms: {},
+	soundEffects: {},
+} as GameResources;
+
+describe("Player", () => {
+	let player: Player;
+
+	beforeEach(() => {
+		player = new Player();
+
+		// DOMのセットアップ
+		document.body.innerHTML = `
+      <div id="dialog">
+        <div id="dialog-text"></div>
+        <div id="dialog-character-name"></div>
+      </div>
+      <div id="background"></div>
+    `;
 	});
-});
 
-describe("Integration Tests", () => {
-	test("ゲームのプレイからセーブまでの流れ", () => {
-		useStore.getState().setUserId("test-user");
-		expect(useStore.getState().userId).toBe("test-user");
+	test("初期状態のテスト", () => {
+		expect(player.currentGame).toBeNull();
+		expect(player.currentScene).toBeNull();
+		expect(player.currentEvent).toBeNull();
+		expect(player.currentResources).toBeNull();
+		expect(player.isStarted).toBe(false);
+		expect(player.isAutoMode).toBe(false);
+		expect(player.messageHistory).toHaveLength(0);
+	});
 
-		useStore.getState().loadGame(mockGame);
+	test("ゲームのロード", () => {
+		player.loadGame(mockGame);
 
-		// ゲームはロードされているか？
-		expect(useStore.getState().currentGame?.name).toBe("Test Game");
-		expect(useStore.getState().currentScene?.id).toBe("scene1");
+		expect(player.currentGame).toBe(mockGame);
+		expect(player.currentScene).toBe(mockGame.scenes[0]);
+		expect(player.isStarted).toBe(false);
+	});
 
-		useStore.getState().nextEvent();
+	test("シーンの設定", () => {
+		player.loadGame(mockGame);
+		player.setScene("scene2");
 
-		// イベントが進んだか？
-		expect(useStore.getState().currentEventIndex).toBe(1);
+		expect(player.currentScene).toBe(mockGame.scenes[1]);
+	});
 
-		// メッセージ履歴が保存されているか？
-		expect(useStore.getState().messageHistory).toHaveLength(1);
-		expect(useStore.getState().messageHistory[0].text).toBe("Hello World");
+	test("リソースの設定", () => {
+		player.setCurrentResources(mockResources);
+		expect(player.currentResources).toBe(mockResources);
+	});
 
-		useStore
-			.getState()
-			.savePath(
-				useStore.getState().currentGame?.id || "",
-				useStore.getState().currentScene?.id || "",
-				useStore.getState().currentEventIndex,
-			);
+	test("自動モードの切り替え", () => {
+		expect(player.isAutoMode).toBe(false);
+		player.toggleAutoMode();
+		expect(player.isAutoMode).toBe(true);
+		player.toggleAutoMode();
+		expect(player.isAutoMode).toBe(false);
+	});
 
-		// セーブデータが保存されているか？
-		expect(useStore.getState().saveData["test-game"]).toBeDefined();
+	test("キャンセルリクエストの管理", () => {
+		const eventId = "test-event";
 
-		// 現在のシーンIDとイベントインデックスが保存されているか？
-		expect(useStore.getState().saveData["test-game"].currentSceneId).toBe(
-			"scene1",
-		);
-		expect(useStore.getState().saveData["test-game"].currentEventIndex).toBe(1);
-		expect(useStore.getState().saveData["test-game"].playHistory).toHaveLength(
-			1,
-		);
-		expect(useStore.getState().saveData["test-game"].playHistory[0]).toBe(
-			"scene1",
-		);
+		player.addCancelRequest(eventId);
+		expect(player.cancelRequests.has(eventId)).toBe(true);
+
+		player.removeCancelRequest(eventId);
+		expect(player.cancelRequests.has(eventId)).toBe(false);
+	});
+
+	test("メッセージ履歴の追加", () => {
+		const message = { text: "Test message", characterName: "Character" };
+		player.addToHistory(message);
+
+		expect(player.messageHistory).toHaveLength(1);
+		expect(player.messageHistory[0]).toEqual(message);
+	});
+
+	test("ステージの更新", () => {
+		const updates = {
+			dialog: {
+				isVisible: true,
+				text: "New text",
+				characterName: "Character",
+			},
+		};
+
+		player.updateStage(updates);
+
+		expect(player.stage.dialog.isVisible).toBe(true);
+		expect(player.stage.dialog.text).toBe("New text");
+		expect(player.stage.dialog.characterName).toBe("Character");
+	});
+
+	describe("イベントの実行", () => {
+		beforeEach(() => {
+			// DOMの要素をモック
+			document.body.innerHTML = `
+        <div id="dialog">
+          <div id="dialog-text"></div>
+          <div id="dialog-character-name"></div>
+        </div>
+        <div id="background"></div>
+      `;
+		});
+
+		// 現在 WaitForTap を待っちゃうのでタイムアウトする
+		test("テキストイベントの実行", async () => {
+			player.loadGame(mockGame);
+			await player.runEvents(mockGame.scenes[0].events);
+
+			expect(player.isStarted).toBe(true);
+			expect(player.messageHistory).toHaveLength(1);
+			expect(player.messageHistory[0].text).toBe("Hello World");
+		});
+
+		test("メッセージウィンドウの表示/非表示", async () => {
+			const showEvent = {
+				type: "appearMessageWindow",
+				category: "message",
+				duration: 100,
+				id: "show",
+			} as AppearMessageWindowEvent;
+
+			const hideEvent = {
+				type: "hideMessageWindow",
+				category: "message",
+				duration: 100,
+				id: "hide",
+			} as HideMessageWindowEvent;
+
+			await player.runEvents([showEvent, hideEvent]);
+
+			expect(player.stage.dialog.isVisible).toBe(false);
+		});
+
+		test("背景の変更", async () => {
+			const changeBackgroundEvent = {
+				type: "changeBackground",
+				backgroundId: "bg1",
+				duration: 100,
+				id: "change-bg",
+			} as ChangeBackgroundEvent;
+
+			player.setCurrentResources(mockResources);
+			await player.runEvents([changeBackgroundEvent]);
+
+			expect(player.stage.background).toBe(mockResources.backgroundImages.bg1);
+		});
 	});
 });
