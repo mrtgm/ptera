@@ -1,7 +1,7 @@
 import type { StateCreator } from "zustand";
-import { handleEvent } from "~/features/player/libs";
 import { useStore } from "~/stores";
 import { waitMs } from "~/utils";
+import { crossFade, fadeIn, fadeOut } from "~/utils/dom";
 import type { State } from ".";
 
 export interface PlayerState {
@@ -115,6 +115,8 @@ export const createPlayerSlice: StateCreator<
 const runEvent = async (event: GameEvent) => {
 	const { stage, addToHistory, updateStage, isAutoMode } = useStore.getState();
 
+	console.log("runEvent", event);
+
 	switch (event.type) {
 		case "text": {
 			for (const line of event.lines) {
@@ -138,24 +140,66 @@ const runEvent = async (event: GameEvent) => {
 			break;
 		}
 		case "appearMessageWindow": {
+			const dialog = document.getElementById("dialog");
+			if (!dialog) return;
+
 			updateStage({
 				dialog: {
 					...stage.dialog,
 					isVisible: true,
 				},
 			});
-			await waitMs(event.duration);
+			await fadeIn(event.duration, dialog);
 			break;
 		}
-		case "hideMessageWindow":
+		case "hideMessageWindow": {
+			const dialog = document.getElementById("dialog");
+			if (!dialog) return;
+
 			updateStage({
 				dialog: {
 					...stage.dialog,
 					isVisible: false,
 				},
 			});
-			await waitMs(event.duration);
+			await fadeOut(event.duration, dialog);
 			break;
+		}
+		case "changeBackground": {
+			const backgroundContainer = document.getElementById("background");
+			if (!backgroundContainer) return;
+
+			const backgroundResource =
+				useStore.getState().currentResources?.backgroundImages[
+					event.backgroundId
+				];
+
+			if (!backgroundResource) return;
+
+			updateStage({
+				background: backgroundResource,
+			});
+
+			const exestingBackground = backgroundContainer.querySelector("img");
+
+			const newBackground = new Image();
+			newBackground.src = backgroundResource.url;
+			newBackground.className = "h-full w-full relative m-auto object-cover";
+			newBackground.style.opacity = "0";
+
+			backgroundContainer?.appendChild(newBackground);
+
+			await crossFade(
+				exestingBackground ?? new Image(),
+				newBackground,
+				event.duration,
+			);
+
+			if (exestingBackground) exestingBackground.remove();
+			newBackground.id = "background";
+
+			break;
+		}
 	}
 };
 

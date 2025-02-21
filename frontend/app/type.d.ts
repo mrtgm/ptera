@@ -138,7 +138,7 @@ interface Choice {
 interface Character {
 	id: string;
 	name: string;
-	images: CharacterImage[];
+	images: Record<string, CharacterImage>;
 }
 
 interface MediaAsset {

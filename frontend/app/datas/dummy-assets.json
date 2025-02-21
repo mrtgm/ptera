@@ -3,7 +3,8 @@
     "mysterious-girl": {
       "id": "mysterious-girl",
       "name": "謎の少女",
-      "images": [
+      "images": {
+        "mysterious-girl-smile":
         {
           "id": "mysterious-girl-smile",
           "filename": "mysterious-girl-smile.png",
@@ -12,7 +13,7 @@
             "size": 1024000
           }
         },
-        {
+        "mysterious-girl-happy":  {
           "id": "mysterious-girl-happy",
           "filename": "mysterious-girl-happy.png",
           "url": "/presets/characters/mysterious-girl/happy.png",
@@ -20,7 +21,7 @@
             "size": 1024000
           }
         },
-        {
+        "mysterious-girl-sad": {
           "id": "mysterious-girl-sad",
           "filename": "mysterious-girl-sad.png",
           "url": "/presets/characters/mysterious-girl/sad.png",
@@ -28,7 +29,7 @@
             "size": 1024000
           }
         }
-      ]
+      }
     }
   },
   "backgroundImages": {
