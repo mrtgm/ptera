@@ -1,4 +1,5 @@
 import type { StateCreator } from "zustand";
+import { handleEvent } from "~/features/player/libs";
 import type { State } from ".";
 
 export interface PlayerState {
@@ -6,6 +7,9 @@ export interface PlayerState {
 	currentScene: Scene | null;
 	currentResources: GameResources | null;
 	currentEventIndex: number;
+
+	stage: Stage;
+
 	isAutoMode: boolean;
 	isSkipMode: boolean;
 	messageHistory: { text: string; characterName?: string }[];
@@ -13,6 +17,7 @@ export interface PlayerState {
 	loadGame: (game: Game) => void;
 	setScene: (sceneId: string) => void;
 	setCurrentResources: (resources: GameResources) => void;
+	runEvents: (events: GameEvent[]) => Promise<void>;
 	nextEvent: () => void;
 	toggleAutoMode: () => void;
 	toggleSkipMode: () => void;
@@ -21,7 +26,7 @@ export interface PlayerState {
 
 export const createPlayerSlice: StateCreator<
 	State,
-	[["zustand/devtools", never]],
+	[["zustand/devtools", never], ["zustand/immer", never]],
 	[],
 	PlayerState
 > = (_set, _get) => ({
@@ -29,6 +34,19 @@ export const createPlayerSlice: StateCreator<
 	currentScene: null,
 	currentResources: null,
 	currentEventIndex: 0,
+
+	stage: {
+		background: null,
+		characters: [],
+		dialog: {
+			isVisible: false,
+			lines: [],
+			characterName: "",
+		},
+		soundEffect: null,
+		bgm: null,
+		effect: null,
+	},
 
 	isAutoMode: false,
 	isSkipMode: false,
@@ -50,13 +68,24 @@ export const createPlayerSlice: StateCreator<
 		_set({ currentResources: resources });
 	},
 
-	nextEvent: () =>
-		_set((state: PlayerState) => {
-			if (!state.currentScene || !state.currentGame) return state;
-			if (state.currentEventIndex >= state.currentScene.events.length)
-				return state;
-			return { currentEventIndex: state.currentEventIndex + 1 };
-		}),
+	runEvents: async (events: GameEvent[]) => {
+		//イベントを順番に実行
+		for (const event of events) {
+			await runEvent(event);
+
+			_set((state) => {
+				state.currentEventIndex++;
+			});
+		}
+
+		// runBranchingEvent(_get().currentScene);
+	},
+
+	nextEvent: () => {
+		_set((state) => {
+			state.currentEventIndex++;
+		});
+	},
 
 	toggleAutoMode: () => _set((state) => ({ isAutoMode: !state.isAutoMode })),
 	toggleSkipMode: () => _set((state) => ({ isSkipMode: !state.isSkipMode })),
@@ -64,3 +93,12 @@ export const createPlayerSlice: StateCreator<
 	addToHistory: (message) =>
 		_set((state) => ({ messageHistory: [...state.messageHistory, message] })),
 });
+
+const runEvent = async (event: GameEvent) => {
+	switch (event.type) {
+		case "text": {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			break;
+		}
+	}
+};

@@ -20,7 +20,7 @@ export interface UserState {
 
 export const createUserSlice: StateCreator<
 	State,
-	[["zustand/devtools", never]],
+	[["zustand/devtools", never], ["zustand/immer", never]],
 	[],
 	UserState
 > = (_set, _get) => ({
@@ -33,17 +33,11 @@ export const createUserSlice: StateCreator<
 
 	savePath: (gameId: string, sceneId: string, eventIndex: number) =>
 		_set((state) => {
-			const saveData = state.saveData[gameId] ?? [];
-			saveData.currentSceneId = sceneId;
-			saveData.currentEventIndex = eventIndex;
-			saveData.playHistory = [
-				...(saveData.playHistory && saveData.playHistory.length > 0
-					? saveData.playHistory
-					: []),
-				sceneId,
-			];
-			saveData.timestamp = Date.now();
-			state.saveData[gameId] = saveData;
-			return state;
+			state.saveData[gameId] = {
+				currentSceneId: sceneId,
+				currentEventIndex: eventIndex,
+				playHistory: [...(state.saveData[gameId]?.playHistory || []), sceneId],
+				timestamp: Date.now(),
+			};
 		}),
 });

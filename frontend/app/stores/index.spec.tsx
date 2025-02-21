@@ -6,6 +6,7 @@ const mockGame: Game = {
 	id: "test-game",
 	name: "Test Game",
 	description: "Test Description",
+	version: "0.1",
 	scenes: [
 		{
 			id: "scene1",
@@ -15,7 +16,7 @@ const mockGame: Game = {
 					id: "event1",
 					type: "text",
 					category: "message",
-					text: "Hello World",
+					lines: ["Hello World"],
 				},
 			],
 			nextSceneId: "scene2",

@@ -3,6 +3,7 @@ interface Game {
 	name: string;
 	description: string;
 	scenes: Scene[];
+	version: string;
 }
 
 type Scene = GotoScene | ChoiceScene | EndScene;
@@ -49,17 +50,20 @@ interface EventBase {
 interface TextRenderEvent extends EventBase {
 	type: "text";
 	category: "message";
-	text: string;
+	lines: string[];
+	characterName?: string;
 }
 
 interface AppearMessageWindowEvent extends EventBase {
 	type: "appearMessageWindow";
 	category: "message";
+	duration: number;
 }
 
 interface HideMessageWindowEvent extends EventBase {
 	type: "hideMessageWindow";
 	category: "message";
+	duration: number;
 }
 
 interface AppearCharacterEvent extends EventBase {
@@ -69,21 +73,23 @@ interface AppearCharacterEvent extends EventBase {
 	characterImageId: string;
 	position: [number, number];
 	scale: number;
-	transition?: {
-		type: "fade" | "slide" | "none";
-		duration: number;
-	};
+	transitionType: "fade" | "slide";
+	duration: number;
 }
 
 interface HideCharacterEvent extends EventBase {
 	type: "hideCharacter";
 	category: "character";
 	characterId: string;
+	transitionType: "fade" | "slide";
+	duration: number;
 }
 
 interface HideAllCharactersEvent extends EventBase {
 	type: "hideAllCharacters";
 	category: "character";
+	transitionType: "fade" | "slide";
+	duration: number;
 }
 
 interface BGMStartEvent extends EventBase {
@@ -91,13 +97,14 @@ interface BGMStartEvent extends EventBase {
 	category: "media";
 	bgmId: string;
 	volume: number;
-	fadeDuration: number;
+	duration: number;
 }
 
 interface BGMStopEvent extends EventBase {
 	type: "bgmStop";
 	category: "media";
 	bgmId: string;
+	duration: number;
 }
 
 interface SoundEffectEvent extends EventBase {
@@ -112,6 +119,7 @@ interface ChangeBackgroundEvent extends EventBase {
 	type: "changeBackground";
 	category: "background";
 	backgroundId: string;
+	duration: number;
 }
 
 interface EffectEvent extends EventBase {
@@ -156,3 +164,21 @@ interface GameResources {
 	soundEffects: Record<string, SoundEffect>;
 	bgms: Record<string, BGM>;
 }
+
+type Stage = {
+	background: BackgroundImage | null;
+	characters: {
+		id: string;
+		scale: number;
+		imageId: string;
+		position: [number, number];
+	}[];
+	dialog: {
+		isVisible: boolean;
+		lines: string[];
+		characterName: string;
+	};
+	soundEffect: SoundEffect | null;
+	bgm: BGM | null;
+	effect: GameEvent | null;
+};

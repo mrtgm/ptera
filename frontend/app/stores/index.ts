@@ -1,15 +1,19 @@
 import { type StoreApi, type UseBoundStore, create } from "zustand";
 import { devtools, subscribeWithSelector } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
+import { type EditorState, createEditorSlice } from "./editor";
 import { type PlayerState, createPlayerSlice } from "./player";
 import { type UserState, createUserSlice } from "./user";
 
 const sliceDefinitions = {
 	user: createUserSlice,
 	player: createPlayerSlice,
+	editor: createEditorSlice,
 } as const;
 
 type SliceStates = {
 	user: UserState;
+	editor: EditorState;
 	player: PlayerState;
 };
 
@@ -79,26 +83,31 @@ export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(
 export const useStore = createSelectors(
 	create<
 		State,
-		[["zustand/devtools", never], ["zustand/subscribeWithSelector", never]]
+		[
+			["zustand/devtools", never],
+			["zustand/subscribeWithSelector", never],
+			["zustand/immer", never],
+		]
 	>(
 		devtools(
-			subscribeWithSelector((set, get, store) => {
-				const sliceState = Object.entries(sliceDefinitions).reduce(
-					(acc, [_key, createSlice]) => {
-						const sliceValue = createSlice(set, get, store);
-						for (const key of Object.keys(sliceValue) as Array<
-							keyof typeof sliceValue
-						>) {
-							acc[key] = sliceValue[key] as never;
-						}
-						return acc;
-					},
-					{} as State,
-				);
+			subscribeWithSelector(
+				immer((set, get, store) => {
+					const sliceState = Object.entries(sliceDefinitions).reduce(
+						(acc, [_key, createSlice]) => {
+							const sliceValue = createSlice(set, get, store);
+							for (const key of Object.keys(sliceValue) as Array<
+								keyof typeof sliceValue
+							>) {
+								acc[key] = sliceValue[key] as never;
+							}
+							return acc;
+						},
+						{} as State,
+					);
 
-				return sliceState;
-			}),
-			{ name: "visualizer" },
+					return sliceState;
+				}),
+			),
 		),
 	),
 );
