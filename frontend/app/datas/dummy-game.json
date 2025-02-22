@@ -355,7 +355,6 @@
           "id": "ev35",
           "type": "bgmStop",
           "category": "media",
-          "bgmId": "jazzy",
           "duration": 2000
         },
         {

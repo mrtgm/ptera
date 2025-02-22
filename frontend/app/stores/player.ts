@@ -13,7 +13,13 @@ import {
 	wobble,
 } from "~/utils/transition";
 
-export type State = "loading" | "beforeStart" | "playing" | "idle" | "end";
+export type GameState = "loading" | "beforeStart" | "playing" | "idle" | "end";
+
+type Events = {
+	stageUpdated: Stage;
+} & {
+	[key in GameState]: undefined;
+};
 
 export class Player {
 	private static instance: Player;
@@ -21,10 +27,11 @@ export class Player {
 	currentScene: Scene | null = null;
 	currentEvent: GameEvent | null = null;
 
-	state: State = "loading";
+	state: GameState = "loading";
 	stage: Stage = {
 		background: null,
 		characters: [],
+		choices: [],
 		dialog: {
 			isVisible: false,
 			text: "",
@@ -40,7 +47,7 @@ export class Player {
 
 	messageHistory: { text: string; characterName?: string }[] = [];
 
-	emitter = mitt();
+	emitter = mitt<Events>();
 
 	private constructor() {}
 
@@ -51,9 +58,9 @@ export class Player {
 		return Player.instance;
 	}
 
-	setState(state: State) {
+	setState(state: GameState) {
 		this.state = state;
-		this.emitter.emit(state);
+		this.emitter.emit<GameState>(state);
 	}
 
 	loadGame(game: Game) {
@@ -83,14 +90,24 @@ export class Player {
 
 	updateStage(updates: Partial<Stage>) {
 		this.stage = { ...this.stage, ...updates } as Stage;
+		this.emitter.emit("stageUpdated", {
+			...this.stage,
+			...updates,
+		});
 	}
 
 	toggleAutoMode() {
 		this.isAutoMode = !this.isAutoMode;
 	}
 
-	toogleMute() {
+	toggleMute() {
+		Howler.mute(this.isMute);
 		this.isMute = !this.isMute;
+
+		const muteIndicator = document.getElementById("mute-indicator");
+		if (!muteIndicator) return;
+
+		muteIndicator.textContent = this.isMute ? "🔇" : "🔊";
 	}
 
 	addToHistory(message: { text: string; characterName?: string }) {
@@ -117,6 +134,7 @@ export class Player {
 				characterName: "",
 			},
 			bgm: null,
+			choices: [],
 			effect: null,
 		};
 
@@ -198,12 +216,14 @@ const runEvent = async (event: GameEvent) => {
 						dialog: {
 							...player.stage.dialog,
 							text,
+							characterName: event.characterName ?? "",
 						},
 					});
 
 					if (!dialogText) return;
 					dialogText.textContent = text;
 					if (!dialogCharacterName) return;
+					dialogCharacterName.style.opacity = event.characterName ? "1" : "0";
 					dialogCharacterName.textContent = event.characterName ?? "";
 				});
 
@@ -303,6 +323,10 @@ const runEvent = async (event: GameEvent) => {
 
 			if (exestingBackground) exestingBackground.remove();
 			newBackground.id = "background";
+
+			player.updateStage({
+				background: event,
+			});
 
 			break;
 		}
@@ -436,7 +460,7 @@ const runEvent = async (event: GameEvent) => {
 			const id = bgmResource.cache.play();
 			bgmResource.cache.fade(0, event.volume, event.duration, id);
 			player.updateStage({
-				bgm: bgmResource.cache,
+				bgm: bgmResource,
 			});
 			break;
 		}
@@ -444,14 +468,16 @@ const runEvent = async (event: GameEvent) => {
 			const bgm = player.stage.bgm;
 			if (!bgm) return;
 
-			bgm.fade(bgm.volume(), 0, event.duration);
-			bgm.once("fade", () => {
+			const bgmResource = resourceManager.getResource("bgms", bgm.id);
+			if (!bgmResource) return;
+
+			bgmResource.cache.fade(bgmResource.cache.volume(), 0, event.duration);
+			bgmResource.cache.once("fade", () => {
 				Howler.stop();
 				player.updateStage({
 					bgm: null,
 				});
 			});
-
 			break;
 		}
 		case "effect": {

@@ -105,7 +105,6 @@ interface BGMStartEvent extends EventBase {
 interface BGMStopEvent extends EventBase {
 	type: "bgmStop";
 	category: "media";
-	bgmId: string;
 	duration: number;
 }
 
@@ -192,6 +191,7 @@ interface GameResources {
 	bgms: Record<string, BGM>;
 }
 
+// isMute とかどうすっかなあ
 type Stage = {
 	background: ChangeBackgroundEvent | null;
 	characters: {
@@ -205,6 +205,7 @@ type Stage = {
 		text: string;
 		characterName: string;
 	};
-	bgm: Howl | null;
-	effect: GameEvent | null;
+	choices: Choice[];
+	bgm: BGM | null;
+	effect: EffectEvent | null;
 };
