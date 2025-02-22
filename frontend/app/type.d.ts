@@ -185,8 +185,6 @@ interface BackgroundImage extends MediaAsset {}
 interface SoundEffect extends MediaAsset {}
 interface BGM extends MediaAsset {}
 
-interface BackgroundImage extends MediaAsset {}
-
 interface GameResources {
 	characters: Record<string, Character>;
 	backgroundImages: Record<string, BackgroundImage>;

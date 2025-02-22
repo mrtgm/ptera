@@ -2,6 +2,7 @@ import { memo, useEffect, useRef, useState } from "react";
 import dummyAssets from "~/datas/dummy-assets.json";
 import dummyGame from "~/datas/dummy-game.json";
 import { type State, player } from "~/stores/player";
+import { resourceManager } from "~/utils/preloader";
 
 export const Player = () => {
 	const [game, setGame] = useState<Game | null>(null);
@@ -9,7 +10,7 @@ export const Player = () => {
 
 	useEffect(() => {
 		player.loadGame(dummyGame as Game);
-		player.setCurrentResources(dummyAssets as GameResources);
+		resourceManager.loadResources(dummyAssets as GameResources);
 
 		player.currentGame && setGame(player.currentGame);
 

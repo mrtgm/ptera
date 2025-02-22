@@ -2,8 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { player } from "~/stores/player";
 import {
 	Transition,
-	crossFade,
-	fadeIn,
 	numberInterpolator,
 	parseTransform,
 	transformInterpolator,

@@ -1,6 +1,7 @@
 import { Howl, Howler } from "howler";
 import mitt from "mitt";
 import { debounce, waitMs } from "~/utils";
+import { resourceManager } from "~/utils/preloader";
 import {
 	bounce,
 	crossFade,
@@ -12,45 +13,42 @@ import {
 	wobble,
 } from "~/utils/transition";
 
-export type State = "beforeStart" | "playing" | "idle" | "end";
+export type State = "loading" | "beforeStart" | "playing" | "idle" | "end";
 
 export class Player {
-	currentGame: Game | null;
-	currentScene: Scene | null;
-	currentResources: GameResources | null;
-	currentEvent: GameEvent | null;
+	private static instance: Player;
+	currentGame: Game | null = null;
+	currentScene: Scene | null = null;
+	currentEvent: GameEvent | null = null;
 
-	state: State = "beforeStart";
-	stage: Stage;
+	state: State = "loading";
+	stage: Stage = {
+		background: null,
+		characters: [],
+		dialog: {
+			isVisible: false,
+			text: "",
+			characterName: "",
+		},
+		bgm: null,
+		effect: null,
+	};
 
-	isAutoMode: boolean;
-	cancelRequests: Set<string>;
+	isMute = false;
+	isAutoMode = false;
+	cancelRequests: Set<string> = new Set();
 
-	messageHistory: { text: string; characterName?: string }[];
+	messageHistory: { text: string; characterName?: string }[] = [];
 
 	emitter = mitt();
 
-	constructor() {
-		this.currentGame = null;
-		this.currentScene = null;
-		this.currentResources = null;
-		this.currentEvent = null;
+	private constructor() {}
 
-		this.stage = {
-			background: null,
-			characters: [],
-			dialog: {
-				isVisible: false,
-				text: "",
-				characterName: "",
-			},
-			bgm: null,
-			effect: null,
-		};
-
-		this.isAutoMode = false;
-		this.cancelRequests = new Set();
-		this.messageHistory = [];
+	static getInstance(): Player {
+		if (!Player.instance) {
+			Player.instance = new Player();
+		}
+		return Player.instance;
 	}
 
 	setState(state: State) {
@@ -75,10 +73,6 @@ export class Player {
 		}
 	}
 
-	setCurrentResources(resources: GameResources) {
-		this.currentResources = resources;
-	}
-
 	addCancelRequest(eventId: string) {
 		this.cancelRequests.add(eventId);
 	}
@@ -93,6 +87,10 @@ export class Player {
 
 	toggleAutoMode() {
 		this.isAutoMode = !this.isAutoMode;
+	}
+
+	toogleMute() {
+		this.isMute = !this.isMute;
 	}
 
 	addToHistory(message: { text: string; characterName?: string }) {
@@ -137,7 +135,8 @@ export class Player {
 	}
 }
 
-export const player = new Player();
+// シングルトン
+export const player = Player.getInstance();
 
 const runBranching = async (scene: Scene) => {
 	if (scene.sceneType === "choice") {
@@ -264,8 +263,10 @@ const runEvent = async (event: GameEvent) => {
 
 			if (!backgroundContainer) return;
 
-			const backgroundResource =
-				player.currentResources?.backgroundImages[event.backgroundId];
+			const backgroundResource = resourceManager.getResource(
+				"backgroundImages",
+				event.backgroundId,
+			);
 
 			if (!backgroundResource) return;
 
@@ -295,9 +296,9 @@ const runEvent = async (event: GameEvent) => {
 
 			await crossFade(
 				event.id,
+				event.duration,
 				exestingBackground ?? new Image(),
 				newBackground,
-				event.duration,
 			);
 
 			if (exestingBackground) exestingBackground.remove();
@@ -309,8 +310,10 @@ const runEvent = async (event: GameEvent) => {
 			const characterContainer = document.getElementById("character-container");
 			if (!characterContainer) return;
 
-			const characterResource =
-				player.currentResources?.characters[event.characterId];
+			const characterResource = resourceManager.getResource(
+				"characters",
+				event.characterId,
+			);
 
 			if (!characterResource) return;
 
@@ -343,9 +346,9 @@ const runEvent = async (event: GameEvent) => {
 			} else {
 				await crossFade(
 					event.id,
+					event.duration,
 					existingCharacter.querySelector("img") ?? new Image(),
 					characterImage,
-					event.duration,
 				);
 				existingCharacter.remove();
 			}
@@ -408,37 +411,32 @@ const runEvent = async (event: GameEvent) => {
 			break;
 		}
 		case "soundEffect": {
-			const soundEffectResource =
-				player.currentResources?.soundEffects[event.soundEffectId];
+			const soundEffectResource = resourceManager.getResource(
+				"soundEffects",
+				event.soundEffectId,
+			);
 			if (!soundEffectResource) return;
 
-			const soundEffect = new Howl({
-				src: [soundEffectResource.url],
-				volume: event.volume,
-			});
-
-			soundEffect.play();
+			soundEffectResource.cache.volume(event.volume);
+			soundEffectResource.cache.play();
 			break;
 		}
 		case "bgmStart": {
-			const bgmResource = player.currentResources?.bgms[event.bgmId];
+			const bgmResource = resourceManager.getResource("bgms", event.bgmId);
+
 			if (!bgmResource) return;
 
 			if (player.stage.bgm) {
 				Howler.stop();
 			}
 
-			// preloaderつかう
-			const bgm = new Howl({
-				src: [bgmResource.url],
-				loop: true,
-				volume: event.volume,
-			});
+			bgmResource.cache.loop(true);
+			bgmResource.cache.play();
 
-			const id = bgm.play();
-			bgm.fade(0, bgm.volume(), event.duration, id);
+			const id = bgmResource.cache.play();
+			bgmResource.cache.fade(0, event.volume, event.duration, id);
 			player.updateStage({
-				bgm,
+				bgm: bgmResource.cache,
 			});
 			break;
 		}
@@ -477,7 +475,7 @@ const runEvent = async (event: GameEvent) => {
 				const gameScreen = document.getElementById("game-screen");
 				if (!gameScreen) return;
 				effectDiv.style.opacity = "0";
-				await shake(event.id, gameScreen, event.duration);
+				await shake(event.id, event.duration, gameScreen);
 			}
 
 			player.updateStage({
@@ -500,23 +498,23 @@ const runEvent = async (event: GameEvent) => {
 
 			switch (event.effectType) {
 				case "shake": {
-					await shake(event.id, charcterImg, event.duration);
+					await shake(event.id, event.duration, charcterImg);
 					break;
 				}
 				case "bounce": {
-					await bounce(event.id, charcterImg, event.duration);
+					await bounce(event.id, event.duration, charcterImg);
 					break;
 				}
 				case "sway": {
-					await sway(event.id, charcterImg, event.duration);
+					await sway(event.id, event.duration, charcterImg);
 					break;
 				}
 				case "wobble": {
-					await wobble(event.id, charcterImg, event.duration);
+					await wobble(event.id, event.duration, charcterImg);
 					break;
 				}
 				case "flash": {
-					await flash(event.id, charcterImg, event.duration);
+					await flash(event.id, event.duration, charcterImg);
 					break;
 				}
 			}

@@ -243,9 +243,9 @@ export const fadeOut = (
 
 export const crossFade = (
 	eventId: string,
+	duration: number,
 	elementOut: HTMLElement,
 	elementIn: HTMLElement,
-	duration: number,
 ): Promise<void> => {
 	const transition = new Transition({
 		targets: [
@@ -283,8 +283,8 @@ export const crossFade = (
 
 export const shake = (
 	eventId: string,
-	element: HTMLElement,
 	duration: number,
+	element: HTMLElement,
 ): Promise<void> => {
 	const transition = new Transition({
 		targets: [
@@ -319,8 +319,8 @@ export const shake = (
 
 export const flash = (
 	eventId: string,
-	element: HTMLElement,
 	duration: number,
+	element: HTMLElement,
 ): Promise<void> => {
 	const transition = new Transition({
 		targets: [
@@ -347,8 +347,8 @@ export const flash = (
 
 export const wobble = (
 	eventId: string,
-	element: HTMLElement,
 	duration: number,
+	element: HTMLElement,
 ): Promise<void> => {
 	const transition = new Transition({
 		targets: [
@@ -376,8 +376,8 @@ export const wobble = (
 
 export const bounce = (
 	eventId: string,
-	element: HTMLElement,
 	duration: number,
+	element: HTMLElement,
 ): Promise<void> => {
 	const transition = new Transition({
 		targets: [
@@ -405,8 +405,8 @@ export const bounce = (
 
 export const sway = (
 	eventId: string,
-	element: HTMLElement,
 	duration: number,
+	element: HTMLElement,
 ): Promise<void> => {
 	const transition = new Transition({
 		targets: [
