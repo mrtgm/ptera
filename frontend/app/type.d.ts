@@ -121,6 +121,8 @@ interface ChangeBackgroundEvent extends EventBase {
 	type: "changeBackground";
 	category: "background";
 	backgroundId: string;
+	scale: number;
+	position: [number, number];
 	duration: number;
 }
 
@@ -136,6 +138,23 @@ interface CharacterEffectEvent extends EventBase {
 	category: "effect";
 	characterId: string;
 	effectType: "shake" | "flash" | "bounce" | "sway" | "wobble";
+	duration: number;
+}
+
+interface MoveCharacterEvent extends EventBase {
+	type: "moveCharacter";
+	category: "character";
+	characterId: string;
+	position: [number, number];
+	scale: number;
+	duration: number;
+}
+
+interface MoveBackgroundEvent extends EventBase {
+	type: "moveBackground";
+	category: "background";
+	position: [number, number];
+	scale: number;
 	duration: number;
 }
 
@@ -176,7 +195,7 @@ interface GameResources {
 }
 
 type Stage = {
-	background: BackgroundImage | null;
+	background: ChangeBackgroundEvent | null;
 	characters: {
 		id: string;
 		scale: number;

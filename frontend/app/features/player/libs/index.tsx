@@ -107,7 +107,7 @@ export const handleEvent = (
 			if (!resources) return stage;
 			return {
 				...stage,
-				background: resources.backgroundImages[event.backgroundId],
+				background: event,
 			};
 		case "bgmStart":
 			if (!resources) return stage;

@@ -48,7 +48,8 @@ export const createEditorSlice: StateCreator<
 		_set({
 			editingGame: {
 				id: crypto.randomUUID(),
-				name: "新しいゲーム",
+				title: "New Game",
+				author: "",
 				description: "",
 				scenes: [],
 				version: "0.1",

@@ -14,6 +14,8 @@
           "type": "changeBackground",
           "category": "background",
           "backgroundId": "park-day",
+          "position": [0, 0],
+          "scale": 1.0,
           "duration": 2000
         },
         {
@@ -58,6 +60,14 @@
           "position": [0, 0],
           "scale": 1.0,
           "transitionType": "fade",
+          "duration": 1000
+        },
+        {
+          "id": "ev6-2",
+          "type": "characterEffect",
+          "category": "character",
+          "characterId": "mysterious-girl",
+          "effectType": "bounce",
           "duration": 1000
         },
         {

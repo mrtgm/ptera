@@ -1,7 +1,16 @@
 import { Howl, Howler } from "howler";
 import mitt from "mitt";
 import { debounce, waitMs } from "~/utils";
-import { crossFade, fadeIn, fadeOut } from "~/utils/dom";
+import {
+	bounce,
+	crossFade,
+	fadeIn,
+	fadeOut,
+	flash,
+	shake,
+	sway,
+	wobble,
+} from "~/utils/transition";
 
 export type State = "beforeStart" | "playing" | "idle" | "end";
 
@@ -11,6 +20,7 @@ export class Player {
 	currentResources: GameResources | null;
 	currentEvent: GameEvent | null;
 
+	state: State = "beforeStart";
 	stage: Stage;
 
 	isAutoMode: boolean;
@@ -41,6 +51,11 @@ export class Player {
 		this.isAutoMode = false;
 		this.cancelRequests = new Set();
 		this.messageHistory = [];
+	}
+
+	setState(state: State) {
+		this.state = state;
+		this.emitter.emit(state);
 	}
 
 	loadGame(game: Game) {
@@ -86,7 +101,7 @@ export class Player {
 
 	async startGame() {
 		if (!this.currentGame) return;
-		this.emitter.emit("playing");
+		this.setState("playing");
 		await waitForGameScreenIsMounted();
 		this.runEvents(this.currentScene?.events ?? []);
 	}
@@ -126,9 +141,9 @@ export const player = new Player();
 
 const runBranching = async (scene: Scene) => {
 	if (scene.sceneType === "choice") {
-		player.emitter.emit("idle");
+		player.setState("idle");
 		renderChoice(scene.choices, () => {
-			player.emitter.emit("playing");
+			player.setState("playing");
 		});
 	}
 	if (scene.sceneType === "goto") {
@@ -137,7 +152,7 @@ const runBranching = async (scene: Scene) => {
 	}
 	if (scene.sceneType === "end") {
 		player.resetGame();
-		player.emitter.emit("end");
+		player.setState("end");
 	}
 };
 
@@ -209,9 +224,9 @@ const runEvent = async (event: GameEvent) => {
 
 					renderArrow();
 
-					player.emitter.emit("idle");
+					player.setState("idle");
 					await waitForTap();
-					player.emitter.emit("playing");
+					player.setState("playing");
 				} else {
 					await waitMs(1000);
 				}
@@ -255,7 +270,7 @@ const runEvent = async (event: GameEvent) => {
 			if (!backgroundResource) return;
 
 			player.updateStage({
-				background: backgroundResource,
+				background: event,
 			});
 
 			const exestingBackground = backgroundContainer.querySelector("img");
@@ -263,6 +278,17 @@ const runEvent = async (event: GameEvent) => {
 			const newBackground = new Image();
 			newBackground.src = backgroundResource.url;
 			newBackground.className = "h-full w-full relative m-auto object-cover";
+			newBackground.style.transform = `scale(${event.scale})`;
+
+			const calcPosition = (position: [number, number]) => {
+				const [x, y] = position;
+				return `left: ${x * 100}%; top: ${y * 100}%;`;
+			};
+
+			newBackground.style.cssText += calcPosition(
+				event.position ? event.position : [0.5, 0.5],
+			);
+
 			newBackground.style.opacity = "0";
 
 			backgroundContainer?.appendChild(newBackground);
@@ -451,26 +477,7 @@ const runEvent = async (event: GameEvent) => {
 				const gameScreen = document.getElementById("game-screen");
 				if (!gameScreen) return;
 				effectDiv.style.opacity = "0";
-				const animation = gameScreen.animate(
-					[
-						{ transform: "translate3d(0, 0, 0)", offset: 0 },
-						{ transform: "translate3d(-1px, 0, 0)", offset: 0.1 },
-						{ transform: "translate3d(2px, 0, 0)", offset: 0.2 },
-						{ transform: "translate3d(-4px, 0, 0)", offset: 0.3 },
-						{ transform: "translate3d(4px, 0, 0)", offset: 0.4 },
-						{ transform: "translate3d(-4px, 0, 0)", offset: 0.5 },
-						{ transform: "translate3d(4px, 0, 0)", offset: 0.6 },
-						{ transform: "translate3d(-4px, 0, 0)", offset: 0.7 },
-						{ transform: "translate3d(2px, 0, 0)", offset: 0.8 },
-						{ transform: "translate3d(-1px, 0, 0)", offset: 0.9 },
-						{ transform: "translate3d(0, 0, 0)", offset: 1 },
-					],
-					{
-						duration: event.duration,
-						easing: "linear",
-					},
-				);
-				await animation.finished;
+				await shake(event.id, gameScreen, event.duration);
 			}
 
 			player.updateStage({
@@ -493,84 +500,23 @@ const runEvent = async (event: GameEvent) => {
 
 			switch (event.effectType) {
 				case "shake": {
-					const animation = charcterImg.animate(
-						[
-							{ transform: "translate3d(0, 0, 0)", offset: 0 },
-							{ transform: "translate3d(-1px, 0, 0)", offset: 0.1 },
-							{ transform: "translate3d(2px, 0, 0)", offset: 0.2 },
-							{ transform: "translate3d(-4px, 0, 0)", offset: 0.3 },
-							{ transform: "translate3d(4px, 0, 0)", offset: 0.4 },
-							{ transform: "translate3d(-4px, 0, 0)", offset: 0.5 },
-							{ transform: "translate3d(4px, 0, 0)", offset: 0.6 },
-							{ transform: "translate3d(-4px, 0, 0)", offset: 0.7 },
-							{ transform: "translate3d(2px, 0, 0)", offset: 0.8 },
-							{ transform: "translate3d(-1px, 0, 0)", offset: 0.9 },
-							{ transform: "translate3d(0, 0, 0)", offset: 1 },
-						],
-						{
-							duration: event.duration,
-							easing: "linear",
-						},
-					);
-					await animation.finished;
+					await shake(event.id, charcterImg, event.duration);
 					break;
 				}
 				case "bounce": {
-					const animation = charcterImg.animate(
-						[
-							{ transform: "translateY(0)" },
-							{ transform: "translateY(-20px)" },
-							{ transform: "translateY(0)" },
-						],
-						{
-							duration: event.duration,
-							easing: "ease-in-out",
-						},
-					);
-					await animation.finished;
+					await bounce(event.id, charcterImg, event.duration);
 					break;
 				}
 				case "sway": {
-					const animation = charcterImg.animate(
-						[
-							{ transform: "translateX(0)" },
-							{ transform: "translateX(-10px)" },
-							{ transform: "translateX(10px)" },
-							{ transform: "translateX(0)" },
-						],
-						{
-							duration: event.duration,
-							easing: "ease-in-out",
-						},
-					);
-					await animation.finished;
+					await sway(event.id, charcterImg, event.duration);
 					break;
 				}
 				case "wobble": {
-					const animation = charcterImg.animate(
-						[
-							{ transform: "rotate(0deg)" },
-							{ transform: "rotate(-5deg)" },
-							{ transform: "rotate(5deg)" },
-							{ transform: "rotate(0deg)" },
-						],
-						{
-							duration: event.duration,
-							easing: "ease-in-out",
-						},
-					);
-					await animation.finished;
+					await wobble(event.id, charcterImg, event.duration);
 					break;
 				}
 				case "flash": {
-					const animation = charcterImg.animate(
-						[{ opacity: 1 }, { opacity: 0 }, { opacity: 1 }],
-						{
-							duration: event.duration,
-							easing: "linear",
-						},
-					);
-					await animation.finished;
+					await flash(event.id, charcterImg, event.duration);
 					break;
 				}
 			}
