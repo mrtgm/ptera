@@ -1,12 +1,13 @@
+import { X } from "lucide-react";
 import { memo, useEffect, useRef, useState } from "react";
 import dummyAssets from "~/datas/dummy-assets.json";
 import dummyGame from "~/datas/dummy-game.json";
-import { type State, player } from "~/stores/player";
+import { type GameState, player } from "~/stores/player";
 import { resourceManager } from "~/utils/preloader";
 
 export const Player = () => {
 	const [game, setGame] = useState<Game | null>(null);
-	const [state, setState] = useState<State>("beforeStart");
+	const [state, setState] = useState<GameState>("beforeStart");
 
 	useEffect(() => {
 		player.loadGame(dummyGame as Game);
@@ -22,7 +23,7 @@ export const Player = () => {
 		}
 	}, []);
 
-	const handleTapGameScreen = () => {
+	const handleTapGameScreen = (e: React.MouseEvent) => {
 		if (player.currentEvent && state !== "idle")
 			player.addCancelRequest(player.currentEvent.id);
 	};
@@ -58,7 +59,7 @@ const GameScreen = memo(
 	({
 		handleTapScreen,
 	}: {
-		handleTapScreen: () => void;
+		handleTapScreen: (e: React.MouseEvent) => void;
 	}) => {
 		return (
 			<div
@@ -67,30 +68,79 @@ const GameScreen = memo(
 				onClick={handleTapScreen}
 				onKeyDown={() => {}}
 			>
-				{/* bg-image */}
+				<Ui />
+				<History />
 				<Background />
-
-				{/* character */}
 				<Character />
-
-				{/* effect */}
 				<Effect />
-
-				{/* choice */}
 				<Choice />
-
-				{/* dialog */}
 				<Dialog />
 			</div>
 		);
 	},
 );
 
+const History = () => {
+	const handleTapHistoryClose = () => {
+		player.closeHistory();
+	};
+
+	return (
+		<div
+			id="history-modal"
+			className="z-30 hidden h-full w-full bg-gray-900 bg-opacity-90 text-white text-sm absolute top-0 left-0 p-4"
+		>
+			<div
+				className="absolute top-2 right-2 cursor-pointer p-2"
+				onClick={handleTapHistoryClose}
+				onKeyDown={() => {}}
+			>
+				<X id="history-close" />
+			</div>
+			<ul id="history-text" className="overflow-y-scroll h-[calc(100%-32px)]" />
+		</div>
+	);
+};
+
+const Ui = () => {
+	const handleTapMuteIndicator = () => {
+		player.toggleMute();
+	};
+
+	const handleHisotyButton = () => {
+		player.showHistory();
+	};
+
+	return (
+		<div
+			id="ui"
+			className="absolute z-20 top-0 left-0 w-full h-16 flex justify-end items-center"
+		>
+			<div
+				id="mute-indicator"
+				className="text-white text-lg mr-4 cursor-pointer p-2 bg-slate-900 bg-opacity-70 rounded-sm"
+				onClick={handleTapMuteIndicator}
+				onKeyDown={() => {}}
+			>
+				Mute
+			</div>
+			<div
+				id="history-button"
+				className="text-white text-lg mr-4 cursor-pointer p-2 bg-slate-900 bg-opacity-70 rounded-sm"
+				onClick={handleHisotyButton}
+				onKeyDown={() => {}}
+			>
+				History
+			</div>
+		</div>
+	);
+};
+
 const Effect = () => {
 	return (
 		<div
 			id="effect-container"
-			className="w-full h-full absolute select-none pointer-events-none"
+			className="hidden opacity-0 w-full h-full absolute select-none pointer-events-none bg-black"
 		/>
 	);
 };
@@ -103,7 +153,7 @@ const Dialog = () => {
 		>
 			<div
 				id="dialog-character-name"
-				className="text-lg absolute -top-12 left-0 bg-opacity-90"
+				className="text-lg absolute -top-12 left-0 bg-opacity-90 bg-gray-900 p-2"
 			/>
 			<span id="dialog-text" />
 		</div>
@@ -114,7 +164,7 @@ const Choice = () => {
 	return (
 		<div
 			id="choice-container"
-			className="opacity-0 absolute top-0 left-0 w-full h-full z-10 bg-black bg-opacity-50"
+			className="hidden w-full h-full absolute top-0 left-0 z-10 bg-black bg-opacity-50"
 		>
 			<ul
 				id="choice-list"

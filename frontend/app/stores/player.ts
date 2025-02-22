@@ -1,5 +1,6 @@
 import { Howl, Howler } from "howler";
 import mitt from "mitt";
+import { renderToStaticMarkup } from "react-dom/server";
 import { debounce, waitMs } from "~/utils";
 import { resourceManager } from "~/utils/preloader";
 import {
@@ -19,6 +20,12 @@ type Events = {
 	stageUpdated: Stage;
 } & {
 	[key in GameState]: undefined;
+};
+
+type MessageHistory = {
+	text: string;
+	characterName?: string;
+	isChoice?: boolean;
 };
 
 export class Player {
@@ -45,7 +52,7 @@ export class Player {
 	isAutoMode = false;
 	cancelRequests: Set<string> = new Set();
 
-	messageHistory: { text: string; characterName?: string }[] = [];
+	messageHistory: MessageHistory[] = [];
 
 	emitter = mitt<Events>();
 
@@ -107,10 +114,54 @@ export class Player {
 		const muteIndicator = document.getElementById("mute-indicator");
 		if (!muteIndicator) return;
 
-		muteIndicator.textContent = this.isMute ? "🔇" : "🔊";
+		muteIndicator.textContent = this.isMute ? "Mute" : "Unmute";
 	}
 
-	addToHistory(message: { text: string; characterName?: string }) {
+	showHistory() {
+		const historyModal = document.getElementById("history-modal");
+		if (!historyModal) return;
+		const historyList = document.getElementById("history-text");
+		if (!historyList) return;
+
+		historyList.innerHTML = "";
+
+		for (const message of this.messageHistory) {
+			const messageElement = document.createElement("li");
+			messageElement.className = "text-white p-2 m-2 grid grid-cols-6 gap-2";
+
+			const nameColumn = document.createElement("div");
+			nameColumn.className = "col-span-1 text-right font-medium";
+			nameColumn.textContent = message.characterName
+				? `${message.characterName}:`
+				: "";
+
+			const textColumn = document.createElement("div");
+			textColumn.className = `col-span-5  ${
+				message.isChoice ? "text-orange-400" : ""
+			}`;
+			textColumn.textContent = message.text;
+
+			messageElement.appendChild(nameColumn);
+			messageElement.appendChild(textColumn);
+			historyList.appendChild(messageElement);
+		}
+
+		historyModal.classList.remove("hidden");
+		setTimeout(() => {
+			historyList.scrollTo({
+				top: historyList.scrollHeight,
+			});
+		}, 0);
+	}
+
+	closeHistory() {
+		const historyModal = document.getElementById("history-modal");
+		if (!historyModal) return;
+
+		historyModal.classList.add("hidden");
+	}
+
+	addToHistory(message: MessageHistory) {
 		this.messageHistory.push(message);
 	}
 
@@ -159,8 +210,14 @@ export const player = Player.getInstance();
 const runBranching = async (scene: Scene) => {
 	if (scene.sceneType === "choice") {
 		player.setState("idle");
+		player.updateStage({
+			choices: scene.choices,
+		});
 		renderChoice(scene.choices, () => {
 			player.setState("playing");
+			player.updateStage({
+				choices: [],
+			});
 		});
 	}
 	if (scene.sceneType === "goto") {
@@ -177,7 +234,7 @@ const renderChoice = (choices: Choice[], onNextScene: () => void) => {
 	const choiceContainer = document.getElementById("choice-container");
 	if (!choiceContainer) return;
 
-	choiceContainer.style.opacity = "1";
+	choiceContainer.classList.remove("hidden");
 
 	const choiceList = document.getElementById("choice-list");
 	if (!choiceList) return;
@@ -189,7 +246,12 @@ const renderChoice = (choices: Choice[], onNextScene: () => void) => {
 		choiceButton.textContent = choice.text;
 
 		choiceButton.onclick = debounce(() => {
-			choiceContainer.style.opacity = "0";
+			player.addToHistory({
+				text: choice.text,
+				isChoice: true,
+			});
+
+			choiceContainer.classList.add("hidden");
 			player.setScene(choice.nextSceneId);
 			player.runEvents(player.currentScene?.events ?? []);
 			choiceList.innerHTML = "";
@@ -289,10 +351,6 @@ const runEvent = async (event: GameEvent) => {
 			);
 
 			if (!backgroundResource) return;
-
-			player.updateStage({
-				background: event,
-			});
 
 			const exestingBackground = backgroundContainer.querySelector("img");
 
@@ -459,6 +517,7 @@ const runEvent = async (event: GameEvent) => {
 
 			const id = bgmResource.cache.play();
 			bgmResource.cache.fade(0, event.volume, event.duration, id);
+
 			player.updateStage({
 				bgm: bgmResource,
 			});
@@ -484,23 +543,19 @@ const runEvent = async (event: GameEvent) => {
 			const effectContainer = document.getElementById("effect-container");
 			if (!effectContainer) return;
 
-			const effectDiv = document.createElement("div");
-			effectDiv.className = "absolute h-full w-full bg-black";
-
-			effectContainer.appendChild(effectDiv);
-
 			if (event.effectType === "fadeOut") {
-				effectDiv.style.opacity = "0";
-				await fadeIn(event.id, event.duration, effectDiv);
+				effectContainer.style.opacity = "0";
+				effectContainer.classList.remove("hidden");
+				await fadeIn(event.id, event.duration, effectContainer);
 			}
 			if (event.effectType === "fadeIn") {
-				effectDiv.style.opacity = "1";
-				await fadeOut(event.id, event.duration, effectDiv);
+				await fadeOut(event.id, event.duration, effectContainer);
+				effectContainer.classList.add("hidden");
+				effectContainer.style.opacity = "0";
 			}
 			if (event.effectType === "shake") {
 				const gameScreen = document.getElementById("game-screen");
 				if (!gameScreen) return;
-				effectDiv.style.opacity = "0";
 				await shake(event.id, event.duration, gameScreen);
 			}
 
@@ -551,7 +606,12 @@ const runEvent = async (event: GameEvent) => {
 
 const waitForTap = () =>
 	new Promise<void>((resolve) => {
-		const handleTap = () => {
+		const handleTap = (e: MouseEvent) => {
+			if (e.target instanceof HTMLElement || e.target instanceof SVGElement) {
+				if (e.target.closest("#ui") || e.target.closest("#history-modal"))
+					return;
+			}
+
 			window.removeEventListener("click", handleTap);
 			resolve();
 		};
