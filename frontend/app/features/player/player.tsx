@@ -1,5 +1,5 @@
 import { X } from "lucide-react";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import dummyAssets from "~/datas/dummy-assets.json";
 import dummyGame from "~/datas/dummy-game.json";
 import { type GameState, player } from "~/stores/player";

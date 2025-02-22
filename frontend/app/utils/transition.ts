@@ -6,7 +6,7 @@ type Keyframe = {
 	value: number | string;
 };
 
-type PropertyAnimation = {
+export type PropertyAnimation = {
 	property: string;
 	keyframes: Keyframe[];
 	unit?: string;
@@ -17,9 +17,9 @@ type TransitionTarget = {
 	properties: PropertyAnimation[];
 };
 
-type TransitionConfig = {
+export type TransitionConfig = {
 	targets: TransitionTarget[];
-	duration: number;
+	duration?: number;
 	eventId: string;
 	easing?: EasingType;
 	onComplete?: (elements: HTMLElement[]) => void;
@@ -43,7 +43,7 @@ export const parseTransform = (transform: string) => {
 	const numMatch = value.match(/-?\d+\.?\d*/);
 	if (!numMatch) return null;
 
-	const unitMatch = value.match(/[a-z]+$/i);
+	const unitMatch = value.match(/(?:[a-z%]+)$/i);
 	const unit = unitMatch ? unitMatch[0] : "";
 
 	return {
@@ -66,6 +66,8 @@ export const transformInterpolator: TransformInterpolator = (
 
 	const unit = toInfo.unit || fromInfo.unit;
 	const current = fromInfo.value + (toInfo.value - fromInfo.value) * progress;
+
+	console.log(`${fromInfo.funcName}(${current}${unit})`);
 
 	return `${fromInfo.funcName}(${current}${unit})`;
 };
@@ -136,7 +138,7 @@ export class Transition {
 				}
 
 				const progress = easing.getProgress(elapsed, {
-					duration: this.config.duration,
+					duration: this.config.duration ?? 0,
 					easing: this.config.easing ?? "linear",
 				});
 

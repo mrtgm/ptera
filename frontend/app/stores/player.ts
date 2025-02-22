@@ -1,6 +1,5 @@
 import { Howl, Howler } from "howler";
 import mitt from "mitt";
-import { renderToStaticMarkup } from "react-dom/server";
 import { debounce, waitMs } from "~/utils";
 import { resourceManager } from "~/utils/preloader";
 import {
