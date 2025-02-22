@@ -16,7 +16,7 @@
           "backgroundId": "park-day",
           "position": [0, 0],
           "scale": 1.0,
-          "duration": 2000
+          "duration": 1000
         },
         {
           "id": "ev2",

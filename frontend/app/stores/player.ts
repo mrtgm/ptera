@@ -1,6 +1,6 @@
 import { Howl, Howler } from "howler";
 import mitt from "mitt";
-import { debounce, waitMs } from "~/utils";
+import { debounce, updateOrAppend, waitMs } from "~/utils";
 import { resourceManager } from "~/utils/preloader";
 import {
 	bounce,
@@ -17,6 +17,7 @@ export type GameState = "loading" | "beforeStart" | "playing" | "idle" | "end";
 
 type Events = {
 	stageUpdated: Stage;
+	currentEventUpdated: GameEvent;
 } & {
 	[key in GameState]: undefined;
 };
@@ -42,12 +43,14 @@ export class Player {
 			isVisible: false,
 			text: "",
 			characterName: "",
+			duration: 0,
 		},
 		bgm: null,
 		effect: null,
 	};
 
 	isMute = false;
+	// TODO: AutoMode
 	isAutoMode = false;
 	cancelRequests: Set<string> = new Set();
 
@@ -100,6 +103,9 @@ export class Player {
 			...this.stage,
 			...updates,
 		});
+	}
+	updateCurrentEvent(event: GameEvent) {
+		this.emitter.emit("currentEventUpdated", event);
 	}
 
 	toggleAutoMode() {
@@ -180,6 +186,7 @@ export class Player {
 			characters: [],
 			dialog: {
 				isVisible: false,
+				duration: 0,
 				text: "",
 				characterName: "",
 			},
@@ -196,10 +203,22 @@ export class Player {
 	async runEvents(events: GameEvent[]) {
 		for (const event of events) {
 			this.currentEvent = event;
+			this.updateCurrentEvent(event);
 			await runEvent(event);
 		}
 
 		if (this.currentScene) runBranching(this.currentScene);
+	}
+
+	selectChoice(choice: Choice) {
+		this.addToHistory({ text: choice.text, isChoice: true });
+		this.setScene(choice.nextSceneId);
+		this.runEvents(this.currentScene?.events ?? []);
+
+		this.setState("playing");
+		this.updateStage({
+			choices: [],
+		});
 	}
 }
 
@@ -212,12 +231,6 @@ const runBranching = async (scene: Scene) => {
 		player.updateStage({
 			choices: scene.choices,
 		});
-		renderChoice(scene.choices, () => {
-			player.setState("playing");
-			player.updateStage({
-				choices: [],
-			});
-		});
 	}
 	if (scene.sceneType === "goto") {
 		player.setScene(scene.nextSceneId);
@@ -229,81 +242,25 @@ const runBranching = async (scene: Scene) => {
 	}
 };
 
-const renderChoice = (choices: Choice[], onNextScene: () => void) => {
-	const choiceContainer = document.getElementById("choice-container");
-	if (!choiceContainer) return;
-
-	choiceContainer.classList.remove("hidden");
-
-	const choiceList = document.getElementById("choice-list");
-	if (!choiceList) return;
-
-	for (const choice of choices) {
-		const choiceButton = document.createElement("li");
-		choiceButton.className =
-			"text-white text-lg p-2 m-2 bg-gray-800 cursor-pointer";
-		choiceButton.textContent = choice.text;
-
-		choiceButton.onclick = debounce(() => {
-			player.addToHistory({
-				text: choice.text,
-				isChoice: true,
-			});
-
-			choiceContainer.classList.add("hidden");
-			player.setScene(choice.nextSceneId);
-			player.runEvents(player.currentScene?.events ?? []);
-			choiceList.innerHTML = "";
-
-			onNextScene();
-		}, 100);
-		choiceList.appendChild(choiceButton);
-	}
-};
-
 const runEvent = async (event: GameEvent) => {
 	console.log("runEvent", event);
 
 	switch (event.type) {
 		case "text": {
-			const dialogText = document.getElementById("dialog-text");
-			const dialogCharacterName = document.getElementById(
-				"dialog-character-name",
-			);
-
 			for (const line of event.lines) {
 				await animateLine(line, event.id, (text) => {
 					player.updateStage({
 						dialog: {
 							...player.stage.dialog,
 							text,
-							characterName: event.characterName ?? "",
+							characterName: event.characterName,
 						},
 					});
-
-					if (!dialogText) return;
-					dialogText.textContent = text;
-					if (!dialogCharacterName) return;
-					dialogCharacterName.style.opacity = event.characterName ? "1" : "0";
-					dialogCharacterName.textContent = event.characterName ?? "";
 				});
 
 				player.addToHistory({ text: line, characterName: event.characterName });
 
 				if (!player.isAutoMode) {
-					const renderArrow = () => {
-						const dialogText = document.getElementById("dialog-text");
-						if (!dialogText) return;
-
-						const arrow = document.createElement("span");
-						arrow.textContent = "▼";
-						arrow.className =
-							"text-white text-sm animate-bounce inline-block ml-2";
-						dialogText.appendChild(arrow);
-					};
-
-					renderArrow();
-
 					player.setState("idle");
 					await waitForTap();
 					player.setState("playing");
@@ -314,181 +271,71 @@ const runEvent = async (event: GameEvent) => {
 			break;
 		}
 		case "appearMessageWindow": {
-			const dialog = document.getElementById("dialog");
-			if (!dialog) return;
-
 			player.updateStage({
 				dialog: {
 					...player.stage.dialog,
+					duration: event.duration,
 					isVisible: true,
 				},
 			});
-			await fadeIn(event.id, event.duration, dialog);
+			await waitCancelable(event.duration, event.id);
 			break;
 		}
 		case "hideMessageWindow": {
-			const dialog = document.getElementById("dialog");
-			if (!dialog) return;
-
 			player.updateStage({
 				dialog: {
 					...player.stage.dialog,
+					duration: event.duration,
 					isVisible: false,
 				},
 			});
-			await fadeOut(event.id, event.duration, dialog);
+			await waitCancelable(event.duration, event.id);
 			break;
 		}
 		case "changeBackground": {
-			const backgroundContainer = document.getElementById("background");
-
-			if (!backgroundContainer) return;
-
-			const backgroundResource = resourceManager.getResource(
-				"backgroundImages",
-				event.backgroundId,
-			);
-
-			if (!backgroundResource) return;
-
-			const exestingBackground = backgroundContainer.querySelector("img");
-
-			const newBackground = new Image();
-			newBackground.src = backgroundResource.url;
-			newBackground.className = "h-full w-full relative m-auto object-cover";
-			newBackground.style.transform = `scale(${event.scale})`;
-
-			const calcPosition = (position: [number, number]) => {
-				const [x, y] = position;
-				return `left: ${x * 100}%; top: ${y * 100}%;`;
-			};
-
-			newBackground.style.cssText += calcPosition(
-				event.position ? event.position : [0.5, 0.5],
-			);
-
-			newBackground.style.opacity = "0";
-
-			backgroundContainer?.appendChild(newBackground);
-
-			await crossFade(
-				event.id,
-				event.duration,
-				exestingBackground ?? new Image(),
-				newBackground,
-			);
-
-			if (exestingBackground) exestingBackground.remove();
-			newBackground.id = "background";
-
 			player.updateStage({
-				background: event,
-			});
+				background: {
+					id: event.backgroundId,
 
+					scale: event.scale,
+					position: event.position,
+					duration: event.duration,
+				},
+			});
+			await waitCancelable(event.duration, event.id);
 			break;
 		}
 		case "appearCharacter": {
-			const characterContainer = document.getElementById("character-container");
-			if (!characterContainer) return;
-
-			const characterResource = resourceManager.getResource(
-				"characters",
-				event.characterId,
-			);
-
-			if (!characterResource) return;
-
-			const characterDiv = document.createElement("div");
-			characterDiv.id = event.characterId;
-			characterDiv.className =
-				"object-contain absolute -translate-x-1/2 -translate-y-1/2";
-			characterDiv.style.top = "50%";
-			characterDiv.style.left = "50%";
-			characterDiv.style.minWidth = "max-content";
-			characterDiv.style.width = "100%";
-			characterDiv.style.height = `${event.scale * 100}%`;
-
-			const existingCharacter = characterContainer.querySelector(
-				`#${event.characterId}`,
-			);
-
-			const characterImage = new Image();
-			characterImage.src = characterResource.images[event.characterImageId].url;
-			characterImage.className = "h-full w-auto relative m-auto";
-			characterImage.style.top = `${event.position[1] * 100}%`;
-			characterImage.style.left = `${event.position[0] * 100}%`;
-			characterImage.style.opacity = "0";
-
-			characterDiv.appendChild(characterImage);
-			characterContainer.appendChild(characterDiv);
-
-			if (!existingCharacter) {
-				await fadeIn(event.id, event.duration, characterImage);
-			} else {
-				await crossFade(
-					event.id,
-					event.duration,
-					existingCharacter.querySelector("img") ?? new Image(),
-					characterImage,
-				);
-				existingCharacter.remove();
-			}
-
 			player.updateStage({
-				characters: [
-					...player.stage.characters,
+				characters: updateOrAppend(
+					player.stage.characters,
 					{
 						id: event.characterId,
 						scale: event.scale,
 						imageId: event.characterImageId,
 						position: event.position,
+						duration: event.duration,
 					},
-				],
+					"id",
+				),
 			});
+			await waitCancelable(event.duration, event.id);
 			break;
 		}
 		case "hideCharacter": {
-			const characterContainer = document.getElementById("character-container");
-			if (!characterContainer) return;
-
-			const characterDiv = characterContainer.querySelector(
-				`#${event.characterId}`,
-			);
-			if (!characterDiv) return;
-
-			const characterImage = characterDiv.querySelector("img");
-			if (!characterImage) return;
-
-			await fadeOut(event.id, event.duration, characterImage);
-
-			characterDiv.remove();
-
 			player.updateStage({
 				characters: player.stage.characters.filter(
 					(c) => c.id !== event.characterId,
 				),
 			});
+			await waitCancelable(event.duration, event.id);
 			break;
 		}
 		case "hideAllCharacters": {
-			const characterContainer = document.getElementById("character-container");
-			if (!characterContainer) return;
-
-			const characters = characterContainer.querySelectorAll("div");
-			if (!characters) return;
-
-			for (const character of characters) {
-				const characterImage = character.querySelector("img");
-				if (!characterImage) continue;
-
-				await fadeOut(event.id, event.duration, characterImage);
-
-				character.remove();
-			}
-
 			player.updateStage({
 				characters: [],
 			});
+			await waitCancelable(event.duration, event.id);
 			break;
 		}
 		case "soundEffect": {
@@ -539,29 +386,20 @@ const runEvent = async (event: GameEvent) => {
 			break;
 		}
 		case "effect": {
-			const effectContainer = document.getElementById("effect-container");
-			if (!effectContainer) return;
+			player.updateStage({
+				effect: {
+					type: event.effectType,
+					duration: event.duration,
+				},
+			});
 
-			if (event.effectType === "fadeOut") {
-				effectContainer.style.opacity = "0";
-				effectContainer.classList.remove("hidden");
-				await fadeIn(event.id, event.duration, effectContainer);
-			}
-			if (event.effectType === "fadeIn") {
-				await fadeOut(event.id, event.duration, effectContainer);
-				effectContainer.classList.add("hidden");
-				effectContainer.style.opacity = "0";
-			}
 			if (event.effectType === "shake") {
 				const gameScreen = document.getElementById("game-screen");
 				if (!gameScreen) return;
 				await shake(event.id, event.duration, gameScreen);
+			} else {
+				await waitCancelable(event.duration, event.id);
 			}
-
-			player.updateStage({
-				effect: event,
-			});
-
 			break;
 		}
 		case "characterEffect": {
@@ -660,4 +498,23 @@ const animateLine = async (
 
 export const checkIfEventIsCanceled = (eventId: string) => {
 	return player.cancelRequests.has(eventId);
+};
+
+const waitCancelable = async (ms: number, eventId: string) => {
+	const startTime = performance.now();
+	const wait = () =>
+		new Promise<void>((resolve) => {
+			const check = () => {
+				if (
+					performance.now() - startTime > ms ||
+					checkIfEventIsCanceled(eventId)
+				) {
+					resolve();
+					return;
+				}
+				requestAnimationFrame(check);
+			};
+			check();
+		});
+	await wait();
 };

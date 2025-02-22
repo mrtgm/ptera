@@ -6,8 +6,8 @@ import { player } from "~/stores/player";
 export default function Debug() {
 	return (
 		<div className="w-full h-dvh flex pt-[64px] justify-center">
-			{/* <Player /> */}
-			<ExampleUsage />
+			<Player />
+			{/* <ExampleUsage /> */}
 		</div>
 	);
 }

@@ -37,7 +37,7 @@ export const AnimatePresence = ({
 	children,
 	config,
 }: {
-	eventId: string;
+	eventId: string | undefined;
 	children: ReactNode;
 	config?: CustomPresenceConfig;
 }) => {
@@ -73,9 +73,7 @@ export const AnimatePresence = ({
 		const oldKeys = prevChildArray.current.map((c) => String(c.key));
 		prevChildArray.current = childArray;
 
-		// 追加されたキー (enter)
 		let addedKeys = newKeys.filter((k) => !oldKeys.includes(k));
-		// 削除されたキー (exit)
 		let removedKeys = oldKeys.filter((k) => !newKeys.includes(k));
 
 		const swapOps: { oldKey: string; newKey: string }[] = [];
@@ -83,7 +81,6 @@ export const AnimatePresence = ({
 			const newKey = newKeys[i];
 			const oldKey = oldKeys[i];
 			if (newKey && oldKey && newKey !== oldKey) {
-				// swap認定
 				swapOps.push({ oldKey, newKey });
 
 				addedKeys = addedKeys.filter((k) => k !== newKey);
@@ -96,6 +93,14 @@ export const AnimatePresence = ({
 			removedKeys.length === 0 &&
 			swapOps.length === 0
 		) {
+			setItems((prev) =>
+				prev.map((item) => {
+					const newElem = childArray.find((c) => String(c.key) === item.key);
+					return newElem
+						? { ...item, element: newElem } // TextNode などの変更があった場合を考慮
+						: item;
+				}),
+			);
 			return;
 		}
 
@@ -152,7 +157,6 @@ export const AnimatePresence = ({
 
 	const runningTransitions = useRef(new Map<string, Transition>());
 
-	// アニメーション処理
 	useLayoutEffect(() => {
 		for (const item of items) {
 			if (
@@ -179,7 +183,7 @@ export const AnimatePresence = ({
 
 		const transitionCfg: TransitionConfig = {
 			...transitionBase, // duration, easing, onComplete などの設定を継承
-			eventId,
+			eventId: eventId ?? "",
 			targets: [
 				{
 					element: el,

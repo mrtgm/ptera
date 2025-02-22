@@ -19,3 +19,13 @@ export const debounce = (func: () => void, wait: number): (() => void) => {
 		}, wait);
 	};
 };
+
+export const updateOrAppend = <T, K extends keyof T>(
+	array: T[],
+	newItem: T,
+	key: K,
+): T[] => {
+	return array.some((item) => item[key] === newItem[key])
+		? array.map((item) => (item[key] === newItem[key] ? newItem : item))
+		: [...array, newItem];
+};

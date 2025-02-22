@@ -193,19 +193,29 @@ interface GameResources {
 
 // isMute とかどうすっかなあ
 type Stage = {
-	background: ChangeBackgroundEvent | null;
+	background: {
+		id: string;
+		scale: number;
+		position: [number, number];
+		duration: number;
+	} | null;
 	characters: {
 		id: string;
 		scale: number;
 		imageId: string;
 		position: [number, number];
+		duration: number;
 	}[];
 	dialog: {
 		isVisible: boolean;
 		text: string;
-		characterName: string;
+		characterName: string | undefined;
+		duration: number;
 	};
 	choices: Choice[];
 	bgm: BGM | null;
-	effect: EffectEvent | null;
+	effect: {
+		type: EffectEvent["effectType"];
+		duration: number;
+	} | null;
 };
