@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { player } from "~/stores/player";
+import { player } from "~/features/player/libs/engine";
 import { shake } from "~/utils/transition";
 import { Background } from "./background";
 import { CharacterList } from "./character";

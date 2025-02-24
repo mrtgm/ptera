@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useRef } from "react";
-import { player } from "~/stores/player";
+import { player } from "~/features/player/libs/engine";
 import { resourceManager } from "~/utils/preloader";
 import { bounce, flash, shake, sway, wobble } from "~/utils/transition";
 import { AnimatePresence } from "./animate-presence";

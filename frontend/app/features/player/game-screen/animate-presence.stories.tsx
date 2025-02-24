@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { forwardRef, useState } from "react";
-import { player } from "~/stores/player";
+import { player } from "~/features/player/libs/engine";
 import { AnimatePresence } from "./animate-presence";
 
 export function Debug() {

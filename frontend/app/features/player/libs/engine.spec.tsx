@@ -1,6 +1,6 @@
 import { Howler } from "howler";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Player } from "./player";
+import { Player } from "./engine";
 
 vi.mock("howler", () => {
 	return {

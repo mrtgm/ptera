@@ -1,7 +1,7 @@
 import { forwardRef, useState } from "react";
 import { Player } from "~/features/player";
 import { AnimatePresence } from "~/features/player/game-screen/animate-presence";
-import { player } from "~/stores/player";
+import { player } from "~/features/player/libs/engine";
 
 export default function Debug() {
 	return (

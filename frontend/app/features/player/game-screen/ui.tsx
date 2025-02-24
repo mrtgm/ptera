@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { player } from "~/stores/player";
+import { player } from "~/features/player/libs/engine";
 
 export const Ui = ({
 	openHistory,

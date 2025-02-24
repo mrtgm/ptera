@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import dummyAssets from "~/__mocks__/dummy-assets.json";
 import dummyGame from "~/__mocks__/dummy-game.json";
-import { player } from "~/stores/player";
+import { player } from "~/features/player/libs/engine";
 import { resourceManager } from "~/utils/preloader";
 import { GameScreen } from "./game-screen";
 
