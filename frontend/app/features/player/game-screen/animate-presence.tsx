@@ -80,6 +80,7 @@ export const AnimatePresence = ({
 		for (let i = 0; i < childArray.length; i++) {
 			const newKey = newKeys[i];
 			const oldKey = oldKeys[i];
+
 			if (newKey && oldKey && newKey !== oldKey) {
 				swapOps.push({ oldKey, newKey });
 

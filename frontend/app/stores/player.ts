@@ -1,31 +1,31 @@
-import { Howl, Howler } from "howler";
+import { Howler } from "howler";
 import mitt from "mitt";
-import { debounce, updateOrAppend, waitMs } from "~/utils";
-import { resourceManager } from "~/utils/preloader";
-import {
-	bounce,
-	crossFade,
-	fadeIn,
-	fadeOut,
-	flash,
-	shake,
-	sway,
-	wobble,
-} from "~/utils/transition";
-
-export type GameState = "loading" | "beforeStart" | "playing" | "idle" | "end";
+import { updateOrAppend, waitMs } from "~/utils";
 
 type Events = {
 	stageUpdated: Stage;
-	currentEventUpdated: GameEvent;
+	historyUpdated: MessageHistory[];
+	currentEventUpdated: GameEvent | null;
 } & {
 	[key in GameState]: undefined;
 };
 
-type MessageHistory = {
-	text: string;
-	characterName?: string;
-	isChoice?: boolean;
+const INITIAL_STATE: Stage = {
+	background: null,
+	characters: {
+		items: [],
+		transitionDuration: 0,
+	},
+	choices: [],
+	dialog: {
+		isVisible: false,
+		text: "",
+		characterName: "",
+		transitionDuration: 0,
+	},
+	soundEffect: null,
+	bgm: null,
+	effect: null,
 };
 
 export class Player {
@@ -35,24 +35,12 @@ export class Player {
 	currentEvent: GameEvent | null = null;
 
 	state: GameState = "loading";
-	stage: Stage = {
-		background: null,
-		characters: [],
-		choices: [],
-		dialog: {
-			isVisible: false,
-			text: "",
-			characterName: "",
-			duration: 0,
-		},
-		bgm: null,
-		effect: null,
-	};
+	stage: Stage = INITIAL_STATE;
 
 	isMute = false;
 	// TODO: AutoMode
 	isAutoMode = false;
-	cancelRequests: Set<string> = new Set();
+	cancelRequests: Set<string> = new Set(); // Set:eventId
 
 	messageHistory: MessageHistory[] = [];
 
@@ -93,6 +81,10 @@ export class Player {
 		this.cancelRequests.add(eventId);
 	}
 
+	checkIfEventIsCanceled(eventId: string) {
+		return this.cancelRequests.has(eventId);
+	}
+
 	removeCancelRequest(eventId: string) {
 		this.cancelRequests.delete(eventId);
 	}
@@ -104,7 +96,8 @@ export class Player {
 			...updates,
 		});
 	}
-	updateCurrentEvent(event: GameEvent) {
+
+	updateCurrentEvent(event: GameEvent | null) {
 		this.emitter.emit("currentEventUpdated", event);
 	}
 
@@ -113,61 +106,18 @@ export class Player {
 	}
 
 	toggleMute() {
-		Howler.mute(this.isMute);
 		this.isMute = !this.isMute;
-
-		const muteIndicator = document.getElementById("mute-indicator");
-		if (!muteIndicator) return;
-
-		muteIndicator.textContent = this.isMute ? "Mute" : "Unmute";
-	}
-
-	showHistory() {
-		const historyModal = document.getElementById("history-modal");
-		if (!historyModal) return;
-		const historyList = document.getElementById("history-text");
-		if (!historyList) return;
-
-		historyList.innerHTML = "";
-
-		for (const message of this.messageHistory) {
-			const messageElement = document.createElement("li");
-			messageElement.className = "text-white p-2 m-2 grid grid-cols-6 gap-2";
-
-			const nameColumn = document.createElement("div");
-			nameColumn.className = "col-span-1 text-right font-medium";
-			nameColumn.textContent = message.characterName
-				? `${message.characterName}:`
-				: "";
-
-			const textColumn = document.createElement("div");
-			textColumn.className = `col-span-5  ${
-				message.isChoice ? "text-orange-400" : ""
-			}`;
-			textColumn.textContent = message.text;
-
-			messageElement.appendChild(nameColumn);
-			messageElement.appendChild(textColumn);
-			historyList.appendChild(messageElement);
-		}
-
-		historyModal.classList.remove("hidden");
-		setTimeout(() => {
-			historyList.scrollTo({
-				top: historyList.scrollHeight,
-			});
-		}, 0);
-	}
-
-	closeHistory() {
-		const historyModal = document.getElementById("history-modal");
-		if (!historyModal) return;
-
-		historyModal.classList.add("hidden");
+		Howler.mute(this.isMute);
 	}
 
 	addToHistory(message: MessageHistory) {
 		this.messageHistory.push(message);
+		this.emitter.emit("historyUpdated", this.messageHistory);
+	}
+
+	clearHistory() {
+		this.messageHistory = [];
+		this.emitter.emit("historyUpdated", []);
 	}
 
 	async startGame() {
@@ -179,25 +129,14 @@ export class Player {
 
 	resetGame() {
 		this.currentScene = this.currentGame?.scenes[0] ?? null;
-		this.currentEvent = null;
-
-		this.stage = {
-			background: null,
-			characters: [],
-			dialog: {
-				isVisible: false,
-				duration: 0,
-				text: "",
-				characterName: "",
-			},
-			bgm: null,
-			choices: [],
-			effect: null,
-		};
-
+		this.setState("beforeStart");
+		this.updateCurrentEvent(null);
+		this.updateStage(INITIAL_STATE);
+		this.clearHistory();
 		this.isAutoMode = false;
 		this.cancelRequests = new Set();
-		this.messageHistory = [];
+
+		Howler.stop();
 	}
 
 	async runEvents(events: GameEvent[]) {
@@ -243,8 +182,6 @@ const runBranching = async (scene: Scene) => {
 };
 
 const runEvent = async (event: GameEvent) => {
-	console.log("runEvent", event);
-
 	switch (event.type) {
 		case "text": {
 			for (const line of event.lines) {
@@ -265,7 +202,7 @@ const runEvent = async (event: GameEvent) => {
 					await waitForTap();
 					player.setState("playing");
 				} else {
-					await waitMs(1000);
+					await waitMs(3000);
 				}
 			}
 			break;
@@ -274,168 +211,135 @@ const runEvent = async (event: GameEvent) => {
 			player.updateStage({
 				dialog: {
 					...player.stage.dialog,
-					duration: event.duration,
 					isVisible: true,
 				},
 			});
-			await waitCancelable(event.duration, event.id);
+			await waitCancelable(event.transitionDuration, event.id);
 			break;
 		}
 		case "hideMessageWindow": {
 			player.updateStage({
 				dialog: {
 					...player.stage.dialog,
-					duration: event.duration,
 					isVisible: false,
 				},
 			});
-			await waitCancelable(event.duration, event.id);
+			await waitCancelable(event.transitionDuration, event.id);
 			break;
 		}
 		case "changeBackground": {
 			player.updateStage({
 				background: {
 					id: event.backgroundId,
-
 					scale: event.scale,
 					position: event.position,
-					duration: event.duration,
+					transitionDuration: event.transitionDuration,
 				},
 			});
-			await waitCancelable(event.duration, event.id);
+			await waitCancelable(event.transitionDuration, event.id);
 			break;
 		}
 		case "appearCharacter": {
 			player.updateStage({
-				characters: updateOrAppend(
-					player.stage.characters,
-					{
-						id: event.characterId,
-						scale: event.scale,
-						imageId: event.characterImageId,
-						position: event.position,
-						duration: event.duration,
-					},
-					"id",
-				),
+				characters: {
+					transitionDuration: event.transitionDuration,
+					items: updateOrAppend(
+						player.stage.characters.items,
+						{
+							id: event.characterId,
+							scale: event.scale,
+							imageId: event.characterImageId,
+							position: event.position,
+							effect: null,
+						},
+						"id",
+					),
+				},
 			});
-			await waitCancelable(event.duration, event.id);
+			await waitCancelable(event.transitionDuration, event.id);
 			break;
 		}
 		case "hideCharacter": {
 			player.updateStage({
-				characters: player.stage.characters.filter(
-					(c) => c.id !== event.characterId,
-				),
+				characters: {
+					transitionDuration: event.transitionDuration,
+					items: player.stage.characters.items.filter(
+						(c) => c.id !== event.characterId,
+					),
+				},
 			});
-			await waitCancelable(event.duration, event.id);
+			await waitCancelable(event.transitionDuration, event.id);
 			break;
 		}
 		case "hideAllCharacters": {
 			player.updateStage({
-				characters: [],
+				characters: {
+					items: [],
+					transitionDuration: event.transitionDuration,
+				},
 			});
-			await waitCancelable(event.duration, event.id);
+			await waitCancelable(event.transitionDuration, event.id);
 			break;
 		}
 		case "soundEffect": {
-			const soundEffectResource = resourceManager.getResource(
-				"soundEffects",
-				event.soundEffectId,
-			);
-			if (!soundEffectResource) return;
-
-			soundEffectResource.cache.volume(event.volume);
-			soundEffectResource.cache.play();
+			player.updateStage({
+				soundEffect: {
+					id: event.soundEffectId,
+					volume: event.volume,
+					isPlaying: true,
+					transitionDuration: event.transitionDuration,
+				},
+			});
 			break;
 		}
 		case "bgmStart": {
-			const bgmResource = resourceManager.getResource("bgms", event.bgmId);
-
-			if (!bgmResource) return;
-
-			if (player.stage.bgm) {
-				Howler.stop();
-			}
-
-			bgmResource.cache.loop(true);
-			bgmResource.cache.play();
-
-			const id = bgmResource.cache.play();
-			bgmResource.cache.fade(0, event.volume, event.duration, id);
-
 			player.updateStage({
-				bgm: bgmResource,
+				bgm: {
+					id: event.bgmId,
+					volume: event.volume,
+					isPlaying: true,
+					transitionDuration: event.transitionDuration,
+				},
 			});
 			break;
 		}
 		case "bgmStop": {
-			const bgm = player.stage.bgm;
-			if (!bgm) return;
-
-			const bgmResource = resourceManager.getResource("bgms", bgm.id);
-			if (!bgmResource) return;
-
-			bgmResource.cache.fade(bgmResource.cache.volume(), 0, event.duration);
-			bgmResource.cache.once("fade", () => {
-				Howler.stop();
+			if (player.stage.bgm) {
 				player.updateStage({
-					bgm: null,
+					bgm: { ...player.stage.bgm, isPlaying: false },
 				});
-			});
+			}
 			break;
 		}
 		case "effect": {
 			player.updateStage({
 				effect: {
 					type: event.effectType,
-					duration: event.duration,
+					transitionDuration: event.transitionDuration,
 				},
 			});
-
-			if (event.effectType === "shake") {
-				const gameScreen = document.getElementById("game-screen");
-				if (!gameScreen) return;
-				await shake(event.id, event.duration, gameScreen);
-			} else {
-				await waitCancelable(event.duration, event.id);
-			}
+			await waitCancelable(event.transitionDuration, event.id);
 			break;
 		}
 		case "characterEffect": {
-			const characterContainer = document.getElementById("character-container");
-			if (!characterContainer) return;
-
-			const characterDiv = characterContainer.querySelector(
-				`#${event.characterId}`,
-			);
-			if (!characterDiv) return;
-
-			const charcterImg = characterDiv.querySelector("img");
-			if (!charcterImg) return;
-
-			switch (event.effectType) {
-				case "shake": {
-					await shake(event.id, event.duration, charcterImg);
-					break;
-				}
-				case "bounce": {
-					await bounce(event.id, event.duration, charcterImg);
-					break;
-				}
-				case "sway": {
-					await sway(event.id, event.duration, charcterImg);
-					break;
-				}
-				case "wobble": {
-					await wobble(event.id, event.duration, charcterImg);
-					break;
-				}
-				case "flash": {
-					await flash(event.id, event.duration, charcterImg);
-					break;
-				}
-			}
+			player.updateStage({
+				characters: {
+					items: player.stage.characters.items.map((c) => {
+						if (c.id === event.characterId) {
+							return {
+								...c,
+								effect: {
+									type: event.effectType,
+									transitionDuration: event.transitionDuration,
+								},
+							};
+						}
+						return c;
+					}),
+					transitionDuration: event.transitionDuration,
+				},
+			});
+			await waitCancelable(event.transitionDuration, event.id);
 			break;
 		}
 	}
@@ -496,10 +400,6 @@ const animateLine = async (
 	}
 };
 
-export const checkIfEventIsCanceled = (eventId: string) => {
-	return player.cancelRequests.has(eventId);
-};
-
 const waitCancelable = async (ms: number, eventId: string) => {
 	const startTime = performance.now();
 	const wait = () =>
@@ -507,7 +407,7 @@ const waitCancelable = async (ms: number, eventId: string) => {
 			const check = () => {
 				if (
 					performance.now() - startTime > ms ||
-					checkIfEventIsCanceled(eventId)
+					player.checkIfEventIsCanceled(eventId)
 				) {
 					resolve();
 					return;

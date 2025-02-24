@@ -221,10 +221,10 @@ vi.mock("~/stores/player", () => {
 			removeCancelRequest: vi.fn((eventId: string) => {
 				cancelRequests.delete(eventId);
 			}),
+			checkIfEventIsCanceled: vi.fn((eventId: string) =>
+				cancelRequests.has(eventId),
+			),
 			cancelRequests,
 		},
-		checkIfEventIsCanceled: vi.fn((eventId: string) =>
-			cancelRequests.has(eventId),
-		),
 	};
 });

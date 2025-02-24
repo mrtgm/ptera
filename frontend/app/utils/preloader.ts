@@ -1,21 +1,8 @@
 import { Howl, type HowlOptions } from "howler";
 
-type ResourceCache = {
-	characters: {
-		[id: string]: Character & {
-			images: { [id: string]: { cache: HTMLImageElement } };
-		};
-	};
-	backgroundImages: {
-		[id: string]: BackgroundImage & { cache: HTMLImageElement };
-	};
-	soundEffects: { [id: string]: SoundEffect & { cache: Howl } };
-	bgms: { [id: string]: BGM & { cache: Howl } };
-};
-
 export class ResourceManager {
 	private static instance: ResourceManager;
-	private cache: ResourceCache = {
+	cache: ResourceCache = {
 		characters: {},
 		backgroundImages: {},
 		soundEffects: {},
@@ -95,7 +82,7 @@ export class ResourceManager {
 	}
 
 	async loadSoundEffect(soundEffect: SoundEffect): Promise<void> {
-		const sound = await this.loadSound(soundEffect.url);
+		const sound = await this.loadSound(soundEffect.url, { loop: false });
 		this.cache.soundEffects[soundEffect.id] = {
 			...soundEffect,
 			cache: sound,
@@ -125,16 +112,6 @@ export class ResourceManager {
 		];
 
 		await Promise.all(loadPromises);
-	}
-
-	getResource<K extends keyof ResourceCache>(
-		resourceType: K,
-		id: string,
-	): ResourceCache[K][string] {
-		if (!this.cache[resourceType][id]) {
-			throw new Error(`Resource not found: ${resourceType} ${id}`);
-		}
-		return this.cache[resourceType][id] as ResourceCache[K][string];
 	}
 
 	getCacheState() {

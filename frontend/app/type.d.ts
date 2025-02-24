@@ -59,13 +59,13 @@ interface TextRenderEvent extends EventBase {
 interface AppearMessageWindowEvent extends EventBase {
 	type: "appearMessageWindow";
 	category: "message";
-	duration: number;
+	transitionDuration: number;
 }
 
 interface HideMessageWindowEvent extends EventBase {
 	type: "hideMessageWindow";
 	category: "message";
-	duration: number;
+	transitionDuration: number;
 }
 
 interface AppearCharacterEvent extends EventBase {
@@ -76,7 +76,7 @@ interface AppearCharacterEvent extends EventBase {
 	position: [number, number];
 	scale: number;
 	transitionType: "fade" | "slide";
-	duration: number;
+	transitionDuration: number;
 }
 
 interface HideCharacterEvent extends EventBase {
@@ -84,14 +84,14 @@ interface HideCharacterEvent extends EventBase {
 	category: "character";
 	characterId: string;
 	transitionType: "fade" | "slide";
-	duration: number;
+	transitionDuration: number;
 }
 
 interface HideAllCharactersEvent extends EventBase {
 	type: "hideAllCharacters";
 	category: "character";
 	transitionType: "fade" | "slide";
-	duration: number;
+	transitionDuration: number;
 }
 
 interface BGMStartEvent extends EventBase {
@@ -99,21 +99,21 @@ interface BGMStartEvent extends EventBase {
 	category: "media";
 	bgmId: string;
 	volume: number;
-	duration: number;
+	transitionDuration: number;
 }
 
 interface BGMStopEvent extends EventBase {
 	type: "bgmStop";
 	category: "media";
-	duration: number;
+	transitionDuration: number;
 }
 
 interface SoundEffectEvent extends EventBase {
 	type: "soundEffect";
 	category: "media";
 	volume: number;
-	duration: number;
 	soundEffectId: string;
+	transitionDuration: number;
 }
 
 interface ChangeBackgroundEvent extends EventBase {
@@ -122,14 +122,14 @@ interface ChangeBackgroundEvent extends EventBase {
 	backgroundId: string;
 	scale: number;
 	position: [number, number];
-	duration: number;
+	transitionDuration: number;
 }
 
 interface EffectEvent extends EventBase {
 	type: "effect";
 	category: "effect";
 	effectType: "fadeIn" | "fadeOut" | "shake";
-	duration: number;
+	transitionDuration: number;
 }
 
 interface CharacterEffectEvent extends EventBase {
@@ -137,7 +137,7 @@ interface CharacterEffectEvent extends EventBase {
 	category: "effect";
 	characterId: string;
 	effectType: "shake" | "flash" | "bounce" | "sway" | "wobble";
-	duration: number;
+	transitionDuration: number;
 }
 
 interface MoveCharacterEvent extends EventBase {
@@ -146,7 +146,7 @@ interface MoveCharacterEvent extends EventBase {
 	characterId: string;
 	position: [number, number];
 	scale: number;
-	duration: number;
+	transitionDuration: number;
 }
 
 interface MoveBackgroundEvent extends EventBase {
@@ -154,7 +154,7 @@ interface MoveBackgroundEvent extends EventBase {
 	category: "background";
 	position: [number, number];
 	scale: number;
-	duration: number;
+	transitionDuration: number;
 }
 
 interface Choice {
@@ -197,25 +197,63 @@ type Stage = {
 		id: string;
 		scale: number;
 		position: [number, number];
-		duration: number;
+		transitionDuration: number;
 	} | null;
 	characters: {
-		id: string;
-		scale: number;
-		imageId: string;
-		position: [number, number];
-		duration: number;
-	}[];
+		transitionDuration: number;
+		items: {
+			id: string;
+			scale: number;
+			imageId: string;
+			position: [number, number];
+			effect: {
+				type: CharacterEffectEvent["effectType"];
+				transitionDuration: number;
+			} | null;
+		}[];
+	};
 	dialog: {
 		isVisible: boolean;
 		text: string;
 		characterName: string | undefined;
-		duration: number;
+		transitionDuration: number;
 	};
 	choices: Choice[];
-	bgm: BGM | null;
+	soundEffect: {
+		id: string;
+		volume: number;
+		isPlaying: boolean;
+		transitionDuration: number;
+	} | null;
+	bgm: {
+		id: string;
+		volume: number;
+		isPlaying: boolean;
+		transitionDuration: number;
+	} | null;
 	effect: {
 		type: EffectEvent["effectType"];
-		duration: number;
+		transitionDuration: number;
 	} | null;
+};
+
+type MessageHistory = {
+	text: string;
+	characterName?: string;
+	isChoice?: boolean;
+};
+
+type GameState = "loading" | "beforeStart" | "playing" | "idle" | "end";
+
+type ResourceCache = {
+	characters: {
+		[id: string]: Character & {
+			images: { [id: string]: { cache: HTMLImageElement } };
+		};
+	};
+	backgroundImages: {
+		[id: string]: BackgroundImage & { cache: HTMLImageElement };
+	};
+	soundEffects: { [id: string]: SoundEffect & { cache: Howl } };
+	bgms: { [id: string]: BGM & { cache: Howl } };
 };

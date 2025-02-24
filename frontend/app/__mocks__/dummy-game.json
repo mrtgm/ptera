@@ -16,7 +16,7 @@
           "backgroundId": "park-day",
           "position": [0, 0],
           "scale": 1.0,
-          "duration": 1000
+          "transitionDuration": 1000
         },
         {
           "id": "ev2",
@@ -24,13 +24,13 @@
           "category": "media",
           "bgmId": "jazzy",
           "volume": 0.7,
-          "duration": 2000
+          "transitionDuration": 1000
         },
         {
           "id": "ev3",
           "type": "appearMessageWindow",
           "category": "message",
-          "duration": 2000
+          "transitionDuration": 2000
         },
         {
           "id": "ev4",
@@ -60,7 +60,7 @@
           "position": [0, 0],
           "scale": 1.0,
           "transitionType": "fade",
-          "duration": 1000
+          "transitionDuration": 1000
         },
         {
           "id": "ev6-2",
@@ -68,14 +68,15 @@
           "category": "character",
           "characterId": "mysterious-girl",
           "effectType": "bounce",
-          "duration": 1000
+          "transitionDuration": 1000
         },
         {
           "id": "ev7",
           "type": "soundEffect",
           "category": "media",
           "soundEffectId": "footsteps",
-          "volume": 1
+          "volume": 1,
+          "transitionDuration": 0.1
         },
         {
           "id": "ev8",
@@ -136,7 +137,7 @@
           "position": [0, 0],
           "scale": 1.0,
           "transitionType": "fade",
-          "duration": 1000
+          "transitionDuration": 1000
         },
         {
           "id": "ev13",
@@ -160,7 +161,7 @@
           "position": [0, 0],
           "scale": 1.0,
           "transitionType": "fade",
-          "duration": 1000
+          "transitiontransitionDuration": 1000
         },
         {
           "id": "ev14",
@@ -194,7 +195,7 @@
           "category": "media",
           "soundEffectId": "footsteps",
           "volume": 0.3,
-          "duration": 2.0
+          "transitionDuration": 0.1
         },
         {
           "id": "ev20-2",
@@ -202,7 +203,7 @@
           "category": "character",
           "characterId": "mysterious-girl",
           "effectType": "bounce",
-          "duration": 500
+          "transitionDuration": 500
         },
         {
           "id": "ev21",
@@ -257,7 +258,7 @@
           "position": [0, 0],
           "scale": 1.0,
           "transitionType": "fade",
-          "duration": 1000
+          "transitionDuration": 1000
         },
         {
           "id": "ev25",
@@ -288,7 +289,7 @@
           "position": [0, 0],
           "scale": 1.0,
           "transitionType": "fade",
-          "duration": 1000
+          "transitionDuration": 1000
         },
         {
           "id": "ev29",
@@ -309,7 +310,7 @@
           "type": "effect",
           "category": "effect",
           "effectType": "shake",
-          "duration": 1000
+          "transitionDuration": 1000
         },
         {
           "id": "ev31",
@@ -329,7 +330,7 @@
           "type": "hideCharacter",
           "category": "character",
           "characterId": "mysterious-girl",
-          "duration": 1000
+          "transitionDuration": 1000
         },
         {
           "id": "ev33",
@@ -349,13 +350,13 @@
           "type": "effect",
           "category": "effect",
           "effectType": "fadeOut",
-          "duration": 3000
+          "transitionDuration": 3000
         },
         {
           "id": "ev35",
           "type": "bgmStop",
           "category": "media",
-          "duration": 2000
+          "transitionDuration": 2000
         },
         {
           "id": "ev36",

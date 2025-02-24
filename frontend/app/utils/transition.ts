@@ -1,4 +1,4 @@
-import { checkIfEventIsCanceled, player } from "~/stores/player";
+import { player } from "~/stores/player";
 import { type EasingType, easing } from "~/utils/easing";
 
 type Keyframe = {
@@ -67,8 +67,6 @@ export const transformInterpolator: TransformInterpolator = (
 	const unit = toInfo.unit || fromInfo.unit;
 	const current = fromInfo.value + (toInfo.value - fromInfo.value) * progress;
 
-	console.log(`${fromInfo.funcName}(${current}${unit})`);
-
 	return `${fromInfo.funcName}(${current}${unit})`;
 };
 
@@ -99,7 +97,6 @@ const interpolateKeyframes = (
 				return numberInterpolator(current.value, next.value, segmentProgress);
 			}
 
-			// その他の型の場合は単純に現在のキーフレームの値を返す
 			return current.value;
 		}
 	}
@@ -131,7 +128,7 @@ export class Transition {
 				const elapsed = currentTime - this.startTime;
 
 				// トランジションをスキップ
-				if (checkIfEventIsCanceled(this.config.eventId)) {
+				if (player.checkIfEventIsCanceled(this.config.eventId)) {
 					this.complete(resolve);
 					player.removeCancelRequest(this.config.eventId);
 					return;

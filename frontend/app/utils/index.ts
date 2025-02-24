@@ -29,3 +29,23 @@ export const updateOrAppend = <T, K extends keyof T>(
 		? array.map((item) => (item[key] === newItem[key] ? newItem : item))
 		: [...array, newItem];
 };
+
+export function mapReduce<T, R, K extends string>(
+	map: { [key in K]: T },
+	fn: (t: T, key: K) => R,
+): { [key in K]: R } {
+	const ret = {} as { [key in K]: R };
+	for (const key in map) {
+		ret[key] = fn(map[key], key);
+	}
+	return ret;
+}
+
+export function mapEach<T, K extends string>(
+	map: { [key in K]: T },
+	fn: (t: T, key: K) => void,
+) {
+	for (const key in map) {
+		fn(map[key], key);
+	}
+}

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import dummyAssets from "~/datas/dummy-assets.json";
-import dummyGame from "~/datas/dummy-game.json";
+import dummyAssets from "~/__mocks__/dummy-assets.json";
+import dummyGame from "~/__mocks__/dummy-game.json";
 import { buildCurrentStageFromScenes, findAllPaths } from ".";
 
 describe("Player Library", () => {
@@ -30,13 +30,19 @@ describe("Player Library", () => {
 			result,
 			{
 				background: null,
-				characters: [],
+				characters: {
+					transitionDuration: 0,
+					items: [],
+				},
+				choices: [],
 				dialog: {
 					isVisible: false,
 					text: "",
 					characterName: "",
+					transitionDuration: 0,
 				},
 				bgm: null,
+				soundEffect: null,
 				effect: null,
 			},
 			dummyAssets as GameResources,
@@ -46,6 +52,7 @@ describe("Player Library", () => {
 			isVisible: true,
 			text: "「あなたも...この桜を見に来たんですか？」",
 			characterName: "???",
+			transitionDuration: 0,
 		});
 	});
 });

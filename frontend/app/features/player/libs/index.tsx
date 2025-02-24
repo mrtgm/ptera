@@ -86,23 +86,35 @@ export const handleEvent = (
 		case "appearCharacter":
 			return {
 				...stage,
-				characters: [
-					...stage.characters.filter((c) => c.id !== event.characterId),
-					{
-						id: event.characterId,
-						scale: event.scale,
-						imageId: event.characterImageId,
-						position: event.position,
-					},
-				],
+				characters: {
+					transitionDuration: event.transitionDuration,
+					items: [
+						...stage.characters.items.filter((c) => c.id !== event.characterId),
+						{
+							id: event.characterId,
+							scale: event.scale,
+							imageId: event.characterImageId,
+							position: event.position,
+							effect: null,
+						},
+					],
+				},
 			};
 		case "hideCharacter":
 			return {
 				...stage,
-				characters: stage.characters.filter((c) => c.id !== event.characterId),
+				characters: {
+					transitionDuration: event.transitionDuration,
+					items: stage.characters.items.filter(
+						(c) => c.id !== event.characterId,
+					),
+				},
 			};
 		case "hideAllCharacters":
-			return { ...stage, characters: [] };
+			return {
+				...stage,
+				characters: { transitionDuration: event.transitionDuration, items: [] },
+			};
 		case "changeBackground":
 			if (!resources) return stage;
 			return {
@@ -113,15 +125,23 @@ export const handleEvent = (
 			if (!resources) return stage;
 			return {
 				...stage,
-				bgm: new Howl({
-					src: [resources.bgms[event.bgmId].url],
-					loop: true,
-				}),
+				bgm: {
+					id: event.bgmId,
+					volume: event.volume,
+					isPlaying: true,
+					transitionDuration: event.transitionDuration,
+				},
 			};
 		case "bgmStop":
 			return { ...stage, bgm: null };
 		case "effect":
-			return { ...stage, effect: event };
+			return {
+				...stage,
+				effect: {
+					type: event.effectType,
+					transitionDuration: event.transitionDuration,
+				},
+			};
 	}
 
 	return stage;
