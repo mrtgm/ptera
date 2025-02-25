@@ -1,55 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
-import dummyAssets from "~/__mocks__/dummy-assets.json";
-import dummyGame from "~/__mocks__/dummy-game.json";
+import { useCallback } from "react";
 import { player } from "~/features/player/libs/engine";
 import { resourceManager } from "~/utils/preloader";
 import { GameScreen } from "./game-screen";
-
-const states = ["beforeStart", "playing", "end", "idle"] as const;
+import { usePlayerInitialize } from "./hooks";
 
 export const Player = () => {
-	const [game, setGame] = useState<Game | null>(null);
-	const [state, setState] = useState<GameState>("loading");
-	const [history, setHistory] = useState<MessageHistory[]>([]);
-	const [stage, setStage] = useState<Stage>(player.stage);
-	const [currentEvent, setCurrentEvent] = useState<GameEvent | null>(null);
-
-	useEffect(() => {
-		resourceManager.loadResources(dummyAssets as GameResources).then(() => {
-			setState("beforeStart");
-
-			player.loadGame(dummyGame as Game);
-
-			player.currentGame && setGame(player.currentGame);
-
-			for (const state of states) {
-				player.emitter.on(state, () => {
-					setState(state);
-				});
-			}
-
-			player.emitter.on("stageUpdated", (stage) => {
-				setStage(stage);
-			});
-
-			player.emitter.on("historyUpdated", (history) => {
-				setHistory(history);
-			});
-
-			player.emitter.on("currentEventUpdated", (event) => {
-				setCurrentEvent(event);
-			});
-		});
-
-		return () => {
-			player.emitter.off("stageUpdated");
-			player.emitter.off("currentEventUpdated");
-
-			for (const state of states) {
-				player.emitter.off(state);
-			}
-		};
-	}, []);
+	const { game, state, stage, history, currentEvent } = usePlayerInitialize();
 
 	const handleTapGameScreen = useCallback(
 		(e: React.MouseEvent) => {
@@ -64,7 +20,7 @@ export const Player = () => {
 	};
 
 	const handleTapGoToInitialScreen = () => {
-		setState("beforeStart");
+		player.setState("beforeStart");
 	};
 
 	const handleTapGoToOtherWorks = () => {

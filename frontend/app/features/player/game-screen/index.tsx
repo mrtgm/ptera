@@ -18,6 +18,7 @@ export const GameScreen = ({
 	history,
 	resourceCache,
 	currentEvent,
+	isPreviewMode,
 }: {
 	handleTapScreen: (e: React.MouseEvent) => void;
 	stage: Stage;
@@ -25,6 +26,7 @@ export const GameScreen = ({
 	state: GameState;
 	resourceCache: ResourceCache;
 	currentEvent: GameEvent | null;
+	isPreviewMode?: boolean;
 }) => {
 	const screenRef = useRef<HTMLDivElement | null>(null);
 
