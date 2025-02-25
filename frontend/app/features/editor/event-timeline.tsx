@@ -1,16 +1,30 @@
 import { ArrowUp, Pen, Split } from "lucide-react";
+import type {
+	AppearCGEvent,
+	AppearCharacterEvent,
+	CharacterEffectEvent,
+	Game,
+	GameEvent,
+	HideCharacterEvent,
+	MoveCharacterEvent,
+	ResourceCache,
+	Scene,
+	TextRenderEvent,
+} from "~/schema";
 import { findFirstObjectValue } from "~/utils";
 import type { SideBarSettings } from "./constants";
 import { SpeechBubble } from "./speech-bubble";
 
 export const EventTimeline = ({
 	selectedScene,
+	selectedEvent,
 	game,
 	sideBarSettings,
 	cache,
 	onClickEvent,
 }: {
 	selectedScene: Scene;
+	selectedEvent: GameEvent | undefined;
 	game: Game;
 	sideBarSettings: typeof SideBarSettings;
 	cache: ResourceCache;
@@ -44,6 +58,7 @@ export const EventTimeline = ({
 								key={event.id}
 								id={event.id}
 								hex={categoryColor}
+								selected={selectedEvent?.id === event.id}
 								title={
 									sideBarSettings[event.category]?.items.find(
 										(item) => item.type === event.type,
@@ -70,7 +85,7 @@ export const EventTimeline = ({
 
 const renderEventContent = (event: GameEvent, cache: ResourceCache) => {
 	if (event.type === "text") {
-		return (event as TextRenderEvent).lines.join("\n");
+		return `${event.characterName ? `${event.characterName}:` : ""}${(event as TextRenderEvent).lines.join("\n")}`;
 	}
 
 	if (

@@ -1,4 +1,5 @@
 import { player } from "~/features/player/libs/engine";
+import type { GameEvent, Stage } from "~/schema";
 import { AnimatePresence } from "./animate-presence";
 
 export const Choice = ({

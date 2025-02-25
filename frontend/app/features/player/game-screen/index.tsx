@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { player } from "~/features/player/libs/engine";
+import type {
+	GameEvent,
+	GameState,
+	MessageHistory,
+	ResourceCache,
+	Stage,
+} from "~/schema";
 import { shake } from "~/utils/transition";
 import { Background } from "./background";
 import { CG } from "./cg";

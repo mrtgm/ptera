@@ -1,5 +1,14 @@
 import { Howler } from "howler";
 import mitt from "mitt";
+import type {
+	Choice,
+	Game,
+	GameEvent,
+	GameState,
+	MessageHistory,
+	Scene,
+	Stage,
+} from "~/schema";
 import { updateOrAppend, waitMs } from "~/utils";
 
 type Events = {

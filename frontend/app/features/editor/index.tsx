@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from "@remix-run/react";
 import { useEffect } from "react";
+import type { GameEvent } from "~/schema";
 import { usePlayerInitialize } from "../player/hooks";
 import {
 	SideBarSettings,
@@ -33,11 +34,11 @@ export const Editor = () => {
 		(event) => event.id === selectedEventId,
 	);
 
-	const handleClickScene = (sceneId: string) => {
+	const handleNavigateToScene = (sceneId: string) => {
 		navigate(`/editor/${sceneId}`);
 	};
 
-	const handleClickEvent = (eventId: string) => {
+	const handleNavigateToEvent = (eventId: string) => {
 		navigate(`/editor/${selectedSceneId}/${eventId}`);
 	};
 
@@ -132,33 +133,39 @@ export const Editor = () => {
 						<ScenesList
 							game={game}
 							sideBarSettings={SideBarSettings}
-							onSceneClick={handleClickScene}
+							onSceneClick={handleNavigateToScene}
 							onAddScene={handleAddScene}
 						/>
 					) : (
 						<SceneEditor
+							selectedEvent={selectedEvent}
 							selectedScene={selectedScene}
 							game={game}
 							sideBarSettings={SideBarSettings}
 							cache={cache}
 							onNavigateToScenesList={handleNavigateToScenesList}
 							onDeleteScene={handleDeleteScene}
-							onClickEvent={handleClickEvent}
+							onClickEvent={handleNavigateToEvent}
 						/>
 					)}
 				</div>
 
 				<div className="col-span-4 flex justify-center items-center">
-					{selectedEvent ? (
+					{selectedSceneId && selectedEvent ? (
 						<EventEditor
+							key={selectedEvent.id}
 							selectedEvent={selectedEvent}
 							game={game}
 							cache={cache}
 							onDeleteEvent={handleDeleteEvent}
 							onSaveEvent={handleSaveEvent}
+							onClickAwayEvent={(e) => {
+								if ((e.target as HTMLElement).closest(".event-editor")) return;
+								handleNavigateToScene(selectedSceneId);
+							}}
 						/>
 					) : (
-						<div className="p-2">
+						<div className="p-2 bg-slate-900 w-full h-full flex justify-center items-center select-none text-white">
 							<div className="text-2xl">No event selected</div>
 						</div>
 					)}

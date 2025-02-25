@@ -1,3 +1,5 @@
+import type { GameState } from "~/schema";
+
 export const states: GameState[] = [
 	"beforeStart",
 	"playing",

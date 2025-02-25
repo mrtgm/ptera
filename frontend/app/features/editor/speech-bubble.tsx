@@ -6,12 +6,14 @@ export const SpeechBubble = ({
 	hex,
 	icon,
 	title,
+	selected,
 	children,
 	onClick,
 }: {
 	id?: string;
 	hex: string;
 	title: string;
+	selected?: boolean;
 	icon: ReactElement | null;
 	children: ReactNode;
 	onClick?: () => void;
@@ -44,10 +46,13 @@ export const SpeechBubble = ({
 			</div>
 
 			<div
-				className="rounded-lg p-3 shadow-md relative flex-1 w-full"
+				className="rounded-lg p-3 shadow-md relative flex-1 w-full event-editor"
 				style={{
 					backgroundColor: `${hex}20`,
 					borderLeft: `4px solid ${hex}`,
+					borderRight: selected ? `1px solid ${hex}` : "none",
+					borderTop: selected ? `1px solid ${hex}` : "none",
+					borderBottom: selected ? `1px solid ${hex}` : "none",
 				}}
 			>
 				{icon && (

@@ -1,4 +1,5 @@
 import type { StateCreator } from "zustand";
+import type { Game, GameEvent, GameResources, Scene } from "~/schema";
 import type { State } from ".";
 
 export interface EditorState {

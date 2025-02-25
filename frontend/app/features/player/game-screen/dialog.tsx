@@ -1,3 +1,4 @@
+import type { GameEvent, GameState, Stage } from "~/schema";
 import { AnimatePresence } from "./animate-presence";
 
 export const Dialog = ({

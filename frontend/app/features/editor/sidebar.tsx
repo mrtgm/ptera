@@ -1,7 +1,8 @@
-import { type ReactElement, cloneElement } from "react";
+import { cloneElement } from "react";
 import { Card } from "~/components/shadcn/card";
 import { ScrollArea } from "~/components/shadcn/scroll-area";
 import { Separator } from "~/components/shadcn/separator";
+import type { Scene } from "~/schema";
 import type { SideBarSettings, SidebarItem } from "./constants";
 import { SceneSettings, type SceneSettingsFormData } from "./scene-settings";
 
@@ -42,7 +43,7 @@ export const Sidebar = ({
 									{value.items.map((item) => (
 										<Card
 											key={item.id}
-											className="p-2 flex gap-2 items-center cursor-pointer hover:bg-gray-50"
+											className="p-2 flex gap-2 items-center cursor-move hover:bg-gray-50 select-none"
 											onClick={() => onItemClick(item)}
 										>
 											{cloneElement(item.icon, {

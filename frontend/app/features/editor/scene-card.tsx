@@ -1,3 +1,4 @@
+import type { Game, Scene } from "~/schema";
 import type { SideBarSettings } from "./constants";
 
 type SceneCardProps = {

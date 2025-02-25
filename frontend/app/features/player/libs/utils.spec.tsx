@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test } from "vitest";
 import dummyAssets from "~/__mocks__/dummy-assets.json";
 import dummyGame from "~/__mocks__/dummy-game.json";
+import type { Game, GameResources } from "~/schema";
 import { buildCurrentStageFromScenes, findAllPaths } from "./utils";
 
 describe("Player Library", () => {

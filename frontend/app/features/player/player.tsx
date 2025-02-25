@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { player } from "~/features/player/libs/engine";
-import { resourceManager } from "~/utils/preloader";
+import type { Game } from "~/schema";
 import { GameScreen } from "./game-screen";
 import { usePlayerInitialize } from "./hooks";
 

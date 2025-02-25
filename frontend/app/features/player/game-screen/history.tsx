@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { useEffect, useRef } from "react";
+import type { MessageHistory } from "~/schema";
 
 export const History = ({
 	history,

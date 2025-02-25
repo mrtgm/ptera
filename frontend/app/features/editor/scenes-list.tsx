@@ -4,6 +4,7 @@ import {
 	BreadcrumbList,
 } from "~/components/shadcn/breadcrumb";
 import { Button } from "~/components/shadcn/button";
+import type { Game } from "~/schema";
 import type { SideBarSettings } from "./constants";
 import { SceneCard } from "./scene-card";
 

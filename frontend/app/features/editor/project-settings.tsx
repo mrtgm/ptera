@@ -10,6 +10,7 @@ import {
 	FormMessage,
 } from "~/components/shadcn/form";
 import { Input } from "~/components/shadcn/input";
+import type { Game } from "~/schema";
 
 export type ProjectSettingsFormData = {
 	gameTitle: string;

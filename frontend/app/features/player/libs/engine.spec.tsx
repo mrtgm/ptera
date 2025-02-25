@@ -1,5 +1,6 @@
 import { Howler } from "howler";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Choice, Game, GameEvent, MessageHistory, Stage } from "~/schema";
 import { Player } from "./engine";
 
 vi.mock("howler", () => {

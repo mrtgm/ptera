@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import dummyAssets from "~/__mocks__/dummy-assets.json";
 import dummyGame from "~/__mocks__/dummy-game.json";
+import type {
+	Game,
+	GameEvent,
+	GameResources,
+	GameState,
+	MessageHistory,
+	ResourceCache,
+	Stage,
+} from "~/schema";
 import { resourceManager } from "~/utils/preloader";
 import { states } from "./constants";
 import { player } from "./libs/engine";

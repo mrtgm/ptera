@@ -5,11 +5,13 @@ import {
 	BreadcrumbSeparator,
 } from "~/components/shadcn/breadcrumb";
 import { Button } from "~/components/shadcn/button";
+import type { Game, GameEvent, ResourceCache, Scene } from "~/schema";
 import type { SideBarSettings } from "./constants";
 import { EventTimeline } from "./event-timeline";
 
 export const SceneEditor = ({
 	selectedScene,
+	selectedEvent,
 	game,
 	cache,
 	sideBarSettings,
@@ -17,6 +19,7 @@ export const SceneEditor = ({
 	onDeleteScene,
 	onClickEvent,
 }: {
+	selectedEvent: GameEvent | undefined;
 	selectedScene: Scene | undefined;
 	game: Game;
 	cache: ResourceCache;
@@ -52,6 +55,7 @@ export const SceneEditor = ({
 
 			<EventTimeline
 				selectedScene={selectedScene}
+				selectedEvent={selectedEvent}
 				game={game}
 				sideBarSettings={sideBarSettings}
 				cache={cache}

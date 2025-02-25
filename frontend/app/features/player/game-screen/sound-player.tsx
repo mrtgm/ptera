@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import type { ResourceCache, Stage } from "~/schema";
 import { resourceManager } from "~/utils/preloader";
 
 export const SoundPlayer = ({

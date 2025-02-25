@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
 import { player } from "~/features/player/libs/engine";
+import type { GameEvent, ResourceCache, Stage } from "~/schema";
 import {
 	blackOff,
 	blackOn,

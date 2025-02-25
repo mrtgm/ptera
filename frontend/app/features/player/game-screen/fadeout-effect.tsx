@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import type { GameEvent, Stage } from "~/schema";
 import { AnimatePresence } from "./animate-presence";
 
 export const FadeOutEffect = ({

@@ -10,6 +10,7 @@ import {
 	FormMessage,
 } from "~/components/shadcn/form";
 import { Input } from "~/components/shadcn/input";
+import type { Scene } from "~/schema";
 
 export type SceneSettingsFormData = {
 	sceneTitle: string;

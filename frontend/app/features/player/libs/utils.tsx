@@ -1,3 +1,5 @@
+import type { Game, GameEvent, GameResources, Scene, Stage } from "~/schema";
+
 export const findAllPaths = (
 	game: Game,
 	sceneId: string,

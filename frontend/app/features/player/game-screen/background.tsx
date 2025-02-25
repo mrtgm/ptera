@@ -1,3 +1,4 @@
+import type { GameEvent, ResourceCache, Stage } from "~/schema";
 import { resourceManager } from "~/utils/preloader";
 import { AnimatePresence } from "./animate-presence";
 

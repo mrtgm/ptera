@@ -3,6 +3,15 @@ import { useEffect, useState } from "react";
 import { GameScreen } from "./index";
 
 import mockAssets from "~/__mocks__/dummy-assets.json";
+import type {
+	CharacterEffectEvent,
+	GameResources,
+	GameState,
+	MessageHistory,
+	ResourceCache,
+	Stage,
+	TextRenderEvent,
+} from "~/schema";
 import { ResourceManager } from "~/utils/preloader";
 
 const mockStage: Stage = {

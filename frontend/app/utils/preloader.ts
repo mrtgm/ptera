@@ -1,4 +1,13 @@
 import { Howl, type HowlOptions } from "howler";
+import type {
+	BGM,
+	BackgroundImage,
+	CGImage,
+	Character,
+	GameResources,
+	ResourceCache,
+	SoundEffect,
+} from "~/schema";
 
 export class ResourceManager {
 	private static instance: ResourceManager;
