@@ -5,7 +5,8 @@ import { GameScreen } from "./game-screen";
 import { usePlayerInitialize } from "./hooks";
 
 export const Player = () => {
-	const { game, state, stage, history, currentEvent } = usePlayerInitialize();
+	const { game, state, stage, history, currentEvent, cache } =
+		usePlayerInitialize();
 
 	const handleTapGameScreen = useCallback(
 		(e: React.MouseEvent) => {
@@ -46,7 +47,7 @@ export const Player = () => {
 			handleTapScreen={handleTapGameScreen}
 			currentEvent={currentEvent}
 			state={state}
-			resourceCache={resourceManager.cache}
+			resourceCache={cache}
 			history={history}
 			stage={stage}
 		/>

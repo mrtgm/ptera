@@ -11,6 +11,7 @@ type Scene = GotoScene | ChoiceScene | EndScene;
 
 type GotoScene = {
 	id: string;
+	title: string;
 	sceneType: "goto";
 	events: GameEvent[];
 	nextSceneId: string;
@@ -18,6 +19,7 @@ type GotoScene = {
 
 type ChoiceScene = {
 	id: string;
+	title: string;
 	sceneType: "choice";
 	events: GameEvent[];
 	choices: Choice[];
@@ -25,6 +27,7 @@ type ChoiceScene = {
 
 type EndScene = {
 	id: string;
+	title: string;
 	sceneType: "end";
 	events: GameEvent[];
 };

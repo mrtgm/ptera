@@ -42,3 +42,9 @@ export function mapEach<T, K extends string>(
 		fn(map[key], key);
 	}
 }
+
+export function findFirstObjectValue<T>(obj: Record<string, T>): T | undefined {
+	for (const key in obj) {
+		return obj[key];
+	}
+}

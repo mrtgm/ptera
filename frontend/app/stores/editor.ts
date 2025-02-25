@@ -42,6 +42,7 @@ export const createEditorSlice: StateCreator<
 		backgroundImages: {},
 		soundEffects: {},
 		bgms: {},
+		cgImages: {},
 	},
 
 	createNewGame: () =>

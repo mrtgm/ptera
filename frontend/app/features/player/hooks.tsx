@@ -9,12 +9,14 @@ export const usePlayerInitialize = () => {
 	const [game, setGame] = useState<Game | null>(null);
 	const [state, setState] = useState<GameState>("loading");
 	const [stage, setStage] = useState<Stage>(player.stage);
+	const [cache, setCache] = useState<ResourceCache>(resourceManager.cache);
 	const [history, setHistory] = useState<MessageHistory[]>([]);
 	const [currentEvent, setCurrentEvent] = useState<GameEvent | null>(null);
 
 	useEffect(() => {
 		resourceManager.loadResources(dummyAssets as GameResources).then(() => {
 			setState("beforeStart");
+			setCache(resourceManager.cache);
 
 			player.loadGame(dummyGame as Game);
 			player.currentGame && setGame(player.currentGame);
@@ -55,5 +57,12 @@ export const usePlayerInitialize = () => {
 		stage,
 		history,
 		currentEvent,
+		cache,
+		setGame,
+		setState,
+		setStage,
+		setHistory,
+		setCurrentEvent,
+		setCache,
 	};
 };

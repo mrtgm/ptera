@@ -26,6 +26,7 @@ const mockGame: Game = {
 	scenes: [
 		{
 			id: "scene1",
+			title: "scene1",
 			events: [
 				{
 					id: "event1",
@@ -39,6 +40,7 @@ const mockGame: Game = {
 		},
 		{
 			id: "scene2",
+			title: "scene2",
 			events: [
 				{
 					id: "event1",

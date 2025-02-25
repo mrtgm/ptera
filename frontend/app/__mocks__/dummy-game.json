@@ -7,6 +7,7 @@
   "scenes": [
     {
       "id": "opening",
+      "title": "オープニング",
       "sceneType": "goto",
       "events": [
         {
@@ -64,6 +65,7 @@
     },
     {
       "id": "mysterious-girl",
+      "title": "謎の少女",
       "sceneType": "goto",
       "events": [
         {
@@ -111,6 +113,7 @@
     },
     {
       "id": "first-choice",
+      "title": "最初の選択",
       "sceneType": "choice",
       "events": [
         {
@@ -135,6 +138,7 @@
     },
     {
       "id": "friendly-response",
+      "title": "友好的な返答",
       "sceneType": "goto",
       "events": [
         {
@@ -165,6 +169,7 @@
     },
     {
       "id": "hesitant-response",
+      "title": "戸惑いの返答",
       "sceneType": "goto",
       "events": [
         {
@@ -196,6 +201,7 @@
     },
     {
       "id": "story-continues",
+      "title": "物語は続く",
       "sceneType": "goto",
       "events": [
         {
@@ -232,6 +238,7 @@
     },
     {
       "id": "legend-choice",
+      "title": "言い伝え",
       "sceneType": "choice",
       "events": [
         {
@@ -256,6 +263,7 @@
     },
     {
       "id": "interested-response",
+      "title": "興味を持って聞く",
       "sceneType": "goto",
       "events": [
         {
@@ -287,6 +295,7 @@
     },
     {
       "id": "cautious-response",
+      "title": "慎重な返答",
       "sceneType": "goto",
       "events": [
         {
@@ -318,6 +327,7 @@
     },
     {
       "id": "legend-reveal",
+      "title": "言い伝えの真相",
       "sceneType": "goto",
       "events": [
         {
@@ -358,6 +368,7 @@
     },
     {
       "id": "true-ending",
+      "title": "真実の結末",
       "sceneType": "end",
       "events": [
         {
