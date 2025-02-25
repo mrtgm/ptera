@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { player } from "~/features/player/libs/engine";
 import { shake } from "~/utils/transition";
 import { Background } from "./background";
+import { CG } from "./cg";
 import { CharacterList } from "./character";
 import { Choice } from "./choice";
 import { Dialog } from "./dialog";
@@ -48,7 +49,7 @@ export const GameScreen = ({
 				promise = Promise.resolve();
 		}
 		promise.then(() => {
-			player.updateStage({ effect: null });
+			if (stage.effect?.type === "shake") player.updateStage({ effect: null });
 		});
 	}, [stage.effect, currentEvent]);
 
@@ -75,6 +76,11 @@ export const GameScreen = ({
 				resourceCache={resourceCache.characters}
 				characters={stage.characters}
 				currentEvent={currentEvent}
+			/>
+			<CG
+				cg={stage.cg}
+				currentEvent={currentEvent}
+				resourceCache={resourceCache.cgImages}
 			/>
 			<FadeOutEffect effect={stage.effect} currentEvent={currentEvent} />
 			<Choice choices={stage.choices} currentEvent={currentEvent} />

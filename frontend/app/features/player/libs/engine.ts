@@ -12,6 +12,10 @@ type Events = {
 
 const INITIAL_STATE: Stage = {
 	background: null,
+	cg: {
+		item: null,
+		transitionDuration: 0,
+	},
 	characters: {
 		items: [],
 		transitionDuration: 0,
@@ -78,6 +82,9 @@ export class Player {
 	}
 
 	addCancelRequest(eventId: string) {
+		if (this.cancelRequests.size > 5) {
+			this.cancelRequests.clear();
+		}
 		this.cancelRequests.add(eventId);
 	}
 
@@ -182,6 +189,8 @@ const runBranching = async (scene: Scene) => {
 };
 
 const runEvent = async (event: GameEvent) => {
+	console.log("runEvent", event);
+
 	switch (event.type) {
 		case "text": {
 			for (const line of event.lines) {
@@ -256,7 +265,26 @@ const runEvent = async (event: GameEvent) => {
 					),
 				},
 			});
+
 			await waitCancelable(event.transitionDuration, event.id);
+			break;
+		}
+		case "moveCharacter": {
+			player.updateStage({
+				characters: {
+					...player.stage.characters,
+					items: player.stage.characters.items.map((c) => {
+						if (c.id === event.characterId) {
+							return {
+								...c,
+								position: event.position,
+								scale: event.scale,
+							};
+						}
+						return c;
+					}),
+				},
+			});
 			break;
 		}
 		case "hideCharacter": {
@@ -342,6 +370,30 @@ const runEvent = async (event: GameEvent) => {
 			await waitCancelable(event.transitionDuration, event.id);
 			break;
 		}
+		case "appearCG": {
+			player.updateStage({
+				cg: {
+					transitionDuration: event.transitionDuration,
+					item: {
+						id: event.imageId,
+						scale: event.scale,
+						position: event.position,
+					},
+				},
+			});
+			await waitCancelable(event.transitionDuration, event.id);
+			break;
+		}
+		case "hideCG": {
+			player.updateStage({
+				cg: {
+					transitionDuration: event.transitionDuration,
+					item: null,
+				},
+			});
+			await waitCancelable(event.transitionDuration, event.id);
+			break;
+		}
 	}
 };
 
@@ -378,6 +430,25 @@ const waitForGameScreenIsMounted = (timeout = 5000): Promise<HTMLElement> => {
 	});
 };
 
+const waitCancelable = async (ms: number, eventId: string) => {
+	const startTime = performance.now();
+	const wait = () =>
+		new Promise<void>((resolve) => {
+			const check = () => {
+				if (
+					performance.now() - startTime > ms ||
+					player.checkIfEventIsCanceled(eventId)
+				) {
+					resolve();
+					return;
+				}
+				requestAnimationFrame(check);
+			};
+			check();
+		});
+	await wait();
+};
+
 const animateLine = async (
 	line: string,
 	eventId: string,
@@ -398,23 +469,4 @@ const animateLine = async (
 		update(text);
 		await waitMs(DELAY);
 	}
-};
-
-const waitCancelable = async (ms: number, eventId: string) => {
-	const startTime = performance.now();
-	const wait = () =>
-		new Promise<void>((resolve) => {
-			const check = () => {
-				if (
-					performance.now() - startTime > ms ||
-					player.checkIfEventIsCanceled(eventId)
-				) {
-					resolve();
-					return;
-				}
-				requestAnimationFrame(check);
-			};
-			check();
-		});
-	await wait();
 };

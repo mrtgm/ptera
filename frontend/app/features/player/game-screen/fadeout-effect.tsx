@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { AnimatePresence } from "./animate-presence";
 
 export const FadeOutEffect = ({

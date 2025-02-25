@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from "vitest";
 import dummyAssets from "~/__mocks__/dummy-assets.json";
 import dummyGame from "~/__mocks__/dummy-game.json";
-import { buildCurrentStageFromScenes, findAllPaths } from ".";
+import { buildCurrentStageFromScenes, findAllPaths } from "./utils";
 
 describe("Player Library", () => {
 	// 始点から終点までの全てのパスを取得する
@@ -33,6 +33,10 @@ describe("Player Library", () => {
 				characters: {
 					transitionDuration: 0,
 					items: [],
+				},
+				cg: {
+					item: null,
+					transitionDuration: 0,
 				},
 				choices: [],
 				dialog: {

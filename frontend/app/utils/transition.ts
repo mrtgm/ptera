@@ -130,7 +130,6 @@ export class Transition {
 				// トランジションをスキップ
 				if (player.checkIfEventIsCanceled(this.config.eventId)) {
 					this.complete(resolve);
-					player.removeCancelRequest(this.config.eventId);
 					return;
 				}
 
@@ -420,6 +419,68 @@ export const sway = (
 							{ offset: 0.75, value: "translateX(10px)" },
 							{ offset: 1, value: "translateX(0)" },
 						],
+					},
+				],
+			},
+		],
+		duration,
+		eventId,
+	});
+
+	return transition.start();
+};
+
+export const blackOn = (
+	eventId: string,
+	duration: number,
+	element: HTMLElement,
+): Promise<void> => {
+	const transition = new Transition({
+		targets: [
+			{
+				element,
+				properties: [
+					{
+						property: "filter",
+						keyframes: [
+							{ offset: 0, value: "brightness(1)" },
+							{ offset: 1, value: "brightness(0)" },
+						],
+					},
+					{
+						property: "mixBlendMode",
+						keyframes: [{ offset: 0, value: "luminosity" }],
+					},
+				],
+			},
+		],
+		duration,
+		eventId,
+	});
+
+	return transition.start();
+};
+
+export const blackOff = (
+	eventId: string,
+	duration: number,
+	element: HTMLElement,
+): Promise<void> => {
+	const transition = new Transition({
+		targets: [
+			{
+				element,
+				properties: [
+					{
+						property: "filter",
+						keyframes: [
+							{ offset: 0, value: "brightness(0)" },
+							{ offset: 1, value: "brightness(1)" },
+						],
+					},
+					{
+						property: "mixBlendMode",
+						keyframes: [{ offset: 0, value: "luminosity" }],
 					},
 				],
 			},

@@ -6,6 +6,10 @@ import mockAssets from "~/__mocks__/dummy-assets.json";
 import { ResourceManager } from "~/utils/preloader";
 
 const mockStage: Stage = {
+	cg: {
+		item: null,
+		transitionDuration: 0,
+	},
 	background: {
 		id: "park-day",
 		scale: 1,
@@ -19,7 +23,14 @@ const mockStage: Stage = {
 				id: "mysterious-girl",
 				scale: 1,
 				imageId: "mysterious-girl-smile",
-				position: [0, 0],
+				position: [-0.2, 0],
+				effect: null,
+			},
+			{
+				id: "longhair-woman",
+				scale: 1,
+				imageId: "longhair-woman-smile",
+				position: [0.2, 0],
 				effect: null,
 			},
 		],
@@ -32,12 +43,7 @@ const mockStage: Stage = {
 	},
 	choices: [],
 	soundEffect: null,
-	bgm: {
-		id: "peaceful-day",
-		volume: 0.2,
-		isPlaying: true,
-		transitionDuration: 300,
-	},
+	bgm: null,
 	effect: null,
 };
 
@@ -63,12 +69,13 @@ const GameScreenWrapper = (args: {
 	resourceCache?: ResourceCache;
 	handleTapScreen?: (e: React.MouseEvent) => void;
 }) => {
-	const [isShown, setIsShown] = useState(true);
+	const [stage, setStage] = useState<Stage>(args.stage || mockStage);
 	const [cache, setCache] = useState<ResourceCache>({
 		characters: {},
 		backgroundImages: {},
 		soundEffects: {},
 		bgms: {},
+		cgImages: {},
 	});
 
 	useEffect(() => {
@@ -83,28 +90,64 @@ const GameScreenWrapper = (args: {
 		args?.handleTapScreen?.(e);
 	};
 
+	const CharacterEffectSelect = (
+		id: string,
+		type: CharacterEffectEvent["effectType"],
+	) => {
+		const newStage = {
+			...mockStage,
+			characters: {
+				transitionDuration: 300,
+				items: mockStage.characters.items.map((c) =>
+					c.id === id ? { ...c, effect: { type, transitionDuration: 300 } } : c,
+				),
+			},
+		};
+
+		setStage(newStage);
+	};
+
 	return (
 		<div className="flex flex-col items-center">
-			<div className="mb-4">
-				<button
-					className="px-4 py-2 bg-blue-500 text-white rounded"
-					onClick={() => setIsShown(!isShown)}
-					type="button"
-				>
-					{isShown ? "ゲーム画面を隠す" : "ゲーム画面を表示する"}
-				</button>
+			<div className="flex flex-end w-full p-2">
+				<div className="flex gap-2">
+					Character Effect:
+					<select
+						className="border border-gray-300 rounded-md bg-white"
+						onChange={(e) =>
+							CharacterEffectSelect(
+								"mysterious-girl",
+								e.target.value as CharacterEffectEvent["effectType"],
+							)
+						}
+					>
+						{(
+							[
+								"shake",
+								"bounce",
+								"sway",
+								"wobble",
+								"flash",
+								"blackOn",
+								"blackOff",
+							] as const
+						).map((type) => (
+							<option key={type} value={type}>
+								{type}
+							</option>
+						))}
+					</select>
+				</div>
 			</div>
 
-			{isShown && (
-				<GameScreen
-					handleTapScreen={handleTapScreen}
-					stage={args.stage || mockStage}
-					history={args.history || mockHistory}
-					state={args.state || "playing"}
-					resourceCache={args.resourceCache || cache}
-					currentEvent={args.currentEvent || mockTextEvent}
-				/>
-			)}
+			<GameScreen
+				handleTapScreen={handleTapScreen}
+				stage={stage || args.stage}
+				history={args.history || mockHistory}
+				state={args.state || "playing"}
+				resourceCache={args.resourceCache || cache}
+				currentEvent={args.currentEvent || mockTextEvent}
+			/>
 		</div>
 	);
 };
@@ -174,30 +217,6 @@ export const WithFadeOutEffect: Story = {
 	},
 };
 
-// キャラクターエフェクト
-export const WithCharacterEffect: Story = {
-	args: {
-		stage: {
-			...mockStage,
-			characters: {
-				transitionDuration: 300,
-				items: [
-					{
-						id: "mysterious-girl",
-						scale: 1,
-						imageId: "mysterious-girl-smile",
-						position: [0, 0],
-						effect: {
-							type: "shake",
-							transitionDuration: 1000,
-						},
-					},
-				],
-			},
-		},
-	},
-};
-
 // アイドル状態
 export const IdleState: Story = {
 	args: {
@@ -234,19 +253,23 @@ export const NoCharacters: Story = {
 		stage: {
 			...mockStage,
 			characters: {
-				transitionDuration: 300,
+				transitionDuration: 0,
 				items: [],
 			},
 		},
 	},
 };
 
-// BGMなし
-export const NoBGM: Story = {
+export const WithBGM: Story = {
 	args: {
 		stage: {
 			...mockStage,
-			bgm: null,
+			bgm: {
+				id: "peaceful-day",
+				volume: 0.2,
+				isPlaying: true,
+				transitionDuration: 300,
+			},
 		},
 	},
 };

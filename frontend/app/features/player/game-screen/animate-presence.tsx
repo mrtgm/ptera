@@ -110,6 +110,7 @@ export const AnimatePresence = ({
 
 			for (const k of addedKeys) {
 				const elem = childArray.find((c) => String(c.key) === k);
+
 				if (elem) {
 					updated.push({
 						key: k,
@@ -121,6 +122,7 @@ export const AnimatePresence = ({
 
 			for (const k of removedKeys) {
 				const index = updated.findIndex((i) => i.key === k);
+
 				if (index !== -1) {
 					updated[index] = { ...updated[index], phase: "exiting" };
 				}

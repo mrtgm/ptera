@@ -1,0 +1,8 @@
+{
+  "name": "Noveller",
+  "customizations": {
+    "vscode": {
+      "extensions": ["biomejs.biome", "streetsidesoftware.code-spell-checker", "bradlc.vscode-tailwindcss"]
+    }
+  }
+}

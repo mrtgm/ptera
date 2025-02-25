@@ -5,6 +5,7 @@ export class ResourceManager {
 	cache: ResourceCache = {
 		characters: {},
 		backgroundImages: {},
+		cgImages: {},
 		soundEffects: {},
 		bgms: {},
 	};
@@ -22,6 +23,7 @@ export class ResourceManager {
 		this.cache = {
 			characters: {},
 			backgroundImages: {},
+			cgImages: {},
 			soundEffects: {},
 			bgms: {},
 		};
@@ -81,6 +83,14 @@ export class ResourceManager {
 		};
 	}
 
+	async loadCGImage(image: CGImage): Promise<void> {
+		const img = await this.loadImage(image.url);
+		this.cache.cgImages[image.id] = {
+			...image,
+			cache: img,
+		};
+	}
+
 	async loadSoundEffect(soundEffect: SoundEffect): Promise<void> {
 		const sound = await this.loadSound(soundEffect.url, { loop: false });
 		this.cache.soundEffects[soundEffect.id] = {
@@ -109,6 +119,9 @@ export class ResourceManager {
 				this.loadSoundEffect(soundEffect),
 			),
 			...Object.values(resources.bgms).map((bgm) => this.loadBGM(bgm)),
+			...Object.values(resources.cgImages).map((cgImage) =>
+				this.loadCGImage(cgImage),
+			),
 		];
 
 		await Promise.all(loadPromises);

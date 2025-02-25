@@ -41,7 +41,10 @@ type GameEvent =
 	| SoundEffectEvent
 	| ChangeBackgroundEvent
 	| EffectEvent
-	| CharacterEffectEvent;
+	| CharacterEffectEvent
+	| MoveCharacterEvent
+	| AppearCGEvent
+	| HideCGEvent;
 
 interface EventBase {
 	id: string;
@@ -136,7 +139,14 @@ interface CharacterEffectEvent extends EventBase {
 	type: "characterEffect";
 	category: "effect";
 	characterId: string;
-	effectType: "shake" | "flash" | "bounce" | "sway" | "wobble";
+	effectType:
+		| "shake"
+		| "flash"
+		| "bounce"
+		| "sway"
+		| "wobble"
+		| "blackOn"
+		| "blackOff";
 	transitionDuration: number;
 }
 
@@ -146,6 +156,20 @@ interface MoveCharacterEvent extends EventBase {
 	characterId: string;
 	position: [number, number];
 	scale: number;
+}
+
+interface AppearCGEvent extends EventBase {
+	type: "appearCG";
+	category: "cg";
+	imageId: string;
+	position: [number, number];
+	scale: number;
+	transitionDuration: number;
+}
+
+interface HideCGEvent extends EventBase {
+	type: "hideCG";
+	category: "cg";
 	transitionDuration: number;
 }
 
@@ -181,6 +205,7 @@ interface MediaAsset {
 
 interface CharacterImage extends MediaAsset {}
 interface BackgroundImage extends MediaAsset {}
+interface CGImage extends MediaAsset {}
 interface SoundEffect extends MediaAsset {}
 interface BGM extends MediaAsset {}
 
@@ -189,10 +214,18 @@ interface GameResources {
 	backgroundImages: Record<string, BackgroundImage>;
 	soundEffects: Record<string, SoundEffect>;
 	bgms: Record<string, BGM>;
+	cgImages: Record<string, CGImage>;
 }
 
-// isMute とかどうすっかなあ
 type Stage = {
+	cg: {
+		item: {
+			id: string;
+			scale: number;
+			position: [number, number];
+		} | null;
+		transitionDuration: number;
+	};
 	background: {
 		id: string;
 		scale: number;
@@ -253,6 +286,9 @@ type ResourceCache = {
 	};
 	backgroundImages: {
 		[id: string]: BackgroundImage & { cache: HTMLImageElement };
+	};
+	cgImages: {
+		[id: string]: CGImage & { cache: HTMLImageElement };
 	};
 	soundEffects: { [id: string]: SoundEffect & { cache: Howl } };
 	bgms: { [id: string]: BGM & { cache: Howl } };

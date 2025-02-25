@@ -39,10 +39,25 @@
           "lines": ["春の陽気に誘われて、私は久しぶりに公園へ散歩に来ていた。"]
         },
         {
+          "id": "ev4-1",
+          "type": "appearCG",
+          "category": "cg",
+          "imageId": "sakura",
+          "position": [0, 0],
+          "scale": 1.0,
+          "transitionDuration": 1000
+        },
+        {
           "id": "ev5",
           "type": "text",
           "category": "message",
           "lines": ["桜の花びらが風に舞い、まるで淡いピンク色の雪が降っているかのようだ。"]
+        },
+        {
+          "id": "ev4-2",
+          "type": "hideCG",
+          "category": "cg",
+          "transitionDuration": 1000
         }
       ],
       "nextSceneId": "mysterious-girl"
@@ -153,7 +168,7 @@
       "sceneType": "goto",
       "events": [
         {
-          "id": "ev15",
+          "id": "ev14",
           "type": "appearCharacter",
           "category": "character",
           "characterId": "mysterious-girl",
@@ -161,10 +176,10 @@
           "position": [0, 0],
           "scale": 1.0,
           "transitionType": "fade",
-          "transitiontransitionDuration": 1000
+          "transitionDuration": 1000
         },
         {
-          "id": "ev14",
+          "id": "ev15",
           "type": "text",
           "category": "message",
           "lines": ["軽く頭を下げると、少女は少し寂しそうな表情を見せた。"]
@@ -350,7 +365,7 @@
           "type": "effect",
           "category": "effect",
           "effectType": "fadeOut",
-          "transitionDuration": 3000
+          "transitionDuration": 1000
         },
         {
           "id": "ev35",
