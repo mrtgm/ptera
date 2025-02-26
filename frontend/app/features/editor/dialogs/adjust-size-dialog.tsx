@@ -33,7 +33,7 @@ export const AdjustSizeDialog = ({
 }: {
 	resources: GameResources;
 	onConfirmAdjustment: (
-		assetType: "characters" | "backgroundImages",
+		characterId: string,
 		assetId: string,
 		position: [number, number],
 		scale: number,
@@ -126,7 +126,7 @@ export const AdjustSizeDialog = ({
 	// 確定ボタンのクリックハンドラ
 	const handleConfirm = () => {
 		onConfirmAdjustment(
-			initialData.target,
+			initialData.characterId,
 			initialData.assetId,
 			position,
 			scale,

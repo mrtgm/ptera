@@ -42,7 +42,9 @@ import {
 	bgmStopEventSchema,
 	changeBackgroundEventSchema,
 	characterEffectEventSchema,
+	characterEffectType,
 	effectEventSchema,
+	effectType,
 	hideAllCharactersEventSchema,
 	hideCharacterEventSchema,
 	hideMessageWindowEventSchema,
@@ -71,11 +73,20 @@ import {
 } from "~/components/shadcn/dialog";
 import { DialogClose } from "~/components/shadcn/dialog";
 import { Label } from "~/components/shadcn/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "~/components/shadcn/select";
 import { Separator } from "~/components/shadcn/separator";
+import { Slider } from "~/components/shadcn/slider";
 import { useStore } from "~/stores";
 import type { ModalParams, ModalPayload } from "~/stores/modal";
-import { AdjustSizeDialog } from "./adjust-size-dialog";
-import AssetDialog from "./asset-dialog";
+import { AdjustSizeDialog } from "./dialogs/adjust-size-dialog";
+import { AssetDialog, type AssetType } from "./dialogs/asset-dialog";
+import CharacterDialog from "./dialogs/character-select-dialog";
 
 type EventEditorProps = {
 	selectedScene: Scene;
@@ -85,6 +96,11 @@ type EventEditorProps = {
 	onDeleteEvent: () => void;
 	onSaveEvent: (updatedEvent: GameEvent) => void;
 	onClickAwayEvent: (e: MouseEvent) => void;
+	onAddCharacter: (name: string) => void;
+	onDeleteCharacter: (characterId: string) => void;
+	onDeleteImage: (characterId: string, imageId: string) => void;
+	onDeleteAsset: (assetId: string, type: AssetType) => void;
+	onCharacterNameChange: (characterId: string, name: string) => void;
 };
 
 const schemaMap: Record<GameEvent["type"], z.ZodType> = {
@@ -118,6 +134,11 @@ export const EventEditor = ({
 	resources,
 	onDeleteEvent,
 	onSaveEvent,
+	onAddCharacter,
+	onDeleteCharacter,
+	onCharacterNameChange,
+	onDeleteImage,
+	onDeleteAsset,
 	onClickAwayEvent,
 }: EventEditorProps) => {
 	const [activeTab, setActiveTab] = useState("parameters");
@@ -143,14 +164,49 @@ export const EventEditor = ({
 			...selectedEvent,
 			...data,
 		} as GameEvent;
+
 		onSaveEvent(updatedEvent);
 	};
 
-	const handleConfirmAssetSelection = (
+	const mapAssetTypeToFormTarget = (type: AssetType): AssetFormType => {
+		switch (type) {
+			case "backgroundImages":
+				return "backgroundId";
+			case "cgImages":
+				return "cgImageId";
+			case "soundEffects":
+				return "soundEffectId";
+			case "bgms":
+				return "bgmId";
+		}
+	};
+
+	const handleConfirmAssetSelection = (assetId: string, type: AssetType) => {
+		form.setValue(mapAssetTypeToFormTarget(type), assetId);
+	};
+
+	const handleConfirmAdjustment = (
+		characterId: string,
 		assetId: string,
-		type: AssetFormType,
+		position: [number, number],
+		scale: number,
 	) => {
-		form.setValue(type, assetId);
+		form.setValue("characterId", characterId);
+		form.setValue("characterImageId", assetId);
+		form.setValue("position", position);
+		form.setValue("scale", scale);
+	};
+
+	const handleConfirmCharacterSelection = (characterId: string) => {
+		form.setValue("characterId", characterId);
+	};
+
+	const handleConfirmCharacterImageSelection = (
+		characterId: string,
+		imageId: string,
+	) => {
+		form.setValue("characterId", characterId);
+		form.setValue("characterImageId", imageId);
 	};
 
 	if (!selectedEvent || !game || !resources) {
@@ -160,17 +216,28 @@ export const EventEditor = ({
 	return (
 		<div className="w-full h-full overflow-auto p-4" ref={ref}>
 			<AssetDialog
+				game={game}
 				resources={resources}
+				onDeleteAsset={onDeleteAsset}
 				onConfirmAssetSelection={handleConfirmAssetSelection}
 			/>
 			<AdjustSizeDialog
-				onConfirmAdjustment={(x) => {
-					console.log(x);
-				}}
+				onConfirmAdjustment={handleConfirmAdjustment}
 				open={modalSlice.isOpen && modalSlice.target === "adjustSize"}
 				resources={resources}
 				onOpenChange={modalSlice.closeModal}
 				initialData={modalSlice.params as ModalParams["adjustSize"]}
+			/>
+
+			<CharacterDialog
+				game={game}
+				resources={resources}
+				onConfirmCharacterSelection={handleConfirmCharacterSelection}
+				onConfirmCharacterImageSelection={handleConfirmCharacterImageSelection}
+				onCharacterNameChange={onCharacterNameChange}
+				onAddCharacter={onAddCharacter}
+				onDeleteCharacter={onDeleteCharacter}
+				onDeleteImage={onDeleteImage}
 			/>
 
 			<Card className="w-full">
@@ -193,7 +260,10 @@ export const EventEditor = ({
 							<form
 								onSubmit={(e) => {
 									e.preventDefault();
-									form.handleSubmit(handleSubmit)();
+									console.log(form.getValues());
+									form.handleSubmit(handleSubmit, (e) => {
+										console.error(e);
+									})();
 								}}
 							>
 								<TabsContent value="parameters" className="space-y-4">
@@ -213,9 +283,11 @@ export const EventEditor = ({
 									</div>
 								</TabsContent>
 
-								<div className="mt-4 flex justify-end">
-									<Button type="submit">保存</Button>
-								</div>
+								{activeTab === "parameters" && (
+									<div className="mt-4 flex justify-end">
+										<Button type="submit">保存</Button>
+									</div>
+								)}
 							</form>
 						</Form>
 					</Tabs>
@@ -242,6 +314,7 @@ const renderEventPreview = (
 		stage,
 		cache,
 		state,
+		history,
 		currentEvent: previewCurrentEvent,
 	} = usePlayerInitialize({
 		player,
@@ -302,6 +375,13 @@ const renderEventPreview = (
 		return () => subscription.unsubscribe();
 	}, [form]);
 
+	useEffect(() => {
+		return () => {
+			console.log("dispose");
+			player.dispose();
+		};
+	}, [player.dispose]);
+
 	return (
 		<div className="w-full h-full relative">
 			{state === "end" && (
@@ -314,11 +394,10 @@ const renderEventPreview = (
 					player={player}
 					stage={stage}
 					resourceCache={cache}
-					history={[]}
+					history={history}
 					handleTapScreen={() => {
 						if (previewCurrentEvent && state !== "idle") {
 							player.addCancelRequest(previewCurrentEvent?.id);
-							console.log(state, player.cancelTransitionRequests);
 						}
 					}}
 					state={state}
@@ -389,40 +468,49 @@ const renderField = (
 				<BGMSelect form={form} label={field.label} resources={resources} />
 			);
 		}
-		// case "transition-duration": {
-		// 	// return <TransitionDuration form={form} field={field} event={event} />;
-		// }
+		case "transition-duration": {
+			return <TransitionDuration form={form} label={field.label} />;
+		}
 
-		// case "character-effect-select": {
-		// 	// return <CharacterEffectSelect form={form} field={field} event={event} />;
-		// }
-		// case "effect-select": {
-		// 	// return <EffectSelect form={form} field={field} event={event} />;
-		// }
-		// case "sound-effect-select": {
-		// 	// return <SoundEffectSelect form={form} field={field} event={event} />;
-		// }
-		// case "volume-slider": {
-		// 	// return <VolumeSlider form={form} field={field} event={event} />;
-		// }
-		// case "character-image-select": {
-		// 	// return (
-		// 	// 	<CharacterImageSelect
-		// 	// 		form={form}
-		// 	// 		field={field}
-		// 	// 		event={event}
-		// 	// 		cache={cache}
-		// 	// 	/>
-		// 	// );
-		// }
-		// case "position-select": {
-		// 	// return <PositionSelect form={form} field={field} event={event} />;
-		// }
-		// case "character-select": {
-		// 	return (
-		// 		// <CharacterSelect form={form} field={field} event={event} game={game} />
-		// 	);
-		// }
+		case "character-effect-select": {
+			return <CharacterEffectSelect form={form} label={field.label} />;
+		}
+		case "effect-select": {
+			return <EffectSelect form={form} label={field.label} />;
+		}
+		case "sound-effect-select": {
+			return (
+				<SoundEffectSelect
+					form={form}
+					label={field.label}
+					resources={resources}
+				/>
+			);
+		}
+		case "volume-slider": {
+			return <VolumeSlider form={form} label={field.label} />;
+		}
+		case "character-image-select": {
+			return (
+				<CharacterImageSelect
+					form={form}
+					label={field.label}
+					resources={resources}
+				/>
+			);
+		}
+		case "position-select": {
+			return <PositionSelect form={form} label={field.label} />;
+		}
+		case "character-select": {
+			return (
+				<CharacterSelect
+					form={form}
+					label={field.label}
+					resources={resources}
+				/>
+			);
+		}
 
 		default:
 			return null;
@@ -545,55 +633,42 @@ const BackgroundSelect = ({
 							>
 								背景画像を選択
 							</Button>
-
-							{/* <Button
-								size="sm"
-								onClick={() => {
-									modalSlice.openModal({
-										target: "adjustSize",
-										params: {
-											target: "characters",
-											characterId: (event as AppearCharacterEvent).characterId,
-											assetId: field.value,
-											position: (event as AppearCharacterEvent).position,
-											scale: (event as AppearCharacterEvent).scale,
-										},
-									});
-								}}
-								type="button"
-							>
-								位置調整UIを開く
-							</Button> */}
 						</div>
 					</FormItem>
 				)}
 			/>
 
 			<Separator className="my-4" />
-			<FormField
-				key={"transitionDuration"}
-				control={form.control}
-				name={"transitionDuration"}
-				render={({ field }) => {
-					const { value, ...rest } = field;
-					const newValue = Number.parseInt(value as string) || 0;
-					return (
-						<FormItem>
-							<FormLabel>トランジション時間</FormLabel>
-							<FormControl>
-								<Input
-									type="number"
-									placeholder="トランジション時間を入力"
-									{...rest}
-									value={newValue}
-								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					);
-				}}
-			/>
 		</>
+	);
+};
+
+const TransitionDuration = ({
+	form,
+	label,
+}: {
+	form: ReturnType<typeof useForm>;
+	label: string;
+}) => {
+	return (
+		<FormField
+			key={"transitionDuration"}
+			control={form.control}
+			name={"transitionDuration"}
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>{label}</FormLabel>
+					<FormControl>
+						<Input
+							type="number"
+							placeholder="トランジション時間を入力"
+							{...field}
+						/>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
 	);
 };
 
@@ -609,52 +684,55 @@ const CGSelect = ({
 	const modalSlice = useStore.useSlice.modal();
 
 	return (
-		<FormField
-			key={"cgImageId"}
-			control={form.control}
-			name={"cgImageId"}
-			render={({ field }) => (
-				<FormItem>
-					<FormLabel>{label}</FormLabel>
+		<>
+			<FormField
+				key={"cgImageId"}
+				control={form.control}
+				name={"cgImageId"}
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel>{label}</FormLabel>
 
-					{field.value && resources.cgImages[field.value] ? (
-						<>
-							<div className="w-full max-w-[200px] h-auto bg-cover bg-center bg-no-repeat rounded-md mb-4">
-								<img
-									src={resources.cgImages[field.value].url}
-									alt="CG"
-									className="w-full h-auto rounded-md"
-								/>
+						{field.value && resources.cgImages[field.value] ? (
+							<>
+								<div className="w-full max-w-[200px] h-auto bg-cover bg-center bg-no-repeat rounded-md mb-4">
+									<img
+										src={resources.cgImages[field.value].url}
+										alt="CG"
+										className="w-full h-auto rounded-md"
+									/>
+								</div>
+								<p className="text-sm text-gray-500 mb-2">
+									{resources.cgImages[field.value].filename}
+								</p>
+							</>
+						) : (
+							<div className="text-sm text-gray-500 mb-2">
+								CGが選択されていません
 							</div>
-							<p className="text-sm text-gray-500 mb-2">
-								{resources.cgImages[field.value].filename}
-							</p>
-						</>
-					) : (
-						<div className="text-sm text-gray-500 mb-2">
-							CGが選択されていません
-						</div>
-					)}
+						)}
 
-					<Button
-						size="sm"
-						onClick={() => {
-							modalSlice.openModal({
-								target: "asset",
-								params: {
-									mode: "select",
-									target: "cgImages",
-									formTarget: "cgImageId",
-								},
-							});
-						}}
-						type="button"
-					>
-						CGを選択
-					</Button>
-				</FormItem>
-			)}
-		/>
+						<Button
+							size="sm"
+							onClick={() => {
+								modalSlice.openModal({
+									target: "asset",
+									params: {
+										mode: "select",
+										target: "cgImages",
+										formTarget: "cgImageId",
+									},
+								});
+							}}
+							type="button"
+						>
+							CGを選択
+						</Button>
+					</FormItem>
+				)}
+			/>
+			<Separator className="my-4" />
+		</>
 	);
 };
 
@@ -670,53 +748,410 @@ const BGMSelect = ({
 	const modalSlice = useStore.useSlice.modal();
 
 	return (
+		<>
+			<FormField
+				key={"bgmId"}
+				control={form.control}
+				name={"bgmId"}
+				render={({ field }) => (
+					<FormItem className="flex flex-col items-end">
+						<FormLabel className="mr-auto">{label}</FormLabel>
+
+						{field.value && resources.bgms[field.value] ? (
+							<>
+								<div className="flex items-center gap-2 mb-2 w-full">
+									<audio
+										src={resources.bgms[field.value].url}
+										controls
+										className="w-full"
+									>
+										<track kind="captions" />
+									</audio>
+								</div>
+								<p className="text-sm text-gray-500 mb-2 mr-auto">
+									{resources.bgms[field.value].filename}
+								</p>
+							</>
+						) : (
+							<div className="text-sm text-gray-500 mb-2">
+								BGMが選択されていません
+							</div>
+						)}
+
+						<Button
+							size="sm"
+							onClick={() => {
+								modalSlice.openModal({
+									target: "asset",
+									params: {
+										mode: "select",
+										target: "bgms",
+										formTarget: "bgmId",
+									},
+								});
+							}}
+							type="button"
+						>
+							BGMを選択
+						</Button>
+					</FormItem>
+				)}
+			/>
+			<Separator className="my-4" />
+		</>
+	);
+};
+
+const VolumeSlider = ({
+	form,
+	label,
+}: {
+	form: ReturnType<typeof useForm>;
+	label: string;
+}) => {
+	return (
 		<FormField
-			key={"bgmId"}
+			key={"volume"}
 			control={form.control}
-			name={"bgmId"}
+			name={"volume"}
 			render={({ field }) => (
 				<FormItem>
 					<FormLabel>{label}</FormLabel>
-
-					{field.value && resources.bgms[field.value] ? (
-						<>
-							<div className="flex items-center gap-2 mb-2">
-								<audio
-									src={resources.bgms[field.value].url}
-									controls
-									className="w-full"
-								>
-									<track kind="captions" />
-								</audio>
-							</div>
-							<p className="text-sm text-gray-500 mb-2">
-								{resources.bgms[field.value].filename}
-							</p>
-						</>
-					) : (
-						<div className="text-sm text-gray-500 mb-2">
-							BGMが選択されていません
+					<FormControl>
+						<div>
+							<Input type="range" {...field} min={0} max={5} step={0.05} />
+							<p className="text-sm text-gray-500">{field.value}</p>
 						</div>
-					)}
-
-					<Button
-						size="sm"
-						onClick={() => {
-							modalSlice.openModal({
-								target: "asset",
-								params: {
-									mode: "select",
-									target: "bgms",
-									formTarget: "bgmId",
-								},
-							});
-						}}
-						type="button"
-					>
-						BGMを選択
-					</Button>
+					</FormControl>
+					<FormMessage />
 				</FormItem>
 			)}
 		/>
+	);
+};
+
+const CharacterImageSelect = ({
+	form,
+	label,
+	resources,
+}: {
+	form: ReturnType<typeof useForm>;
+	label: string;
+	resources: GameResources;
+}) => {
+	const modalSlice = useStore.useSlice.modal();
+
+	return (
+		<>
+			<FormField
+				key={"characterImageId"}
+				control={form.control}
+				name={"characterImageId"}
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel>{label}</FormLabel>
+
+						{field.value &&
+						resources.characters[form.getValues().characterId] ? (
+							<>
+								<div className="w-full max-w-[200px] h-auto bg-cover bg-center bg-no-repeat rounded-md mb-4">
+									<img
+										src={
+											resources.characters[form.getValues().characterId].images[
+												field.value
+											].url
+										}
+										alt="character"
+									/>
+								</div>
+								<p className="text-sm text-gray-500 mb-2">
+									{resources.characters[form.getValues().characterId].name}
+								</p>
+							</>
+						) : (
+							<div>キャラクター画像が選択されていません</div>
+						)}
+
+						<div className="flex gap-2">
+							<Button
+								size="sm"
+								onClick={() => {
+									modalSlice.openModal({
+										target: "character",
+										params: {
+											mode: "characterImage",
+										},
+									});
+								}}
+								type="button"
+							>
+								キャラクター画像を選択
+							</Button>
+							<Button
+								size="sm"
+								onClick={() => {
+									modalSlice.openModal({
+										target: "adjustSize",
+										params: {
+											target: "characters",
+											characterId: form.getValues().characterId,
+											assetId: field.value,
+											position: form.getValues().position,
+											scale: form.getValues().scale,
+										},
+									});
+								}}
+								type="button"
+							>
+								位置調整UIを開く
+							</Button>
+						</div>
+					</FormItem>
+				)}
+			/>
+			<Separator className="my-4" />
+		</>
+	);
+};
+
+const CharacterSelect = ({
+	form,
+	label,
+	resources,
+}: {
+	form: ReturnType<typeof useForm>;
+	label: string;
+	resources: GameResources;
+}) => {
+	const modalSlice = useStore.useSlice.modal();
+
+	return (
+		<>
+			<FormField
+				key={"characterId"}
+				control={form.control}
+				name={"characterId"}
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel>{label}</FormLabel>
+
+						{field.value && resources.characters[field.value] ? (
+							<>
+								<div className="w-full max-w-[200px] h-auto bg-cover bg-center bg-no-repeat rounded-md mb-4">
+									<img
+										src={
+											resources.characters[field.value].images[
+												Object.keys(resources.characters[field.value].images)[0]
+											].url
+										}
+										alt="character"
+									/>
+								</div>
+								<p className="text-sm text-gray-500 mb-2">
+									{resources.characters[field.value].name}
+								</p>
+							</>
+						) : (
+							<div>キャラクターが選択されていません</div>
+						)}
+
+						<div className="flex gap-2">
+							<Button
+								size="sm"
+								onClick={() => {
+									modalSlice.openModal({
+										target: "character",
+										params: {
+											mode: "character",
+										},
+									});
+								}}
+								type="button"
+							>
+								キャラクターを選択
+							</Button>
+						</div>
+					</FormItem>
+				)}
+			/>
+			<Separator className="my-4" />
+		</>
+	);
+};
+
+const CharacterEffectSelect = ({
+	form,
+	label,
+}: {
+	form: ReturnType<typeof useForm>;
+	label: string;
+}) => {
+	const options = characterEffectType;
+
+	return (
+		<FormField
+			key="effectType"
+			control={form.control}
+			name="effectType"
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>{label}</FormLabel>
+					<FormControl>
+						<Select value={field.value} onValueChange={field.onChange}>
+							<SelectTrigger>
+								<SelectValue placeholder="エフェクトを選択" />
+							</SelectTrigger>
+							<SelectContent>
+								{options.map((v) => (
+									<SelectItem key={v} value={v}>
+										{v}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	);
+};
+
+const EffectSelect = ({
+	form,
+	label,
+}: {
+	form: ReturnType<typeof useForm>;
+	label: string;
+}) => {
+	const options = effectType;
+	return (
+		<FormField
+			key="effectType"
+			control={form.control}
+			name="effectType"
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>{label}</FormLabel>
+					<FormControl>
+						<Select value={field.value} onValueChange={field.onChange}>
+							<SelectTrigger>
+								<SelectValue placeholder="エフェクトを選択" />
+							</SelectTrigger>
+							<SelectContent>
+								{options.map((v) => (
+									<SelectItem key={v} value={v}>
+										{v}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	);
+};
+
+const SoundEffectSelect = ({
+	label,
+	form,
+	resources,
+}: {
+	label: string;
+	form: ReturnType<typeof useForm>;
+	resources: GameResources;
+}) => {
+	const modalSlice = useStore.useSlice.modal();
+
+	return (
+		<>
+			<FormField
+				key={"soundEffectId"}
+				control={form.control}
+				name={"soundEffectId"}
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel>{label}</FormLabel>
+
+						{field.value && resources.soundEffects[field.value] ? (
+							<>
+								<div className="flex items-center gap-2 mb-2 w-full">
+									<audio
+										src={resources.soundEffects[field.value].url}
+										controls
+										className="w-full"
+									>
+										<track kind="captions" />
+									</audio>
+								</div>
+								<p className="text-sm text-gray-500 mb-2 mr-auto">
+									{resources.soundEffects[field.value].filename}
+								</p>
+							</>
+						) : (
+							<div className="text-sm text-gray-500 mb-2">
+								サウンドエフェクトが選択されていません
+							</div>
+						)}
+
+						<div className="flex gap-2">
+							<Button
+								size="sm"
+								onClick={() => {
+									modalSlice.openModal({
+										target: "asset",
+										params: {
+											mode: "select",
+											target: "soundEffects",
+											formTarget: "soundEffectId",
+										},
+									});
+								}}
+								type="button"
+							>
+								サウンドエフェクトを選択
+							</Button>
+						</div>
+					</FormItem>
+				)}
+			/>
+			<Separator className="my-4" />
+		</>
+	);
+};
+
+const PositionSelect = ({
+	form,
+	label,
+}: {
+	form: ReturnType<typeof useForm>;
+	label: string;
+}) => {
+	const modalSlice = useStore.useSlice.modal();
+
+	return (
+		<FormItem>
+			<FormLabel>{label}</FormLabel>
+			<Button
+				size="sm"
+				onClick={() => {
+					modalSlice.openModal({
+						target: "adjustSize",
+						params: {
+							target: "characters",
+							characterId: form.getValues().characterId,
+							assetId: form.getValues().characterImageId,
+							position: form.getValues().position,
+							scale: form.getValues().scale,
+						},
+					});
+				}}
+				type="button"
+			>
+				位置調整UIを開く
+			</Button>
+		</FormItem>
 	);
 };

@@ -110,16 +110,8 @@ export const SideBarSettings: Record<
 				label: "キャラクターを表示",
 				parameters: [
 					{
-						label: "キャラクター",
-						component: "character-select",
-					},
-					{
-						label: "画像",
+						label: "キャラクターと画像を選択",
 						component: "character-image-select",
-					},
-					{
-						label: "位置",
-						component: "position-select",
 					},
 					{
 						label: "トランジション時間（秒）",
@@ -268,10 +260,6 @@ export const SideBarSettings: Record<
 					{
 						label: "背景",
 						component: "background-select",
-					},
-					{
-						label: "位置",
-						component: "position-select",
 					},
 					{
 						label: "トランジション時間（秒）",

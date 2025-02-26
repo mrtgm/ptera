@@ -76,6 +76,16 @@ export const buildCurrentStageFromScenes = ({
 		newStage = handleEvent(event, newStage, resources);
 		if (eventId !== undefined && event.id === eventId) break;
 	}
+	// もしイベントの最後が effect, soundEffect, characterEffect（one-shot なイベント）でない場合 nullにする
+	if (events.at(-1)?.type !== "effect") newStage.effect = null;
+	if (events.at(-1)?.type !== "soundEffect") newStage.soundEffect = null;
+	if (events.at(-1)?.type !== "characterEffect") {
+		newStage.characters.items = newStage.characters.items.map((c) => ({
+			...c,
+			effect: null,
+		}));
+	}
+
 	return newStage;
 };
 
@@ -84,8 +94,6 @@ export const handleEvent = (
 	stage: Stage,
 	resources: GameResources | null,
 ): Stage => {
-	// soundEffect をnullにする、characterEffectをnullにする
-
 	switch (event.type) {
 		case "appearMessageWindow":
 			return {

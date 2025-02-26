@@ -65,11 +65,10 @@ export class Player {
 	private disposed = false;
 
 	dispose() {
-		if (this.disposed) return;
-
 		this.cancelTransitionRequests.clear();
 
 		Howler.stop();
+		Howler.mute(false);
 
 		this.updateStage(INITIAL_STAGE);
 		this.updateCurrentEvent(null);

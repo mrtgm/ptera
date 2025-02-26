@@ -4,9 +4,11 @@ import type { Player } from "~/features/player/libs/engine";
 export const Ui = ({
 	player,
 	openHistory,
+	isPreviewMode,
 }: {
 	player: Player;
 	openHistory: () => void;
+	isPreviewMode?: boolean;
 }) => {
 	const [isMute, setIsMute] = useState(false);
 	const [isAutoMode, setIsAutoMode] = useState(false);
@@ -41,21 +43,25 @@ export const Ui = ({
 			>
 				{isMute ? "Unmute" : "Mute"}
 			</div>
-			<div
-				className="text-white text-lg mr-4 cursor-pointer p-2 bg-slate-900 bg-opacity-70 rounded-sm"
-				onClick={handleTapAutoModeIndicator}
-				onKeyDown={handleTapAutoModeIndicator}
-			>
-				{isAutoMode ? "Auto Off" : "Auto On"}
-			</div>
-			<div
-				id="history-button"
-				className="text-white text-lg mr-4 cursor-pointer p-2 bg-slate-900 bg-opacity-70 rounded-sm"
-				onClick={handleHisotyButton}
-				onKeyDown={handleHisotyButton}
-			>
-				History
-			</div>
+			{!isPreviewMode && (
+				<div
+					className="text-white text-lg mr-4 cursor-pointer p-2 bg-slate-900 bg-opacity-70 rounded-sm"
+					onClick={handleTapAutoModeIndicator}
+					onKeyDown={handleTapAutoModeIndicator}
+				>
+					{isAutoMode ? "Auto Off" : "Auto On"}
+				</div>
+			)}
+			{!isPreviewMode && (
+				<div
+					id="history-button"
+					className="text-white text-lg mr-4 cursor-pointer p-2 bg-slate-900 bg-opacity-70 rounded-sm"
+					onClick={handleHisotyButton}
+					onKeyDown={handleHisotyButton}
+				>
+					History
+				</div>
+			)}
 		</div>
 	);
 };

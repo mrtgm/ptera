@@ -83,7 +83,11 @@ export const GameScreen = ({
 			onClick={handleTapScreen}
 			onKeyDown={() => {}}
 		>
-			{!isPreviewMode && <Ui openHistory={openHistory} player={player} />}
+			<Ui
+				openHistory={openHistory}
+				player={player}
+				isPreviewMode={isPreviewMode}
+			/>
 			<SoundPlayer resourceCache={resourceCache.bgms} sound={stage.bgm} />
 			<SoundPlayer
 				resourceCache={resourceCache.soundEffects}

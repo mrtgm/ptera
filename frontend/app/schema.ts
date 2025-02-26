@@ -147,7 +147,7 @@ export const bgmStartEventSchema = z.object({
 	type: z.literal("bgmStart"),
 	category: z.literal("media"),
 	bgmId: z.string(),
-	volume: z.number(),
+	volume: z.union([z.number(), z.string().transform(Number)]),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -166,7 +166,7 @@ export const soundEffectEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("soundEffect"),
 	category: z.literal("media"),
-	volume: z.number(),
+	volume: z.union([z.number(), z.string().transform(Number)]),
 	soundEffectId: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
@@ -183,30 +183,32 @@ export const changeBackgroundEventSchema = z.object({
 
 export type ChangeBackgroundEvent = z.infer<typeof changeBackgroundEventSchema>;
 
+export const effectType = ["fadeIn", "fadeOut", "shake"] as const;
 export const effectEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("effect"),
 	category: z.literal("effect"),
-	effectType: z.enum(["fadeIn", "fadeOut", "shake"]),
+	effectType: z.enum(effectType),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type EffectEvent = z.infer<typeof effectEventSchema>;
 
+export const characterEffectType = [
+	"shake",
+	"flash",
+	"bounce",
+	"sway",
+	"wobble",
+	"blackOn",
+	"blackOff",
+] as const;
 export const characterEffectEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("characterEffect"),
-	category: z.literal("effect"),
+	category: z.literal("character"),
 	characterId: z.string(),
-	effectType: z.enum([
-		"shake",
-		"flash",
-		"bounce",
-		"sway",
-		"wobble",
-		"blackOn",
-		"blackOff",
-	]),
+	effectType: z.enum(characterEffectType),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 

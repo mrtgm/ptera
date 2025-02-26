@@ -12,8 +12,7 @@ export type ModalParams = {
 		formTarget: AssetFormType;
 	};
 	character: {
-		mode: "none" | "select";
-		formTarget: "characterId";
+		mode: "none" | "characterImage" | "character";
 	};
 	preview: undefined;
 	adjustSize: {
