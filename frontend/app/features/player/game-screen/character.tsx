@@ -1,5 +1,4 @@
-import { forwardRef, useEffect, useRef, useState } from "react";
-import { player } from "~/features/player/libs/engine";
+import { forwardRef, useEffect, useState } from "react";
 import type { GameEvent, ResourceCache, Stage } from "~/schema";
 import {
 	blackOff,
@@ -10,6 +9,7 @@ import {
 	sway,
 	wobble,
 } from "~/utils/transition";
+import type { Player } from "../libs/engine";
 import { AnimatePresence } from "./animate-presence";
 
 const Character = forwardRef<
@@ -19,8 +19,9 @@ const Character = forwardRef<
 		character: Stage["characters"]["items"][0];
 		resourceCache: ResourceCache["characters"];
 		currentEvent: GameEvent;
+		player: Player;
 	}
->(({ character, key, resourceCache, currentEvent }, ref) => {
+>(({ character, key, resourceCache, player, currentEvent }, ref) => {
 	const [imgElement, setImgElement] = useState<HTMLImageElement | null>(null);
 	const { id, imageId, position, scale, effect } = character;
 
@@ -30,40 +31,41 @@ const Character = forwardRef<
 		let promise: Promise<void>;
 		switch (effect.type) {
 			case "shake":
-				promise = shake(id, effect.transitionDuration, imgElement);
+				promise = shake(player, id, effect.transitionDuration, imgElement);
 				break;
 			case "bounce":
-				promise = bounce(id, effect.transitionDuration, imgElement);
+				promise = bounce(player, id, effect.transitionDuration, imgElement);
 				break;
 			case "sway":
-				promise = sway(id, effect.transitionDuration, imgElement);
+				promise = sway(player, id, effect.transitionDuration, imgElement);
 				break;
 			case "wobble":
-				promise = wobble(id, effect.transitionDuration, imgElement);
+				promise = wobble(player, id, effect.transitionDuration, imgElement);
 				break;
 			case "flash":
-				promise = flash(id, effect.transitionDuration, imgElement);
+				promise = flash(player, id, effect.transitionDuration, imgElement);
 				break;
 			case "blackOn":
-				promise = blackOn(id, effect.transitionDuration, imgElement);
+				promise = blackOn(player, id, effect.transitionDuration, imgElement);
 				break;
 			case "blackOff":
-				promise = blackOff(id, effect.transitionDuration, imgElement);
+				promise = blackOff(player, id, effect.transitionDuration, imgElement);
 				break;
 			default:
 				promise = Promise.resolve();
 		}
+
 		promise.then(() => {
-			player.updateStage({
-				characters: {
-					...player.stage.characters,
-					items: player.stage.characters.items.map((c) =>
-						c.id === id ? { ...c, effect: null } : c,
-					),
-				},
-			});
+			// player.updateStage({
+			// 	characters: {
+			// 		...player.stage.characters,
+			// 		items: player.stage.characters.items.map((c) =>
+			// 			c.id === id ? { ...c, effect: null } : c,
+			// 		),
+			// 	},
+			// });
 		});
-	}, [effect, id, imgElement]);
+	}, [effect, id, imgElement, player]);
 
 	const resource = resourceCache[id];
 	if (!resource) return null;
@@ -96,10 +98,12 @@ export const CharacterList = ({
 	characters,
 	currentEvent,
 	resourceCache,
+	player,
 }: {
 	characters: Stage["characters"];
 	currentEvent: GameEvent | null;
 	resourceCache: ResourceCache["characters"];
+	player: Player;
 }) => {
 	if (!currentEvent) return null;
 
@@ -107,6 +111,7 @@ export const CharacterList = ({
 		<div id="character-container" className="w-full h-full absolute">
 			<AnimatePresence
 				eventId={currentEvent.id}
+				player={player}
 				config={{
 					enter: {
 						configs: {
@@ -128,6 +133,7 @@ export const CharacterList = ({
 						character={character}
 						resourceCache={resourceCache}
 						currentEvent={currentEvent}
+						player={player}
 					/>
 				))}
 			</AnimatePresence>

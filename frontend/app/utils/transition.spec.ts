@@ -89,7 +89,7 @@ describe("Animation functions", () => {
 
 			player.addCancelRequest(eventId);
 
-			expect(player.cancelRequests).toContain(eventId);
+			expect(player.cancelTransitionRequests).toContain(eventId);
 
 			const now = performance.now();
 
@@ -97,7 +97,7 @@ describe("Animation functions", () => {
 
 			expect(performance.now() - now).toBeLessThan(duration);
 			expect(element.style.opacity).toBe("1");
-			expect(player.cancelRequests).not.toContain(eventId);
+			expect(player.cancelTransitionRequests).not.toContain(eventId);
 		});
 	});
 
@@ -211,20 +211,20 @@ describe("Interpolation functions", () => {
 });
 
 vi.mock("~/stores/player", () => {
-	const cancelRequests = new Set<string>();
+	const cancelTransitionRequests = new Set<string>();
 
 	return {
 		player: {
 			addCancelRequest: vi.fn((eventId: string) => {
-				cancelRequests.add(eventId);
+				cancelTransitionRequests.add(eventId);
 			}),
 			removeCancelRequest: vi.fn((eventId: string) => {
-				cancelRequests.delete(eventId);
+				cancelTransitionRequests.delete(eventId);
 			}),
 			checkIfEventIsCanceled: vi.fn((eventId: string) =>
-				cancelRequests.has(eventId),
+				cancelTransitionRequests.has(eventId),
 			),
-			cancelRequests,
+			cancelTransitionRequests,
 		},
 	};
 });

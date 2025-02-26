@@ -1,11 +1,14 @@
 import type { GameEvent, GameState, Stage } from "~/schema";
+import type { Player } from "../libs/engine";
 import { AnimatePresence } from "./animate-presence";
 
 export const Dialog = ({
+	player,
 	state,
 	dialog,
 	currentEvent,
 }: {
+	player: Player;
 	state: GameState;
 	dialog: Stage["dialog"];
 	currentEvent: GameEvent | null;
@@ -14,6 +17,7 @@ export const Dialog = ({
 
 	return (
 		<AnimatePresence
+			player={player}
 			eventId={currentEvent.id}
 			config={{
 				enter: {

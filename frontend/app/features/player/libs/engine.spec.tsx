@@ -67,18 +67,12 @@ describe("Player", () => {
       <div id="game-screen"></div>
     `;
 
-		player = Player.getInstance();
+		player = new Player();
 		player.resetGame();
 	});
 
 	afterEach(() => {
 		vi.clearAllMocks();
-	});
-
-	it("シングルトンパターンで同じインスタンスを返すこと", () => {
-		const instance1 = Player.getInstance();
-		const instance2 = Player.getInstance();
-		expect(instance1).toBe(instance2);
 	});
 
 	it("ゲームをロードできること", () => {
@@ -93,7 +87,7 @@ describe("Player", () => {
 
 	it("シーンを設定できること", () => {
 		player.loadGame(mockGame);
-		player.setScene("scene2");
+		player.updateScene("scene2");
 
 		expect(player.currentScene).toBe(mockGame.scenes[1]);
 		expect(player.currentEvent).toBe(mockGame.scenes[1].events[0]);
@@ -114,8 +108,6 @@ describe("Player", () => {
 		const stageUpdate: Partial<Stage> = {
 			background: {
 				id: "bg1",
-				scale: 1,
-				position: [0, 0],
 				transitionDuration: 300,
 			},
 		};
@@ -198,7 +190,7 @@ describe("Player", () => {
 
 	it("ゲームをリセットできること", () => {
 		player.loadGame(mockGame);
-		player.setScene("scene2");
+		player.updateScene("scene2");
 		player.addToHistory({ text: "テスト" });
 		player.toggleAutoMode();
 		player.addCancelRequest("event1");
@@ -209,7 +201,7 @@ describe("Player", () => {
 		expect(player.state).toBe("beforeStart");
 		expect(player.messageHistory).toEqual([]);
 		expect(player.isAutoMode).toBe(false);
-		expect(player.cancelRequests.size).toBe(0);
+		expect(player.cancelTransitionRequests.size).toBe(0);
 		expect(Howler.stop).toHaveBeenCalled();
 	});
 

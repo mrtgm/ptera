@@ -5,6 +5,7 @@ import type {
 	CharacterEffectEvent,
 	Game,
 	GameEvent,
+	GameResources,
 	HideCharacterEvent,
 	MoveCharacterEvent,
 	ResourceCache,
@@ -20,14 +21,14 @@ export const EventTimeline = ({
 	selectedEvent,
 	game,
 	sideBarSettings,
-	cache,
+	resources,
 	onClickEvent,
 }: {
 	selectedScene: Scene;
 	selectedEvent: GameEvent | undefined;
 	game: Game;
 	sideBarSettings: typeof SideBarSettings;
-	cache: ResourceCache;
+	resources: GameResources;
 	onClickEvent: (eventId: string) => void;
 }) => {
 	if (!selectedScene?.events || selectedScene.events.length === 0) {
@@ -71,7 +72,7 @@ export const EventTimeline = ({
 								}
 								onClick={() => onClickEvent(event.id)}
 							>
-								{renderEventContent(event, cache)}
+								{renderEventContent(event, resources)}
 							</SpeechBubble>
 						);
 					})}
@@ -83,7 +84,7 @@ export const EventTimeline = ({
 	);
 };
 
-const renderEventContent = (event: GameEvent, cache: ResourceCache) => {
+const renderEventContent = (event: GameEvent, resources: GameResources) => {
 	if (event.type === "text") {
 		return `${event.characterName ? `${event.characterName}:` : ""}${(event as TextRenderEvent).lines.join("\n")}`;
 	}
@@ -100,7 +101,7 @@ const renderEventContent = (event: GameEvent, cache: ResourceCache) => {
 			| HideCharacterEvent
 			| CharacterEffectEvent;
 
-		const characterData = cache.characters[characterEvent.characterId];
+		const characterData = resources.characters[characterEvent.characterId];
 		const imageUrl = findFirstObjectValue(characterData.images)?.url;
 
 		return (
@@ -116,7 +117,7 @@ const renderEventContent = (event: GameEvent, cache: ResourceCache) => {
 	}
 
 	if (event.type === "appearCG") {
-		return <div>{(event as AppearCGEvent).imageId}</div>;
+		return <div>{(event as AppearCGEvent).cgImageId}</div>;
 	}
 
 	return null;

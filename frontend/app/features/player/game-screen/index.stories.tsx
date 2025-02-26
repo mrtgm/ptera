@@ -13,6 +13,7 @@ import type {
 	TextRenderEvent,
 } from "~/schema";
 import { ResourceManager } from "~/utils/preloader";
+import type { Player } from "../libs/engine";
 
 const mockStage: Stage = {
 	cg: {
@@ -156,6 +157,7 @@ const GameScreenWrapper = (args: {
 				state={args.state || "playing"}
 				resourceCache={args.resourceCache || cache}
 				currentEvent={args.currentEvent || mockTextEvent}
+				player={{ addCancelRequest: () => {} } as Player}
 			/>
 		</div>
 	);

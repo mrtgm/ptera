@@ -79,6 +79,14 @@
       "metadata": {
         "size": 2048000
       }
+    },
+    "school": {
+      "id": "school",
+      "filename": "school.png",
+      "url": "/presets/backgrounds/school.png",
+      "metadata": {
+        "size": 2048000
+      }
     }
   },
   "soundEffects": {

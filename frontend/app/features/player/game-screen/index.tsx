@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { player } from "~/features/player/libs/engine";
+import { memo, useEffect, useRef, useState } from "react";
 import type {
 	GameEvent,
 	GameState,
@@ -8,6 +7,7 @@ import type {
 	Stage,
 } from "~/schema";
 import { shake } from "~/utils/transition";
+import type { Player } from "../libs/engine";
 import { Background } from "./background";
 import { CG } from "./cg";
 import { CharacterList } from "./character";
@@ -23,6 +23,7 @@ export const GameScreen = ({
 	stage,
 	state,
 	history,
+	player,
 	resourceCache,
 	currentEvent,
 	isPreviewMode,
@@ -31,6 +32,7 @@ export const GameScreen = ({
 	stage: Stage;
 	history: MessageHistory[];
 	state: GameState;
+	player: Player;
 	resourceCache: ResourceCache;
 	currentEvent: GameEvent | null;
 	isPreviewMode?: boolean;
@@ -49,6 +51,7 @@ export const GameScreen = ({
 		switch (stage.effect.type) {
 			case "shake":
 				promise = shake(
+					player,
 					currentEvent.id,
 					stage.effect.transitionDuration,
 					screenRef.current,
@@ -57,26 +60,37 @@ export const GameScreen = ({
 			default:
 				promise = Promise.resolve();
 		}
-		promise.then(() => {
-			if (stage.effect?.type === "shake") player.updateStage({ effect: null });
-		});
-	}, [stage.effect, currentEvent]);
+		promise.then(() => {});
+	}, [stage.effect, currentEvent, player]);
 
 	return (
 		<div
 			ref={screenRef}
 			id="game-screen"
 			className="w-dvw h-[calc(100dvh-64px)] max-w-[1000px] min-w-[320px] min-h-[500px] relative bg-white overflow-hidden select-none"
+			style={
+				isPreviewMode
+					? {
+							minWidth: "auto",
+							maxWidth: "100%",
+							aspectRatio: "5/6",
+							height: "auto",
+							minHeight: "auto",
+							width: "100%",
+						}
+					: {}
+			}
 			onClick={handleTapScreen}
 			onKeyDown={() => {}}
 		>
-			<Ui openHistory={openHistory} />
+			{!isPreviewMode && <Ui openHistory={openHistory} player={player} />}
 			<SoundPlayer resourceCache={resourceCache.bgms} sound={stage.bgm} />
 			<SoundPlayer
 				resourceCache={resourceCache.soundEffects}
 				sound={stage.soundEffect}
 			/>
 			<Background
+				player={player}
 				background={stage.background}
 				currentEvent={currentEvent}
 				resourceCache={resourceCache.backgroundImages}
@@ -85,15 +99,30 @@ export const GameScreen = ({
 				resourceCache={resourceCache.characters}
 				characters={stage.characters}
 				currentEvent={currentEvent}
+				player={player}
 			/>
 			<CG
+				player={player}
 				cg={stage.cg}
 				currentEvent={currentEvent}
 				resourceCache={resourceCache.cgImages}
 			/>
-			<FadeOutEffect effect={stage.effect} currentEvent={currentEvent} />
-			<Choice choices={stage.choices} currentEvent={currentEvent} />
-			<Dialog dialog={stage.dialog} currentEvent={currentEvent} state={state} />
+			<FadeOutEffect
+				player={player}
+				effect={stage.effect}
+				currentEvent={currentEvent}
+			/>
+			<Choice
+				choices={stage.choices}
+				currentEvent={currentEvent}
+				player={player}
+			/>
+			<Dialog
+				player={player}
+				dialog={stage.dialog}
+				currentEvent={currentEvent}
+				state={state}
+			/>
 
 			{isHistoryOpen && (
 				<History history={history} closeHistory={closeHistory} />

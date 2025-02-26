@@ -1,12 +1,14 @@
 import type { GameEvent, ResourceCache, Stage } from "~/schema";
-import { resourceManager } from "~/utils/preloader";
+import type { Player } from "../libs/engine";
 import { AnimatePresence } from "./animate-presence";
 
 export const Background = ({
+	player,
 	background,
 	currentEvent,
 	resourceCache,
 }: {
+	player: Player;
 	background: Stage["background"] | null;
 	currentEvent: GameEvent | null;
 	resourceCache: ResourceCache["backgroundImages"];
@@ -15,6 +17,7 @@ export const Background = ({
 
 	return (
 		<AnimatePresence
+			player={player}
 			eventId={currentEvent.id}
 			config={{
 				enter: {

@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { player } from "~/features/player/libs/engine";
+import type { Player } from "~/features/player/libs/engine";
 
 export const Ui = ({
+	player,
 	openHistory,
 }: {
+	player: Player;
 	openHistory: () => void;
 }) => {
 	const [isMute, setIsMute] = useState(false);

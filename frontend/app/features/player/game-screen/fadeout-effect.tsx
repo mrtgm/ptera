@@ -1,15 +1,21 @@
-import { useEffect } from "react";
 import type { GameEvent, Stage } from "~/schema";
+import type { Player } from "../libs/engine";
 import { AnimatePresence } from "./animate-presence";
 
 export const FadeOutEffect = ({
+	player,
 	effect,
 	currentEvent,
-}: { effect: Stage["effect"]; currentEvent: GameEvent | null }) => {
+}: {
+	player: Player;
+	effect: Stage["effect"];
+	currentEvent: GameEvent | null;
+}) => {
 	if (!currentEvent || !effect) return null;
 
 	return (
 		<AnimatePresence
+			player={player}
 			eventId={currentEvent.id}
 			config={{
 				enter: {

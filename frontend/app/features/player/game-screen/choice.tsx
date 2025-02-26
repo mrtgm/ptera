@@ -1,11 +1,13 @@
-import { player } from "~/features/player/libs/engine";
+import type { Player } from "~/features/player/libs/engine";
 import type { GameEvent, Stage } from "~/schema";
 import { AnimatePresence } from "./animate-presence";
 
 export const Choice = ({
+	player,
 	choices,
 	currentEvent,
 }: {
+	player: Player;
 	choices: Stage["choices"];
 	currentEvent: GameEvent | null;
 }) => {
@@ -17,6 +19,7 @@ export const Choice = ({
 
 	return (
 		<AnimatePresence
+			player={player}
 			eventId={currentEvent.id}
 			config={{
 				enter: {

@@ -8,27 +8,33 @@ import type {
 	GameState,
 	MessageHistory,
 	ResourceCache,
+	Scene,
 	Stage,
 } from "~/schema";
 import { resourceManager } from "~/utils/preloader";
 import { states } from "./constants";
-import { player } from "./libs/engine";
+import type { Player } from "./libs/engine";
 
-export const usePlayerInitialize = () => {
+export const usePlayerInitialize = ({
+	player,
+	gameToLoad,
+	resourcesToLoad,
+}: {
+	player: Player;
+	gameToLoad: Game;
+	resourcesToLoad: GameResources;
+}) => {
 	const [game, setGame] = useState<Game | null>(null);
 	const [state, setState] = useState<GameState>("loading");
 	const [stage, setStage] = useState<Stage>(player.stage);
 	const [cache, setCache] = useState<ResourceCache>(resourceManager.cache);
 	const [history, setHistory] = useState<MessageHistory[]>([]);
+	const [currentScene, setCurrentScene] = useState<Scene | null>(null);
 	const [currentEvent, setCurrentEvent] = useState<GameEvent | null>(null);
 
 	useEffect(() => {
-		resourceManager.loadResources(dummyAssets as GameResources).then(() => {
-			setState("beforeStart");
+		resourceManager.loadResources(resourcesToLoad).then(() => {
 			setCache(resourceManager.cache);
-
-			player.loadGame(dummyGame as Game);
-			player.currentGame && setGame(player.currentGame);
 
 			for (const state of states) {
 				player.emitter.on(state, () => {
@@ -44,34 +50,131 @@ export const usePlayerInitialize = () => {
 				setHistory(history);
 			});
 
+			player.emitter.on("currentSceneUpdated", (scene) => {
+				setCurrentScene(scene);
+			});
+
 			player.emitter.on("currentEventUpdated", (event) => {
 				setCurrentEvent(event);
 			});
+
+			player.emitter.on("gameLoaded", () => {
+				setGame(player.currentGame);
+			});
+
+			player.loadGame(gameToLoad);
 		});
 
 		return () => {
 			player.emitter.off("stageUpdated");
 			player.emitter.off("currentEventUpdated");
 			player.emitter.off("historyUpdated");
+			player.emitter.off("currentSceneUpdated");
+			player.emitter.off("gameLoaded");
 
 			for (const state of states) {
 				player.emitter.off(state);
 			}
 		};
-	}, []);
+	}, [player, gameToLoad, resourcesToLoad]);
 
 	return {
 		game,
 		state,
 		stage,
 		history,
+		currentScene,
 		currentEvent,
 		cache,
-		setGame,
-		setState,
-		setStage,
-		setHistory,
-		setCurrentEvent,
-		setCache,
+	};
+};
+
+export const usePlayerInitialize2 = ({
+	player,
+	gameToLoad,
+	resourcesToLoad,
+}: {
+	player: Player;
+	gameToLoad: Game;
+	resourcesToLoad: GameResources;
+}) => {
+	const [game, setGame] = useState<Game | null>(null);
+	const [state, setState] = useState<GameState>("loading");
+	const [stage, setStage] = useState<Stage>(player.stage);
+	const [cache, setCache] = useState<ResourceCache>(resourceManager.cache);
+	const [history, setHistory] = useState<MessageHistory[]>([]);
+	const [currentScene, setCurrentScene] = useState<Scene | null>(null);
+	const [currentEvent, setCurrentEvent] = useState<GameEvent | null>(null);
+
+	// Setup all event listeners
+	useEffect(() => {
+		// Clear any existing listeners when the player changes
+		const cleanup = () => {
+			player.emitter.off("stageUpdated");
+			player.emitter.off("currentEventUpdated");
+			player.emitter.off("historyUpdated");
+			player.emitter.off("currentSceneUpdated");
+			player.emitter.off("gameLoaded");
+			for (const state of states) {
+				player.emitter.off(state);
+			}
+		};
+
+		cleanup(); // Clear any existing listeners
+
+		// Setup new listeners
+		for (const state of states) {
+			player.emitter.on(state, () => {
+				setState(state);
+			});
+		}
+
+		player.emitter.on("stageUpdated", (stage) => {
+			setStage(stage);
+		});
+
+		player.emitter.on("historyUpdated", (history) => {
+			setHistory(history);
+		});
+
+		player.emitter.on("currentSceneUpdated", (scene) => {
+			setCurrentScene(scene);
+		});
+
+		player.emitter.on("currentEventUpdated", (event) => {
+			setCurrentEvent(event);
+		});
+
+		player.emitter.on("gameLoaded", () => {
+			setGame(player.currentGame);
+		});
+
+		return cleanup;
+	}, [player]); // Only re-run if the player instance changes
+
+	// Load resources and game
+	useEffect(() => {
+		let isMounted = true;
+
+		resourceManager.loadResources(resourcesToLoad).then(() => {
+			if (!isMounted) return;
+
+			setCache(resourceManager.cache);
+			player.loadGame(gameToLoad);
+		});
+
+		return () => {
+			isMounted = false;
+		};
+	}, [player, gameToLoad, resourcesToLoad]);
+
+	return {
+		game,
+		state,
+		stage,
+		history,
+		currentScene,
+		currentEvent,
+		cache,
 	};
 };

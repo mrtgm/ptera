@@ -3,16 +3,19 @@ import { type StoreApi, type UseBoundStore, create } from "zustand";
 import { devtools, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { type EditorState, createEditorSlice } from "./editor";
+import { type ModalState, createModalSlice } from "./modal";
 import { type UserState, createUserSlice } from "./user";
 
 const sliceDefinitions = {
 	user: createUserSlice,
 	editor: createEditorSlice,
+	modal: createModalSlice,
 } as const;
 
 type SliceStates = {
 	user: UserState;
 	editor: EditorState;
+	modal: ModalState;
 };
 
 // https://stackoverflow.com/questions/50374908/transform-union-type-to-intersection-type

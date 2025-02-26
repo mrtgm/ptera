@@ -1,4 +1,4 @@
-import { player } from "~/features/player/libs/engine";
+import type { Player } from "~/features/player/libs/engine";
 import { type EasingType, easing } from "~/utils/easing";
 
 type Keyframe = {
@@ -114,11 +114,14 @@ export class Transition {
 	private startTime: number | null = null;
 	private animationFrame: number | null = null;
 
-	constructor(config: TransitionConfig) {
+	private player;
+
+	constructor(player: Player, config: TransitionConfig) {
 		this.config = {
 			easing: "linear",
 			...config,
 		};
+		this.player = player;
 	}
 
 	start(): Promise<void> {
@@ -128,7 +131,7 @@ export class Transition {
 				const elapsed = currentTime - this.startTime;
 
 				// トランジションをスキップ
-				if (player.checkIfEventIsCanceled(this.config.eventId)) {
+				if (this.player.checkIfEventIsCanceled(this.config.eventId)) {
 					this.complete(resolve);
 					return;
 				}
@@ -186,11 +189,12 @@ export class Transition {
 }
 
 export const fadeIn = (
+	player: Player,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition({
+	const transition = new Transition(player, {
 		targets: [
 			{
 				element,
@@ -213,11 +217,12 @@ export const fadeIn = (
 };
 
 export const fadeOut = (
+	player: Player,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition({
+	const transition = new Transition(player, {
 		targets: [
 			{
 				element,
@@ -240,12 +245,13 @@ export const fadeOut = (
 };
 
 export const crossFade = (
+	player: Player,
 	eventId: string,
 	duration: number,
 	elementOut: HTMLElement,
 	elementIn: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition({
+	const transition = new Transition(player, {
 		targets: [
 			{
 				element: elementOut,
@@ -280,11 +286,12 @@ export const crossFade = (
 };
 
 export const shake = (
+	player: Player,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition({
+	const transition = new Transition(player, {
 		targets: [
 			{
 				element,
@@ -316,11 +323,12 @@ export const shake = (
 };
 
 export const flash = (
+	player: Player,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition({
+	const transition = new Transition(player, {
 		targets: [
 			{
 				element,
@@ -344,11 +352,12 @@ export const flash = (
 };
 
 export const wobble = (
+	player: Player,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition({
+	const transition = new Transition(player, {
 		targets: [
 			{
 				element,
@@ -373,11 +382,12 @@ export const wobble = (
 };
 
 export const bounce = (
+	player: Player,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition({
+	const transition = new Transition(player, {
 		targets: [
 			{
 				element,
@@ -402,11 +412,12 @@ export const bounce = (
 };
 
 export const sway = (
+	player: Player,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition({
+	const transition = new Transition(player, {
 		targets: [
 			{
 				element,
@@ -431,11 +442,12 @@ export const sway = (
 };
 
 export const blackOn = (
+	player: Player,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition({
+	const transition = new Transition(player, {
 		targets: [
 			{
 				element,
@@ -462,11 +474,12 @@ export const blackOn = (
 };
 
 export const blackOff = (
+	player: Player,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition({
+	const transition = new Transition(player, {
 		targets: [
 			{
 				element,

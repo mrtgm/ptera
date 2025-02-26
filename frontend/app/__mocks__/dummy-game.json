@@ -43,7 +43,7 @@
           "id": "ev4-1",
           "type": "appearCG",
           "category": "cg",
-          "imageId": "sakura",
+          "cgImageId": "sakura",
           "position": [0, 0],
           "scale": 1.0,
           "transitionDuration": 1000

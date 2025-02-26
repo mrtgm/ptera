@@ -11,13 +11,21 @@ describe("Player Library", () => {
 		const sceneId = "opening";
 		const targetSceneId = "story-continues";
 
-		const result = findAllPaths(game, sceneId, targetSceneId);
+		const result = findAllPaths({
+			game,
+			sceneId,
+			targetSceneId,
+		});
 
 		expect(result.length).toEqual(5);
 		expect(result[0].id).toEqual("opening");
 		expect(result[4].id).toEqual("story-continues");
 
-		const result2 = findAllPaths(game, "opening", "hesitant-response");
+		const result2 = findAllPaths({
+			game,
+			sceneId,
+			targetSceneId: "hesitant-response",
+		});
 		expect(result2.length).toEqual(4);
 		expect(result2[0].id).toEqual("opening");
 		expect(result2[3].id).toEqual("hesitant-response");
@@ -26,10 +34,14 @@ describe("Player Library", () => {
 	// シーンからステージを構築する
 	test("buildCurrentStageFromScenes", () => {
 		const game = dummyGame as Game;
-		const result = findAllPaths(game, "opening", "hesitant-response");
-		const stage = buildCurrentStageFromScenes(
-			result,
-			{
+		const result = findAllPaths({
+			game,
+			sceneId: "opening",
+			targetSceneId: "hesitant-response",
+		});
+		const stage = buildCurrentStageFromScenes({
+			scenes: result,
+			currentStage: {
 				background: null,
 				characters: {
 					transitionDuration: 0,
@@ -50,8 +62,8 @@ describe("Player Library", () => {
 				soundEffect: null,
 				effect: null,
 			},
-			dummyAssets as GameResources,
-		);
+			resources: dummyAssets as GameResources,
+		});
 
 		expect(stage.dialog).toEqual({
 			isVisible: true,

@@ -76,7 +76,7 @@ export const appearMessageWindowEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("appearMessageWindow"),
 	category: z.literal("message"),
-	transitionDuration: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type AppearMessageWindowEvent = z.infer<
@@ -87,7 +87,7 @@ export const hideMessageWindowEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("hideMessageWindow"),
 	category: z.literal("message"),
-	transitionDuration: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type HideMessageWindowEvent = z.infer<
@@ -103,7 +103,7 @@ export const appearCharacterEventSchema = z.object({
 	position: z.tuple([z.number(), z.number()]),
 	scale: z.number(),
 	transitionType: z.enum(["fade", "slide"]),
-	transitionDuration: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type AppearCharacterEvent = z.infer<typeof appearCharacterEventSchema>;
@@ -114,7 +114,7 @@ export const hideCharacterEventSchema = z.object({
 	category: z.literal("character"),
 	characterId: z.string(),
 	transitionType: z.enum(["fade", "slide"]),
-	transitionDuration: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type HideCharacterEvent = z.infer<typeof hideCharacterEventSchema>;
@@ -124,7 +124,7 @@ export const hideAllCharactersEventSchema = z.object({
 	type: z.literal("hideAllCharacters"),
 	category: z.literal("character"),
 	transitionType: z.enum(["fade", "slide"]),
-	transitionDuration: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type HideAllCharactersEvent = z.infer<
@@ -148,7 +148,7 @@ export const bgmStartEventSchema = z.object({
 	category: z.literal("media"),
 	bgmId: z.string(),
 	volume: z.number(),
-	transitionDuration: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type BGMStartEvent = z.infer<typeof bgmStartEventSchema>;
@@ -157,7 +157,7 @@ export const bgmStopEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("bgmStop"),
 	category: z.literal("media"),
-	transitionDuration: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type BGMStopEvent = z.infer<typeof bgmStopEventSchema>;
@@ -168,7 +168,7 @@ export const soundEffectEventSchema = z.object({
 	category: z.literal("media"),
 	volume: z.number(),
 	soundEffectId: z.string(),
-	transitionDuration: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type SoundEffectEvent = z.infer<typeof soundEffectEventSchema>;
@@ -178,9 +178,7 @@ export const changeBackgroundEventSchema = z.object({
 	type: z.literal("changeBackground"),
 	category: z.literal("background"),
 	backgroundId: z.string(),
-	scale: z.number(),
-	position: z.tuple([z.number(), z.number()]),
-	transitionDuration: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type ChangeBackgroundEvent = z.infer<typeof changeBackgroundEventSchema>;
@@ -190,7 +188,7 @@ export const effectEventSchema = z.object({
 	type: z.literal("effect"),
 	category: z.literal("effect"),
 	effectType: z.enum(["fadeIn", "fadeOut", "shake"]),
-	transitionDuration: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type EffectEvent = z.infer<typeof effectEventSchema>;
@@ -209,7 +207,7 @@ export const characterEffectEventSchema = z.object({
 		"blackOn",
 		"blackOff",
 	]),
-	transitionDuration: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type CharacterEffectEvent = z.infer<typeof characterEffectEventSchema>;
@@ -218,10 +216,10 @@ export const appearCGEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("appearCG"),
 	category: z.literal("cg"),
-	imageId: z.string(),
+	cgImageId: z.string(),
 	position: z.tuple([z.number(), z.number()]),
 	scale: z.number(),
-	transitionDuration: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type AppearCGEvent = z.infer<typeof appearCGEventSchema>;
@@ -230,7 +228,7 @@ export const hideCGEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("hideCG"),
 	category: z.literal("cg"),
-	transitionDuration: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type HideCGEvent = z.infer<typeof hideCGEventSchema>;
@@ -325,8 +323,6 @@ export type Stage = {
 	};
 	background: {
 		id: string;
-		scale: number;
-		position: [number, number];
 		transitionDuration: number;
 	} | null;
 	characters: {

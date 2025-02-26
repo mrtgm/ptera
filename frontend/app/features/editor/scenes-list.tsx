@@ -9,7 +9,7 @@ import type { SideBarSettings } from "./constants";
 import { SceneCard } from "./scene-card";
 
 type ScenesListProps = {
-	game: Game;
+	game: Game | null;
 	sideBarSettings: typeof SideBarSettings;
 	onSceneClick: (sceneId: string) => void;
 	onAddScene: () => void;
@@ -21,6 +21,10 @@ export const ScenesList = ({
 	onSceneClick,
 	onAddScene,
 }: ScenesListProps) => {
+	if (!game) {
+		return null;
+	}
+
 	return (
 		<>
 			<div className="flex justify-between items-center mb-2">

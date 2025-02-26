@@ -1,11 +1,14 @@
 import type { GameEvent, ResourceCache, Stage } from "~/schema";
+import type { Player } from "../libs/engine";
 import { AnimatePresence } from "./animate-presence";
 
 export const CG = ({
+	player,
 	cg,
 	currentEvent,
 	resourceCache,
 }: {
+	player: Player;
 	cg: Stage["cg"];
 	currentEvent: GameEvent | null;
 	resourceCache: ResourceCache["cgImages"];
@@ -14,6 +17,7 @@ export const CG = ({
 
 	return (
 		<AnimatePresence
+			player={player}
 			eventId={currentEvent.id}
 			config={{
 				enter: {

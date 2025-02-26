@@ -1,29 +1,35 @@
 import type { Game, GameEvent, GameResources, Scene, Stage } from "~/schema";
 
-export const findAllPaths = (
-	game: Game,
-	sceneId: string,
-	targetSceneId: string,
-): Scene[] => {
+export const findAllPaths = ({
+	game,
+	sceneId,
+	targetSceneId,
+}: {
+	game: Game;
+	sceneId?: string;
+	targetSceneId: string;
+}): Scene[] => {
 	const result: Scene[] = [];
 	const visited = new Set<string>();
 
 	const dfs = (
 		game: Game,
-		sceneId: string,
+		sceneId: string | undefined,
 		targetSceneId: string,
 		result: Scene[],
 		visited: Set<string>,
 	): boolean => {
-		const scene = game.scenes.find((s) => s.id === sceneId);
-		if (!scene) throw new Error(`Scene not found: ${sceneId}`);
+		const newSceneId = sceneId ?? game.scenes[0].id;
+		const scene = game.scenes.find((s) => s.id === newSceneId);
 
-		if (sceneId === targetSceneId) {
+		if (!scene) throw new Error(`Scene not found: ${newSceneId}`);
+
+		if (newSceneId === targetSceneId) {
 			result.push(scene);
 			return true;
 		}
 
-		visited.add(sceneId);
+		visited.add(newSceneId);
 		result.push(scene);
 
 		if (scene.sceneType === "choice") {
@@ -43,7 +49,7 @@ export const findAllPaths = (
 		}
 
 		result.pop();
-		visited.delete(sceneId);
+		visited.delete(newSceneId);
 
 		return false;
 	};
@@ -53,15 +59,22 @@ export const findAllPaths = (
 	return result;
 };
 
-export const buildCurrentStageFromScenes = (
-	scenes: Scene[],
-	currentStage: Stage,
-	resources: GameResources,
-): Stage => {
+export const buildCurrentStageFromScenes = ({
+	scenes,
+	currentStage,
+	resources,
+	eventId,
+}: {
+	scenes: Scene[];
+	currentStage: Stage;
+	resources: GameResources;
+	eventId?: string;
+}): Stage => {
 	const events = scenes.flatMap((scene) => scene.events);
 	let newStage = { ...currentStage };
 	for (const event of events) {
 		newStage = handleEvent(event, newStage, resources);
+		if (eventId !== undefined && event.id === eventId) break;
 	}
 	return newStage;
 };
@@ -71,9 +84,14 @@ export const handleEvent = (
 	stage: Stage,
 	resources: GameResources | null,
 ): Stage => {
+	// soundEffect をnullにする、characterEffectをnullにする
+
 	switch (event.type) {
 		case "appearMessageWindow":
-			return { ...stage, dialog: { ...stage.dialog, isVisible: true } };
+			return {
+				...stage,
+				dialog: { ...stage.dialog, isVisible: true },
+			};
 		case "hideMessageWindow":
 			return { ...stage, dialog: { ...stage.dialog, isVisible: false } };
 		case "text":
@@ -121,7 +139,10 @@ export const handleEvent = (
 			if (!resources) return stage;
 			return {
 				...stage,
-				background: event,
+				background: {
+					id: event.backgroundId,
+					transitionDuration: event.transitionDuration,
+				},
 			};
 		case "bgmStart":
 			if (!resources) return stage;
@@ -136,6 +157,52 @@ export const handleEvent = (
 			};
 		case "bgmStop":
 			return { ...stage, bgm: null };
+		case "soundEffect":
+			if (!resources) return stage;
+			return {
+				...stage,
+				soundEffect: {
+					id: event.soundEffectId,
+					volume: event.volume,
+					isPlaying: true,
+					transitionDuration: event.transitionDuration,
+				},
+			};
+		case "appearCG":
+			if (!resources) return stage;
+			return {
+				...stage,
+				cg: {
+					item: {
+						id: event.cgImageId,
+						scale: event.scale,
+						position: event.position,
+					},
+					transitionDuration: event.transitionDuration,
+				},
+			};
+		case "hideCG":
+			return {
+				...stage,
+				cg: { item: null, transitionDuration: event.transitionDuration },
+			};
+		case "characterEffect":
+			return {
+				...stage,
+				characters: {
+					transitionDuration: event.transitionDuration,
+					items: stage.characters.items.map((c) => {
+						if (c.id !== event.characterId) return c;
+						return {
+							...c,
+							effect: {
+								type: event.effectType,
+								transitionDuration: event.transitionDuration,
+							},
+						};
+					}),
+				},
+			};
 		case "effect":
 			return {
 				...stage,

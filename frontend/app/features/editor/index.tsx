@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "@remix-run/react";
-import { useEffect } from "react";
-import type { GameEvent } from "~/schema";
+import { useEffect, useState } from "react";
+import type { Game, GameEvent, GameResources } from "~/schema";
 import { usePlayerInitialize } from "../player/hooks";
 import {
 	SideBarSettings,
@@ -18,8 +18,14 @@ import type { SceneSettingsFormData } from "./scene-settings";
 import { ScenesList } from "./scenes-list";
 import { Sidebar } from "./sidebar";
 
+import dummyAssets from "~/__mocks__/dummy-assets.json";
+import dummyGame from "~/__mocks__/dummy-game.json";
+
 export const Editor = () => {
-	const { game, state, cache, setGame } = usePlayerInitialize();
+	const [game, setGame] = useState<Game | null>(dummyGame as Game);
+	const [resources, setResources] = useState<GameResources | null>(
+		dummyAssets as GameResources,
+	);
 
 	const navigate = useNavigate();
 	const pathparams = useParams();
@@ -81,24 +87,22 @@ export const Editor = () => {
 	const handleSaveEvent = (event: GameEvent) => {
 		// TBD: 実装
 		console.log("Save event clicked");
-		setGame((prev) => {
-			if (!prev) {
-				return prev;
-			}
-			const newGame = {
-				...prev,
-				scenes: prev.scenes.map((scene) => {
-					if (scene.id !== selectedSceneId) {
-						return scene;
-					}
-					return {
-						...scene,
-						events: scene.events.map((e) => (e.id === event.id ? event : e)),
-					};
-				}),
-			};
-			return newGame;
-		});
+
+		if (!game) return;
+		const newGame = {
+			...game,
+			scenes: game.scenes.map((scene) => {
+				if (scene.id !== selectedSceneId) {
+					return scene;
+				}
+				return {
+					...scene,
+					events: scene.events.map((e) => (e.id === event.id ? event : e)),
+				};
+			}),
+		};
+
+		setGame(newGame);
 	};
 
 	return (
@@ -125,11 +129,7 @@ export const Editor = () => {
 				</div>
 
 				<div className="col-span-5 flex flex-col justify-center bg-white text-black p-2">
-					{state === "loading" || !game ? (
-						<div className="w-full h-full flex justify-center items-center select-none">
-							<div className="text-2xl">読み込み中...</div>
-						</div>
-					) : selectedSceneId === undefined ? (
+					{selectedSceneId === undefined ? (
 						<ScenesList
 							game={game}
 							sideBarSettings={SideBarSettings}
@@ -142,7 +142,7 @@ export const Editor = () => {
 							selectedScene={selectedScene}
 							game={game}
 							sideBarSettings={SideBarSettings}
-							cache={cache}
+							resources={resources}
 							onNavigateToScenesList={handleNavigateToScenesList}
 							onDeleteScene={handleDeleteScene}
 							onClickEvent={handleNavigateToEvent}
@@ -151,12 +151,13 @@ export const Editor = () => {
 				</div>
 
 				<div className="col-span-4 flex justify-center items-center">
-					{selectedSceneId && selectedEvent ? (
+					{selectedScene && selectedSceneId && selectedEvent ? (
 						<EventEditor
 							key={selectedEvent.id}
+							selectedScene={selectedScene}
 							selectedEvent={selectedEvent}
 							game={game}
-							cache={cache}
+							resources={resources}
 							onDeleteEvent={handleDeleteEvent}
 							onSaveEvent={handleSaveEvent}
 							onClickAwayEvent={(e) => {

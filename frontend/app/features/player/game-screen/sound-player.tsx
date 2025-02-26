@@ -23,6 +23,7 @@ export const SoundPlayer = ({
 		}
 
 		return () => {
+			if (sound.isPlaying) return;
 			resource.cache.fade(sound.volume, 0, sound.transitionDuration);
 			resource.cache.once("fade", () => {
 				resource.cache.stop();

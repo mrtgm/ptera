@@ -15,6 +15,7 @@ import {
 	Zap,
 } from "lucide-react";
 import type { ReactElement } from "react";
+import type { GameEvent } from "~/schema";
 
 export type ComponentType =
 	| "text"

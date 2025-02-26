@@ -1,19 +1,27 @@
-import { useCallback } from "react";
-import { player } from "~/features/player/libs/engine";
-import type { Game } from "~/schema";
+import { useCallback, useState } from "react";
+import dummyAssets from "~/__mocks__/dummy-assets.json";
+import dummyGame from "~/__mocks__/dummy-game.json";
+import type { Game, GameResources } from "~/schema";
 import { GameScreen } from "./game-screen";
 import { usePlayerInitialize } from "./hooks";
+import { Player as PlayerEngine } from "./libs/engine";
 
 export const Player = () => {
+	const [player] = useState(() => new PlayerEngine());
+
 	const { game, state, stage, history, currentEvent, cache } =
-		usePlayerInitialize();
+		usePlayerInitialize({
+			player,
+			gameToLoad: dummyGame as Game,
+			resourcesToLoad: dummyAssets as GameResources,
+		});
 
 	const handleTapGameScreen = useCallback(
 		(e: React.MouseEvent) => {
 			if (currentEvent && state !== "idle")
 				player.addCancelRequest(currentEvent?.id);
 		},
-		[currentEvent, state],
+		[player, currentEvent, state],
 	);
 
 	const handleTapInitialScreen = () => {
@@ -28,29 +36,37 @@ export const Player = () => {
 		// TODO: 他の作品へのリンク
 	};
 
-	return state === "loading" ? (
-		<div className="w-full h-full bg-black flex justify-center items-center select-none">
-			<div className="text-white text-2xl">読み込み中...</div>
-		</div>
-	) : state === "beforeStart" ? (
-		<InitialScreen
-			game={game}
-			handleTapInitialScreen={handleTapInitialScreen}
-		/>
-	) : state === "end" ? (
-		<EndScreen
-			handleTapGoToInitialScreen={handleTapGoToInitialScreen}
-			handleTapGoToOtherWorks={handleTapGoToOtherWorks}
-		/>
-	) : (
-		<GameScreen
-			handleTapScreen={handleTapGameScreen}
-			currentEvent={currentEvent}
-			state={state}
-			resourceCache={cache}
-			history={history}
-			stage={stage}
-		/>
+	return (
+		<>
+			{state === "loading" && (
+				<div className="w-full h-full bg-black flex justify-center items-center select-none">
+					<div className="text-white text-2xl">読み込み中...</div>
+				</div>
+			)}
+			{state === "beforeStart" && (
+				<InitialScreen
+					game={game}
+					handleTapInitialScreen={handleTapInitialScreen}
+				/>
+			)}
+			{state === "end" && (
+				<EndScreen
+					handleTapGoToInitialScreen={handleTapGoToInitialScreen}
+					handleTapGoToOtherWorks={handleTapGoToOtherWorks}
+				/>
+			)}
+			{["idle", "playing"].includes(state) && (
+				<GameScreen
+					handleTapScreen={handleTapGameScreen}
+					currentEvent={currentEvent}
+					state={state}
+					resourceCache={cache}
+					history={history}
+					player={player}
+					stage={stage}
+				/>
+			)}
+		</>
 	);
 };
 
