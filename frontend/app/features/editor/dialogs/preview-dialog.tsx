@@ -9,13 +9,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "~/components/shadcn/dialog";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "~/components/shadcn/select";
 import { Tabs, TabsList, TabsTrigger } from "~/components/shadcn/tabs";
 import { GameScreen } from "~/features/player/game-screen";
 import { usePlayerInitialize } from "~/features/player/hooks";
@@ -32,16 +25,8 @@ import type {
 	ResourceCache,
 	Scene,
 } from "~/schema";
-
-type PreviewModalProps = {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
-	game: Game;
-	resources: GameResources;
-	currentScene: Scene;
-	currentEvent: GameEvent;
-	formValues: Partial<GameEvent>;
-};
+import { useStore } from "~/stores";
+import type { ModalParams } from "~/stores/modal";
 
 type DevicePreset = {
 	id: string;
@@ -57,14 +42,21 @@ const devicePresets: DevicePreset[] = [
 ];
 
 export const PreviewModal = ({
-	open,
-	onOpenChange,
 	game,
 	resources,
 	currentScene,
 	currentEvent,
 	formValues,
-}: PreviewModalProps) => {
+}: {
+	game: Game;
+	resources: GameResources;
+	currentScene: Scene;
+	currentEvent: GameEvent;
+	formValues: Partial<GameEvent>;
+}) => {
+	const modalSlice = useStore.useSlice.modal();
+	const isOpen = modalSlice.isOpen && modalSlice.target === "preview";
+
 	const [player, setPlayer] = useState<Player>(() => new Player());
 	const [selectedDevice, setSelectedDevice] = useState<string>("pc");
 	const [previewMode, setPreviewMode] = useState<
@@ -100,7 +92,7 @@ export const PreviewModal = ({
 
 	// プレビュー実行
 	useEffect(() => {
-		if (!open || !game || !resources) return;
+		if (!isOpen || !game || !resources) return;
 
 		const updatedEvent = {
 			...currentEvent,
@@ -123,7 +115,11 @@ export const PreviewModal = ({
 		});
 
 		if (previewMode === "from-current") {
-			// 現在のイベントからプレビュー
+			console.log("dispose3");
+
+			player.dispose();
+			const newPlayer = new Player();
+
 			const currentStage = buildCurrentStageFromScenes({
 				scenes: result,
 				currentStage: INITIAL_STAGE,
@@ -131,40 +127,59 @@ export const PreviewModal = ({
 				eventId: updatedEvent.id,
 			});
 
-			player.previewGame(currentStage, updatedScene, updatedEvent);
+			newPlayer.previewGame(currentStage, updatedScene, updatedEvent);
+			setPlayer(() => newPlayer);
 		} else {
+			console.log("dispose");
+			player.dispose();
+			const newPlayer = new Player();
+
+			// const firstScene = game.scenes[0];
+			// const firstEvent = game.scenes[0].events[0];
+
 			const firstEvent = updatedScene.events[0];
-			player.previewGame(INITIAL_STAGE, updatedScene, firstEvent);
+
+			console.log("firstEvent", firstEvent);
+
+			newPlayer.previewGame(INITIAL_STAGE, updatedScene, firstEvent);
+			setPlayer(() => newPlayer);
 		}
 
 		return () => {
+			console.log("dispose2");
 			player.dispose();
 		};
 	}, [
-		open,
+		isOpen,
 		previewMode,
 		formValues,
 		game,
 		resources,
 		currentScene,
 		currentEvent,
-		player,
+		player.dispose,
 	]);
 
-	// モーダルが閉じられたときにプレイヤーを破棄
 	useEffect(() => {
-		if (!open) {
+		if (!isOpen) {
 			player.dispose();
 			setPlayer(() => new Player());
 		}
-	}, [open, player]);
+	}, [isOpen, player.dispose]);
 
 	if (!game || !resources) {
 		return null;
 	}
 
+	useEffect(() => {
+		console.log("previewCurrentEvent", previewCurrentEvent);
+	}, [previewCurrentEvent]);
+
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog
+			open={isOpen}
+			onOpenChange={(open) => !open && modalSlice.closeModal()}
+		>
 			<DialogContent className="sm:max-w-[90vw] max-h-[90vh] flex flex-col">
 				<DialogHeader>
 					<DialogTitle>イベントプレビュー</DialogTitle>
@@ -253,6 +268,14 @@ export const PreviewModal = ({
 							)}
 							{stage ? (
 								<GameScreen
+									style={{
+										minWidth: "auto",
+										maxWidth: "100%",
+										aspectRatio: "auto",
+										height: "100%",
+										minHeight: "auto",
+										width: "100%",
+									}}
 									player={player}
 									stage={stage}
 									resourceCache={cache}
@@ -276,7 +299,7 @@ export const PreviewModal = ({
 				</div>
 
 				<DialogFooter>
-					<Button variant="outline" onClick={() => onOpenChange(false)}>
+					<Button variant="outline" onClick={modalSlice.closeModal}>
 						閉じる
 					</Button>
 				</DialogFooter>

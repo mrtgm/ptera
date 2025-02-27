@@ -14,7 +14,10 @@ export type ModalParams = {
 	character: {
 		mode: "none" | "characterImage" | "character";
 	};
-	preview: undefined;
+	preview: {
+		currentSceneId: string;
+		currentEventId: string;
+	};
 	adjustSize: {
 		target: "characters";
 		assetId: string;

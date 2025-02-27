@@ -177,7 +177,8 @@ export const AssetDialog = ({
 		}
 	};
 
-	if (!resources[activeTab]) return null;
+	if (!resources[activeTab] || !AssetModalSideBarSettings[activeTab])
+		return null;
 
 	const currentAssetsList = Object.values(resources[activeTab]) as MediaAsset[];
 	const isSelectionMode =

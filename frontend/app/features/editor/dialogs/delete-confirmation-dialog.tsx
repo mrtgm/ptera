@@ -103,5 +103,3 @@ export const useDeleteConfirmationDialog = () => {
 
 	return { ConfirmDialog, setDeleteDialogOpen, deleteDialogOpen };
 };
-
-export default DeleteConfirmationDialog;

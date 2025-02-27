@@ -21,6 +21,7 @@ import { Sidebar } from "./sidebar";
 import dummyAssets from "~/__mocks__/dummy-assets.json";
 import dummyGame from "~/__mocks__/dummy-game.json";
 import type { AssetType } from "./dialogs/asset-dialog";
+import { Graph } from "./graph";
 
 export const Editor = () => {
 	const [game, setGame] = useState<Game | null>(dummyGame as Game);
@@ -242,7 +243,7 @@ export const Editor = () => {
 					)}
 				</div>
 
-				<div className="col-span-4 flex justify-center items-center">
+				<div className="col-span-4 bg-[#a4b2c6]">
 					{selectedScene && selectedSceneId && selectedEvent ? (
 						<EventEditor
 							key={selectedEvent.id}
@@ -263,8 +264,8 @@ export const Editor = () => {
 							}}
 						/>
 					) : (
-						<div className="p-2 bg-slate-900 w-full h-full flex justify-center items-center select-none text-white">
-							<div className="text-2xl">No event selected</div>
+						<div className="w-full h-[calc(100dvh-40px)] sticky top-0">
+							<Graph game={game} />
 						</div>
 					)}
 				</div>

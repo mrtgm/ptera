@@ -179,5 +179,3 @@ export const CharacterDialog = ({
 		</>
 	);
 };
-
-export default CharacterDialog;

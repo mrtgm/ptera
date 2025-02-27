@@ -62,6 +62,7 @@ import {
 import { type SidebarItemParameter, getEventTitle } from "./constants";
 import { SideBarSettings } from "./constants";
 
+import { MonitorPlay } from "lucide-react";
 import {
 	Dialog,
 	DialogContent,
@@ -86,7 +87,8 @@ import { useStore } from "~/stores";
 import type { ModalParams, ModalPayload } from "~/stores/modal";
 import { AdjustSizeDialog } from "./dialogs/adjust-size-dialog";
 import { AssetDialog, type AssetType } from "./dialogs/asset-dialog";
-import CharacterDialog from "./dialogs/character-select-dialog";
+import { CharacterDialog } from "./dialogs/character-select-dialog";
+import PreviewModal from "./dialogs/preview-dialog";
 
 type EventEditorProps = {
 	selectedScene: Scene;
@@ -142,6 +144,8 @@ export const EventEditor = ({
 	onClickAwayEvent,
 }: EventEditorProps) => {
 	const [activeTab, setActiveTab] = useState("parameters");
+	const [formValues, setFormValues] =
+		useState<Partial<GameEvent>>(selectedEvent);
 	const modalSlice = useStore.useSlice.modal();
 
 	const ref = useRef<HTMLDivElement>(null);
@@ -209,6 +213,17 @@ export const EventEditor = ({
 		form.setValue("characterImageId", imageId);
 	};
 
+	// フォームの値が変更されたらformValuesを更新
+	useEffect(() => {
+		const subscription = form.watch((data) => {
+			if (data.lines) {
+				data.lines = data.lines.split("\n").filter(Boolean);
+			}
+			setFormValues(data as Partial<GameEvent>);
+		});
+		return () => subscription.unsubscribe();
+	}, [form]);
+
 	if (!selectedEvent || !game || !resources) {
 		return null;
 	}
@@ -228,7 +243,13 @@ export const EventEditor = ({
 				onOpenChange={modalSlice.closeModal}
 				initialData={modalSlice.params as ModalParams["adjustSize"]}
 			/>
-
+			<PreviewModal
+				game={game}
+				resources={resources}
+				formValues={formValues}
+				currentScene={selectedScene}
+				currentEvent={selectedEvent}
+			/>
 			<CharacterDialog
 				game={game}
 				resources={resources}
@@ -245,9 +266,26 @@ export const EventEditor = ({
 					<CardTitle className="text-md">
 						{getEventTitle(selectedEvent.type)}
 					</CardTitle>
-					<Button variant="destructive" onClick={onDeleteEvent}>
-						イベント削除
-					</Button>
+					<div className="flex gap-2">
+						<Button
+							variant="outline"
+							onClick={() =>
+								modalSlice.openModal({
+									target: "preview",
+									params: {
+										currentSceneId: selectedScene.id,
+										currentEventId: selectedEvent.id,
+									},
+								})
+							}
+							className="flex items-center gap-2"
+						>
+							<MonitorPlay size={16} />
+						</Button>
+						<Button variant="destructive" onClick={onDeleteEvent}>
+							イベント削除
+						</Button>
+					</div>
 				</CardHeader>
 				<CardContent>
 					<Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -255,7 +293,6 @@ export const EventEditor = ({
 							<TabsTrigger value="parameters">パラメータ</TabsTrigger>
 							<TabsTrigger value="preview">プレビュー</TabsTrigger>
 						</TabsList>
-
 						<Form {...form}>
 							<form
 								onSubmit={(e) => {
@@ -273,7 +310,7 @@ export const EventEditor = ({
 								<TabsContent value="preview">
 									<div className="min-h-[200px] bg-gray-100 rounded-md p-4">
 										{renderEventPreview(
-											form,
+											formValues,
 											game,
 											resources,
 											selectedScene,
@@ -297,17 +334,14 @@ export const EventEditor = ({
 	);
 };
 
-const renderEventPreview = (
-	form: ReturnType<typeof useForm>,
+export const renderEventPreview = (
+	formValues: Partial<GameEvent>,
 	game: Game,
-
 	resources: GameResources,
 	currentScene: Scene,
 	currentEvent: GameEvent,
-	activeTab: string,
+	activeTab?: string,
 ) => {
-	const [formValues, setFormValues] =
-		useState<Partial<GameEvent>>(currentEvent);
 	const [player, setPlayer] = useState<Player>(() => new Player());
 
 	const {
@@ -323,7 +357,7 @@ const renderEventPreview = (
 	});
 
 	useEffect(() => {
-		if (activeTab !== "preview") {
+		if (activeTab && activeTab !== "preview") {
 			player.dispose();
 			setPlayer(() => new Player());
 			return;
@@ -369,15 +403,7 @@ const renderEventPreview = (
 	]);
 
 	useEffect(() => {
-		const subscription = form.watch((data) => {
-			setFormValues(data as Partial<GameEvent>);
-		});
-		return () => subscription.unsubscribe();
-	}, [form]);
-
-	useEffect(() => {
 		return () => {
-			console.log("dispose");
 			player.dispose();
 		};
 	}, [player.dispose]);

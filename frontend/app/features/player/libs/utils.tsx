@@ -1,4 +1,207 @@
+import type { Edge, Node } from "@xyflow/react";
 import type { Game, GameEvent, GameResources, Scene, Stage } from "~/schema";
+
+type PositionMap = {
+	[key: string]: {
+		position: { x: number; y: number };
+	};
+};
+
+export const getAllNodesPosition = ({
+	game,
+}: {
+	game: Game | null;
+}): PositionMap => {
+	if (!game) return {};
+	const result: PositionMap = {};
+
+	// 各深さでのノードを追跡
+	const nodesByDepth: { [depth: number]: string[] } = {};
+
+	const queue: { id: string; depth: number }[] = [
+		{ id: game.scenes[0].id, depth: 0 },
+	];
+	const visited = new Set<string>();
+	visited.add(game.scenes[0].id);
+
+	while (queue.length > 0) {
+		const now = queue.shift();
+		if (!now) break;
+
+		const { id: currentSceneId, depth } = now;
+
+		if (!nodesByDepth[depth]) {
+			nodesByDepth[depth] = [];
+		}
+		nodesByDepth[depth].push(currentSceneId);
+
+		result[currentSceneId] = {
+			position: { x: 0, y: 0 },
+		};
+
+		const currentScene = game.scenes.find((s) => s.id === currentSceneId);
+		if (!currentScene) throw new Error(`Scene not found: ${currentSceneId}`);
+
+		if (currentScene.sceneType === "choice") {
+			for (const choice of currentScene.choices) {
+				if (!visited.has(choice.nextSceneId)) {
+					queue.push({
+						id: choice.nextSceneId,
+						depth: depth + 1,
+					});
+					visited.add(choice.nextSceneId);
+				}
+			}
+		}
+
+		if (currentScene.sceneType === "goto") {
+			if (!visited.has(currentScene.nextSceneId)) {
+				queue.push({
+					id: currentScene.nextSceneId,
+					depth: depth + 1,
+				});
+				visited.add(currentScene.nextSceneId);
+			}
+		}
+	}
+
+	const HORIZONTAL_SPACING = 300; // 横方向の間隔
+	const VERTICAL_SPACING = 100; // 縦方向の間隔
+
+	const maxDepth = Math.max(...Object.keys(nodesByDepth).map(Number));
+
+	for (let depth = 0; depth <= maxDepth; depth++) {
+		const nodesAtDepth = nodesByDepth[depth] || [];
+		const totalWidth = (nodesAtDepth.length - 1) * HORIZONTAL_SPACING;
+
+		// 各深さのノードを水平に配置
+		nodesAtDepth.forEach((nodeId, index) => {
+			// 中央揃えになるようにX座標を計算
+			const startX = -totalWidth / 2;
+			result[nodeId].position = {
+				x: startX + index * HORIZONTAL_SPACING,
+				y: depth * VERTICAL_SPACING,
+			};
+		});
+	}
+
+	// 選択肢がある場合、親ノードを子ノードの中央に近づける
+	for (const sceneId in result) {
+		const scene = game.scenes.find((s) => s.id === sceneId);
+		if (!scene || scene.sceneType !== "choice" || scene.choices.length <= 1)
+			continue;
+
+		const parentPos = result[sceneId].position;
+		const childIds = scene.choices.map((c) => c.nextSceneId);
+
+		// 子ノードのX位置の範囲を取得
+		const childXPositions = childIds.map((id) => result[id]?.position.x || 0);
+		const minX = Math.min(...childXPositions);
+		const maxX = Math.max(...childXPositions);
+		const width = maxX - minX;
+
+		const idealParentX = minX + width / 2;
+
+		// もし親ノードが離れすぎている場合調整
+		const xDiff = Math.abs(parentPos.x - idealParentX);
+		if (xDiff > HORIZONTAL_SPACING / 2) {
+			// 親ノードの兄弟との関係を維持しながら、より子ノードの中央に近づける
+			const shift = Math.min(xDiff, HORIZONTAL_SPACING / 2);
+			result[sceneId].position.x += idealParentX > parentPos.x ? shift : -shift;
+		}
+	}
+
+	return result;
+};
+
+export const transfromToNodes = (
+	game: Game | null,
+	map: PositionMap,
+): Node[] => {
+	if (!game) return [];
+
+	// TODO: 開始ノードは配列の最初にしない
+	const startId = game.scenes[0]?.id;
+	const endIds = game.scenes
+		.filter((scene) => scene.sceneType === "end")
+		.map((scene) => scene.id);
+
+	return Object.entries(map).map(([sceneId, { position }]) => {
+		const scene = game.scenes.find((s) => s.id === sceneId);
+		const label = scene?.title ?? sceneId;
+		return {
+			id: sceneId,
+			type: "custom",
+			position,
+			data: {
+				label,
+				isStart: sceneId === startId,
+				isEnd: endIds.includes(sceneId),
+			},
+		} as Node;
+	});
+};
+
+export const getAllEdges = ({
+	game,
+}: {
+	game: Game | null;
+}): Edge[] => {
+	if (!game) return [];
+
+	const result: Edge[] = [] as Edge[];
+	const visited = new Set<string>();
+
+	const BASE_EDGE_STYLE = {
+		stroke: "#000000",
+		strokeWidth: 1,
+	};
+
+	const dfs = (
+		game: Game,
+		sceneId: string | undefined,
+		result: Edge[],
+		visited: Set<string>,
+	) => {
+		const newSceneId = sceneId ?? game.scenes[0].id;
+		const scene = game.scenes.find((s) => s.id === newSceneId);
+
+		if (!scene) throw new Error(`Scene not found: ${newSceneId}`);
+
+		visited.add(newSceneId);
+
+		if (scene.sceneType === "choice") {
+			for (const choice of scene.choices) {
+				result.push({
+					id: `${newSceneId}-${choice.nextSceneId}`,
+					source: newSceneId,
+					target: choice.nextSceneId,
+					label: choice.text,
+					style: BASE_EDGE_STYLE,
+				});
+
+				if (!visited.has(choice.nextSceneId))
+					dfs(game, choice.nextSceneId, result, visited);
+			}
+		}
+
+		if (scene.sceneType === "goto") {
+			result.push({
+				id: `${newSceneId}-${scene.nextSceneId}`,
+				source: newSceneId,
+				target: scene.nextSceneId,
+				style: BASE_EDGE_STYLE,
+			});
+
+			if (!visited.has(scene.nextSceneId))
+				dfs(game, scene.nextSceneId, result, visited);
+		}
+	};
+
+	dfs(game, undefined, result, visited);
+
+	return result;
+};
 
 export const findAllPaths = ({
 	game,

@@ -62,7 +62,7 @@ export class Player {
 
 	emitter = mitt<Events>();
 
-	private disposed = false;
+	disposed = false;
 
 	dispose() {
 		this.cancelTransitionRequests.clear();
@@ -140,6 +140,7 @@ export class Player {
 	}
 
 	updateCurrentEvent(event: GameEvent | null) {
+		console.log("updateCurrentEvent", event);
 		this.currentEvent = event;
 		this.emitter.emit("currentEventUpdated", event);
 	}
@@ -193,6 +194,8 @@ export class Player {
 		const startIndex = foundIndex ?? 0;
 		const events = currentScene?.events.slice(startIndex) ?? [];
 
+		console.log("previewing", events);
+
 		await this.runEvents(events);
 	}
 
@@ -218,6 +221,8 @@ export class Player {
 	}
 
 	async runEvent(event: GameEvent) {
+		console.log("running", event, this.disposed);
+
 		if (this.disposed) return;
 
 		switch (event.type) {

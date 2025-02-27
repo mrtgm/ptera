@@ -165,10 +165,11 @@ export const AdjustSizeDialog = ({
 									ref={imgRef}
 									src={imageUrl}
 									alt="調整する画像"
-									className="h-auto max-w-none select-none transition-transform duration-100"
+									className="w-auto select-none transition-transform duration-100 relative"
 									style={{
-										transform: `translate(${position[0] * 100}%, ${position[1] * 100}%) scale(${scale})`,
-										maxHeight: "100%",
+										height: `${scale * 100}%`,
+										top: `${position[1] * 100}%`,
+										left: `${position[0] * 100}%`,
 									}}
 									draggable={false}
 								/>

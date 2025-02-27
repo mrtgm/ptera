@@ -27,6 +27,8 @@ export const GameScreen = ({
 	resourceCache,
 	currentEvent,
 	isPreviewMode,
+	className,
+	style,
 }: {
 	handleTapScreen: (e: React.MouseEvent) => void;
 	stage: Stage;
@@ -36,6 +38,8 @@ export const GameScreen = ({
 	resourceCache: ResourceCache;
 	currentEvent: GameEvent | null;
 	isPreviewMode?: boolean;
+	className?: string;
+	style?: React.CSSProperties;
 }) => {
 	const screenRef = useRef<HTMLDivElement | null>(null);
 
@@ -67,7 +71,7 @@ export const GameScreen = ({
 		<div
 			ref={screenRef}
 			id="game-screen"
-			className="w-dvw h-[calc(100dvh-64px)] max-w-[1000px] min-w-[320px] min-h-[500px] relative bg-white overflow-hidden select-none"
+			className={`w-dvw h-[calc(100dvh-64px)] max-w-[1000px] min-w-[320px] min-h-[500px] relative bg-white overflow-hidden select-none ${className}`}
 			style={
 				isPreviewMode
 					? {
@@ -77,8 +81,9 @@ export const GameScreen = ({
 							height: "auto",
 							minHeight: "auto",
 							width: "100%",
+							...style,
 						}
-					: {}
+					: style
 			}
 			onClick={handleTapScreen}
 			onKeyDown={() => {}}
