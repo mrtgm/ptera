@@ -76,7 +76,6 @@
           "characterImageId": "mysterious-girl-smile",
           "position": [0, 0],
           "scale": 1.0,
-          "transitionType": "fade",
           "transitionDuration": 1000
         },
         {
@@ -155,7 +154,6 @@
           "characterImageId": "mysterious-girl-happy",
           "position": [0, 0],
           "scale": 1.0,
-          "transitionType": "fade",
           "transitionDuration": 1000
         },
         {
@@ -180,7 +178,6 @@
           "characterImageId": "mysterious-girl-sad",
           "position": [0, 0],
           "scale": 1.0,
-          "transitionType": "fade",
           "transitionDuration": 1000
         },
         {
@@ -280,7 +277,6 @@
           "characterImageId": "mysterious-girl-smile",
           "position": [0, 0],
           "scale": 1.0,
-          "transitionType": "fade",
           "transitionDuration": 1000
         },
         {
@@ -312,7 +308,6 @@
           "characterImageId": "mysterious-girl-sad",
           "position": [0, 0],
           "scale": 1.0,
-          "transitionType": "fade",
           "transitionDuration": 1000
         },
         {

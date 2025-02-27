@@ -21,7 +21,7 @@ export const SpeechBubble = ({
 	return (
 		<div
 			key={id}
-			className="flex items-center w-full cursor-pointer"
+			className="flex items-center w-full cursor-move"
 			onClick={onClick}
 			onKeyDown={() => {}}
 		>

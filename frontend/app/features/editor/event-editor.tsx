@@ -26,14 +26,10 @@ import {
 } from "~/components/shadcn/tabs";
 import { Textarea } from "~/components/shadcn/textarea";
 import { Player } from "~/features/player/libs/engine";
-import { useClickAway } from "~/hooks/use-click-away";
 import {
-	type AppearCharacterEvent,
-	type ChangeBackgroundEvent,
 	type Game,
 	type GameEvent,
 	type GameResources,
-	type ResourceCache,
 	type Scene,
 	appearCGEventSchema,
 	appearCharacterEventSchema,
@@ -59,21 +55,13 @@ import {
 	buildCurrentStageFromScenes,
 	findAllPaths,
 } from "../player/libs/utils";
-import { type SidebarItemParameter, getEventTitle } from "./constants";
-import { SideBarSettings } from "./constants";
+import {
+	SideBarSettings,
+	type SidebarItemParameter,
+	getEventTitle,
+} from "./constants";
 
 import { MonitorPlay } from "lucide-react";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "~/components/shadcn/dialog";
-import { DialogClose } from "~/components/shadcn/dialog";
-import { Label } from "~/components/shadcn/label";
 import {
 	Select,
 	SelectContent,
@@ -82,9 +70,8 @@ import {
 	SelectValue,
 } from "~/components/shadcn/select";
 import { Separator } from "~/components/shadcn/separator";
-import { Slider } from "~/components/shadcn/slider";
 import { useStore } from "~/stores";
-import type { ModalParams, ModalPayload } from "~/stores/modal";
+import type { ModalParams } from "~/stores/modal";
 import { AdjustSizeDialog } from "./dialogs/adjust-size-dialog";
 import { AssetDialog, type AssetType } from "./dialogs/asset-dialog";
 import { CharacterDialog } from "./dialogs/character-select-dialog";
@@ -213,7 +200,6 @@ export const EventEditor = ({
 		form.setValue("characterImageId", imageId);
 	};
 
-	// フォームの値が変更されたらformValuesを更新
 	useEffect(() => {
 		const subscription = form.watch((data) => {
 			if (data.lines) {
@@ -266,7 +252,7 @@ export const EventEditor = ({
 					<CardTitle className="text-md">
 						{getEventTitle(selectedEvent.type)}
 					</CardTitle>
-					<div className="flex gap-2">
+					<div className="flex gap-2 flex-wrap">
 						<Button
 							variant="outline"
 							onClick={() =>
@@ -642,7 +628,7 @@ const BackgroundSelect = ({
 							<div>背景画像が選択されていません</div>
 						)}
 
-						<div className="flex gap-2">
+						<div className="flex gap-2 flex-wrap">
 							<Button
 								size="sm"
 								onClick={() => {
@@ -898,7 +884,7 @@ const CharacterImageSelect = ({
 							<div>キャラクター画像が選択されていません</div>
 						)}
 
-						<div className="flex gap-2">
+						<div className="flex gap-2 flex-wrap">
 							<Button
 								size="sm"
 								onClick={() => {
@@ -981,7 +967,7 @@ const CharacterSelect = ({
 							<div>キャラクターが選択されていません</div>
 						)}
 
-						<div className="flex gap-2">
+						<div className="flex gap-2 flex-wrap">
 							<Button
 								size="sm"
 								onClick={() => {
@@ -1122,7 +1108,7 @@ const SoundEffectSelect = ({
 							</div>
 						)}
 
-						<div className="flex gap-2">
+						<div className="flex gap-2 flex-wrap">
 							<Button
 								size="sm"
 								onClick={() => {
@@ -1156,19 +1142,21 @@ const PositionSelect = ({
 	label: string;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
-
 	return (
 		<FormItem>
 			<FormLabel>{label}</FormLabel>
 			<Button
 				size="sm"
 				onClick={() => {
+					console.log("initialData changed", form.getValues());
+
 					modalSlice.openModal({
 						target: "adjustSize",
 						params: {
 							target: "characters",
 							characterId: form.getValues().characterId,
 							assetId: form.getValues().characterImageId,
+							// 移動のイベントは画像のIDを知らないのでプレビューをどう出すかって問題がある
 							position: form.getValues().position,
 							scale: form.getValues().scale,
 						},

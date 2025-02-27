@@ -15,7 +15,12 @@ import {
 	Zap,
 } from "lucide-react";
 import type { ReactElement } from "react";
-import type { GameEvent } from "~/schema";
+import type {
+	AllPropertyTypes,
+	EventProperties,
+	GameEvent,
+	GameResources,
+} from "~/schema";
 
 export type ComponentType =
 	| "text"
@@ -147,26 +152,27 @@ export const SideBarSettings: Record<
 					},
 				],
 			},
-			{
-				id: "moveCharacter",
-				type: "moveCharacter",
-				icon: <Move />,
-				label: "キャラクターを移動",
-				parameters: [
-					{
-						label: "キャラクター",
-						component: "character-select",
-					},
-					{
-						label: "位置",
-						component: "position-select",
-					},
-					{
-						label: "移動時間（秒）",
-						component: "transition-duration",
-					},
-				],
-			},
+			// TODO: 実装
+			// {
+			// 	id: "moveCharacter",
+			// 	type: "moveCharacter",
+			// 	icon: <Move />,
+			// 	label: "キャラクターを移動",
+			// 	parameters: [
+			// 		{
+			// 			label: "キャラクター",
+			// 			component: "character-select",
+			// 		},
+			// 		{
+			// 			label: "位置",
+			// 			component: "position-select",
+			// 		},
+			// 		{
+			// 			label: "移動時間（秒）",
+			// 			component: "transition-duration",
+			// 		},
+			// 	],
+			// },
 			{
 				id: "characterEffect",
 				type: "characterEffect",
@@ -329,17 +335,23 @@ export const SideBarSettings: Record<
 
 export const createEventFromSidebarItem = (
 	item: (typeof SideBarSettings)[keyof typeof SideBarSettings]["items"][number],
+	resources: GameResources,
 ) => {
-	const event: Partial<GameEvent> = {
+	const event = {
 		id: crypto.randomUUID(),
 		type: item.type,
 		category: getEventCategory(item.type),
+		...getDefaultValueForType(item.type, resources),
 	} as GameEvent;
-
 	return event;
 };
 
-export const getEventTitle = (type: string): string => {
+export const getColorFromType = (type: GameEvent["type"]): string => {
+	const category = getEventCategory(type);
+	return SideBarSettings[category].hex;
+};
+
+export const getEventTitle = (type: GameEvent["type"]): string => {
 	const title = Object.entries(SideBarSettings)
 		.flatMap(([_, value]) => {
 			return value.items.map((item) => {
@@ -357,7 +369,9 @@ export const getEventTitle = (type: string): string => {
 	return title[0] as string;
 };
 
-export const getEventCategory = (type: string): GameEvent["category"] => {
+export const getEventCategory = (
+	type: GameEvent["type"],
+): GameEvent["category"] => {
 	switch (type) {
 		case "text":
 		case "appearMessageWindow":
@@ -367,21 +381,115 @@ export const getEventCategory = (type: string): GameEvent["category"] => {
 		case "hideCharacter":
 		case "hideAllCharacters":
 		case "moveCharacter":
+		case "characterEffect":
 			return "character";
 		case "bgmStart":
 		case "bgmStop":
 		case "soundEffect":
 			return "media";
 		case "changeBackground":
-		case "moveBackground":
 			return "background";
 		case "effect":
-		case "characterEffect":
 			return "effect";
 		case "appearCG":
 		case "hideCG":
 			return "cg";
 		default:
 			return "message";
+	}
+};
+
+export const getDefaultValueForType = (
+	type: GameEvent["type"],
+	resources: GameResources,
+): EventProperties[GameEvent["type"]] => {
+	const defaults = {} as EventProperties[GameEvent["type"]];
+
+	switch (type) {
+		case "text":
+			return {
+				lines: ["テキストを入力してください"],
+				characterName: "",
+			};
+		case "appearMessageWindow":
+			return {
+				transitionDuration: 1000,
+			};
+		case "hideMessageWindow":
+			return {
+				transitionDuration: 1000,
+			};
+		case "appearCharacter": {
+			//TODO: 使用履歴を見て最後に選択したキャラクターを選択する
+			const characterId = Object.keys(resources.characters)[0];
+			const characterImageId = Object.values(
+				resources.characters[characterId].images,
+			)[0].id;
+			return {
+				characterId,
+				characterImageId,
+				transitionDuration: 1000,
+				scale: 1,
+				position: [0, 0],
+			};
+		}
+		case "hideCharacter":
+			return {
+				characterId: Object.keys(resources.characters)[0],
+				transitionDuration: 1000,
+			};
+		case "hideAllCharacters":
+			return {
+				transitionDuration: 1000,
+			};
+		case "moveCharacter":
+			return {
+				characterId: Object.keys(resources.characters)[0],
+				position: [0, 0],
+				transitionDuration: 1000,
+			};
+		case "characterEffect":
+			return {
+				characterId: Object.keys(resources.characters)[0],
+				effectType: "shake",
+				transitionDuration: 1000,
+			};
+		case "bgmStart":
+			return {
+				bgmId: Object.keys(resources.bgms)[0],
+				volume: 1,
+				transitionDuration: 1000,
+			};
+		case "bgmStop":
+			return {
+				transitionDuration: 1000,
+			};
+		case "soundEffect":
+			return {
+				soundEffectId: Object.keys(resources.soundEffects)[0],
+				volume: 1,
+				transitionDuration: 1000,
+			};
+		case "changeBackground":
+			return {
+				backgroundId: Object.keys(resources.backgroundImages)[0],
+				transitionDuration: 1000,
+			};
+		case "effect":
+			return {
+				effectType: "shake",
+				transitionDuration: 1000,
+			};
+		case "appearCG":
+			return {
+				cgImageId: Object.keys(resources.cgImages)[0],
+				transitionDuration: 1000,
+			};
+		case "hideCG":
+			return {
+				transitionDuration: 1000,
+			};
+		default:
+			return defaults;
 	}
 };

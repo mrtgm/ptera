@@ -56,14 +56,14 @@ const Character = forwardRef<
 		}
 
 		promise.then(() => {
-			// player.updateStage({
-			// 	characters: {
-			// 		...player.stage.characters,
-			// 		items: player.stage.characters.items.map((c) =>
-			// 			c.id === id ? { ...c, effect: null } : c,
-			// 		),
-			// 	},
-			// });
+			player.updateStage({
+				characters: {
+					...player.stage.characters,
+					items: player.stage.characters.items.map((c) =>
+						c.id === id ? { ...c, effect: null } : c,
+					),
+				},
+			});
 		});
 	}, [effect, id, imgElement, player]);
 

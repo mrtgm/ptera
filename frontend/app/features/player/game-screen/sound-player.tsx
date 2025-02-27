@@ -17,13 +17,14 @@ export const SoundPlayer = ({
 
 		if (sound.isPlaying) {
 			if (!resource.cache.playing()) {
+				console.log("sounding", sound.id);
+
 				resource.cache.play();
 			}
 			resource.cache.fade(0, sound.volume, sound.transitionDuration);
 		}
 
 		return () => {
-			if (sound.isPlaying) return;
 			resource.cache.fade(sound.volume, 0, sound.transitionDuration);
 			resource.cache.once("fade", () => {
 				resource.cache.stop();

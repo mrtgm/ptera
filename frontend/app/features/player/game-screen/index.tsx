@@ -64,7 +64,11 @@ export const GameScreen = ({
 			default:
 				promise = Promise.resolve();
 		}
-		promise.then(() => {});
+		promise.then(() => {
+			player.updateStage({
+				effect: null,
+			});
+		});
 	}, [stage.effect, currentEvent, player]);
 
 	return (

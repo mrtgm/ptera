@@ -1,3 +1,8 @@
+import { useDroppable } from "@dnd-kit/core";
+import {
+	SortableContext,
+	verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -20,7 +25,6 @@ export const SceneEditor = ({
 	selectedEvent,
 	game,
 	resources,
-	sideBarSettings,
 	onNavigateToScenesList,
 	onDeleteScene,
 	onClickEvent,
@@ -29,7 +33,6 @@ export const SceneEditor = ({
 	selectedScene: Scene | undefined;
 	game: Game | null;
 	resources: GameResources | null;
-	sideBarSettings: typeof SideBarSettings;
 	onNavigateToScenesList: () => void;
 	onDeleteScene: () => void;
 	onClickEvent: (eventId: string) => void;
@@ -37,6 +40,10 @@ export const SceneEditor = ({
 	if (!selectedScene || !game || !resources) {
 		return null;
 	}
+
+	const { setNodeRef } = useDroppable({
+		id: "event-timeline",
+	});
 
 	return (
 		<>
@@ -59,14 +66,20 @@ export const SceneEditor = ({
 				</Button>
 			</div>
 
-			<EventTimeline
-				selectedScene={selectedScene}
-				selectedEvent={selectedEvent}
-				game={game}
-				sideBarSettings={sideBarSettings}
-				resources={resources}
-				onClickEvent={onClickEvent}
-			/>
+			<SortableContext
+				items={selectedScene.events.map((event) => event.id)}
+				strategy={verticalListSortingStrategy}
+			>
+				<div ref={setNodeRef} className="relative h-full">
+					<EventTimeline
+						selectedScene={selectedScene}
+						selectedEvent={selectedEvent}
+						game={game}
+						resources={resources}
+						onClickEvent={onClickEvent}
+					/>
+				</div>
+			</SortableContext>
 		</>
 	);
 };

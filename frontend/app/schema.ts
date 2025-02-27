@@ -102,7 +102,6 @@ export const appearCharacterEventSchema = z.object({
 	characterImageId: z.string(),
 	position: z.tuple([z.number(), z.number()]),
 	scale: z.number(),
-	transitionType: z.enum(["fade", "slide"]),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -113,7 +112,6 @@ export const hideCharacterEventSchema = z.object({
 	type: z.literal("hideCharacter"),
 	category: z.literal("character"),
 	characterId: z.string(),
-	transitionType: z.enum(["fade", "slide"]),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -123,7 +121,6 @@ export const hideAllCharactersEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("hideAllCharacters"),
 	category: z.literal("character"),
-	transitionType: z.enum(["fade", "slide"]),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -254,6 +251,21 @@ export const gameEventSchema = z.discriminatedUnion("type", [
 ]);
 
 export type GameEvent = z.infer<typeof gameEventSchema>;
+
+type ExcludeCommonKeys<T> = Omit<T, "type" | "id" | "category">;
+export type EventProperties = {
+	[K in GameEvent as K["type"]]: ExcludeCommonKeys<K>;
+};
+
+export type AllPropertyTypes = {
+	[K in GameEvent as K["type"]]: {
+		[P in keyof ExcludeCommonKeys<K>]: ExcludeCommonKeys<K>[P];
+	};
+}[GameEvent["type"]];
+
+export type UniquePropertyUnion = {
+	[K in keyof AllPropertyTypes]: AllPropertyTypes[K];
+};
 
 /* ------------------------------------------------------
     5. Choice

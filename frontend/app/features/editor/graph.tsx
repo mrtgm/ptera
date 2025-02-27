@@ -26,7 +26,7 @@ import {
 	transfromToNodes,
 } from "../player/libs/utils";
 
-const initBgColor = "#a4b2c6";
+const initBgColor = "#EEEEEE";
 
 const snapGrid = [20, 20] as [number, number];
 

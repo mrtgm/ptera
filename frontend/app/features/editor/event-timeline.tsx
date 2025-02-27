@@ -1,4 +1,7 @@
+import { useDroppable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
 import { ArrowUp, Pen, Split } from "lucide-react";
+import { useCallback } from "react";
 import type {
 	AppearCGEvent,
 	AppearCharacterEvent,
@@ -13,21 +16,19 @@ import type {
 	TextRenderEvent,
 } from "~/schema";
 import { findFirstObjectValue } from "~/utils";
-import type { SideBarSettings } from "./constants";
+import { SideBarSettings } from "./constants";
 import { SpeechBubble } from "./speech-bubble";
 
 export const EventTimeline = ({
 	selectedScene,
 	selectedEvent,
 	game,
-	sideBarSettings,
 	resources,
 	onClickEvent,
 }: {
 	selectedScene: Scene;
 	selectedEvent: GameEvent | undefined;
 	game: Game;
-	sideBarSettings: typeof SideBarSettings;
 	resources: GameResources;
 	onClickEvent: (eventId: string) => void;
 }) => {
@@ -35,6 +36,8 @@ export const EventTimeline = ({
 		return (
 			<div className="text-gray-500 mt-8 text-center">
 				このシーンにはイベントがありません。
+				<br />
+				ドラッグ＆ドロップでイベントを追加してください。
 			</div>
 		);
 	}
@@ -51,35 +54,87 @@ export const EventTimeline = ({
 
 				<div className="flex-1 relative w-full flex flex-col gap-y-3 pt-2">
 					{selectedScene?.events.map((event) => {
-						const categoryColor =
-							sideBarSettings[event.category]?.hex || "#6366F1";
-
 						return (
-							<SpeechBubble
+							<SortableEventItem
 								key={event.id}
-								id={event.id}
-								hex={categoryColor}
-								selected={selectedEvent?.id === event.id}
-								title={
-									sideBarSettings[event.category]?.items.find(
-										(item) => item.type === event.type,
-									)?.label || event.type
-								}
-								icon={
-									sideBarSettings[event.category]?.items.find(
-										(item) => item.type === event.type,
-									)?.icon || <Pen />
-								}
-								onClick={() => onClickEvent(event.id)}
-							>
-								{renderEventContent(event, resources)}
-							</SpeechBubble>
+								event={event}
+								resources={resources}
+								selectedEvent={selectedEvent}
+								onClickEvent={onClickEvent}
+							/>
 						);
 					})}
 
 					{renderSceneEnding(selectedScene, game)}
 				</div>
 			</div>
+		</div>
+	);
+};
+
+const SortableEventItem = ({
+	event,
+	resources,
+	selectedEvent,
+	onClickEvent,
+}: {
+	event: GameEvent;
+	resources: GameResources;
+	selectedEvent: GameEvent | undefined;
+	onClickEvent: (eventId: string) => void;
+}) => {
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging,
+	} = useSortable({ id: event.id });
+
+	const { setNodeRef: setDroppableNodeRef } = useDroppable({
+		id: event.id,
+	});
+
+	const ref = useCallback(
+		(node: HTMLElement | null) => {
+			setNodeRef(node);
+			setDroppableNodeRef(node);
+		},
+		[setNodeRef, setDroppableNodeRef],
+	);
+
+	const categoryColor = SideBarSettings[event.category]?.hex || "#6366F1";
+	const title =
+		SideBarSettings[event.category]?.items.find(
+			(item) => item.type === event.type,
+		)?.label || event.type;
+	const icon = SideBarSettings[event.category]?.items.find(
+		(item) => item.type === event.type,
+	)?.icon || <Pen />;
+
+	const style: React.CSSProperties = {
+		transform: transform
+			? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+			: undefined,
+		transition,
+		opacity: isDragging ? 0.5 : 1,
+		cursor: "grab",
+	};
+
+	return (
+		<div ref={ref} style={style} {...attributes} {...listeners}>
+			<SpeechBubble
+				key={event.id}
+				id={event.id}
+				hex={categoryColor}
+				selected={selectedEvent?.id === event.id}
+				title={title}
+				icon={icon}
+				onClick={() => onClickEvent(event.id)}
+			>
+				{renderEventContent(event, resources)}
+			</SpeechBubble>
 		</div>
 	);
 };
