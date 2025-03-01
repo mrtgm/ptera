@@ -1,12 +1,14 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import type {
-	Choice,
-	ChoiceScene,
-	EndScene,
-	Game,
-	GotoScene,
-	Scene,
+import {
+	type Choice,
+	type ChoiceScene,
+	type EndScene,
+	type Game,
+	type GotoScene,
+	type Scene,
+	isChoiceScene,
+	isGotoScene,
 } from "~/schema";
 
 import {
@@ -62,19 +64,6 @@ import {
 import { Textarea } from "~/components/shadcn/textarea";
 import { ChoiceSceneContent } from "./choice-scene-content";
 import { SceneSelector } from "./scene-selector";
-
-// ユーティリティ関数
-export const isGotoScene = (scene: Scene): scene is GotoScene => {
-	return scene.sceneType === "goto";
-};
-
-export const isChoiceScene = (scene: Scene): scene is ChoiceScene => {
-	return scene.sceneType === "choice";
-};
-
-export const isEndScene = (scene: Scene): scene is EndScene => {
-	return scene.sceneType === "end";
-};
 
 // 型定義
 interface EndingEditorProps {

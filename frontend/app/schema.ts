@@ -29,7 +29,7 @@ export const bgmSchema = mediaAssetSchema.extend({});
 export type BGM = z.infer<typeof bgmSchema>;
 
 /* ------------------------------------------------------
-    2. Character
+    Character
 ------------------------------------------------------ */
 export const characterSchema = z.object({
 	id: z.string(),
@@ -39,7 +39,7 @@ export const characterSchema = z.object({
 export type Character = z.infer<typeof characterSchema>;
 
 /* ------------------------------------------------------
-    3. GameResources
+    GameResources
 ------------------------------------------------------ */
 export const gameResourcesSchema = z.object({
 	characters: z.record(z.string(), characterSchema),
@@ -51,7 +51,7 @@ export const gameResourcesSchema = z.object({
 export type GameResources = z.infer<typeof gameResourcesSchema>;
 
 /* ------------------------------------------------------
-    4. GameEvent (Discriminated Union)
+    GameEvent (Discriminated Union)
 ------------------------------------------------------ */
 
 export const textRenderEventSchema = z.object({
@@ -260,7 +260,7 @@ export type UniquePropertyUnion = {
 };
 
 /* ------------------------------------------------------
-    5. Choice
+     Choice
 ------------------------------------------------------ */
 export const choiceSchema = z.object({
 	id: z.string(),
@@ -270,7 +270,7 @@ export const choiceSchema = z.object({
 export type Choice = z.infer<typeof choiceSchema>;
 
 /* ------------------------------------------------------
-    6. Scenes
+     Scenes
 ------------------------------------------------------ */
 const gotoSceneSchema = z.object({
 	id: z.string(),
@@ -309,7 +309,7 @@ export const sceneSchema = z.discriminatedUnion("sceneType", [
 export type Scene = z.infer<typeof sceneSchema>;
 
 /* ------------------------------------------------------
-    7. Game
+    Game
 ------------------------------------------------------ */
 export const gameSchema = z.object({
 	id: z.string(),
@@ -322,7 +322,7 @@ export const gameSchema = z.object({
 export type Game = z.infer<typeof gameSchema>;
 
 /* ------------------------------------------------------
-		8. GameData
+		GameData
 ------------------------------------------------------ */
 
 export type Stage = {
@@ -398,4 +398,17 @@ export type ResourceCache = {
 	};
 	soundEffects: { [id: string]: SoundEffect & { cache: Howl } };
 	bgms: { [id: string]: BGM & { cache: Howl } };
+};
+
+// ユーティリティ関数
+export const isGotoScene = (scene: Scene): scene is GotoScene => {
+	return scene.sceneType === "goto";
+};
+
+export const isChoiceScene = (scene: Scene): scene is ChoiceScene => {
+	return scene.sceneType === "choice";
+};
+
+export const isEndScene = (scene: Scene): scene is EndScene => {
+	return scene.sceneType === "end";
 };

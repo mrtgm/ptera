@@ -40,12 +40,8 @@ import {
 	useSensor,
 	useSensors,
 } from "@dnd-kit/core";
-import {
-	EndingEditor,
-	isChoiceScene,
-	isEndScene,
-	isGotoScene,
-} from "./scene-detail/ending-editor";
+import { isChoiceScene, isEndScene, isGotoScene } from "~/schema";
+import { EndingEditor } from "./scene-detail/ending-editor";
 
 export const Editor = () => {
 	const [game, setGame] = useState<Game | null>(dummyGame as Game);
