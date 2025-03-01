@@ -15,11 +15,13 @@ export const CharacterNameInput = ({
 	form: ReturnType<typeof useForm>;
 	label: string;
 }) => {
+	const FORM_NAME = "characterName";
+
 	return (
 		<FormField
-			key={"characterName"}
+			key={FORM_NAME}
 			control={form.control}
-			name={"characterName"}
+			name={FORM_NAME}
 			render={({ field }) => (
 				<FormItem>
 					<FormLabel>{label}</FormLabel>

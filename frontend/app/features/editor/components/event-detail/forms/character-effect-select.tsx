@@ -23,12 +23,13 @@ export const CharacterEffectSelect = ({
 	label: string;
 }) => {
 	const options = characterEffectType;
+	const FORM_NAME = "effectType";
 
 	return (
 		<FormField
-			key="effectType"
+			key={FORM_NAME}
 			control={form.control}
-			name="effectType"
+			name={FORM_NAME}
 			render={({ field }) => (
 				<FormItem>
 					<FormLabel>{label}</FormLabel>

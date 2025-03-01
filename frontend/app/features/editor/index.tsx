@@ -7,7 +7,15 @@ import dummyGame from "~/__mocks__/dummy-game.json";
 import { Toaster } from "~/components/shadcn/sonner";
 import type { Game, GameEvent, Scene } from "~/schema";
 import { useStore } from "~/stores";
-import type { AssetDialogKeyType } from "./components/dialogs/asset";
+import {
+	AdjustSizeDialogContainer,
+	CharacterDialogContainer,
+	PreviewDialogContainer,
+} from "./components/dialogs";
+import {
+	AssetDialogContainer,
+	type AssetDialogKeyType,
+} from "./components/dialogs/asset";
 import { EventDetail } from "./components/event-detail";
 import { Graph } from "./components/graph";
 import { Header } from "./components/header";
@@ -29,6 +37,7 @@ import { useTimelineDrag } from "./hooks/use-timeline-drag";
 
 export const Editor = () => {
 	const editorSlice = useStore.useSlice.editor();
+	const modalSlice = useStore.useSlice.modal();
 
 	const navigate = useNavigate();
 	const pathparams = useParams();
@@ -128,6 +137,12 @@ export const Editor = () => {
 		toast.success("キャラクター名を変更しました");
 	};
 
+	const handleUploadCharacterImage = (characterId: string, file: File) => {
+		console.log("Upload image", characterId, file);
+		editorSlice.uploadCharacterImage(characterId, file);
+		toast.success("キャラクター画像をアップロードしました");
+	};
+
 	const handleDeleteCharacterImage = (characterId: string, imageId: string) => {
 		// TODO: 実装
 		console.log("Delete image", characterId, imageId);
@@ -147,6 +162,12 @@ export const Editor = () => {
 		console.log("Delete asset", assetId, type);
 		editorSlice.deleteAsset(assetId, type);
 		toast.success("アセットを削除しました");
+	};
+
+	const handleUploadAsset = (file: File, type: AssetDialogKeyType) => {
+		console.log("Upload asset", file, type);
+		editorSlice.uploadAsset(file, type);
+		toast.success("アセットをアップロードしました");
 	};
 
 	const handleSaveEnding = (endingScene: Game["scenes"][number]) => {
@@ -194,6 +215,27 @@ export const Editor = () => {
 	return (
 		<div className="w-full h-full flex flex-col overflow-hidden">
 			<Toaster />
+
+			<CharacterDialogContainer
+				game={editorSlice.editingGame}
+				resources={editorSlice.editingResources}
+				onCharacterNameChange={handleCharacterNameChange}
+				onAddCharacter={handleAddCharacter}
+				onDeleteCharacter={handleDeleteCharacter}
+				onDeleteImage={handleDeleteCharacterImage}
+				onUploadImage={handleUploadCharacterImage}
+			/>
+			<AdjustSizeDialogContainer resources={editorSlice.editingResources} />
+			<AssetDialogContainer
+				game={editorSlice.editingGame}
+				resources={editorSlice.editingResources}
+				onDeleteAsset={handleDeleteAsset}
+				onUploadAsset={handleUploadAsset}
+			/>
+			<PreviewDialogContainer
+				game={editorSlice.editingGame}
+				resources={editorSlice.editingResources}
+			/>
 
 			<Header />
 			<div className="w-full h-[calc(100dvh-40px)] grid grid-cols-12">
@@ -289,11 +331,6 @@ export const Editor = () => {
 							resources={editorSlice.editingResources}
 							onDeleteEvent={handleDeleteEvent}
 							onSaveEvent={handleSaveEvent}
-							onAddCharacter={handleAddCharacter}
-							onCharacterNameChange={handleCharacterNameChange}
-							onDeleteCharacter={handleDeleteCharacter}
-							onDeleteImage={handleDeleteCharacterImage}
-							onDeleteAsset={handleDeleteAsset}
 						/>
 					)}
 

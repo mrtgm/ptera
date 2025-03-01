@@ -15,13 +15,14 @@ export const CGSelect = ({
 	resources: GameResources;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
+	const FORM_NAME = "cgImageId";
 
 	return (
 		<>
 			<FormField
-				key={"cgImageId"}
+				key={FORM_NAME}
 				control={form.control}
-				name={"cgImageId"}
+				name={FORM_NAME}
 				render={({ field }) => (
 					<FormItem>
 						<FormLabel>{label}</FormLabel>
@@ -48,12 +49,10 @@ export const CGSelect = ({
 						<Button
 							size="sm"
 							onClick={() => {
-								modalSlice.openModal({
-									target: "asset",
-									params: {
-										mode: "select",
-										target: "cgImages",
-										formTarget: "cgImageId",
+								modalSlice.openModal("asset.select", {
+									target: "cgImages",
+									callback: (cgImageId: string) => {
+										form.setValue(FORM_NAME, cgImageId);
 									},
 								});
 							}}

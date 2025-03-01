@@ -15,13 +15,14 @@ export const BackgroundSelect = ({
 	resources: GameResources;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
+	const FORM_NAME = "backgroundId";
 
 	return (
 		<>
 			<FormField
-				key={"backgroundId"}
+				key={FORM_NAME}
 				control={form.control}
-				name={"backgroundId"}
+				name={FORM_NAME}
 				render={({ field }) => (
 					<FormItem>
 						<FormLabel>{label}</FormLabel>
@@ -46,12 +47,12 @@ export const BackgroundSelect = ({
 							<Button
 								size="sm"
 								onClick={() => {
-									modalSlice.openModal({
-										target: "asset",
-										params: {
-											mode: "select",
-											target: "backgroundImages",
-											formTarget: "backgroundId",
+									modalSlice.openModal("asset.select", {
+										target: "backgroundImages",
+										callback: (backgroundId: string) => {
+											form.setValue(FORM_NAME, backgroundId, {
+												shouldDirty: true,
+											});
 										},
 									});
 								}}

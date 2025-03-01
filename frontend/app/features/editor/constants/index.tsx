@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { ReactElement } from "react";
 import type { EventProperties, GameEvent, GameResources } from "~/schema";
+import type { ValidationOptions } from "../utils/file-validator";
 
 export type ComponentType =
 	| "text"
@@ -486,4 +487,9 @@ export const getDefaultValueForType = (
 		default:
 			return defaults;
 	}
+};
+
+export const FILE_VALIDATION_SETTING: ValidationOptions = {
+	allowedExtensions: ["jpg", "jpeg", "png", "gif", "mp3"],
+	maxFileSize: 1024 * 1024 * 5, // 5MB
 };

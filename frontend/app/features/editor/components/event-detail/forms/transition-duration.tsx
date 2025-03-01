@@ -15,11 +15,12 @@ export const TransitionDuration = ({
 	form: ReturnType<typeof useForm>;
 	label: string;
 }) => {
+	const FORM_NAME = "transitionDuration";
 	return (
 		<FormField
-			key={"transitionDuration"}
+			key={FORM_NAME}
 			control={form.control}
-			name={"transitionDuration"}
+			name={FORM_NAME}
 			render={({ field }) => (
 				<FormItem>
 					<FormLabel>{label}</FormLabel>

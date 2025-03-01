@@ -1,7 +1,6 @@
 import { useDraggable } from "@dnd-kit/core";
 import { cloneElement } from "react";
 import { Card } from "~/components/shadcn/card";
-import { ScrollArea } from "~/components/shadcn/scroll-area";
 import { Separator } from "~/components/shadcn/separator";
 import type { Scene } from "~/schema";
 import type { SideBarSettings, SidebarItem } from "../constants";

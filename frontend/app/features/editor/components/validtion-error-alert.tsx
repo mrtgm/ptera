@@ -60,5 +60,3 @@ export const ValidationErrorAlert = ({
 		</Alert>
 	);
 };
-
-export default ValidationErrorAlert;

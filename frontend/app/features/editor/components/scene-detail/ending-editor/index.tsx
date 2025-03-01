@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
 	type ChoiceScene,
 	type EndScene,
@@ -60,6 +60,14 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 		setLocalGame((prevGame) => {
 			if (!prevGame) return prevGame;
 
+			const initialScene = prevGame.scenes.find(
+				(scene) => scene.id === prevGame.initialSceneId,
+			);
+
+			if (!initialScene) {
+				throw new Error("Initial scene not found");
+			}
+
 			const updatedScenes = prevGame.scenes.map((scene) => {
 				if (scene.id !== selectedScene.id) return scene;
 
@@ -70,7 +78,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 					return {
 						...scene,
 						sceneType: "goto",
-						nextSceneId: prevGame.scenes[0]?.id || "",
+						nextSceneId: initialScene.id,
 						...(isGotoScene(selectedScene) && {
 							nextSceneId: selectedScene.nextSceneId,
 						}),
@@ -101,6 +109,14 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 		setLocalGame((prevGame) => {
 			if (!prevGame) return prevGame;
 
+			const initialScene = prevGame.scenes.find(
+				(scene) => scene.id === prevGame.initialSceneId,
+			);
+
+			if (!initialScene) {
+				throw new Error("Initial scene not found");
+			}
+
 			const updatedScenes = prevGame.scenes.map((scene) => {
 				if (scene.id !== selectedScene.id) return scene;
 				if (!isChoiceScene(scene)) return scene;
@@ -112,7 +128,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 						{
 							id: crypto.randomUUID(),
 							text: "",
-							nextSceneId: prevGame.scenes[0]?.id || "",
+							nextSceneId: initialScene.id,
 						},
 					],
 				};

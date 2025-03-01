@@ -6,7 +6,7 @@ export const mediaAssetSchema = z.object({
 	url: z.string(),
 	metadata: z
 		.object({
-			duration: z.number().optional(),
+			mimeType: z.string().optional(),
 			size: z.number().optional(),
 		})
 		.optional(),
@@ -317,6 +317,7 @@ export const gameSchema = z.object({
 	author: z.string(),
 	description: z.string(),
 	scenes: z.array(sceneSchema),
+	initialSceneId: z.string(),
 	version: z.string(),
 });
 export type Game = z.infer<typeof gameSchema>;

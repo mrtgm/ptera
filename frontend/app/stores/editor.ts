@@ -12,6 +12,7 @@ import type {
 	GameEvent,
 	GameResources,
 	GotoScene,
+	MediaAsset,
 	Scene,
 } from "~/schema";
 import type { State } from ".";
@@ -50,9 +51,11 @@ export interface EditorState {
 	addCharacter: (name: string) => void;
 	updateCharacterName: (characterId: string, name: string) => void;
 	deleteCharacter: (characterId: string) => void;
+	uploadCharacterImage: (characterId: string, file: File) => void;
 	deleteCharacterImage: (characterId: string, imageId: string) => void;
 
 	deleteAsset: (assetId: string, type: keyof GameResources) => void;
+	uploadAsset: (file: File, type: keyof GameResources) => void;
 
 	markAsDirty: () => void;
 	markAsClean: () => void;
@@ -343,6 +346,41 @@ export const createEditorSlice: StateCreator<
 		markAsDirty();
 	},
 
+	uploadCharacterImage: (characterId, file) => {
+		const { editingResources, markAsDirty } = get();
+		if (!editingResources) return;
+
+		const character = editingResources.characters[characterId];
+		if (!character) return;
+
+		const newImageId = crypto.randomUUID();
+		const newImage: MediaAsset = {
+			id: newImageId,
+			filename: file.name,
+			url: URL.createObjectURL(file),
+			metadata: {
+				mimeType: file.type,
+				size: file.size,
+			},
+		};
+
+		set({
+			editingResources: {
+				...editingResources,
+				characters: {
+					...editingResources.characters,
+					[characterId]: {
+						...character,
+						images: {
+							...character.images,
+							[newImage.id]: newImage,
+						},
+					},
+				},
+			},
+		});
+	},
+
 	// キャラクター削除
 	deleteCharacter: (characterId) => {
 		const { editingResources, markAsDirty } = get();
@@ -402,6 +440,33 @@ export const createEditorSlice: StateCreator<
 			},
 		});
 
+		markAsDirty();
+	},
+
+	// アセットアップロード
+	uploadAsset: (file, type) => {
+		const { editingResources, markAsDirty } = get();
+		if (!editingResources) return;
+
+		const newAsset: MediaAsset = {
+			id: crypto.randomUUID(),
+			filename: file.name,
+			url: URL.createObjectURL(file),
+			metadata: {
+				mimeType: file.type,
+				size: file.size,
+			},
+		};
+
+		set({
+			editingResources: {
+				...editingResources,
+				[type]: {
+					...editingResources[type],
+					[newAsset.id]: newAsset,
+				},
+			},
+		});
 		markAsDirty();
 	},
 

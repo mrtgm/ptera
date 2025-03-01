@@ -4,8 +4,9 @@ import { FormField, FormItem, FormLabel } from "~/components/shadcn/form";
 import { Separator } from "~/components/shadcn/separator";
 import type { GameResources } from "~/schema";
 import { useStore } from "~/stores";
+import { findFirstObjectValue } from "~/utils";
 
-export const CharacterImageSelect = ({
+export const CharacterSelect = ({
 	form,
 	label,
 	resources,
@@ -19,9 +20,9 @@ export const CharacterImageSelect = ({
 	return (
 		<>
 			<FormField
-				key={"characterImageId"}
+				key={"characterId"}
 				control={form.control}
-				name={"characterImageId"}
+				name={"characterId"}
 				render={({ field }) => (
 					<FormItem>
 						<FormLabel>{label}</FormLabel>
@@ -32,9 +33,10 @@ export const CharacterImageSelect = ({
 								<div className="w-full max-w-[200px] h-auto bg-cover bg-center bg-no-repeat rounded-md mb-4">
 									<img
 										src={
-											resources.characters[form.getValues().characterId].images[
-												field.value
-											].url
+											findFirstObjectValue(
+												resources.characters[form.getValues().characterId]
+													.images,
+											)?.url
 										}
 										alt="character"
 									/>
@@ -44,50 +46,24 @@ export const CharacterImageSelect = ({
 								</p>
 							</>
 						) : (
-							<div>キャラクター画像が選択されていません</div>
+							<div>キャラクターが選択されていません</div>
 						)}
 
 						<div className="flex gap-2 flex-wrap">
 							<Button
 								size="sm"
 								onClick={() => {
-									modalSlice.openModal("character.image-select", {
-										callback: (characterId: string, assetId: string) => {
+									modalSlice.openModal("character.select", {
+										callback: (characterId: string) => {
 											form.setValue("characterId", characterId, {
 												shouldDirty: true,
 											});
-											form.setValue("characterImageId", assetId, {
-												shouldDirty: true,
-											});
 										},
 									});
 								}}
 								type="button"
 							>
-								キャラクター画像を選択
-							</Button>
-							<Button
-								size="sm"
-								onClick={() => {
-									modalSlice.openModal("adjustSize", {
-										target: "characters",
-										characterId: form.getValues().characterId,
-										assetId: field.value,
-										position: form.getValues().position,
-										scale: form.getValues().scale,
-										callback: (position, scale) => {
-											form.setValue("position", position, {
-												shouldDirty: true,
-											});
-											form.setValue("scale", scale, {
-												shouldDirty: true,
-											});
-										},
-									});
-								}}
-								type="button"
-							>
-								位置調整UIを開く
+								キャラクターを選択
 							</Button>
 						</div>
 					</FormItem>

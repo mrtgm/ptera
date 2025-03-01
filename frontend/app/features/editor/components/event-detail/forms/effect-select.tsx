@@ -23,11 +23,13 @@ export const EffectSelect = ({
 	label: string;
 }) => {
 	const options = effectType;
+	const FORM_NAME = "effectType";
+
 	return (
 		<FormField
-			key="effectType"
+			key={FORM_NAME}
 			control={form.control}
-			name="effectType"
+			name={FORM_NAME}
 			render={({ field }) => (
 				<FormItem>
 					<FormLabel>{label}</FormLabel>

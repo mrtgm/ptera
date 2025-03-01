@@ -15,11 +15,13 @@ export const VolumeSlider = ({
 	form: ReturnType<typeof useForm>;
 	label: string;
 }) => {
+	const FORM_NAME = "volume";
+
 	return (
 		<FormField
-			key={"volume"}
+			key={FORM_NAME}
 			control={form.control}
-			name={"volume"}
+			name={FORM_NAME}
 			render={({ field }) => (
 				<FormItem>
 					<FormLabel>{label}</FormLabel>

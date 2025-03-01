@@ -102,7 +102,15 @@ export class Player {
 		this.currentGame = game;
 		this.emitter.emit("gameLoaded", game);
 
-		this.updateScene(game.scenes[0].id);
+		const initialScene = game.scenes.find(
+			(scene) => scene.id === game.initialSceneId,
+		);
+
+		if (!initialScene) {
+			throw new Error("Initial scene not found");
+		}
+
+		this.updateScene(initialScene.id);
 		this.setState("beforeStart");
 	}
 
@@ -197,7 +205,15 @@ export class Player {
 	}
 
 	resetGame() {
-		this.currentScene = this.currentGame?.scenes[0] ?? null;
+		const initialScene = this.currentGame?.scenes.find(
+			(scene) => scene.id === this.currentGame?.initialSceneId,
+		);
+
+		if (!initialScene) {
+			throw new Error("Initial scene not found");
+		}
+
+		this.currentScene = initialScene;
 		this.setState("beforeStart");
 		this.updateCurrentEvent(null);
 		this.updateStage(INITIAL_STAGE);

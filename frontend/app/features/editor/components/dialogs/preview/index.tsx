@@ -1,6 +1,5 @@
 import { Laptop, PlayCircle, Rewind, Smartphone } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import { Button } from "~/components/shadcn/button";
 import {
 	Dialog,
@@ -18,15 +17,9 @@ import {
 	buildCurrentStageFromScenes,
 	findAllPaths,
 } from "~/features/player/utils/graph";
-import type {
-	Game,
-	GameEvent,
-	GameResources,
-	ResourceCache,
-	Scene,
-} from "~/schema";
+import type { Game, GameEvent, GameResources, Scene } from "~/schema";
 import { useStore } from "~/stores";
-import type { ModalParams } from "~/stores/modal";
+import type { PreviewParams } from "~/stores/modal";
 
 type DevicePreset = {
 	id: string;
@@ -41,21 +34,46 @@ const devicePresets: DevicePreset[] = [
 	{ id: "smartphone", name: "スマートフォン", width: 375, height: 667 },
 ];
 
-export const PreviewDialog = ({
+export const PreviewDialogContainer = ({
 	game,
 	resources,
-	currentScene,
-	currentEvent,
-	formValues,
+}: {
+	game: Game | null;
+	resources: GameResources | null;
+}) => {
+	const modalSlice = useStore.useSlice.modal();
+
+	if (!game || !resources || modalSlice.modalType !== "preview") return null;
+
+	return (
+		<Dialog
+			open={modalSlice.isOpen}
+			onOpenChange={(isOpen) => {
+				if (!isOpen) {
+					modalSlice.closeModal();
+				}
+			}}
+		>
+			<PreviewDialog
+				game={game}
+				resources={resources}
+				params={modalSlice.params as PreviewParams}
+			/>
+		</Dialog>
+	);
+};
+
+const PreviewDialog = ({
+	game,
+	resources,
+	params,
 }: {
 	game: Game;
 	resources: GameResources;
-	currentScene: Scene;
-	currentEvent: GameEvent;
-	formValues: Partial<GameEvent>;
+	params: PreviewParams;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
-	const isOpen = modalSlice.isOpen && modalSlice.target === "preview";
+	const isOpen = modalSlice.isOpen && modalSlice.modalType === "preview";
 
 	const [player, setPlayer] = useState<Player>(() => new Player());
 	const [selectedDevice, setSelectedDevice] = useState<string>("pc");
@@ -94,9 +112,18 @@ export const PreviewDialog = ({
 	useEffect(() => {
 		if (!isOpen || !game || !resources) return;
 
+		const currentScene = game.scenes.find(
+			(scene) => scene.id === params.currentSceneId,
+		);
+		const currentEvent = currentScene?.events.find(
+			(event) => event.id === params.currentEventId,
+		);
+
+		if (!currentScene || !currentEvent) return;
+
 		const updatedEvent = {
 			...currentEvent,
-			...formValues,
+			...params.formValues,
 		} as GameEvent;
 
 		const updatedScene = {
@@ -132,10 +159,19 @@ export const PreviewDialog = ({
 		} else {
 			console.log("dispose");
 			player.dispose();
-			const newPlayer = new Player();
-			const firstEvent = updatedScene.events[0];
 
-			newPlayer.previewGame(INITIAL_STAGE, updatedScene, firstEvent);
+			const newPlayer = new Player();
+			const firstScene = game.scenes.find(
+				(scene) => scene.id === game.initialSceneId,
+			);
+
+			if (!firstScene) {
+				throw new Error("Initial scene not found");
+			}
+
+			const firstEvent = firstScene.events[0];
+
+			newPlayer.previewGame(INITIAL_STAGE, firstScene, firstEvent);
 
 			setPlayer(() => newPlayer);
 		}
@@ -144,16 +180,7 @@ export const PreviewDialog = ({
 			console.log("dispose2");
 			player.dispose();
 		};
-	}, [
-		isOpen,
-		previewMode,
-		formValues,
-		game,
-		resources,
-		currentScene,
-		currentEvent,
-		player.dispose,
-	]);
+	}, [isOpen, previewMode, game, resources, params, player.dispose]);
 
 	useEffect(() => {
 		if (!isOpen) {
@@ -200,7 +227,7 @@ export const PreviewDialog = ({
 										className="flex items-center gap-2"
 									>
 										<Rewind size={16} />
-										<span>シーンの最初から</span>
+										<span>ゲームの最初から</span>
 									</TabsTrigger>
 								</TabsList>
 							</Tabs>

@@ -79,6 +79,8 @@ export const usePlayerInitialize = ({
 	useEffect(() => {
 		let isMounted = true;
 
+		console.log("Loading resources", resourcesToLoad);
+
 		resourceManager.loadResources(resourcesToLoad).then(() => {
 			if (!isMounted) return;
 

@@ -9,3 +9,4 @@ export { TextInput } from "./text-input";
 export { VolumeSlider } from "./volume-slider";
 export { TransitionDuration } from "./transition-duration";
 export { CharacterNameInput } from "./character-name-input";
+export { CharacterSelect } from "./character-select";

@@ -3,6 +3,7 @@
   "title": "公園での出会い",
   "author": "MysteryWriter",
   "description": "穏やかな春の日、主人公は公園で不思議な少女と出会う。",
+  "initialSceneId": "opening",
   "version": "0.1",
   "scenes": [
     {

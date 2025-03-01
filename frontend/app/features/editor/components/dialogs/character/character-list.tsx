@@ -5,7 +5,7 @@ import { cn } from "~/utils/cn";
 
 interface CharacterListProps {
 	resources: GameResources;
-	selectedCharacter: string | null;
+	selectedCharacterId: string | null;
 	onCharacterSelect: (characterId: string) => void;
 	onAddCharacterClick: () => void;
 	onConfirmSelection?: () => void;
@@ -14,7 +14,7 @@ interface CharacterListProps {
 
 export const CharacterList = ({
 	resources,
-	selectedCharacter,
+	selectedCharacterId,
 	onCharacterSelect,
 	onAddCharacterClick,
 	onConfirmSelection,
@@ -31,14 +31,14 @@ export const CharacterList = ({
 							key={character.id}
 							className={cn(
 								"border h-fit rounded-md p-2 cursor-pointer hover:border-blue-500 flex flex-col",
-								selectedCharacter === character.id &&
+								selectedCharacterId === character.id &&
 									"border-blue-500 bg-blue-50",
 							)}
 							onClick={() => onCharacterSelect(character.id)}
 							onKeyDown={(e) =>
 								e.key === "Enter" && onCharacterSelect(character.id)
 							}
-							aria-selected={selectedCharacter === character.id}
+							aria-selected={selectedCharacterId === character.id}
 						>
 							<div className="aspect-square bg-gray-100 mb-2 flex items-center justify-center rounded overflow-hidden">
 								{previewImage ? (
@@ -71,7 +71,7 @@ export const CharacterList = ({
 				</Button>
 
 				{selectionMode && (
-					<Button onClick={onConfirmSelection} disabled={!selectedCharacter}>
+					<Button onClick={onConfirmSelection} disabled={!selectedCharacterId}>
 						選択
 					</Button>
 				)}

@@ -1,8 +1,4 @@
-import {
-	unstable_usePrompt,
-	useBeforeUnload,
-	useParams,
-} from "@remix-run/react";
+import { unstable_usePrompt, useBeforeUnload } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 import type { FieldValues, FormState } from "react-hook-form";
 
@@ -14,6 +10,12 @@ export const useUnsavedFormWarning = (
 	useEffect(() => {
 		dirtyRef.current = formState.isDirty;
 	}, [formState]);
+
+	useBeforeUnload(() => {
+		if (dirtyRef.current) {
+			return message;
+		}
+	});
 
 	unstable_usePrompt({
 		message,

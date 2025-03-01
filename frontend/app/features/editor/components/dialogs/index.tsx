@@ -1,5 +1,5 @@
 export { useDeleteConfirmationDialog } from "./delete-confirmation-dialog";
-export { PreviewDialog } from "./preview";
-export { AssetDialog, type AssetDialogKeyType } from "./asset";
-export { CharacterDialog } from "./character";
-export { AdjustSizeDialog } from "./character/adjust-size-dialog";
+export { PreviewDialogContainer } from "./preview";
+export { AssetDialogContainer, type AssetDialogKeyType } from "./asset";
+export { CharacterDialogContainer } from "./character";
+export { AdjustSizeDialogContainer } from "./character/adjust-size-dialog";

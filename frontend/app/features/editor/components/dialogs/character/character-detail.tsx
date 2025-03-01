@@ -6,6 +6,7 @@ import { Button } from "~/components/shadcn/button";
 import { DialogFooter } from "~/components/shadcn/dialog";
 import { Input } from "~/components/shadcn/input";
 import { Label } from "~/components/shadcn/label";
+import { FILE_VALIDATION_SETTING } from "~/features/editor/constants";
 import type { Game, GameResources } from "~/schema";
 import { useStore } from "~/stores";
 import { cn } from "~/utils/cn";
@@ -16,13 +17,13 @@ import { useDeleteConfirmationDialog } from "../delete-confirmation-dialog";
 interface CharacterDetailProps {
 	game: Game;
 	resources: GameResources;
-	selectedCharacter: string;
+	selectedCharacterId: string;
 	selectedImage: string | null;
 	onBackToList: () => void;
 	onImageSelect: (imageId: string) => void;
 	onCharacterNameChange?: (characterId: string, name: string) => void;
 	onDeleteCharacter: (characterId: string) => void;
-	onFilesSelected: (files: FileList) => void;
+	onFilesSelected: (files: FileList | File[]) => void;
 	onConfirmSelection?: () => void;
 	onDeleteImage: (characterId: string, imageId: string) => void;
 	selectionMode?: boolean;
@@ -31,7 +32,7 @@ interface CharacterDetailProps {
 export const CharacterDetail = ({
 	game,
 	resources,
-	selectedCharacter,
+	selectedCharacterId,
 	selectedImage,
 	onBackToList,
 	onImageSelect,
@@ -42,7 +43,7 @@ export const CharacterDetail = ({
 	onDeleteImage,
 	selectionMode = false,
 }: CharacterDetailProps) => {
-	const character = resources.characters[selectedCharacter];
+	const character = resources.characters[selectedCharacterId];
 	const [newCharacterName, setNewCharacterName] = useState<string>(
 		character?.name || "",
 	);
@@ -86,7 +87,7 @@ export const CharacterDetail = ({
 
 		// 画像が使用されているか検証
 		const validationResult = ResourceValidator.canDeleteImage(
-			selectedCharacter,
+			selectedCharacterId,
 			imageId,
 			game,
 			resources,
@@ -107,7 +108,7 @@ export const CharacterDetail = ({
 
 	const confirmDeleteImage = () => {
 		if (imageToDelete && onDeleteImage) {
-			onDeleteImage(selectedCharacter, imageToDelete);
+			onDeleteImage(selectedCharacterId, imageToDelete);
 			// 削除する画像が選択中だった場合、選択を解除
 			if (selectedImage === imageToDelete) {
 				onImageSelect("");
@@ -119,7 +120,7 @@ export const CharacterDetail = ({
 
 	const confirmDeleteCharacter = () => {
 		if (onDeleteCharacter) {
-			onDeleteCharacter(selectedCharacter);
+			onDeleteCharacter(selectedCharacterId);
 		}
 		setDeleteCharacterDialogOpen(false);
 	};
@@ -127,7 +128,7 @@ export const CharacterDetail = ({
 	const handleDeleteCharacterClick = () => {
 		// キャラクターが使用されているか検証
 		const validationResult = ResourceValidator.canDeleteCharacter(
-			selectedCharacter,
+			selectedCharacterId,
 			game,
 		);
 
@@ -172,7 +173,7 @@ export const CharacterDetail = ({
 				<Button
 					variant="ghost"
 					onClick={() =>
-						onCharacterNameChange?.(selectedCharacter, newCharacterName)
+						onCharacterNameChange?.(selectedCharacterId, newCharacterName)
 					}
 					className="flex items-center gap-2"
 				>
@@ -267,8 +268,7 @@ export const CharacterDetail = ({
 			</div>
 			<AssetUpload
 				onFilesSelected={onFilesSelected}
-				className="mt-4"
-				inputId="character-image-upload"
+				validation={FILE_VALIDATION_SETTING}
 				buttonText="画像をアップロード"
 			/>
 			{selectionMode && (

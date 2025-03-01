@@ -53,15 +53,7 @@ import {
 import { MonitorPlay } from "lucide-react";
 import { useUnsavedFormWarning } from "~/hooks/use-unsaved-form-warning";
 import { useStore } from "~/stores";
-import type { ModalParams } from "~/stores/modal";
-import {
-	AdjustSizeDialog,
-	AssetDialog,
-	type AssetDialogKeyType,
-	CharacterDialog,
-	PreviewDialog,
-	useDeleteConfirmationDialog,
-} from "../dialogs";
+import { useDeleteConfirmationDialog } from "../dialogs";
 import {
 	BGMSelect,
 	BackgroundSelect,
@@ -69,6 +61,7 @@ import {
 	CharacterEffectSelect,
 	CharacterImageSelect,
 	CharacterNameInput,
+	CharacterSelect,
 	EffectSelect,
 	SoundEffectSelect,
 	TextInput,
@@ -83,11 +76,6 @@ type EventDetailProps = {
 	resources: GameResources | null;
 	onDeleteEvent: () => void;
 	onSaveEvent: (updatedEvent: GameEvent) => void;
-	onAddCharacter: (name: string) => void;
-	onDeleteCharacter: (characterId: string) => void;
-	onDeleteImage: (characterId: string, imageId: string) => void;
-	onDeleteAsset: (assetId: string, type: AssetDialogKeyType) => void;
-	onCharacterNameChange: (characterId: string, name: string) => void;
 };
 
 const schemaMap: Record<GameEvent["type"], z.ZodType> = {
@@ -121,11 +109,6 @@ export const EventDetail = ({
 	resources,
 	onDeleteEvent,
 	onSaveEvent,
-	onAddCharacter,
-	onDeleteCharacter,
-	onCharacterNameChange,
-	onDeleteImage,
-	onDeleteAsset,
 }: EventDetailProps) => {
 	const [activeTab, setActiveTab] = useState("parameters");
 	const [formValues, setFormValues] =
@@ -160,54 +143,6 @@ export const EventDetail = ({
 		form.reset(data);
 	};
 
-	const mapAssetTypeToFormTarget = (
-		type: AssetDialogKeyType,
-	): AssetFormType => {
-		switch (type) {
-			case "backgroundImages":
-				return "backgroundId";
-			case "cgImages":
-				return "cgImageId";
-			case "soundEffects":
-				return "soundEffectId";
-			case "bgms":
-				return "bgmId";
-		}
-	};
-
-	const handleConfirmAssetSelection = (
-		assetId: string,
-		type: AssetDialogKeyType,
-	) => {
-		form.setValue(mapAssetTypeToFormTarget(type), assetId, {
-			shouldDirty: true,
-		});
-	};
-
-	const handleConfirmAdjustment = (
-		characterId: string,
-		assetId: string,
-		position: [number, number],
-		scale: number,
-	) => {
-		form.setValue("characterId", characterId, { shouldDirty: true });
-		form.setValue("characterImageId", assetId, { shouldDirty: true });
-		form.setValue("position", position, { shouldDirty: true });
-		form.setValue("scale", scale, { shouldDirty: true });
-	};
-
-	const handleConfirmCharacterSelection = (characterId: string) => {
-		form.setValue("characterId", characterId, { shouldDirty: true });
-	};
-
-	const handleConfirmCharacterImageSelection = (
-		characterId: string,
-		imageId: string,
-	) => {
-		form.setValue("characterId", characterId, { shouldDirty: true });
-		form.setValue("characterImageId", imageId, { shouldDirty: true });
-	};
-
 	useEffect(() => {
 		const subscription = form.watch((data) => {
 			setFormValues(data as Partial<GameEvent>);
@@ -226,36 +161,6 @@ export const EventDetail = ({
 
 	return (
 		<div className="w-full h-[calc(100dvh-40px)] overflow-auto p-4" ref={ref}>
-			<AssetDialog
-				game={game}
-				resources={resources}
-				onDeleteAsset={onDeleteAsset}
-				onConfirmAssetSelection={handleConfirmAssetSelection}
-			/>
-			<AdjustSizeDialog
-				onConfirmAdjustment={handleConfirmAdjustment}
-				open={modalSlice.isOpen && modalSlice.target === "adjustSize"}
-				resources={resources}
-				onOpenChange={modalSlice.closeModal}
-				initialData={modalSlice.params as ModalParams["adjustSize"]}
-			/>
-			<PreviewDialog
-				game={game}
-				resources={resources}
-				formValues={formValues}
-				currentScene={selectedScene}
-				currentEvent={selectedEvent}
-			/>
-			<CharacterDialog
-				game={game}
-				resources={resources}
-				onConfirmCharacterSelection={handleConfirmCharacterSelection}
-				onConfirmCharacterImageSelection={handleConfirmCharacterImageSelection}
-				onCharacterNameChange={onCharacterNameChange}
-				onAddCharacter={onAddCharacter}
-				onDeleteCharacter={onDeleteCharacter}
-				onDeleteImage={onDeleteImage}
-			/>
 			<EventDeleteDialog
 				title={"イベント削除"}
 				description={"このイベントを削除しますか？"}
@@ -277,12 +182,10 @@ export const EventDetail = ({
 						<Button
 							variant="outline"
 							onClick={() =>
-								modalSlice.openModal({
-									target: "preview",
-									params: {
-										currentSceneId: selectedScene.id,
-										currentEventId: selectedEvent.id,
-									},
+								modalSlice.openModal("preview", {
+									currentSceneId: selectedScene.id,
+									currentEventId: selectedEvent.id,
+									formValues,
 								})
 							}
 							className="flex items-center gap-2"
@@ -537,7 +440,7 @@ const renderField = (
 		}
 		case "character-select": {
 			return (
-				<CharacterImageSelect
+				<CharacterSelect
 					form={form}
 					label={field.label}
 					resources={resources}

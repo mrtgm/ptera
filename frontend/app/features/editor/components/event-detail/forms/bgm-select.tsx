@@ -15,13 +15,14 @@ export const BGMSelect = ({
 	resources: GameResources;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
+	const FORM_NAME = "bgmId";
 
 	return (
 		<>
 			<FormField
-				key={"bgmId"}
+				key={FORM_NAME}
 				control={form.control}
-				name={"bgmId"}
+				name={FORM_NAME}
 				render={({ field }) => (
 					<FormItem className="flex flex-col items-end">
 						<FormLabel className="mr-auto">{label}</FormLabel>
@@ -50,12 +51,10 @@ export const BGMSelect = ({
 						<Button
 							size="sm"
 							onClick={() => {
-								modalSlice.openModal({
-									target: "asset",
-									params: {
-										mode: "select",
-										target: "bgms",
-										formTarget: "bgmId",
+								modalSlice.openModal("asset.select", {
+									target: "bgms",
+									callback: (bgmId: string) => {
+										form.setValue(FORM_NAME, bgmId, { shouldDirty: true });
 									},
 								});
 							}}

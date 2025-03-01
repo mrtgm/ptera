@@ -8,36 +8,92 @@ import {
 } from "~/components/shadcn/dialog";
 import type { Game, GameResources } from "~/schema";
 import { useStore } from "~/stores";
-import type { ModalParams } from "~/stores/modal";
+import type {
+	CharacterImageSelectParams,
+	CharacterSelectParams,
+} from "~/stores/modal";
 import { AddCharacterDialog } from "./add-character-dialog";
 import { CharacterDetail } from "./character-detail";
 import { CharacterList } from "./character-list";
 
-export const CharacterDialog = ({
+export const CharacterDialogContainer = ({
 	game,
 	resources,
-	onConfirmCharacterSelection,
-	onConfirmCharacterImageSelection,
 	onAddCharacter,
 	onDeleteCharacter,
+	onUploadImage,
 	onDeleteImage,
 	onCharacterNameChange,
 }: {
-	game: Game;
-	resources: GameResources;
-	onConfirmCharacterSelection: (characterId: string) => void;
-	onConfirmCharacterImageSelection: (
-		characterId: string,
-		imageId: string,
-	) => void;
+	game: Game | null;
+	resources: GameResources | null;
 	onAddCharacter: (name: string) => void;
 	onDeleteCharacter: (characterId: string) => void;
+	onUploadImage: (characterId: string, file: File) => void;
 	onDeleteImage: (characterId: string, imageId: string) => void;
 	onCharacterNameChange: (characterId: string, name: string) => void;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
 
-	const [selectedCharacter, setSelectedCharacter] = useState<string | null>(
+	if (
+		!game ||
+		!resources ||
+		(modalSlice.modalType !== "character.select" &&
+			modalSlice.modalType !== "character.image-select" &&
+			modalSlice.modalType !== "character.manage")
+	) {
+		return null;
+	}
+
+	return (
+		<Dialog
+			open={modalSlice.isOpen}
+			onOpenChange={(isOpen) => {
+				if (!isOpen) {
+					modalSlice.closeModal();
+				}
+			}}
+		>
+			<CharacterDialog
+				game={game}
+				resources={resources}
+				onAddCharacter={onAddCharacter}
+				onDeleteCharacter={onDeleteCharacter}
+				onUploadImage={onUploadImage}
+				onDeleteImage={onDeleteImage}
+				onCharacterNameChange={onCharacterNameChange}
+				params={
+					modalSlice.params as
+						| CharacterSelectParams
+						| CharacterImageSelectParams
+				}
+			/>
+		</Dialog>
+	);
+};
+
+const CharacterDialog = ({
+	game,
+	resources,
+	params,
+	onAddCharacter,
+	onDeleteCharacter,
+	onUploadImage,
+	onDeleteImage,
+	onCharacterNameChange,
+}: {
+	game: Game;
+	resources: GameResources;
+	params: CharacterSelectParams | CharacterImageSelectParams;
+	onAddCharacter: (name: string) => void;
+	onDeleteCharacter: (characterId: string) => void;
+	onDeleteImage: (characterId: string, imageId: string) => void;
+	onUploadImage: (characterId: string, file: File) => void;
+	onCharacterNameChange: (characterId: string, name: string) => void;
+}) => {
+	const modalSlice = useStore.useSlice.modal();
+
+	const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(
 		null,
 	);
 	const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -49,18 +105,26 @@ export const CharacterDialog = ({
 
 	useEffect(() => {
 		if (modalSlice.isOpen) {
-			setSelectedCharacter(null);
+			setSelectedCharacterId(null);
 			setSelectedImage(null);
 			setCurrentView("characters");
 		}
 	}, [modalSlice.isOpen]);
 
-	const mode = (modalSlice.params as ModalParams["character"])?.mode;
-	const isCharacterSelectionMode = mode === "character";
-	const isImageSelectionMode = mode === "characterImage";
+	if (
+		modalSlice.modalType !== "character.select" &&
+		modalSlice.modalType !== "character.image-select" &&
+		modalSlice.modalType !== "character.manage"
+	) {
+		return null;
+	}
+
+	const mode = modalSlice.modalType;
+	const isCharacterSelectionMode = mode === "character.select";
+	const isImageSelectionMode = mode === "character.image-select";
 
 	const handleCharacterSelect = (characterId: string) => {
-		setSelectedCharacter(characterId);
+		setSelectedCharacterId(characterId);
 		if (isImageSelectionMode) {
 			setCurrentView("images");
 		}
@@ -70,28 +134,25 @@ export const CharacterDialog = ({
 		setSelectedImage(imageId);
 	};
 
-	const handleFiles = (files: FileList) => {
-		// TODO: Upload character images
+	const handleFiles = (files: FileList | File[]) => {
+		if (!selectedCharacterId) return;
 		for (const file of Array.from(files)) {
-			console.log(`Uploading ${file.name} for character ${selectedCharacter}`);
+			console.log(
+				`Uploading ${file.name} for character ${selectedCharacterId}`,
+			);
+			onUploadImage(selectedCharacterId, file);
 		}
 	};
 
 	const handleConfirmSelection = () => {
-		if (
-			isCharacterSelectionMode &&
-			selectedCharacter &&
-			onConfirmCharacterSelection
-		) {
-			onConfirmCharacterSelection(selectedCharacter);
+		if (isCharacterSelectionMode && selectedCharacterId) {
+			(params as CharacterSelectParams).callback(selectedCharacterId);
 			modalSlice.closeModal();
-		} else if (
-			isImageSelectionMode &&
-			selectedCharacter &&
-			selectedImage &&
-			onConfirmCharacterImageSelection
-		) {
-			onConfirmCharacterImageSelection(selectedCharacter, selectedImage);
+		} else if (isImageSelectionMode && selectedCharacterId && selectedImage) {
+			(params as CharacterImageSelectParams).callback(
+				selectedCharacterId,
+				selectedImage,
+			);
 			modalSlice.closeModal();
 		}
 	};
@@ -105,15 +166,15 @@ export const CharacterDialog = ({
 		// TODO: Delete character
 		console.log(`Deleting character: ${characterId}`);
 		onDeleteCharacter(characterId);
-		setSelectedCharacter(null);
+		setSelectedCharacterId(null);
 		setCurrentView("characters");
 	};
 
 	let dialogTitle = "キャラクター一覧";
 	let dialogDescription = "キャラクターと画像の管理を行います";
 
-	if (currentView === "images" && selectedCharacter) {
-		dialogTitle = `${resources.characters[selectedCharacter]?.name || ""}の画像一覧`;
+	if (currentView === "images" && selectedCharacterId) {
+		dialogTitle = `${resources.characters[selectedCharacterId]?.name || ""}の画像一覧`;
 	}
 
 	if (isCharacterSelectionMode) {
@@ -127,49 +188,44 @@ export const CharacterDialog = ({
 
 	return (
 		<>
-			<Dialog
-				open={modalSlice.isOpen && modalSlice.target === "character"}
-				onOpenChange={modalSlice.closeModal}
-			>
-				<DialogContent className="sm:max-w-4xl">
-					<DialogHeader>
-						<DialogTitle>{dialogTitle}</DialogTitle>
-						<DialogDescription>{dialogDescription}</DialogDescription>
-					</DialogHeader>
+			<DialogContent className="sm:max-w-4xl">
+				<DialogHeader>
+					<DialogTitle>{dialogTitle}</DialogTitle>
+					<DialogDescription>{dialogDescription}</DialogDescription>
+				</DialogHeader>
 
-					{currentView === "characters" ? (
-						<CharacterList
+				{currentView === "characters" ? (
+					<CharacterList
+						resources={resources}
+						selectedCharacterId={selectedCharacterId}
+						onCharacterSelect={handleCharacterSelect}
+						onAddCharacterClick={() => setShowAddCharacterDialog(true)}
+						onConfirmSelection={
+							isCharacterSelectionMode ? handleConfirmSelection : undefined
+						}
+						selectionMode={isCharacterSelectionMode}
+					/>
+				) : (
+					selectedCharacterId && (
+						<CharacterDetail
+							game={game}
 							resources={resources}
-							selectedCharacter={selectedCharacter}
-							onCharacterSelect={handleCharacterSelect}
-							onAddCharacterClick={() => setShowAddCharacterDialog(true)}
+							selectedCharacterId={selectedCharacterId}
+							selectedImage={selectedImage}
+							onBackToList={handleBackToCharacters}
+							onImageSelect={handleImageSelect}
+							onCharacterNameChange={onCharacterNameChange}
+							onDeleteCharacter={handleDeleteCharacter}
+							onFilesSelected={handleFiles}
+							onDeleteImage={onDeleteImage}
 							onConfirmSelection={
-								isCharacterSelectionMode ? handleConfirmSelection : undefined
+								isImageSelectionMode ? handleConfirmSelection : undefined
 							}
-							selectionMode={isCharacterSelectionMode}
+							selectionMode={isImageSelectionMode}
 						/>
-					) : (
-						selectedCharacter && (
-							<CharacterDetail
-								game={game}
-								resources={resources}
-								selectedCharacter={selectedCharacter}
-								selectedImage={selectedImage}
-								onBackToList={handleBackToCharacters}
-								onImageSelect={handleImageSelect}
-								onCharacterNameChange={onCharacterNameChange}
-								onDeleteCharacter={handleDeleteCharacter}
-								onFilesSelected={handleFiles}
-								onDeleteImage={onDeleteImage}
-								onConfirmSelection={
-									isImageSelectionMode ? handleConfirmSelection : undefined
-								}
-								selectionMode={isImageSelectionMode}
-							/>
-						)
-					)}
-				</DialogContent>
-			</Dialog>
+					)
+				)}
+			</DialogContent>
 
 			<AddCharacterDialog
 				open={showAddCharacterDialog}

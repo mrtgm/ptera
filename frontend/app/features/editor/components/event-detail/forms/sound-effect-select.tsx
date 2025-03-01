@@ -51,12 +51,12 @@ export const SoundEffectSelect = ({
 							<Button
 								size="sm"
 								onClick={() => {
-									modalSlice.openModal({
-										target: "asset",
-										params: {
-											mode: "select",
-											target: "soundEffects",
-											formTarget: "soundEffectId",
+									modalSlice.openModal("asset.select", {
+										target: "soundEffects",
+										callback: (soundEffectId: string) => {
+											form.setValue("soundEffectId", soundEffectId, {
+												shouldDirty: true,
+											});
 										},
 									});
 								}}
