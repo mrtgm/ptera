@@ -30,7 +30,6 @@ export const SpeechBubble = ({
 				style={{ backgroundColor: hex }}
 			/>
 
-			{/* Marker */}
 			<div
 				className="absolute w-5 h-5 rounded-full bg-white border-2 transform"
 				style={{

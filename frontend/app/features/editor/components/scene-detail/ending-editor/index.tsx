@@ -1,7 +1,8 @@
 import type React from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
 	type ChoiceScene,
+	type EndScene,
 	type Game,
 	type GotoScene,
 	type Scene,
@@ -16,6 +17,7 @@ import {
 	TabsList,
 	TabsTrigger,
 } from "~/components/shadcn/tabs";
+import { Graph } from "../../graph";
 import { ChoiceSceneContent } from "./choice-scene-content";
 import { EndSceneContent } from "./end-scene-content";
 import { GotoSceneContent } from "./goto-scene-content";
@@ -28,9 +30,9 @@ interface EndingEditorProps {
 	onNavigateToScene: (sceneId: string) => void;
 	onAddScene: (
 		sceneTitle: string,
-		scene: Scene,
+		fromScene: Scene,
 		choiceId?: string | null,
-	) => string;
+	) => Scene | null;
 }
 
 export const EndingEditor: React.FC<EndingEditorProps> = ({
@@ -40,85 +42,132 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 	onNavigateToScene,
 	onAddScene,
 }) => {
-	const [endingScene, setEndingScene] = useState<Scene>(selectedScene);
+	// ゲーム全体をローカルステートとして保持する
+	const [localGame, setLocalGame] = useState<Game | null>(game);
 	const [hasChanges, setHasChanges] = useState(false);
 	const [isNewSceneDialogOpen, setIsNewSceneDialogOpen] = useState(false);
 	const activeChoiceId = useRef<string | null>(null);
 
+	const currentScene = localGame?.scenes.find(
+		(scene) => scene.id === selectedScene.id,
+	);
+
+	if (!localGame || !currentScene) {
+		return null;
+	}
+
 	const handleSceneTypeChange = (value: string) => {
-		setEndingScene((prev) => {
-			if (value === "end") {
-				return { ...prev, sceneType: "end" };
-			}
-			if (value === "goto") {
-				return {
-					...prev,
-					sceneType: "goto",
-					nextSceneId: "",
-					...(isGotoScene(selectedScene) && {
-						nextSceneId: selectedScene.nextSceneId,
-					}),
-				};
-			}
-			if (value === "choice") {
-				return {
-					...prev,
-					sceneType: "choice",
-					choices: [],
-					...(isChoiceScene(selectedScene) && {
-						choices: selectedScene.choices,
-					}),
-				};
-			}
-			return prev;
+		setLocalGame((prevGame) => {
+			if (!prevGame) return prevGame;
+
+			const updatedScenes = prevGame.scenes.map((scene) => {
+				if (scene.id !== selectedScene.id) return scene;
+
+				if (value === "end") {
+					return { ...scene, sceneType: "end" } as EndScene;
+				}
+				if (value === "goto") {
+					return {
+						...scene,
+						sceneType: "goto",
+						nextSceneId: prevGame.scenes[0]?.id || "",
+						...(isGotoScene(selectedScene) && {
+							nextSceneId: selectedScene.nextSceneId,
+						}),
+					} as GotoScene;
+				}
+				if (value === "choice") {
+					return {
+						...scene,
+						sceneType: "choice",
+						choices: [],
+						...(isChoiceScene(selectedScene) && {
+							choices: selectedScene.choices,
+						}),
+					} as ChoiceScene;
+				}
+				return scene;
+			});
+
+			return {
+				...prevGame,
+				scenes: updatedScenes,
+			};
 		});
 		setHasChanges(true);
 	};
 
 	const handleAddChoice = () => {
-		setEndingScene((prev) => {
-			if (isChoiceScene(prev)) {
+		setLocalGame((prevGame) => {
+			if (!prevGame) return prevGame;
+
+			const updatedScenes = prevGame.scenes.map((scene) => {
+				if (scene.id !== selectedScene.id) return scene;
+				if (!isChoiceScene(scene)) return scene;
+
 				return {
-					...prev,
+					...scene,
 					choices: [
-						...prev.choices,
+						...scene.choices,
 						{
 							id: crypto.randomUUID(),
 							text: "",
-							nextSceneId: game?.scenes[0].id || "",
+							nextSceneId: prevGame.scenes[0]?.id || "",
 						},
 					],
 				};
-			}
-			return prev;
+			});
+
+			return {
+				...prevGame,
+				scenes: updatedScenes,
+			};
 		});
 		setHasChanges(true);
 	};
 
 	const handleRemoveChoice = (choiceId: string) => {
-		setEndingScene((prev) => {
-			if (isChoiceScene(prev)) {
+		setLocalGame((prevGame) => {
+			if (!prevGame) return prevGame;
+
+			const updatedScenes = prevGame.scenes.map((scene) => {
+				if (scene.id !== selectedScene.id) return scene;
+				if (!isChoiceScene(scene)) return scene;
+
 				return {
-					...prev,
-					choices: prev.choices.filter((choice) => choice.id !== choiceId),
+					...scene,
+					choices: scene.choices.filter((choice) => choice.id !== choiceId),
 				};
-			}
-			return prev;
+			});
+
+			return {
+				...prevGame,
+				scenes: updatedScenes,
+			};
 		});
 		setHasChanges(true);
 	};
 
 	const handleChoiceTextChange = (choiceId: string, text: string) => {
-		setEndingScene((prev) => {
-			if (isChoiceScene(prev)) {
+		setLocalGame((prevGame) => {
+			if (!prevGame) return prevGame;
+
+			const updatedScenes = prevGame.scenes.map((scene) => {
+				if (scene.id !== selectedScene.id) return scene;
+				if (!isChoiceScene(scene)) return scene;
+
 				return {
-					...prev,
-					choices: prev.choices.map((choice) =>
+					...scene,
+					choices: scene.choices.map((choice) =>
 						choice.id === choiceId ? { ...choice, text } : choice,
 					),
 				};
-			}
-			return prev;
+			});
+
+			return {
+				...prevGame,
+				scenes: updatedScenes,
+			};
 		});
 		setHasChanges(true);
 	};
@@ -127,25 +176,48 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 		choiceId: string,
 		nextSceneId: string,
 	) => {
-		setEndingScene((prev) => {
-			if (isChoiceScene(prev)) {
+		setLocalGame((prevGame) => {
+			if (!prevGame) return prevGame;
+
+			const updatedScenes = prevGame.scenes.map((scene) => {
+				if (scene.id !== selectedScene.id) return scene;
+				if (!isChoiceScene(scene)) return scene;
+
 				return {
-					...prev,
-					choices: prev.choices.map((choice) =>
+					...scene,
+					choices: scene.choices.map((choice) =>
 						choice.id === choiceId ? { ...choice, nextSceneId } : choice,
 					),
 				};
-			}
-			return prev;
+			});
+
+			return {
+				...prevGame,
+				scenes: updatedScenes,
+			};
 		});
 		setHasChanges(true);
 	};
 
 	const handleNextSceneChange = (nextSceneId: string) => {
-		setEndingScene((prev) => ({
-			...prev,
-			nextSceneId,
-		}));
+		setLocalGame((prevGame) => {
+			if (!prevGame) return prevGame;
+
+			const updatedScenes = prevGame.scenes.map((scene) => {
+				if (scene.id !== selectedScene.id) return scene;
+				if (!isGotoScene(scene)) return scene;
+
+				return {
+					...scene,
+					nextSceneId,
+				};
+			});
+
+			return {
+				...prevGame,
+				scenes: updatedScenes,
+			};
+		});
 		setHasChanges(true);
 	};
 
@@ -155,49 +227,71 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 	};
 
 	const handleCreateNewScene = (newSceneTitle: string) => {
-		if (!newSceneTitle.trim()) {
+		if (!newSceneTitle.trim() || !currentScene) {
 			return;
 		}
 
-		const newSceneId = onAddScene(
+		const newScene = onAddScene(
 			newSceneTitle,
-			endingScene,
+			currentScene,
 			activeChoiceId.current,
 		);
 
-		const newScene: Scene = {
-			...endingScene,
-			...(isGotoScene(endingScene) && {
-				nextSceneId: newSceneId,
-			}),
-			...(isChoiceScene(endingScene) && {
-				choices: (endingScene as ChoiceScene).choices.map((choice) => {
-					if (choice.id === activeChoiceId.current) {
-						return {
-							...choice,
-							nextSceneId: newSceneId,
-						};
-					}
-					return choice;
-				}),
-			}),
-		};
+		if (!newScene) return;
+
+		setLocalGame((prevGame) => {
+			if (!prevGame) return prevGame;
+
+			const updatedScenes = prevGame.scenes.map((scene) => {
+				if (scene.id !== selectedScene.id) return scene;
+
+				if (isGotoScene(scene)) {
+					return {
+						...scene,
+						nextSceneId: newScene.id,
+					};
+				}
+
+				if (isChoiceScene(scene) && activeChoiceId.current) {
+					return {
+						...scene,
+						choices: scene.choices.map((choice) => {
+							if (choice.id === activeChoiceId.current) {
+								return {
+									...choice,
+									nextSceneId: newScene.id,
+								};
+							}
+							return choice;
+						}),
+					};
+				}
+
+				return scene;
+			});
+
+			return {
+				...prevGame,
+				scenes: [...updatedScenes, newScene],
+			};
+		});
 
 		activeChoiceId.current = null;
-		setEndingScene(newScene);
 		setIsNewSceneDialogOpen(false);
 		setHasChanges(false);
 	};
 
 	const handleSave = () => {
-		if (isGotoScene(endingScene)) {
-			if (!endingScene.nextSceneId) {
+		if (!currentScene) return;
+
+		if (isGotoScene(currentScene)) {
+			if (!currentScene.nextSceneId) {
 				alert("遷移先シーンを選択してください");
 				return;
 			}
 		}
-		if (isChoiceScene(endingScene)) {
-			const validChoices = endingScene.choices.filter(
+		if (isChoiceScene(currentScene)) {
+			const validChoices = currentScene.choices.filter(
 				(choice) => choice.text.trim() !== "" && choice.nextSceneId !== "",
 			);
 			if (validChoices.length === 0) {
@@ -205,8 +299,9 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 				return;
 			}
 		}
+
 		setHasChanges(false);
-		onSaveEnding(endingScene);
+		onSaveEnding(currentScene);
 	};
 
 	const handleCancel = () => {
@@ -220,81 +315,87 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 	};
 
 	return (
-		<div className="absolute w-full top-0">
-			<div className="bg-white rounded-lg shadow overflow-y-auto h-[calc(100dvh-40px)]">
-				<div className="sticky top-0 z-10 bg-white border-b p-2 flex justify-between items-start">
-					<div>
-						<h2 className="text-xl font-bold">シーン終了設定</h2>
-						<p className="text-sm text-gray-500">{selectedScene.title}</p>
+		<div className="absolute w-full top-0 grid-cols-9 grid">
+			<div className="col-span-5">
+				<div className="bg-white rounded-lg shadow overflow-y-auto h-[calc(100dvh-40px)]">
+					<div className="sticky top-0 z-10 bg-white border-b p-2 flex justify-between items-start">
+						<div>
+							<h2 className="text-xl font-bold">シーン終了設定</h2>
+							<p className="text-sm text-gray-500">{currentScene.title}</p>
+						</div>
+						<div className="flex items-center gap-2">
+							<Button variant="outline" size="sm" onClick={handleCancel}>
+								キャンセル
+							</Button>
+							<Button size="sm" onClick={handleSave}>
+								保存
+							</Button>
+						</div>
 					</div>
-					<div className="flex items-center gap-2">
-						<Button variant="outline" size="sm" onClick={handleCancel}>
-							キャンセル
-						</Button>
-						<Button size="sm" onClick={handleSave}>
-							保存
-						</Button>
+
+					<div className="p-4">
+						<Tabs
+							defaultValue={currentScene.sceneType}
+							onValueChange={handleSceneTypeChange}
+							className="mb-6"
+						>
+							<TabsList className="grid grid-cols-3 mb-2">
+								<TabsTrigger value="end">終了</TabsTrigger>
+								<TabsTrigger value="goto">遷移</TabsTrigger>
+								<TabsTrigger value="choice">選択肢</TabsTrigger>
+							</TabsList>
+
+							{currentScene.sceneType === "end" && (
+								<TabsContent value="end" className="space-y-4">
+									<EndSceneContent />
+								</TabsContent>
+							)}
+
+							{currentScene.sceneType === "goto" && (
+								<TabsContent value="goto" className="space-y-4">
+									<GotoSceneContent
+										scene={currentScene as GotoScene}
+										game={localGame}
+										currentSceneId={currentScene.id}
+										onNextSceneChange={handleNextSceneChange}
+										onNavigateToScene={onNavigateToScene}
+										onOpenNewSceneDialog={() => handleOpenNewSceneDialog(null)}
+									/>
+								</TabsContent>
+							)}
+
+							{currentScene.sceneType === "choice" && (
+								<TabsContent value="choice" className="space-y-4">
+									<ChoiceSceneContent
+										scene={currentScene as ChoiceScene}
+										game={localGame}
+										currentSceneId={currentScene.id}
+										onAddChoice={handleAddChoice}
+										onRemoveChoice={handleRemoveChoice}
+										onChoiceTextChange={handleChoiceTextChange}
+										onChoiceNextSceneChange={handleChoiceNextSceneChange}
+										onNavigateToScene={onNavigateToScene}
+										onCreateNewSceneForChoice={handleOpenNewSceneDialog}
+									/>
+								</TabsContent>
+							)}
+						</Tabs>
 					</div>
 				</div>
 
-				<div className="p-4">
-					<Tabs
-						defaultValue={endingScene.sceneType}
-						onValueChange={handleSceneTypeChange}
-						className="mb-6"
-					>
-						<TabsList className="grid grid-cols-3 mb-2">
-							<TabsTrigger value="end">終了</TabsTrigger>
-							<TabsTrigger value="goto">遷移</TabsTrigger>
-							<TabsTrigger value="choice">選択肢</TabsTrigger>
-						</TabsList>
-
-						{endingScene.sceneType === "end" && (
-							<TabsContent value="end" className="space-y-4">
-								<EndSceneContent />
-							</TabsContent>
-						)}
-
-						{endingScene.sceneType === "goto" && (
-							<TabsContent value="goto" className="space-y-4">
-								<GotoSceneContent
-									scene={endingScene as GotoScene}
-									game={game}
-									currentSceneId={selectedScene.id}
-									onNextSceneChange={handleNextSceneChange}
-									onNavigateToScene={onNavigateToScene}
-									onOpenNewSceneDialog={() => handleOpenNewSceneDialog(null)}
-								/>
-							</TabsContent>
-						)}
-
-						{endingScene.sceneType === "choice" && (
-							<TabsContent value="choice" className="space-y-4">
-								<ChoiceSceneContent
-									scene={endingScene as ChoiceScene}
-									game={game}
-									currentSceneId={selectedScene.id}
-									onAddChoice={handleAddChoice}
-									onRemoveChoice={handleRemoveChoice}
-									onChoiceTextChange={handleChoiceTextChange}
-									onChoiceNextSceneChange={handleChoiceNextSceneChange}
-									onNavigateToScene={onNavigateToScene}
-									onCreateNewSceneForChoice={handleOpenNewSceneDialog}
-								/>
-							</TabsContent>
-						)}
-					</Tabs>
-				</div>
+				<NewSceneDialog
+					isOpen={isNewSceneDialogOpen}
+					onClose={() => {
+						setIsNewSceneDialogOpen(false);
+						activeChoiceId.current = null;
+					}}
+					onCreateScene={handleCreateNewScene}
+				/>
 			</div>
 
-			<NewSceneDialog
-				isOpen={isNewSceneDialogOpen}
-				onClose={() => {
-					setIsNewSceneDialogOpen(false);
-					activeChoiceId.current = null;
-				}}
-				onCreateScene={handleCreateNewScene}
-			/>
+			<div className="col-span-4">
+				<Graph game={localGame} />
+			</div>
 		</div>
 	);
 };

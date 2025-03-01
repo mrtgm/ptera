@@ -43,7 +43,7 @@ export const getAllNodesPosition = ({
 			const currentScene = game.scenes.find((s) => s.id === cur);
 
 			if (!currentScene) {
-				throw new Error(`Scene not found: ${cur}`);
+				throw new Error(`Scene not found: ${cur} ${typeof cur}`);
 			}
 
 			if (currentScene.sceneType === "choice") {

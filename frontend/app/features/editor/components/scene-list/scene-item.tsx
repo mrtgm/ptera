@@ -9,7 +9,7 @@ type SceneCardProps = {
 	onSceneClick: (sceneId: string) => void;
 };
 
-export const SceneCard = ({
+export const SceneItem = ({
 	scene,
 	index,
 	game,

@@ -27,12 +27,16 @@ export interface EditorState {
 		sceneTitle: string,
 		fromScene?: Scene,
 		choiceId?: string | null,
-	) => string;
+	) => Scene | null;
 	deleteScene: (sceneId: string) => void;
 	saveSceneSettings: (data: SceneSettingsFormData) => void;
 	saveEnding: (endingScene: Scene) => void;
 
-	addEvent: (index: number, item: SidebarItem, selectedSceneId: string) => void;
+	addEvent: (
+		index: number,
+		item: SidebarItem,
+		selectedSceneId: string,
+	) => GameEvent | null;
 	moveEvent: (
 		oldIndex: number,
 		newIndex: number,
@@ -75,7 +79,7 @@ export const createEditorSlice: StateCreator<
 	// シーン追加
 	addScene: (sceneTitle, fromScene, choiceId) => {
 		const { editingGame, markAsDirty } = get();
-		if (!editingGame) return "";
+		if (!editingGame) return null;
 
 		const newSceneId = crypto.randomUUID();
 		const newScene: Scene = {
@@ -128,7 +132,7 @@ export const createEditorSlice: StateCreator<
 		});
 
 		markAsDirty();
-		return newSceneId;
+		return newScene;
 	},
 
 	// シーン削除
@@ -195,7 +199,7 @@ export const createEditorSlice: StateCreator<
 	// イベント追加
 	addEvent: (index, item, selectedSceneId) => {
 		const { editingGame, editingResources, markAsDirty } = get();
-		if (!editingGame || !editingResources) return;
+		if (!editingGame || !editingResources) return null;
 
 		const newEvent = createEventFromSidebarItem(item, editingResources);
 
@@ -216,6 +220,7 @@ export const createEditorSlice: StateCreator<
 		});
 
 		markAsDirty();
+		return newEvent;
 	},
 
 	// イベント移動

@@ -3,10 +3,9 @@ import {
 	BreadcrumbItem,
 	BreadcrumbList,
 } from "~/components/shadcn/breadcrumb";
-import { Button } from "~/components/shadcn/button";
 import type { Game } from "~/schema";
 import type { SideBarSettings } from "../../constants";
-import { SceneCard } from "./scene-card";
+import { SceneItem } from "./scene-item";
 
 type ScenesListProps = {
 	game: Game | null;
@@ -35,7 +34,7 @@ export const ScenesList = ({
 
 			<div className="w-full h-[calc(100dvh-120px)] flex flex-col select-none gap-2 overflow-scroll">
 				{game.scenes.map((scene, index) => (
-					<SceneCard
+					<SceneItem
 						key={scene.id}
 						scene={scene}
 						index={index}
