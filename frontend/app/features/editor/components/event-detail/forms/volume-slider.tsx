@@ -1,0 +1,37 @@
+import type { useForm } from "react-hook-form";
+import {
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "~/components/shadcn/form";
+import { Input } from "~/components/shadcn/input";
+
+export const VolumeSlider = ({
+	form,
+	label,
+}: {
+	form: ReturnType<typeof useForm>;
+	label: string;
+}) => {
+	return (
+		<FormField
+			key={"volume"}
+			control={form.control}
+			name={"volume"}
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>{label}</FormLabel>
+					<FormControl>
+						<div>
+							<Input type="range" {...field} min={0} max={5} step={0.05} />
+							<p className="text-sm text-gray-500">{field.value}</p>
+						</div>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	);
+};

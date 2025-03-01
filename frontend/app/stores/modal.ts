@@ -1,5 +1,5 @@
 import type { StateCreator } from "zustand";
-import type { AssetFormType } from "~/features/editor/event-detail";
+import type { AssetFormType } from "~/features/editor/components/event-detail";
 import type { GameResources } from "~/schema";
 import type { State } from ".";
 

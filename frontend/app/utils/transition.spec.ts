@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { player } from "~/features/player/libs/engine";
+import { player } from "~/features/player/utils/engine";
 import {
 	Transition,
 	numberInterpolator,

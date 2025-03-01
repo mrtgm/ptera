@@ -1,6 +1,6 @@
 import { forwardRef, useState } from "react";
 import { Player } from "~/features/player";
-import { AnimatePresence } from "~/features/player/game-screen/animate-presence";
+import { AnimatePresence } from "~/features/player/components/game-screen/animate-presence";
 
 export default function Debug() {
 	return (

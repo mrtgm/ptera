@@ -13,9 +13,6 @@ export const useUnsavedFormWarning = (
 	const dirtyRef = useRef(formState.isDirty);
 	useEffect(() => {
 		dirtyRef.current = formState.isDirty;
-
-		console.log("formState.current", formState);
-		console.log("dirtyField", formState.dirtyFields);
 	}, [formState]);
 
 	unstable_usePrompt({

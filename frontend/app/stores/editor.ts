@@ -1,10 +1,10 @@
 import type { StateCreator } from "zustand";
+import type { SceneSettingsFormData } from "~/features/editor/components/scene-detail/scene-settings";
+import type { ProjectSettingsFormData } from "~/features/editor/components/scene-list/project-settings";
 import {
 	type SidebarItem,
 	createEventFromSidebarItem,
 } from "~/features/editor/constants";
-import type { SceneSettingsFormData } from "~/features/editor/scene-detail/scene-settings";
-import type { ProjectSettingsFormData } from "~/features/editor/scene-list/project-settings";
 import { isChoiceScene, isEndScene, isGotoScene } from "~/schema";
 import type {
 	Character,
@@ -19,20 +19,9 @@ import type { State } from ".";
 export interface EditorState {
 	editingGame: Game | null;
 	editingResources: GameResources | null;
-	selectedSceneId: string | null;
-	selectedEventId: string | null;
-	isEndingEditorOpen: boolean;
 	isDirty: boolean;
 
-	selectedScene: Scene | null;
-	selectedEvent: GameEvent | null;
-
 	initializeEditor: (game: Game, resources: GameResources) => void;
-
-	selectScene: (sceneId: string | null) => void;
-	selectEvent: (eventId: string | null) => void;
-	openEndingEditor: () => void;
-	closeEndingEditor: () => void;
 
 	addScene: (
 		sceneTitle: string,
@@ -43,10 +32,14 @@ export interface EditorState {
 	saveSceneSettings: (data: SceneSettingsFormData) => void;
 	saveEnding: (endingScene: Scene) => void;
 
-	addEvent: (item: SidebarItem, index: number) => void;
-	moveEvent: (oldIndex: number, newIndex: number) => void;
-	deleteEvent: (eventId: string) => void;
-	saveEvent: (event: GameEvent) => void;
+	addEvent: (index: number, item: SidebarItem, selectedSceneId: string) => void;
+	moveEvent: (
+		oldIndex: number,
+		newIndex: number,
+		selectedSceneId: string,
+	) => void;
+	deleteEvent: (eventId: string, selectedSceneId: string) => void;
+	saveEvent: (event: GameEvent, selectedSceneId: string) => void;
 
 	saveProjectSettings: (data: ProjectSettingsFormData) => void;
 
@@ -69,69 +62,13 @@ export const createEditorSlice: StateCreator<
 > = (set, get) => ({
 	editingGame: null,
 	editingResources: null,
-	selectedSceneId: null,
-	selectedEventId: null,
-	isEndingEditorOpen: false,
 	isDirty: false,
-	selectedScene: null,
-	selectedEvent: null,
 
 	initializeEditor: (game, resources) => {
 		set({
 			editingGame: game,
 			editingResources: resources,
-			selectedSceneId: null,
-			selectedEventId: null,
-			isEndingEditorOpen: false,
 			isDirty: false,
-		});
-	},
-
-	// シーン選択
-	selectScene: (sceneId) => {
-		const { editingGame } = get();
-		const selectedScene = sceneId
-			? editingGame?.scenes.find((scene) => scene.id === sceneId) || null
-			: null;
-
-		set({
-			selectedSceneId: sceneId,
-			selectedScene,
-			selectedEventId: null,
-			selectedEvent: null,
-			isEndingEditorOpen: false,
-		});
-	},
-
-	// イベント選択
-	selectEvent: (eventId) => {
-		const { selectedScene } = get();
-		const selectedEvent =
-			eventId && selectedScene
-				? selectedScene.events.find((event) => event.id === eventId) || null
-				: null;
-
-		set({
-			selectedEventId: eventId,
-			selectedEvent,
-			isEndingEditorOpen: eventId === "ending",
-		});
-	},
-
-	// エンディングエディタ表示制御
-	openEndingEditor: () => {
-		set({
-			isEndingEditorOpen: true,
-			selectedEventId: "ending",
-			selectedEvent: null,
-		});
-	},
-
-	closeEndingEditor: () => {
-		set({
-			isEndingEditorOpen: false,
-			selectedEventId: null,
-			selectedEvent: null,
 		});
 	},
 
@@ -196,7 +133,7 @@ export const createEditorSlice: StateCreator<
 
 	// シーン削除
 	deleteScene: (sceneId) => {
-		const { editingGame, selectScene, markAsDirty } = get();
+		const { editingGame, markAsDirty } = get();
 		if (!editingGame) return;
 
 		// 依存関係の更新（他シーンからの参照を削除）
@@ -233,17 +170,16 @@ export const createEditorSlice: StateCreator<
 			} as Game,
 		});
 
-		selectScene(null);
 		markAsDirty();
 	},
 
 	// エンディング設定保存
 	saveEnding: (endingScene) => {
-		const { editingGame, selectedSceneId, markAsDirty } = get();
-		if (!editingGame || !selectedSceneId) return;
+		const { editingGame, markAsDirty } = get();
+		if (!editingGame) return;
 
 		const updatedScenes = editingGame.scenes.map((scene) =>
-			scene.id === selectedSceneId ? endingScene : scene,
+			scene.id === endingScene.id ? endingScene : scene,
 		);
 
 		set({
@@ -257,10 +193,9 @@ export const createEditorSlice: StateCreator<
 	},
 
 	// イベント追加
-	addEvent: (item, index) => {
-		const { editingGame, editingResources, selectedSceneId, markAsDirty } =
-			get();
-		if (!editingGame || !editingResources || !selectedSceneId) return;
+	addEvent: (index, item, selectedSceneId) => {
+		const { editingGame, editingResources, markAsDirty } = get();
+		if (!editingGame || !editingResources) return;
 
 		const newEvent = createEventFromSidebarItem(item, editingResources);
 
@@ -284,9 +219,9 @@ export const createEditorSlice: StateCreator<
 	},
 
 	// イベント移動
-	moveEvent: (oldIndex, newIndex) => {
-		const { editingGame, selectedSceneId, markAsDirty } = get();
-		if (!editingGame || !selectedSceneId) return;
+	moveEvent: (oldIndex, newIndex, selectedSceneId) => {
+		const { editingGame, markAsDirty } = get();
+		if (!editingGame) return;
 
 		const updatedScenes = editingGame.scenes.map((scene) => {
 			if (scene.id === selectedSceneId) {
@@ -309,9 +244,9 @@ export const createEditorSlice: StateCreator<
 	},
 
 	// イベント削除
-	deleteEvent: (eventId) => {
-		const { editingGame, selectedSceneId, markAsDirty } = get();
-		if (!editingGame || !selectedSceneId) return;
+	deleteEvent: (eventId, selectedSceneId) => {
+		const { editingGame, markAsDirty } = get();
+		if (!editingGame) return;
 
 		const updatedScenes = editingGame.scenes.map((scene) => {
 			if (scene.id === selectedSceneId) {
@@ -328,17 +263,15 @@ export const createEditorSlice: StateCreator<
 				...editingGame,
 				scenes: updatedScenes,
 			},
-			selectedEventId: null,
-			selectedEvent: null,
 		});
 
 		markAsDirty();
 	},
 
 	// イベント保存
-	saveEvent: (event) => {
-		const { editingGame, selectedSceneId, markAsDirty } = get();
-		if (!editingGame || !selectedSceneId) return;
+	saveEvent: (event, selectedSceneId) => {
+		const { editingGame, markAsDirty } = get();
+		if (!editingGame) return;
 
 		const updatedScenes = editingGame.scenes.map((scene) => {
 			if (scene.id === selectedSceneId) {

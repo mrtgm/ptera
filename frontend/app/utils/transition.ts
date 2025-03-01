@@ -1,4 +1,4 @@
-import type { Player } from "~/features/player/libs/engine";
+import type { Player } from "~/features/player/utils/engine";
 import { type EasingType, easing } from "~/utils/easing";
 
 type Keyframe = {
