@@ -146,6 +146,7 @@ export const usePlayerInitialize = ({
 		});
 
 		player.emitter.on("gameLoaded", () => {
+			console.log("gameLoaded");
 			setGame(player.currentGame);
 		});
 

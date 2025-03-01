@@ -99,5 +99,3 @@ export const AssetCard = ({
 		</div>
 	);
 };
-
-export default AssetCard;

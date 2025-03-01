@@ -1,6 +1,6 @@
 import { UserCircle, UserPlus } from "lucide-react";
 import { Button } from "~/components/shadcn/button";
-import type { Character, GameResources } from "~/schema";
+import type { GameResources } from "~/schema";
 import { cn } from "~/utils/cn";
 
 interface CharacterListProps {

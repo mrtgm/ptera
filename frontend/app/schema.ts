@@ -58,15 +58,7 @@ export const textRenderEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("text"),
 	category: z.literal("message"),
-	lines: z.union([
-		z
-			.string()
-			.min(1, { message: "テキストを入力してください" })
-			.transform((str) => str.split("\n").filter((line) => line.length > 0)),
-		z
-			.array(z.string().nonempty())
-			.min(1, { message: "少なくとも1行のテキストが必要です" }),
-	]),
+	text: z.string().min(1, { message: "テキストを入力してください" }),
 	characterName: z.string().optional(),
 });
 
@@ -288,6 +280,8 @@ const gotoSceneSchema = z.object({
 	nextSceneId: z.string(),
 });
 
+export type GotoScene = z.infer<typeof gotoSceneSchema>;
+
 const choiceSceneSchema = z.object({
 	id: z.string(),
 	title: z.string(),
@@ -296,12 +290,17 @@ const choiceSceneSchema = z.object({
 	choices: z.array(choiceSchema),
 });
 
+export type ChoiceScene = z.infer<typeof choiceSceneSchema>;
+
 const endSceneSchema = z.object({
 	id: z.string(),
 	title: z.string(),
 	sceneType: z.literal("end"),
 	events: z.array(gameEventSchema),
 });
+
+export type EndScene = z.infer<typeof endSceneSchema>;
+
 export const sceneSchema = z.discriminatedUnion("sceneType", [
 	gotoSceneSchema,
 	choiceSceneSchema,

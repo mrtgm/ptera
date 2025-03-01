@@ -41,7 +41,7 @@ const devicePresets: DevicePreset[] = [
 	{ id: "smartphone", name: "スマートフォン", width: 375, height: 667 },
 ];
 
-export const PreviewModal = ({
+export const PreviewDialog = ({
 	game,
 	resources,
 	currentScene,
@@ -170,10 +170,6 @@ export const PreviewModal = ({
 	if (!game || !resources) {
 		return null;
 	}
-
-	useEffect(() => {
-		console.log("previewCurrentEvent", previewCurrentEvent);
-	}, [previewCurrentEvent]);
 
 	return (
 		<Dialog
@@ -307,5 +303,3 @@ export const PreviewModal = ({
 		</Dialog>
 	);
 };
-
-export default PreviewModal;

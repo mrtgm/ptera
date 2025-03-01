@@ -110,5 +110,3 @@ export const AssetUpload = ({
 		</div>
 	);
 };
-
-export default AssetUpload;

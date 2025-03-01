@@ -1,4 +1,5 @@
 import type { Edge, Node } from "@xyflow/react";
+
 import type { Game, GameEvent, GameResources, Scene, Stage } from "~/schema";
 
 type PositionMap = {
@@ -18,49 +19,54 @@ export const getAllNodesPosition = ({
 	// 各深さでのノードを追跡
 	const nodesByDepth: { [depth: number]: string[] } = {};
 
-	const queue: { id: string; depth: number }[] = [
-		{ id: game.scenes[0].id, depth: 0 },
-	];
 	const visited = new Set<string>();
-	visited.add(game.scenes[0].id);
 
-	while (queue.length > 0) {
-		const now = queue.shift();
-		if (!now) break;
+	for (const scene of game.scenes) {
+		if (visited.has(scene.id)) continue;
+		visited.add(scene.id);
+		const queue: { id: string; depth: number }[] = [{ id: scene.id, depth: 0 }];
 
-		const { id: currentSceneId, depth } = now;
+		while (queue.length > 0) {
+			const now = queue.shift();
+			if (!now) break;
 
-		if (!nodesByDepth[depth]) {
-			nodesByDepth[depth] = [];
-		}
-		nodesByDepth[depth].push(currentSceneId);
+			const { id: cur, depth } = now;
 
-		result[currentSceneId] = {
-			position: { x: 0, y: 0 },
-		};
+			if (!nodesByDepth[depth]) {
+				nodesByDepth[depth] = [];
+			}
+			nodesByDepth[depth].push(cur);
 
-		const currentScene = game.scenes.find((s) => s.id === currentSceneId);
-		if (!currentScene) throw new Error(`Scene not found: ${currentSceneId}`);
+			result[cur] = {
+				position: { x: 0, y: 0 },
+			};
 
-		if (currentScene.sceneType === "choice") {
-			for (const choice of currentScene.choices) {
-				if (!visited.has(choice.nextSceneId)) {
-					queue.push({
-						id: choice.nextSceneId,
-						depth: depth + 1,
-					});
-					visited.add(choice.nextSceneId);
+			const currentScene = game.scenes.find((s) => s.id === cur);
+
+			if (!currentScene) {
+				throw new Error(`Scene not found: ${cur}`);
+			}
+
+			if (currentScene.sceneType === "choice") {
+				for (const choice of currentScene.choices) {
+					if (!visited.has(choice.nextSceneId)) {
+						queue.push({
+							id: choice.nextSceneId,
+							depth: depth + 1,
+						});
+						visited.add(choice.nextSceneId);
+					}
 				}
 			}
-		}
 
-		if (currentScene.sceneType === "goto") {
-			if (!visited.has(currentScene.nextSceneId)) {
-				queue.push({
-					id: currentScene.nextSceneId,
-					depth: depth + 1,
-				});
-				visited.add(currentScene.nextSceneId);
+			if (currentScene.sceneType === "goto") {
+				if (!visited.has(currentScene.nextSceneId)) {
+					queue.push({
+						id: currentScene.nextSceneId,
+						depth: depth + 1,
+					});
+					visited.add(currentScene.nextSceneId);
+				}
 			}
 		}
 	}
@@ -173,7 +179,7 @@ export const getAllEdges = ({
 		if (scene.sceneType === "choice") {
 			for (const choice of scene.choices) {
 				result.push({
-					id: `${newSceneId}-${choice.nextSceneId}`,
+					id: `${newSceneId}-${choice.nextSceneId}-${choice.id}`,
 					source: newSceneId,
 					target: choice.nextSceneId,
 					label: choice.text,
@@ -187,7 +193,7 @@ export const getAllEdges = ({
 
 		if (scene.sceneType === "goto") {
 			result.push({
-				id: `${newSceneId}-${scene.nextSceneId}`,
+				id: `${newSceneId}-${scene.nextSceneId}-goto`,
 				source: newSceneId,
 				target: scene.nextSceneId,
 				style: BASE_EDGE_STYLE,
@@ -198,7 +204,10 @@ export const getAllEdges = ({
 		}
 	};
 
-	dfs(game, undefined, result, visited);
+	for (const scene of game.scenes) {
+		if (visited.has(scene.id)) continue;
+		dfs(game, scene.id, result, visited);
+	}
 
 	return result;
 };
@@ -310,7 +319,7 @@ export const handleEvent = (
 				...stage,
 				dialog: {
 					...stage.dialog,
-					text: event.lines.at(-1) || "",
+					text: event.text.at(-1) || "",
 					characterName: event.characterName || "",
 				},
 			};

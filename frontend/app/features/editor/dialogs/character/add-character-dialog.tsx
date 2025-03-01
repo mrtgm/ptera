@@ -72,5 +72,3 @@ export const AddCharacterDialog = ({
 		</Dialog>
 	);
 };
-
-export default AddCharacterDialog;

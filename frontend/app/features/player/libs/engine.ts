@@ -140,7 +140,6 @@ export class Player {
 	}
 
 	updateCurrentEvent(event: GameEvent | null) {
-		console.log("updateCurrentEvent", event);
 		this.currentEvent = event;
 		this.emitter.emit("currentEventUpdated", event);
 	}
@@ -194,8 +193,6 @@ export class Player {
 		const startIndex = foundIndex ?? 0;
 		const events = currentScene?.events.slice(startIndex) ?? [];
 
-		console.log("previewing", events);
-
 		await this.runEvents(events);
 	}
 
@@ -221,13 +218,12 @@ export class Player {
 	}
 
 	async runEvent(event: GameEvent) {
-		console.log("running", event, this.disposed);
-
 		if (this.disposed) return;
 
 		switch (event.type) {
 			case "text": {
-				for (const line of event.lines) {
+				const splitText = event.text.split("\n").filter(Boolean);
+				for (const line of splitText) {
 					await this.animateLine(line, event.id, (text) => {
 						this.updateStage({
 							dialog: {

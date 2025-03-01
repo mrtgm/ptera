@@ -3,23 +3,15 @@ import { AlertTriangle, ArrowLeft, X } from "lucide-react";
 import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "~/components/shadcn/alert";
 import { Button } from "~/components/shadcn/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "~/components/shadcn/dialog";
-import { DialogClose } from "~/components/shadcn/dialog";
+import { DialogFooter } from "~/components/shadcn/dialog";
 import { Input } from "~/components/shadcn/input";
 import { Label } from "~/components/shadcn/label";
-import type { Character, Game, GameResources, GameState } from "~/schema";
+import type { Game, GameResources } from "~/schema";
 import { useStore } from "~/stores";
 import { cn } from "~/utils/cn";
-import ResourceValidator from "../utils";
-import AssetUpload from "./asset-upload";
-import { useDeleteConfirmationDialog } from "./delete-confirmation-dialog";
+import ResourceValidator from "../../utils";
+import { AssetUpload } from "../asset-upload";
+import { useDeleteConfirmationDialog } from "../delete-confirmation-dialog";
 
 interface CharacterDetailProps {
 	game: Game;
@@ -317,5 +309,3 @@ export const CharacterDetail = ({
 		</div>
 	);
 };
-
-export default CharacterDetail;

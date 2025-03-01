@@ -1,49 +1,51 @@
 import { useNavigate, useParams } from "@remix-run/react";
-import { useEffect, useState } from "react";
-import type { Character, Game, GameEvent, GameResources } from "~/schema";
-import { usePlayerInitialize } from "../player/hooks";
+import { useState } from "react";
+import type {
+	Character,
+	Game,
+	GameEvent,
+	GameResources,
+	GotoScene,
+	Scene,
+} from "~/schema";
 import {
 	SideBarSettings,
 	type SidebarItem,
 	createEventFromSidebarItem,
 	getColorFromType,
 } from "./constants";
-import { EventEditor } from "./event-editor";
+import { EventDetail } from "./event-detail";
 import { Header } from "./header";
+import { SceneDetail } from "./scene-detail";
+import type { SceneSettingsFormData } from "./scene-detail/scene-settings";
+import { ScenesList } from "./scene-list";
 import {
 	ProjectSettings,
 	type ProjectSettingsFormData,
-} from "./project-settings";
-import { SceneEditor } from "./scene-editor";
-import type { SceneSettingsFormData } from "./scene-settings";
-import { ScenesList } from "./scenes-list";
+} from "./scene-list/project-settings";
 import { Sidebar, SidebarItemCore } from "./sidebar";
 
 import dummyAssets from "~/__mocks__/dummy-assets.json";
 import dummyGame from "~/__mocks__/dummy-game.json";
-import type { AssetType } from "./dialogs/asset-dialog";
+import type { AssetType } from "./dialogs/asset";
 import { Graph } from "./graph";
 
 import {
-	type Collision,
-	type CollisionDetection,
 	DndContext,
 	type DragEndEvent,
-	type DragOverEvent,
 	DragOverlay,
 	type DragStartEvent,
 	MouseSensor,
 	type UniqueIdentifier,
-	rectIntersection,
 	useSensor,
 	useSensors,
 } from "@dnd-kit/core";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
-	SortableContext,
-	arrayMove,
-	verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+	EndingEditor,
+	isChoiceScene,
+	isEndScene,
+	isGotoScene,
+} from "./scene-detail/ending-editor";
 
 export const Editor = () => {
 	const [game, setGame] = useState<Game | null>(dummyGame as Game);
@@ -76,14 +78,95 @@ export const Editor = () => {
 		navigate("/editor");
 	};
 
-	const handleAddScene = () => {
+	const handleClickSceneEnding = () => {
+		navigate(`/editor/${selectedSceneId}/ending`);
+	};
+
+	const handleAddScene = (
+		sceneTitle: string,
+		scene: Scene,
+		choiceId?: string | null,
+	) => {
 		// TODO: 実装
-		console.log("Add scene clicked");
+
+		const newScene = {
+			id: crypto.randomUUID(),
+			title: sceneTitle,
+			sceneType: "end",
+			events: [],
+		} as Scene;
+
+		let fromScene = scene;
+
+		if (!game) return "";
+
+		if (isChoiceScene(fromScene)) {
+			fromScene.choices = fromScene.choices.map((choice) => {
+				if (choice.id === choiceId) {
+					return {
+						...choice,
+						nextSceneId: newScene.id,
+					};
+				}
+				return choice;
+			});
+		} else if (isGotoScene(fromScene)) {
+			fromScene.nextSceneId = newScene.id;
+		} else if (isEndScene(fromScene)) {
+			fromScene = {
+				...fromScene,
+				sceneType: "goto",
+				nextSceneId: newScene.id,
+			} as GotoScene;
+		}
+
+		const newGame = {
+			...game,
+			scenes: [
+				...game.scenes.map((s) => (s.id === fromScene.id ? fromScene : s)),
+				newScene,
+			],
+		} as Game;
+
+		setGame(newGame);
+
+		return newScene.id;
 	};
 
 	const handleDeleteScene = () => {
 		// TODO: 実装
 		console.log("Delete scene clicked");
+
+		if (!game) return;
+		const newGame = {
+			...game,
+		};
+
+		handleNavigateToScenesList();
+
+		newGame.scenes = newGame.scenes.map((scene) => {
+			if (isChoiceScene(scene)) {
+				const foundIndex = scene.choices.findIndex(
+					(choice) => choice.nextSceneId === selectedSceneId,
+				);
+				if (foundIndex !== -1) {
+					scene.choices.splice(foundIndex, 1);
+				}
+			}
+			if (isGotoScene(scene) && scene.nextSceneId === selectedSceneId) {
+				return {
+					...scene,
+					sceneType: "end",
+				};
+			}
+			return scene;
+		});
+
+		newGame.scenes = newGame.scenes.filter(
+			(scene) => scene.id !== selectedSceneId,
+		);
+
+		setGame(newGame);
 	};
 
 	const handleSaveProjectSettings = (data: ProjectSettingsFormData) => {
@@ -99,6 +182,24 @@ export const Editor = () => {
 	const handleDeleteEvent = () => {
 		// TODO: 実装
 		console.log("Delete event clicked");
+
+		if (!game || !selectedSceneId) return;
+		const newGame = {
+			...game,
+			scenes: game.scenes.map((scene) => {
+				if (scene.id !== selectedSceneId) {
+					return scene;
+				}
+				return {
+					...scene,
+					events: scene.events.filter((e) => e.id !== selectedEventId),
+				};
+			}),
+		};
+
+		setGame(newGame);
+
+		handleNavigateToScene(selectedSceneId);
 	};
 
 	const handleSaveEvent = (event: GameEvent) => {
@@ -217,7 +318,6 @@ export const Editor = () => {
 		useState<SidebarItem | null>(null);
 	const [activeEventId, setActiveEventId] = useState<string | null>(null);
 
-	// dnd kit センサー設定 (マウス/タッチ/PointerEventなど)
 	const sensors = useSensors(
 		useSensor(MouseSensor, {
 			activationConstraint: {
@@ -226,12 +326,8 @@ export const Editor = () => {
 		}),
 	);
 
-	/**
-	 * 新規Eventを既存 events に挿入する
-	 * @param index 挿入インデックス
-	 * @param item サイドバーの SidebarItem
-	 */
 	const insertNewEvent = (index: number, item: SidebarItem) => {
+		console.log("Insert new event", index, item);
 		if (!resources) return;
 		const newEvent = createEventFromSidebarItem(item, resources);
 		setGame((prev) => {
@@ -250,12 +346,8 @@ export const Editor = () => {
 		});
 	};
 
-	/**
-	 * タイムライン上の既存イベントを並び替える
-	 * @param oldIndex 移動前のインデックス
-	 * @param newIndex 移動後のインデックス
-	 */
 	const moveExistingEvent = (oldIndex: number, newIndex: number) => {
+		console.log("Move event", oldIndex, newIndex);
 		setGame((prev) => {
 			if (!prev) return prev;
 			const newScenes = prev.scenes.map((scene) => {
@@ -271,9 +363,6 @@ export const Editor = () => {
 		});
 	};
 
-	/**
-	 * dnd kit の DragStart ハンドラ
-	 */
 	const handleDragStart = (event: DragStartEvent) => {
 		// サイドバーアイテムをドラッグしている場合
 		if (event.active.data.current?.from === "sidebar") {
@@ -284,14 +373,6 @@ export const Editor = () => {
 			const eventId = event.active.id as string;
 			setActiveEventId(eventId);
 		}
-	};
-
-	/**
-	 * dnd kit の DragOver ハンドラ
-	 * ドラッグ中、他の要素をまたいだ時に呼ばれる
-	 */
-	const handleDragOver = (event: DragOverEvent) => {
-		// 特に新規挿入の場合のみ処理したい場合などはここで追加処理
 	};
 
 	const calculateInsertionIndex = (
@@ -305,18 +386,10 @@ export const Editor = () => {
 		return overIndex;
 	};
 
-	/**
-	 * dnd kit の DragEnd ハンドラ
-	 * ドラッグが終了したら、挿入・並び替えなどを行う
-	 */
 	const handleDragEnd = (event: DragEndEvent) => {
-		const { over } = event; // over: ドロップ先
-		// ドラッグ中の SidebarItem がある場合
+		const { over } = event;
 		if (activeSidebarItem) {
 			if (over) {
-				// over.idには「挿入先のイベントID」や「リスト全体を表すID」が入る
-				// SortableContextで設定したIDなどを元に挿入位置を計算します。
-
 				if (over.id === "event-timeline") {
 					// イベントタイムライン全体にドロップした場合
 					insertNewEvent(selectedScene?.events.length ?? 0, activeSidebarItem);
@@ -328,7 +401,6 @@ export const Editor = () => {
 					insertNewEvent(dropIndex, activeSidebarItem);
 				}
 			}
-			// Drag終了後は state を初期化
 			setActiveSidebarItem(null);
 			return;
 		}
@@ -336,7 +408,6 @@ export const Editor = () => {
 		// 既存イベントの並び替えの場合
 		if (activeEventId && selectedScene) {
 			if (over) {
-				// over.id から新しいインデックスを計算
 				const oldIndex = selectedScene.events.findIndex(
 					(ev) => ev.id === activeEventId,
 				);
@@ -361,8 +432,20 @@ export const Editor = () => {
 		setActiveEventId(null);
 	};
 
+	const handleSaveEnding = (endingScene: Game["scenes"][number]) => {
+		if (!game) return;
+		const newGame = {
+			...game,
+			scenes: game?.scenes.map((scene) =>
+				scene.id === selectedSceneId ? endingScene : scene,
+			),
+		};
+
+		setGame(newGame);
+	};
+
 	return (
-		<div className="w-full h-full flex flex-col">
+		<div className="w-full h-full flex flex-col overflow-hidden">
 			<Header />
 			<div className="w-full h-[calc(100dvh-40px)] grid grid-cols-12">
 				{/* 選択時 */}
@@ -370,7 +453,6 @@ export const Editor = () => {
 					<DndContext
 						sensors={sensors}
 						onDragStart={handleDragStart}
-						onDragOver={handleDragOver}
 						onDragEnd={handleDragEnd}
 						onDragCancel={handleDragCancel}
 					>
@@ -381,8 +463,8 @@ export const Editor = () => {
 								onSaveSettings={handleSaveSceneSettings}
 							/>
 						</div>
-						<div className="col-span-5 flex flex-col justify-center bg-white text-black p-2">
-							<SceneEditor
+						<div className="col-span-5 flex flex-col justify-center bg-white text-black relative">
+							<SceneDetail
 								selectedEvent={selectedEvent}
 								selectedScene={selectedScene}
 								game={game}
@@ -390,7 +472,18 @@ export const Editor = () => {
 								onNavigateToScenesList={handleNavigateToScenesList}
 								onDeleteScene={handleDeleteScene}
 								onClickEvent={handleNavigateToEvent}
+								onClickSceneEnding={handleClickSceneEnding}
 							/>
+
+							{selectedScene && selectedEventId === "ending" && (
+								<EndingEditor
+									selectedScene={selectedScene}
+									game={game}
+									onSaveEnding={handleSaveEnding}
+									onNavigateToScene={handleNavigateToScene}
+									onAddScene={handleAddScene}
+								/>
+							)}
 
 							<DragOverlay>
 								{activeSidebarItem && (
@@ -415,38 +508,43 @@ export const Editor = () => {
 								/>
 							</div>
 						</div>
-						<div className="col-span-5 flex flex-col justify-center bg-white text-black p-2">
+						<div className="col-span-5 flex flex-col bg-white text-black p-2">
 							<ScenesList
 								game={game}
 								sideBarSettings={SideBarSettings}
 								onSceneClick={handleNavigateToScene}
-								onAddScene={handleAddScene}
 							/>
 						</div>
 					</>
 				)}
 
 				<div className="col-span-4 bg-[#EEEEEE]">
-					{selectedScene && selectedSceneId && selectedEvent ? (
-						<EventEditor
-							key={selectedEvent.id}
-							selectedScene={selectedScene}
-							selectedEvent={selectedEvent}
-							game={game}
-							resources={resources}
-							onDeleteEvent={handleDeleteEvent}
-							onSaveEvent={handleSaveEvent}
-							onAddCharacter={handleAddCharacter}
-							onCharacterNameChange={handleCharacterNameChange}
-							onDeleteCharacter={handleDeleteCharacter}
-							onDeleteImage={handleDeleteImage}
-							onDeleteAsset={handleDeleteAsset}
-							onClickAwayEvent={(e) => {
-								if ((e.target as HTMLElement).closest(".event-editor")) return;
-								handleNavigateToScene(selectedSceneId);
-							}}
-						/>
-					) : (
+					{selectedScene &&
+						selectedEvent &&
+						selectedSceneId &&
+						selectedSceneId !== "ending" && (
+							<EventDetail
+								key={selectedEvent.id}
+								selectedScene={selectedScene}
+								selectedEvent={selectedEvent}
+								game={game}
+								resources={resources}
+								onDeleteEvent={handleDeleteEvent}
+								onSaveEvent={handleSaveEvent}
+								onAddCharacter={handleAddCharacter}
+								onCharacterNameChange={handleCharacterNameChange}
+								onDeleteCharacter={handleDeleteCharacter}
+								onDeleteImage={handleDeleteImage}
+								onDeleteAsset={handleDeleteAsset}
+								onClickAwayEvent={(e) => {
+									if ((e.target as HTMLElement).closest(".event-editor"))
+										return;
+									handleNavigateToScene(selectedSceneId);
+								}}
+							/>
+						)}
+
+					{(!selectedEventId || selectedEventId === "ending") && (
 						<div className="w-full h-[calc(100dvh-40px)] sticky top-0">
 							<Graph game={game} />
 						</div>

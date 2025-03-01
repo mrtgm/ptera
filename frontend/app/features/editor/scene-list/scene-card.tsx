@@ -1,5 +1,5 @@
 import type { Game, Scene } from "~/schema";
-import type { SideBarSettings } from "./constants";
+import type { SideBarSettings } from "../constants";
 
 type SceneCardProps = {
 	scene: Scene;
@@ -33,13 +33,12 @@ export const SceneCard = ({
 	const eventCount = scene.events?.length || 0;
 
 	return (
-		<div className="mb-2 overflow-hidden hover:bg-gray-50 rounded-lg border border-gray-200">
+		<div className="mb-2 hover:bg-gray-50 rounded-lg border border-gray-200">
 			<div
 				className="cursor-pointer w-full p-3"
 				onClick={() => onSceneClick(scene.id)}
 				onKeyDown={() => {}}
 			>
-				{/* Header */}
 				<div className="flex items-center justify-between mb-2">
 					<div className="flex items-center gap-2">
 						<div className="flex-shrink-0 w-6 h-6 flex items-center justify-center font-medium">
@@ -48,7 +47,6 @@ export const SceneCard = ({
 						<h3 className="font-medium text-gray-900">{scene.title}</h3>
 					</div>
 
-					{/* Scene type */}
 					<span
 						className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeColor}`}
 					>
@@ -56,7 +54,6 @@ export const SceneCard = ({
 					</span>
 				</div>
 
-				{/* Event list */}
 				{eventCount > 0 && (
 					<div className="mt-2 text-xs text-gray-500 flex flex-wrap gap-1">
 						{scene.events.slice(0, 3).map((event, i) => {

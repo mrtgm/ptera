@@ -48,18 +48,18 @@ import {
 	soundEffectEventSchema,
 	textRenderEventSchema,
 } from "~/schema";
-import { GameScreen } from "../player/game-screen";
-import { usePlayerInitialize } from "../player/hooks";
-import { INITIAL_STAGE } from "../player/libs/engine";
+import { GameScreen } from "../../player/game-screen";
+import { usePlayerInitialize } from "../../player/hooks";
+import { INITIAL_STAGE } from "../../player/libs/engine";
 import {
 	buildCurrentStageFromScenes,
 	findAllPaths,
-} from "../player/libs/utils";
+} from "../../player/libs/utils";
 import {
 	SideBarSettings,
 	type SidebarItemParameter,
 	getEventTitle,
-} from "./constants";
+} from "../constants";
 
 import { MonitorPlay } from "lucide-react";
 import {
@@ -70,14 +70,16 @@ import {
 	SelectValue,
 } from "~/components/shadcn/select";
 import { Separator } from "~/components/shadcn/separator";
+import { useUnsavedFormWarning } from "~/hooks/use-unsaved-form-warning";
 import { useStore } from "~/stores";
 import type { ModalParams } from "~/stores/modal";
-import { AdjustSizeDialog } from "./dialogs/adjust-size-dialog";
-import { AssetDialog, type AssetType } from "./dialogs/asset-dialog";
-import { CharacterDialog } from "./dialogs/character-select-dialog";
-import PreviewModal from "./dialogs/preview-dialog";
+import { AdjustSizeDialog } from "../dialogs/adjust-size-dialog";
+import { AssetDialog, type AssetType } from "../dialogs/asset";
+import { CharacterDialog } from "../dialogs/character";
+import { useDeleteConfirmationDialog } from "../dialogs/delete-confirmation-dialog";
+import { PreviewDialog } from "../dialogs/preview-dialog";
 
-type EventEditorProps = {
+type EventDetailProps = {
 	selectedScene: Scene;
 	selectedEvent: GameEvent;
 	game: Game | null;
@@ -116,7 +118,7 @@ export type AssetFormType =
 	| "soundEffectId"
 	| "bgmId";
 
-export const EventEditor = ({
+export const EventDetail = ({
 	selectedScene,
 	selectedEvent,
 	game,
@@ -129,7 +131,7 @@ export const EventEditor = ({
 	onDeleteImage,
 	onDeleteAsset,
 	onClickAwayEvent,
-}: EventEditorProps) => {
+}: EventDetailProps) => {
 	const [activeTab, setActiveTab] = useState("parameters");
 	const [formValues, setFormValues] =
 		useState<Partial<GameEvent>>(selectedEvent);
@@ -139,16 +141,19 @@ export const EventEditor = ({
 
 	const formSchema = schemaMap[selectedEvent.type];
 
-	// useClickAway({
-	// 	ref,
-	// 	handler: onClickAwayEvent,
-	// });
-
 	const form = useForm({
 		mode: "onBlur",
 		defaultValues: selectedEvent as Record<string, unknown>,
 		resolver: zodResolver(formSchema),
 	});
+
+	useEffect(() => {
+		if (selectedEvent) {
+			form.reset(selectedEvent);
+		}
+	}, [selectedEvent, form]);
+
+	useUnsavedFormWarning(form.formState);
 
 	const handleSubmit = (data: Partial<GameEvent>) => {
 		const updatedEvent = {
@@ -157,6 +162,7 @@ export const EventEditor = ({
 		} as GameEvent;
 
 		onSaveEvent(updatedEvent);
+		form.reset(data);
 	};
 
 	const mapAssetTypeToFormTarget = (type: AssetType): AssetFormType => {
@@ -173,7 +179,9 @@ export const EventEditor = ({
 	};
 
 	const handleConfirmAssetSelection = (assetId: string, type: AssetType) => {
-		form.setValue(mapAssetTypeToFormTarget(type), assetId);
+		form.setValue(mapAssetTypeToFormTarget(type), assetId, {
+			shouldDirty: true,
+		});
 	};
 
 	const handleConfirmAdjustment = (
@@ -182,29 +190,26 @@ export const EventEditor = ({
 		position: [number, number],
 		scale: number,
 	) => {
-		form.setValue("characterId", characterId);
-		form.setValue("characterImageId", assetId);
-		form.setValue("position", position);
-		form.setValue("scale", scale);
+		form.setValue("characterId", characterId, { shouldDirty: true });
+		form.setValue("characterImageId", assetId, { shouldDirty: true });
+		form.setValue("position", position, { shouldDirty: true });
+		form.setValue("scale", scale, { shouldDirty: true });
 	};
 
 	const handleConfirmCharacterSelection = (characterId: string) => {
-		form.setValue("characterId", characterId);
+		form.setValue("characterId", characterId, { shouldDirty: true });
 	};
 
 	const handleConfirmCharacterImageSelection = (
 		characterId: string,
 		imageId: string,
 	) => {
-		form.setValue("characterId", characterId);
-		form.setValue("characterImageId", imageId);
+		form.setValue("characterId", characterId, { shouldDirty: true });
+		form.setValue("characterImageId", imageId, { shouldDirty: true });
 	};
 
 	useEffect(() => {
 		const subscription = form.watch((data) => {
-			if (data.lines) {
-				data.lines = data.lines.split("\n").filter(Boolean);
-			}
 			setFormValues(data as Partial<GameEvent>);
 		});
 		return () => subscription.unsubscribe();
@@ -214,8 +219,14 @@ export const EventEditor = ({
 		return null;
 	}
 
+	const {
+		ConfirmDialog: EventDeleteDialog,
+		setDeleteDialogOpen: setEventDeleteDialogOpen,
+		deleteDialogOpen: eventDeleteDialogOpen,
+	} = useDeleteConfirmationDialog();
+
 	return (
-		<div className="w-full h-full overflow-auto p-4" ref={ref}>
+		<div className="w-full h-[calc(100dvh-40px)] overflow-auto p-4" ref={ref}>
 			<AssetDialog
 				game={game}
 				resources={resources}
@@ -229,7 +240,7 @@ export const EventEditor = ({
 				onOpenChange={modalSlice.closeModal}
 				initialData={modalSlice.params as ModalParams["adjustSize"]}
 			/>
-			<PreviewModal
+			<PreviewDialog
 				game={game}
 				resources={resources}
 				formValues={formValues}
@@ -245,6 +256,17 @@ export const EventEditor = ({
 				onAddCharacter={onAddCharacter}
 				onDeleteCharacter={onDeleteCharacter}
 				onDeleteImage={onDeleteImage}
+			/>
+			<EventDeleteDialog
+				title={"イベント削除"}
+				description={"このイベントを削除しますか？"}
+				alertDescription={
+					"この操作は元に戻せません。イベントは完全に削除されます。"
+				}
+				confirmDelete={() => {
+					onDeleteEvent();
+					setEventDeleteDialogOpen(false);
+				}}
 			/>
 
 			<Card className="w-full">
@@ -268,7 +290,10 @@ export const EventEditor = ({
 						>
 							<MonitorPlay size={16} />
 						</Button>
-						<Button variant="destructive" onClick={onDeleteEvent}>
+						<Button
+							variant="destructive"
+							onClick={() => setEventDeleteDialogOpen(true)}
+						>
 							イベント削除
 						</Button>
 					</div>
@@ -283,7 +308,6 @@ export const EventEditor = ({
 							<form
 								onSubmit={(e) => {
 									e.preventDefault();
-									console.log(form.getValues());
 									form.handleSubmit(handleSubmit, (e) => {
 										console.error(e);
 									})();
@@ -538,23 +562,15 @@ const TextInput = ({
 }) => {
 	return (
 		<FormField
-			key={"lines"}
+			key={"text"}
 			control={form.control}
-			name={"lines"}
+			name={"text"}
 			render={({ field }) => {
-				const { value, ...rest } = field;
-				const newValue =
-					(Array.isArray(value) ? value.join("\n") : value) || "";
 				return (
 					<FormItem>
 						<FormLabel>{label}</FormLabel>
 						<FormControl>
-							<Textarea
-								placeholder="テキストを入力"
-								rows={6}
-								{...rest}
-								value={newValue}
-							/>
+							<Textarea placeholder="テキストを入力" rows={6} {...field} />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -1148,8 +1164,6 @@ const PositionSelect = ({
 			<Button
 				size="sm"
 				onClick={() => {
-					console.log("initialData changed", form.getValues());
-
 					modalSlice.openModal({
 						target: "adjustSize",
 						params: {

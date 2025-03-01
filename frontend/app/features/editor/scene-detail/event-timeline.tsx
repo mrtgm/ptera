@@ -16,8 +16,8 @@ import type {
 	TextRenderEvent,
 } from "~/schema";
 import { findFirstObjectValue } from "~/utils";
-import { SideBarSettings } from "./constants";
-import { SpeechBubble } from "./speech-bubble";
+import { SideBarSettings } from "../constants";
+import { SpeechBubble } from "../speech-bubble";
 
 export const EventTimeline = ({
 	selectedScene,
@@ -25,31 +25,18 @@ export const EventTimeline = ({
 	game,
 	resources,
 	onClickEvent,
+	onClickSceneEnding,
 }: {
 	selectedScene: Scene;
 	selectedEvent: GameEvent | undefined;
 	game: Game;
 	resources: GameResources;
 	onClickEvent: (eventId: string) => void;
+	onClickSceneEnding: () => void;
 }) => {
-	if (!selectedScene?.events || selectedScene.events.length === 0) {
-		return (
-			<div className="text-gray-500 mt-8 text-center">
-				このシーンにはイベントがありません。
-				<br />
-				ドラッグ＆ドロップでイベントを追加してください。
-			</div>
-		);
-	}
-
 	return (
-		<div className="w-full h-full flex flex-col select-none overflow-y-scroll overflow-x-hidden">
-			<div
-				className="relative flex w-full min-h-full"
-				style={{
-					height: `${(selectedScene?.events.length ?? 0) * 80 + 40}px`,
-				}}
-			>
+		<div className="w-full h-full flex flex-col select-none overflow-x-hidden">
+			<div className="relative flex w-full min-h-full">
 				<div className="absolute w-1 bg-gray-300 h-full left-[8px]" />
 
 				<div className="flex-1 relative w-full flex flex-col gap-y-3 pt-2">
@@ -65,7 +52,7 @@ export const EventTimeline = ({
 						);
 					})}
 
-					{renderSceneEnding(selectedScene, game)}
+					{renderSceneEnding(selectedScene, game, onClickSceneEnding)}
 				</div>
 			</div>
 		</div>
@@ -141,7 +128,7 @@ const SortableEventItem = ({
 
 const renderEventContent = (event: GameEvent, resources: GameResources) => {
 	if (event.type === "text") {
-		return `${event.characterName ? `${event.characterName}:` : ""}${(event as TextRenderEvent).lines.join("\n")}`;
+		return `${event.characterName ? `${event.characterName}:` : ""}${(event as TextRenderEvent).text}`;
 	}
 
 	if (
@@ -178,7 +165,11 @@ const renderEventContent = (event: GameEvent, resources: GameResources) => {
 	return null;
 };
 
-const renderSceneEnding = (selectedScene: Scene, game: Game) => {
+const renderSceneEnding = (
+	selectedScene: Scene,
+	game: Game,
+	onClickSceneEnding: () => void,
+) => {
 	if (selectedScene?.sceneType === "end") {
 		return (
 			<SpeechBubble
@@ -187,6 +178,7 @@ const renderSceneEnding = (selectedScene: Scene, game: Game) => {
 				hex="#000000"
 				title="ゲーム終了"
 				icon={<Pen />}
+				onClick={onClickSceneEnding}
 			>
 				エンディング
 			</SpeechBubble>
@@ -201,6 +193,7 @@ const renderSceneEnding = (selectedScene: Scene, game: Game) => {
 				hex="#000000"
 				title="選択肢"
 				icon={<Split />}
+				onClick={onClickSceneEnding}
 			>
 				{selectedScene.choices.map((choice) => (
 					<div key={choice.id}>{choice.text}</div>
@@ -221,6 +214,7 @@ const renderSceneEnding = (selectedScene: Scene, game: Game) => {
 				hex="#000000"
 				title="次のシーン"
 				icon={<ArrowUp />}
+				onClick={onClickSceneEnding}
 			>
 				{nextScene?.title || "不明なシーン"}
 			</SpeechBubble>

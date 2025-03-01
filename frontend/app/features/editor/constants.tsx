@@ -408,7 +408,7 @@ export const getDefaultValueForType = (
 	switch (type) {
 		case "text":
 			return {
-				lines: ["テキストを入力してください"],
+				text: "テキストを入力してください",
 				characterName: "",
 			};
 		case "appearMessageWindow":

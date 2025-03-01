@@ -13,7 +13,7 @@ import type {
 	TextRenderEvent,
 } from "~/schema";
 import { ResourceManager } from "~/utils/preloader";
-import type { Player } from "../libs/engine";
+import { Player } from "../libs/engine";
 
 const mockStage: Stage = {
 	cg: {
@@ -22,8 +22,6 @@ const mockStage: Stage = {
 	},
 	background: {
 		id: "park-day",
-		scale: 1,
-		position: [0, 0],
 		transitionDuration: 300,
 	},
 	characters: {
@@ -67,7 +65,7 @@ const mockTextEvent: TextRenderEvent = {
 	id: "event-1",
 	type: "text",
 	category: "message",
-	lines: ["これはテストダイアログです。"],
+	text: "これはテストダイアログです。",
 	characterName: "キャラクター1",
 };
 
@@ -157,7 +155,7 @@ const GameScreenWrapper = (args: {
 				state={args.state || "playing"}
 				resourceCache={args.resourceCache || cache}
 				currentEvent={args.currentEvent || mockTextEvent}
-				player={{ addCancelRequest: () => {} } as Player}
+				player={new Player()}
 			/>
 		</div>
 	);

@@ -5,7 +5,10 @@ import { ScrollArea } from "~/components/shadcn/scroll-area";
 import { Separator } from "~/components/shadcn/separator";
 import type { Scene } from "~/schema";
 import type { SideBarSettings, SidebarItem } from "./constants";
-import { SceneSettings, type SceneSettingsFormData } from "./scene-settings";
+import {
+	SceneSettings,
+	type SceneSettingsFormData,
+} from "./scene-detail/scene-settings";
 
 export const Sidebar = ({
 	selectedScene,

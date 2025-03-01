@@ -56,10 +56,6 @@ export const AdjustSizeDialog = ({
 	]);
 
 	useEffect(() => {
-		console.log("initialData changed", initialData);
-	}, [initialData]);
-
-	useEffect(() => {
 		const handleGlobalMouseUp = () => {
 			setIsDragging(false);
 		};

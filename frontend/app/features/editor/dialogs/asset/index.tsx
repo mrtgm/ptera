@@ -20,11 +20,11 @@ import {
 import type { Game, GameResources, MediaAsset } from "~/schema";
 import { useStore } from "~/stores";
 import type { ModalParams } from "~/stores/modal";
-import AssetValidator from "../utils";
+import AssetValidator from "../../utils";
+import { ValidationErrorAlert } from "../../validtion-error-alert";
+import { AssetUpload } from "../asset-upload";
+import { useDeleteConfirmationDialog } from "../delete-confirmation-dialog";
 import { AssetCard } from "./asset-card";
-import { AssetUpload } from "./asset-upload";
-import { useDeleteConfirmationDialog } from "./delete-confirmation-dialog";
-import { ValidationErrorAlert } from "./validtion-error-alert";
 
 type resources = Omit<GameResources, "characters">;
 export type AssetType = keyof resources;

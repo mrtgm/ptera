@@ -32,7 +32,7 @@ const mockGame: Game = {
 				{
 					id: "event1",
 					type: "text",
-					lines: ["テスト"],
+					text: "テスト",
 					category: "message",
 				},
 			],
@@ -46,7 +46,7 @@ const mockGame: Game = {
 				{
 					id: "event1",
 					type: "text",
-					lines: ["テスト"],
+					text: "テスト",
 					category: "message",
 				},
 			],
@@ -128,7 +128,7 @@ describe("Player", () => {
 		const mockEvent: GameEvent = {
 			id: "event1",
 			type: "text",
-			lines: ["テスト"],
+			text: "テスト",
 			category: "message",
 		};
 

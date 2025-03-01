@@ -17,10 +17,11 @@ import type {
 	ResourceCache,
 	Scene,
 } from "~/schema";
-import type { SideBarSettings } from "./constants";
+import type { SideBarSettings } from "../constants";
+import { useDeleteConfirmationDialog } from "../dialogs/delete-confirmation-dialog";
 import { EventTimeline } from "./event-timeline";
 
-export const SceneEditor = ({
+export const SceneDetail = ({
 	selectedScene,
 	selectedEvent,
 	game,
@@ -28,6 +29,7 @@ export const SceneEditor = ({
 	onNavigateToScenesList,
 	onDeleteScene,
 	onClickEvent,
+	onClickSceneEnding,
 }: {
 	selectedEvent: GameEvent | undefined;
 	selectedScene: Scene | undefined;
@@ -36,6 +38,7 @@ export const SceneEditor = ({
 	onNavigateToScenesList: () => void;
 	onDeleteScene: () => void;
 	onClickEvent: (eventId: string) => void;
+	onClickSceneEnding: () => void;
 }) => {
 	if (!selectedScene || !game || !resources) {
 		return null;
@@ -45,8 +48,26 @@ export const SceneEditor = ({
 		id: "event-timeline",
 	});
 
+	const {
+		ConfirmDialog: SceneDeleteDialog,
+		setDeleteDialogOpen: setSceneDeleteDialogOpen,
+		deleteDialogOpen: sceneDeleteDialogOpen,
+	} = useDeleteConfirmationDialog();
+
 	return (
-		<>
+		<div className="p-2 h-full">
+			<SceneDeleteDialog
+				title={"シーン削除"}
+				description={"このシーンを削除しますか？"}
+				alertDescription={
+					"この操作は元に戻せません。シーンは完全に削除されます。"
+				}
+				confirmDelete={() => {
+					onDeleteScene();
+					setSceneDeleteDialogOpen(false);
+				}}
+			/>
+
 			<div className="flex justify-between items-center mb-2">
 				<Breadcrumb className="mb-2">
 					<BreadcrumbList>
@@ -61,7 +82,11 @@ export const SceneEditor = ({
 					</BreadcrumbList>
 				</Breadcrumb>
 
-				<Button onClick={onDeleteScene} variant="destructive" size="sm">
+				<Button
+					onClick={() => setSceneDeleteDialogOpen(true)}
+					variant="destructive"
+					size="sm"
+				>
 					シーン削除
 				</Button>
 			</div>
@@ -70,16 +95,20 @@ export const SceneEditor = ({
 				items={selectedScene.events.map((event) => event.id)}
 				strategy={verticalListSortingStrategy}
 			>
-				<div ref={setNodeRef} className="relative h-full">
+				<div
+					ref={setNodeRef}
+					className="relative h-[calc(100vh-120px)] overflow-y-scroll"
+				>
 					<EventTimeline
 						selectedScene={selectedScene}
 						selectedEvent={selectedEvent}
 						game={game}
 						resources={resources}
 						onClickEvent={onClickEvent}
+						onClickSceneEnding={onClickSceneEnding}
 					/>
 				</div>
 			</SortableContext>
-		</>
+		</div>
 	);
 };
