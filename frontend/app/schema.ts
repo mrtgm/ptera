@@ -144,6 +144,7 @@ export const bgmStartEventSchema = z.object({
 	category: z.literal("media"),
 	order: z.string(),
 	bgmId: z.string(),
+	loop: z.boolean(),
 	volume: z.union([z.number(), z.string().transform(Number)]),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
@@ -166,6 +167,7 @@ export const soundEffectEventSchema = z.object({
 	category: z.literal("media"),
 	order: z.string(),
 	volume: z.union([z.number(), z.string().transform(Number)]),
+	loop: z.boolean(),
 	soundEffectId: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
@@ -377,12 +379,14 @@ export type Stage = {
 	soundEffect: {
 		id: string;
 		volume: number;
+		loop: boolean;
 		isPlaying: boolean;
 		transitionDuration: number;
 	} | null;
 	bgm: {
 		id: string;
 		volume: number;
+		loop: boolean;
 		isPlaying: boolean;
 		transitionDuration: number;
 	} | null;

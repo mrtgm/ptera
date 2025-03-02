@@ -9,16 +9,14 @@ import {
 	DialogTitle,
 } from "~/components/shadcn/dialog";
 import { Tabs, TabsList, TabsTrigger } from "~/components/shadcn/tabs";
-import { GameScreen } from "~/features/player/components/game-screen";
-import { usePlayerInitialize } from "~/features/player/hooks";
-import { Player } from "~/features/player/utils/engine";
-import { INITIAL_STAGE } from "~/features/player/utils/engine";
-import { getFirstEvent } from "~/features/player/utils/event";
+import GamePlayer from "~/features/player";
+import { INITIAL_STAGE } from "~/features/player/constants";
+import { EventManager, getFirstEvent } from "~/features/player/utils/event";
 import {
 	buildCurrentStageFromScenes,
 	findAllPaths,
 } from "~/features/player/utils/graph";
-import type { Game, GameEvent, GameResources, Scene } from "~/schema";
+import type { Game, GameEvent, GameResources, Scene, Stage } from "~/schema";
 import { useStore } from "~/stores";
 import type { PreviewParams } from "~/stores/modal";
 
@@ -176,11 +174,15 @@ const PreviewDialog = memo(
 									transformOrigin: "top left",
 								}}
 							>
-								<PreviewFromGivenEvent
-									game={game}
-									resources={resources}
-									params={params}
-								/>
+								{previewMode === "from-current" ? (
+									<PreviewFromGivenEvent
+										game={game}
+										resources={resources}
+										params={params}
+									/>
+								) : (
+									<PreviewFromStart game={game} resources={resources} />
+								)}
 							</div>
 						</div>
 					</div>
@@ -196,6 +198,55 @@ const PreviewDialog = memo(
 	},
 );
 
+const PreviewFromStart = ({
+	game,
+	resources,
+}: {
+	game: Game;
+	resources: GameResources;
+}) => {
+	const managerRef = useRef<EventManager | null>(null);
+
+	const [initialStage] = useState<Stage>(INITIAL_STAGE);
+	const [initialScene, setIntialScene] = useState<Scene | null>(null);
+	const [initialEvent, setIntialEvent] = useState<GameEvent | null>(null);
+
+	if (!managerRef.current) managerRef.current = new EventManager();
+
+	useEffect(() => {
+		const firstScene = game.scenes.find(
+			(scene) => scene.id === game.initialSceneId,
+		);
+		if (!firstScene) {
+			throw new Error(`シーンが見つかりません: ${game.initialSceneId}`);
+		}
+		const firstEvent = getFirstEvent(firstScene.events);
+		if (!firstEvent) {
+			throw new Error(`最初のイベントが見つかりません: ${firstScene.id}`);
+		}
+
+		setIntialScene(firstScene);
+		setIntialEvent(firstEvent);
+	}, [game]);
+
+	return (
+		<>
+			{initialEvent && initialScene && initialStage && (
+				<GamePlayer
+					key="preview-from-start"
+					game={game}
+					resources={resources}
+					initialEvent={initialEvent}
+					initialScene={initialScene}
+					initialStage={initialStage}
+					eventManager={managerRef.current as EventManager}
+					isPreviewMode
+				/>
+			)}
+		</>
+	);
+};
+
 const PreviewFromGivenEvent = ({
 	game,
 	resources,
@@ -205,33 +256,15 @@ const PreviewFromGivenEvent = ({
 	resources: GameResources;
 	params: PreviewParams;
 }) => {
-	// Use useRef to maintain a stable reference to the Player instance
-	const playerRef = useRef<Player | null>(null);
+	const managerRef = useRef<EventManager | null>(null);
 
-	// Initialize the player if it doesn't exist
-	if (!playerRef.current) {
-		playerRef.current = new Player();
-	}
+	const [initialStage, setInitialStage] = useState<Stage>(INITIAL_STAGE);
+	const [initialScene, setIntialScene] = useState<Scene | null>(null);
+	const [initialEvent, setIntialEvent] = useState<GameEvent | null>(null);
 
-	const {
-		stage,
-		cache,
-		state,
-		history,
-		currentEvent: previewCurrentEvent,
-	} = usePlayerInitialize({
-		player: playerRef.current,
-		gameToLoad: game,
-		resourcesToLoad: resources,
-	});
+	if (!managerRef.current) managerRef.current = new EventManager();
 
-	// Set up the preview game after player initialization and event listeners are attached
 	useEffect(() => {
-		// Make sure player and listeners are initialized
-		if (!playerRef.current) {
-			playerRef.current = new Player();
-		}
-
 		const currentScene = game.scenes.find(
 			(scene) => scene.id === params.currentSceneId,
 		);
@@ -255,54 +288,24 @@ const PreviewFromGivenEvent = ({
 			eventId: currentEvent.id,
 		});
 
-		// Use setTimeout to ensure all event listeners are attached before preview starts
-		setTimeout(() => {
-			playerRef.current?.previewGame(currentStage, currentScene, currentEvent);
-		}, 0);
-
-		return () => {
-			if (playerRef.current) {
-				playerRef.current.dispose();
-				playerRef.current = null;
-			}
-		};
+		setIntialScene(currentScene);
+		setIntialEvent(currentEvent);
+		setInitialStage(currentStage);
 	}, [game, resources, params]);
-
-	console.log(previewCurrentEvent, "stage");
 
 	return (
 		<>
-			{state === "end" ? (
-				<div className="w-full h-full flex justify-center items-center absolute top-0 z-20">
-					<div>ゲーム終了</div>
-				</div>
-			) : (
-				<>
-					{stage && (
-						<GameScreen
-							style={{
-								minWidth: "auto",
-								maxWidth: "100%",
-								aspectRatio: "auto",
-								height: "100%",
-								minHeight: "auto",
-								width: "100%",
-							}}
-							player={playerRef.current}
-							stage={stage}
-							resourceCache={cache}
-							history={history}
-							handleTapScreen={() => {
-								if (previewCurrentEvent && state !== "idle") {
-									playerRef.current?.addCancelRequest(previewCurrentEvent.id);
-								}
-							}}
-							state={state}
-							currentEvent={previewCurrentEvent}
-							isPreviewMode
-						/>
-					)}
-				</>
+			{initialEvent && initialScene && initialStage && (
+				<GamePlayer
+					key="preview-from-given-event"
+					game={game}
+					resources={resources}
+					initialEvent={initialEvent}
+					initialScene={initialScene}
+					initialStage={initialStage}
+					eventManager={managerRef.current as EventManager}
+					isPreviewMode
+				/>
 			)}
 		</>
 	);

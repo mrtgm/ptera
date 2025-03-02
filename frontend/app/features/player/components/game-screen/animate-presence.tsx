@@ -16,6 +16,7 @@ import {
 	type TransitionConfig,
 } from "~/utils/transition";
 import type { Player } from "../../utils/engine";
+import type { EventManager } from "../../utils/event";
 type TransitionType = "enter" | "exit";
 
 export interface CustomPresenceConfig {
@@ -34,12 +35,12 @@ type ChildItem = {
 };
 
 export const AnimatePresence = ({
-	player,
+	manager,
 	eventId,
 	children,
 	config,
 }: {
-	player: Player;
+	manager: EventManager;
 	eventId: string | undefined;
 	children: ReactNode;
 	config?: CustomPresenceConfig;
@@ -205,7 +206,7 @@ export const AnimatePresence = ({
 			},
 		};
 
-		const transition = new Transition(player, transitionCfg);
+		const transition = new Transition(manager, transitionCfg);
 		runningTransitions.current.set(key, transition);
 
 		transition.start();

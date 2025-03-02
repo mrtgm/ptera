@@ -1,25 +1,27 @@
-import type { Player } from "~/features/player/utils/engine";
 import type { GameEvent, Stage } from "~/schema";
+import type { EventManager } from "../../utils/event";
 import { AnimatePresence } from "./animate-presence";
 
 export const Choice = ({
-	player,
+	manager,
 	choices,
 	currentEvent,
+	onChoiceSelected,
 }: {
-	player: Player;
+	manager: EventManager;
 	choices: Stage["choices"];
 	currentEvent: GameEvent | null;
+	onChoiceSelected: (choiceId: string) => void;
 }) => {
 	if (!currentEvent) return null;
 
 	const handleTapChoice = (index: number) => {
-		player.selectChoice(choices[index]);
+		onChoiceSelected(choices[index].id);
 	};
 
 	return (
 		<AnimatePresence
-			player={player}
+			manager={manager}
 			eventId={currentEvent.id}
 			config={{
 				enter: {

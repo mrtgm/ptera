@@ -1,13 +1,13 @@
 import type { GameEvent, Stage } from "~/schema";
-import type { Player } from "../../utils/engine";
+import type { EventManager } from "../../utils/event";
 import { AnimatePresence } from "./animate-presence";
 
 export const FadeOutEffect = ({
-	player,
+	manager,
 	effect,
 	currentEvent,
 }: {
-	player: Player;
+	manager: EventManager;
 	effect: Stage["effect"];
 	currentEvent: GameEvent | null;
 }) => {
@@ -15,7 +15,7 @@ export const FadeOutEffect = ({
 
 	return (
 		<AnimatePresence
-			player={player}
+			manager={manager}
 			eventId={currentEvent.id}
 			config={{
 				enter: {

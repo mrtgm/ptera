@@ -11,13 +11,6 @@ import {
 } from "~/components/shadcn/card";
 import { Form } from "~/components/shadcn/form";
 import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from "~/components/shadcn/tabs";
-import { Player } from "~/features/player/utils/engine";
-import {
 	type Game,
 	type GameEvent,
 	type GameResources,
@@ -37,13 +30,6 @@ import {
 	soundEffectEventSchema,
 	textRenderEventSchema,
 } from "~/schema";
-import { GameScreen } from "../../../player/components/game-screen";
-import { usePlayerInitialize } from "../../../player/hooks";
-import { INITIAL_STAGE } from "../../../player/utils/engine";
-import {
-	buildCurrentStageFromScenes,
-	findAllPaths,
-} from "../../../player/utils/graph";
 import {
 	SideBarSettings,
 	type SidebarItemParameter,
@@ -203,152 +189,26 @@ export const EventDetail = ({
 					</div>
 				</CardHeader>
 				<CardContent>
-					<Tabs value={activeTab} onValueChange={setActiveTab}>
-						<TabsList className="mb-4">
-							<TabsTrigger value="parameters">パラメータ</TabsTrigger>
-							<TabsTrigger value="preview">プレビュー</TabsTrigger>
-						</TabsList>
-						<Form {...form}>
-							<form
-								onSubmit={(e) => {
-									e.preventDefault();
-									form.handleSubmit(handleSubmit, (e) => {
-										console.error(e);
-									})();
-								}}
-							>
-								<TabsContent value="parameters" className="space-y-4">
-									{renderEventFormFields(selectedEvent, form, game, resources)}
-								</TabsContent>
+					<Form {...form}>
+						<form
+							onSubmit={(e) => {
+								e.preventDefault();
+								form.handleSubmit(handleSubmit, (e) => {
+									console.error(e);
+								})();
+							}}
+						>
+							{renderEventFormFields(selectedEvent, form, game, resources)}
 
-								<TabsContent value="preview">
-									<div className="min-h-[200px] bg-gray-100 rounded-md p-4">
-										{renderEventPreview(
-											formValues,
-											game,
-											resources,
-											selectedScene,
-											selectedEvent,
-											activeTab,
-										)}
-									</div>
-								</TabsContent>
-
-								{activeTab === "parameters" && (
-									<div className="mt-4 flex justify-end">
-										<Button type="submit">保存</Button>
-									</div>
-								)}
-							</form>
-						</Form>
-					</Tabs>
+							{activeTab === "parameters" && (
+								<div className="mt-4 flex justify-end">
+									<Button type="submit">保存</Button>
+								</div>
+							)}
+						</form>
+					</Form>
 				</CardContent>
 			</Card>
-		</div>
-	);
-};
-
-export const renderEventPreview = (
-	formValues: Partial<GameEvent>,
-	game: Game,
-	resources: GameResources,
-	currentScene: Scene,
-	currentEvent: GameEvent,
-	activeTab?: string,
-) => {
-	const [player, setPlayer] = useState<Player>(() => new Player());
-
-	const {
-		stage,
-		cache,
-		state,
-		history,
-		currentEvent: previewCurrentEvent,
-	} = usePlayerInitialize({
-		player,
-		gameToLoad: game,
-		resourcesToLoad: resources,
-	});
-
-	useEffect(() => {
-		if (activeTab && activeTab !== "preview") {
-			player.dispose();
-			setPlayer(() => new Player());
-			return;
-		}
-
-		const updatedEvent = {
-			...currentEvent,
-			...formValues,
-		} as GameEvent;
-
-		const updatedScene = {
-			...currentScene,
-			events: currentScene.events.map((event) => {
-				if (event.id === currentEvent.id) {
-					return updatedEvent;
-				}
-				return event;
-			}),
-		};
-
-		const result = findAllPaths({
-			game,
-			targetSceneId: currentScene.id,
-		});
-
-		const currentStage = buildCurrentStageFromScenes({
-			scenes: result,
-			currentStage: INITIAL_STAGE,
-			resources,
-			eventId: updatedEvent.id,
-		});
-
-		player.previewGame(currentStage, updatedScene, updatedEvent);
-	}, [
-		activeTab,
-		formValues,
-		currentEvent,
-		currentScene,
-		game,
-		resources,
-		player.dispose,
-		player.previewGame,
-	]);
-
-	useEffect(() => {
-		return () => {
-			player.dispose();
-		};
-	}, [player.dispose]);
-
-	return (
-		<div className="w-full h-full relative">
-			{state === "end" && (
-				<div className="w-full h-full flex justify-center items-center absolute top-0 z-20">
-					<div>ゲーム終了</div>
-				</div>
-			)}
-			{stage ? (
-				<GameScreen
-					player={player}
-					stage={stage}
-					resourceCache={cache}
-					history={history}
-					handleTapScreen={() => {
-						if (previewCurrentEvent && state !== "idle") {
-							player.addCancelRequest(previewCurrentEvent?.id);
-						}
-					}}
-					state={state}
-					currentEvent={previewCurrentEvent}
-					isPreviewMode
-				/>
-			) : (
-				<div className="w-full h-full flex justify-center items-center">
-					<div>プレビューを表示するにはイベントを保存してください。</div>
-				</div>
-			)}
 		</div>
 	);
 };

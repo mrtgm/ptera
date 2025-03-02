@@ -10,6 +10,7 @@ import {
 	wobble,
 } from "~/utils/transition";
 import type { Player } from "../../utils/engine";
+import type { EventManager } from "../../utils/event";
 import { AnimatePresence } from "./animate-presence";
 
 const Character = forwardRef<
@@ -19,9 +20,9 @@ const Character = forwardRef<
 		character: Stage["characters"]["items"][0];
 		resourceCache: ResourceCache["characters"];
 		currentEvent: GameEvent;
-		player: Player;
+		manager: EventManager;
 	}
->(({ character, key, resourceCache, player, currentEvent }, ref) => {
+>(({ character, key, resourceCache, manager }, ref) => {
 	const [imgElement, setImgElement] = useState<HTMLImageElement | null>(null);
 	const { id, imageId, position, scale, effect } = character;
 
@@ -31,41 +32,30 @@ const Character = forwardRef<
 		let promise: Promise<void>;
 		switch (effect.type) {
 			case "shake":
-				promise = shake(player, id, effect.transitionDuration, imgElement);
+				promise = shake(manager, id, effect.transitionDuration, imgElement);
 				break;
 			case "bounce":
-				promise = bounce(player, id, effect.transitionDuration, imgElement);
+				promise = bounce(manager, id, effect.transitionDuration, imgElement);
 				break;
 			case "sway":
-				promise = sway(player, id, effect.transitionDuration, imgElement);
+				promise = sway(manager, id, effect.transitionDuration, imgElement);
 				break;
 			case "wobble":
-				promise = wobble(player, id, effect.transitionDuration, imgElement);
+				promise = wobble(manager, id, effect.transitionDuration, imgElement);
 				break;
 			case "flash":
-				promise = flash(player, id, effect.transitionDuration, imgElement);
+				promise = flash(manager, id, effect.transitionDuration, imgElement);
 				break;
 			case "blackOn":
-				promise = blackOn(player, id, effect.transitionDuration, imgElement);
+				promise = blackOn(manager, id, effect.transitionDuration, imgElement);
 				break;
 			case "blackOff":
-				promise = blackOff(player, id, effect.transitionDuration, imgElement);
+				promise = blackOff(manager, id, effect.transitionDuration, imgElement);
 				break;
 			default:
 				promise = Promise.resolve();
 		}
-
-		promise.then(() => {
-			player.updateStage({
-				characters: {
-					...player.stage.characters,
-					items: player.stage.characters.items.map((c) =>
-						c.id === id ? { ...c, effect: null } : c,
-					),
-				},
-			});
-		});
-	}, [effect, id, imgElement, player]);
+	}, [effect, id, imgElement, manager]);
 
 	const resource = resourceCache[id];
 	if (!resource) return null;
@@ -98,12 +88,12 @@ export const CharacterList = ({
 	characters,
 	currentEvent,
 	resourceCache,
-	player,
+	manager,
 }: {
 	characters: Stage["characters"];
 	currentEvent: GameEvent | null;
 	resourceCache: ResourceCache["characters"];
-	player: Player;
+	manager: EventManager;
 }) => {
 	if (!currentEvent) return null;
 
@@ -111,7 +101,7 @@ export const CharacterList = ({
 		<div id="character-container" className="w-full h-full absolute">
 			<AnimatePresence
 				eventId={currentEvent.id}
-				player={player}
+				manager={manager}
 				config={{
 					enter: {
 						configs: {
@@ -133,7 +123,7 @@ export const CharacterList = ({
 						character={character}
 						resourceCache={resourceCache}
 						currentEvent={currentEvent}
-						player={player}
+						manager={manager}
 					/>
 				))}
 			</AnimatePresence>

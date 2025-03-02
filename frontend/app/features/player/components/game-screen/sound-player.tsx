@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import type { ResourceCache, Stage } from "~/schema";
-import { resourceManager } from "~/utils/preloader";
 
 export const SoundPlayer = ({
 	sound,
@@ -15,19 +14,24 @@ export const SoundPlayer = ({
 		const resource = resourceCache[sound.id];
 		if (!resource) return;
 
+		const cloned = new Howl({
+			src: [resource.url],
+			volume: 0,
+			autoplay: true,
+			loop: sound.loop,
+		});
+
 		if (sound.isPlaying) {
 			if (!resource.cache.playing()) {
-				console.log("sounding", sound.id);
-
-				resource.cache.play();
+				cloned.play();
 			}
-			resource.cache.fade(0, sound.volume, sound.transitionDuration);
+			cloned.fade(0, sound.volume, sound.transitionDuration);
 		}
 
 		return () => {
-			resource.cache.fade(sound.volume, 0, sound.transitionDuration);
-			resource.cache.once("fade", () => {
-				resource.cache.stop();
+			cloned.fade(sound.volume, 0, sound.transitionDuration);
+			cloned.once("fade", () => {
+				cloned.stop();
 			});
 		};
 	}, [sound, resourceCache]);

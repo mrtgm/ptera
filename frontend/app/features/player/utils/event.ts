@@ -1,4 +1,5 @@
-import type { GameEvent, Stage } from "~/schema";
+import { effect } from "zod";
+import type { GameEvent, GameState, MessageHistory, Stage } from "~/schema";
 import { sortByFractionalIndex } from "~/utils/sort";
 
 export const getFirstEvent = (events: GameEvent[]): GameEvent | null => {
@@ -11,9 +12,14 @@ export const getFirstEvent = (events: GameEvent[]): GameEvent | null => {
  * キャンセル可能なイベント処理マネージャー
  */
 export class EventManager {
-	private cancelTransitionRequests: Set<string> = new Set();
+	private isAutoMode = false;
+	cancelTransitionRequests: Set<string> = new Set();
 	private animationFrameIds: Map<string, number> = new Map();
 	private disposed = false;
+
+	setAutoMode(isAutoMode: boolean) {
+		this.isAutoMode = isAutoMode;
+	}
 
 	addCancelRequest(eventId: string) {
 		if (this.disposed) return;
@@ -25,14 +31,58 @@ export class EventManager {
 		this.cancelTransitionRequests.add(eventId);
 	}
 
-	checkIfEventIsCanceled(eventId: string): boolean {
-		if (this.disposed) return false;
-		return this.cancelTransitionRequests.has(eventId);
-	}
-
 	removeCancelRequest(eventId: string) {
 		if (this.disposed) return;
 		this.cancelTransitionRequests.delete(eventId);
+	}
+
+	clearCancelRequests() {
+		if (this.disposed) return;
+
+		this.cancelTransitionRequests.clear();
+	}
+
+	checkIfEventIsCanceled(eventId: string): boolean {
+		if (this.disposed) return false;
+		console.log(this.cancelTransitionRequests);
+
+		return this.cancelTransitionRequests.has(eventId);
+	}
+
+	private tapResolve?: () => void;
+	private handleTap = (e: MouseEvent) => {
+		if (e.target instanceof HTMLElement || e.target instanceof SVGElement) {
+			if (e.target.closest("#ui") || e.target.closest("#history-modal")) return;
+		}
+
+		window.removeEventListener("click", this.handleTap);
+		this.tapResolve?.();
+		this.tapResolve = undefined;
+	};
+
+	private async waitForTap(eventId: string): Promise<void> {
+		return new Promise<void>((resolve) => {
+			const check = () => {
+				if (this.disposed) {
+					resolve();
+					this.tapResolve = undefined;
+					return;
+				}
+				if (this.isAutoMode) {
+					resolve();
+					this.tapResolve = undefined;
+					return;
+				}
+				const frameId = requestAnimationFrame(check);
+				this.animationFrameIds.set(eventId, frameId);
+			};
+
+			const frameId = requestAnimationFrame(check);
+			this.animationFrameIds.set(eventId, frameId);
+
+			this.tapResolve = resolve;
+			window.addEventListener("click", this.handleTap);
+		});
 	}
 
 	async waitCancelable(ms: number, eventId: string): Promise<void> {
@@ -51,11 +101,6 @@ export class EventManager {
 					performance.now() - startTime > ms ||
 					this.checkIfEventIsCanceled(eventId)
 				) {
-					// 時間経過またはキャンセルリクエストがあれば解決
-					if (this.checkIfEventIsCanceled(eventId)) {
-						this.removeCancelRequest(eventId);
-					}
-
 					if (this.animationFrameIds.has(eventId)) {
 						const frameId = this.animationFrameIds.get(eventId);
 						if (frameId) cancelAnimationFrame(frameId);
@@ -86,33 +131,25 @@ export class EventManager {
 		let currentText = "";
 
 		for (const char of text) {
-			// キャンセルされていれば完全なテキストを表示して終了
 			if (this.checkIfEventIsCanceled(eventId)) {
-				this.removeCancelRequest(eventId);
 				onUpdate(text);
+				this.removeCancelRequest(eventId);
 				return;
 			}
 
-			// 1文字追加
 			currentText += char;
 			onUpdate(currentText);
 
-			// 指定時間待機
 			await new Promise((resolve) => setTimeout(resolve, speed));
 		}
 	}
 
-	/**
-	 * 複数のイベントを順番に処理
-	 * @param events 処理するイベント配列
-	 * @param initialStage 初期ステージ状態
-	 * @param onStageUpdate ステージ更新時のコールバック
-	 * @param onEventComplete イベント完了時のコールバック（オプション）
-	 */
 	async processEventsSequentially(
 		events: GameEvent[],
 		initialStage: Stage,
 		onStageUpdate: (stage: Stage) => void,
+		onStateUpdate: (state: GameState) => void,
+		onHistoryUpdate: (event: MessageHistory) => void,
 		onEventComplete?: (event: GameEvent) => void,
 	): Promise<Stage> {
 		if (this.disposed) return initialStage;
@@ -120,11 +157,12 @@ export class EventManager {
 		let currentStage = { ...initialStage };
 
 		for (const event of events) {
-			// 各イベントを処理
 			currentStage = await this.processGameEvent(
 				event,
 				currentStage,
 				onStageUpdate,
+				onStateUpdate,
+				onHistoryUpdate,
 			);
 
 			// イベント完了通知
@@ -143,6 +181,8 @@ export class EventManager {
 		event: GameEvent,
 		currentStage: Stage,
 		onStageUpdate: (stage: Stage) => void,
+		onStateUpdate: (state: GameState) => void,
+		onHistoryUpdate: (event: MessageHistory) => void,
 	): Promise<Stage> {
 		if (this.disposed) return currentStage;
 
@@ -163,18 +203,35 @@ export class EventManager {
 				};
 				onStageUpdate(updatedStage);
 
-				// テキストをアニメーション表示
-				await this.animateText(event.text, event.id, (partialText) => {
-					const textUpdatedStage = {
-						...updatedStage,
-						dialog: {
-							...updatedStage.dialog,
-							text: partialText,
-						},
-					};
-					updatedStage = textUpdatedStage; // 現在のステージを更新
-					onStageUpdate(textUpdatedStage);
-				});
+				const splitText = event.text.split("\n").filter(Boolean);
+				for (const line of splitText) {
+					// テキストをアニメーション表示
+					await this.animateText(line, event.id, (partialText) => {
+						const textUpdatedStage = {
+							...updatedStage,
+							dialog: {
+								...updatedStage.dialog,
+								text: partialText,
+							},
+						};
+						updatedStage = textUpdatedStage; // 現在のステージを更新
+						onStageUpdate(textUpdatedStage);
+					});
+
+					onHistoryUpdate({
+						text: line,
+						characterName: event.characterName || "",
+					});
+
+					if (!this.isAutoMode) {
+						onStateUpdate("idle");
+						await this.waitForTap(event.id);
+						onStateUpdate("playing");
+					} else {
+						await new Promise((resolve) => setTimeout(resolve, 1000));
+					}
+				}
+
 				break;
 			}
 
@@ -314,6 +371,7 @@ export class EventManager {
 					soundEffect: {
 						id: event.soundEffectId,
 						volume: event.volume,
+						loop: event.loop,
 						isPlaying: true,
 						transitionDuration: event.transitionDuration,
 					},
@@ -329,6 +387,7 @@ export class EventManager {
 					bgm: {
 						id: event.bgmId,
 						volume: event.volume,
+						loop: event.loop,
 						isPlaying: true,
 						transitionDuration: event.transitionDuration,
 					},
@@ -364,6 +423,14 @@ export class EventManager {
 
 				onStageUpdate(updatedStage);
 				await this.waitCancelable(event.transitionDuration, event.id);
+
+				if (event.effectType === "shake") {
+					updatedStage = {
+						...updatedStage,
+						effect: null,
+					};
+					onStageUpdate(updatedStage);
+				}
 				break;
 			}
 
@@ -389,6 +456,24 @@ export class EventManager {
 
 				onStageUpdate(updatedStage);
 				await this.waitCancelable(event.transitionDuration, event.id);
+
+				updatedStage = {
+					...updatedStage,
+					characters: {
+						...updatedStage.characters,
+						items: updatedStage.characters.items.map((character) =>
+							character.id === event.characterId
+								? {
+										...character,
+										effect: null,
+									}
+								: character,
+						),
+					},
+				};
+
+				onStageUpdate(updatedStage);
+
 				break;
 			}
 
@@ -431,6 +516,13 @@ export class EventManager {
 		return updatedStage;
 	}
 
+	reset() {
+		this.clearCancelRequests();
+		for (const frameId of this.animationFrameIds.values()) {
+			cancelAnimationFrame(frameId);
+		}
+	}
+
 	dispose() {
 		if (this.disposed) return;
 
@@ -439,8 +531,9 @@ export class EventManager {
 			cancelAnimationFrame(frameId);
 		}
 
+		window.removeEventListener("click", this.handleTap);
 		this.animationFrameIds.clear();
-		this.cancelTransitionRequests.clear();
+		this.clearCancelRequests();
 		this.disposed = true;
 	}
 }

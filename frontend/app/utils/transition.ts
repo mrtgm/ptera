@@ -1,4 +1,4 @@
-import type { Player } from "~/features/player/utils/engine";
+import type { EventManager } from "~/features/player/utils/event";
 import { type EasingType, easing } from "~/utils/easing";
 
 type Keyframe = {
@@ -114,14 +114,14 @@ export class Transition {
 	private startTime: number | null = null;
 	private animationFrame: number | null = null;
 
-	private player;
+	private manager: EventManager;
 
-	constructor(player: Player, config: TransitionConfig) {
+	constructor(manager: EventManager, config: TransitionConfig) {
 		this.config = {
 			easing: "linear",
 			...config,
 		};
-		this.player = player;
+		this.manager = manager;
 	}
 
 	start(): Promise<void> {
@@ -131,7 +131,7 @@ export class Transition {
 				const elapsed = currentTime - this.startTime;
 
 				// トランジションをスキップ
-				if (this.player.checkIfEventIsCanceled(this.config.eventId)) {
+				if (this.manager.checkIfEventIsCanceled(this.config.eventId)) {
 					this.complete(resolve);
 					return;
 				}
@@ -189,12 +189,12 @@ export class Transition {
 }
 
 export const fadeIn = (
-	player: Player,
+	manager: EventManager,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition(player, {
+	const transition = new Transition(manager, {
 		targets: [
 			{
 				element,
@@ -217,12 +217,12 @@ export const fadeIn = (
 };
 
 export const fadeOut = (
-	player: Player,
+	manager: EventManager,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition(player, {
+	const transition = new Transition(manager, {
 		targets: [
 			{
 				element,
@@ -245,13 +245,13 @@ export const fadeOut = (
 };
 
 export const crossFade = (
-	player: Player,
+	manager: EventManager,
 	eventId: string,
 	duration: number,
 	elementOut: HTMLElement,
 	elementIn: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition(player, {
+	const transition = new Transition(manager, {
 		targets: [
 			{
 				element: elementOut,
@@ -286,12 +286,12 @@ export const crossFade = (
 };
 
 export const shake = (
-	player: Player,
+	manager: EventManager,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition(player, {
+	const transition = new Transition(manager, {
 		targets: [
 			{
 				element,
@@ -323,12 +323,12 @@ export const shake = (
 };
 
 export const flash = (
-	player: Player,
+	manager: EventManager,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition(player, {
+	const transition = new Transition(manager, {
 		targets: [
 			{
 				element,
@@ -352,12 +352,12 @@ export const flash = (
 };
 
 export const wobble = (
-	player: Player,
+	manager: EventManager,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition(player, {
+	const transition = new Transition(manager, {
 		targets: [
 			{
 				element,
@@ -382,12 +382,12 @@ export const wobble = (
 };
 
 export const bounce = (
-	player: Player,
+	manager: EventManager,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition(player, {
+	const transition = new Transition(manager, {
 		targets: [
 			{
 				element,
@@ -412,12 +412,12 @@ export const bounce = (
 };
 
 export const sway = (
-	player: Player,
+	manager: EventManager,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition(player, {
+	const transition = new Transition(manager, {
 		targets: [
 			{
 				element,
@@ -442,12 +442,12 @@ export const sway = (
 };
 
 export const blackOn = (
-	player: Player,
+	manager: EventManager,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition(player, {
+	const transition = new Transition(manager, {
 		targets: [
 			{
 				element,
@@ -474,12 +474,12 @@ export const blackOn = (
 };
 
 export const blackOff = (
-	player: Player,
+	manager: EventManager,
 	eventId: string,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
-	const transition = new Transition(player, {
+	const transition = new Transition(manager, {
 		targets: [
 			{
 				element,

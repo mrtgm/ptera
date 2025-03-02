@@ -1,14 +1,15 @@
 import type { GameEvent, GameState, Stage } from "~/schema";
 import type { Player } from "../../utils/engine";
+import type { EventManager } from "../../utils/event";
 import { AnimatePresence } from "./animate-presence";
 
 export const Dialog = ({
-	player,
+	manager,
 	state,
 	dialog,
 	currentEvent,
 }: {
-	player: Player;
+	manager: EventManager;
 	state: GameState;
 	dialog: Stage["dialog"];
 	currentEvent: GameEvent | null;
@@ -17,7 +18,7 @@ export const Dialog = ({
 
 	return (
 		<AnimatePresence
-			player={player}
+			manager={manager}
 			eventId={currentEvent.id}
 			config={{
 				enter: {

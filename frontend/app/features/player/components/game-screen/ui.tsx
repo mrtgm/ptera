@@ -1,29 +1,40 @@
 import { useState } from "react";
-import type { Player } from "~/features/player/utils/engine";
+import type { EventManager } from "../../utils/event";
 
 export const Ui = ({
-	player,
+	manager,
 	openHistory,
+	onChangeAutoMode,
+	onChangeMute,
 	isPreviewMode,
 }: {
-	player: Player;
+	manager: EventManager;
 	openHistory: () => void;
+	onChangeMute: (isMute: boolean) => void;
+	onChangeAutoMode: (isAutoMode: boolean) => void;
 	isPreviewMode?: boolean;
 }) => {
 	const [isMute, setIsMute] = useState(false);
 	const [isAutoMode, setIsAutoMode] = useState(false);
 
-	const toggleMute = () => setIsMute((prev) => !prev);
-	const toggleAutoMode = () => setIsAutoMode((prev) => !prev);
-
 	const handleTapMuteIndicator = () => {
-		toggleMute();
-		player.toggleMute();
+		if (isMute) {
+			onChangeMute(false);
+			setIsMute(false);
+		} else {
+			onChangeMute(true);
+			setIsMute(true);
+		}
 	};
 
 	const handleTapAutoModeIndicator = () => {
-		toggleAutoMode();
-		player.toggleAutoMode();
+		if (isAutoMode) {
+			onChangeAutoMode(false);
+			setIsAutoMode(false);
+		} else {
+			onChangeAutoMode(true);
+			setIsAutoMode(true);
+		}
 	};
 
 	const handleHisotyButton = () => {

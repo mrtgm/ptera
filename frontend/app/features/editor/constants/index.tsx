@@ -455,6 +455,7 @@ export const getDefaultValueForType = (
 			return {
 				bgmId: Object.keys(resources.bgms)[0],
 				volume: 1,
+				loop: true,
 				transitionDuration: 1000,
 			};
 		case "bgmStop":
@@ -465,6 +466,7 @@ export const getDefaultValueForType = (
 			return {
 				soundEffectId: Object.keys(resources.soundEffects)[0],
 				volume: 1,
+				loop: false,
 				transitionDuration: 1000,
 			};
 		case "changeBackground":

@@ -26,6 +26,7 @@
           "type": "bgmStart",
           "category": "media",
           "bgmId": "jazzy",
+          "loop": true,
           "volume": 0.7,
           "transitionDuration": 1000,
           "order": "a1"
@@ -101,6 +102,7 @@
           "type": "soundEffect",
           "category": "media",
           "soundEffectId": "footsteps",
+          "loop": false,
           "volume": 1,
           "transitionDuration": 0.1,
           "order": "a2"
@@ -233,7 +235,8 @@
           "type": "soundEffect",
           "category": "media",
           "soundEffectId": "footsteps",
-          "volume": 0.3,
+          "loop": false,
+          "volume": 1,
           "transitionDuration": 0.1,
           "order": "a1"
         },

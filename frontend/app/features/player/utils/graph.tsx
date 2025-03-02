@@ -288,12 +288,27 @@ export const buildCurrentStageFromScenes = ({
 		}),
 	);
 
+	// 選択肢の直後のイベントにはテキストを表示しない
+	let index = 0;
+	const hasChoiceIndexes = new Set<number>();
+	for (const scene of scenes) {
+		index += scene.events.length;
+		if (scene.sceneType === "choice") {
+			hasChoiceIndexes.add(index - 1);
+		}
+	}
+
 	let newStage = { ...currentStage };
 
-	for (const event of events) {
+	events.some((event, index) => {
 		newStage = handleEvent(event, newStage, resources);
-		if (eventId !== undefined && event.id === eventId) break;
-	}
+
+		if (hasChoiceIndexes.has(index)) {
+			newStage.dialog.text = "";
+		}
+
+		return eventId !== undefined && event.id === eventId;
+	});
 
 	// もしイベントの最後が effect, soundEffect, characterEffect（one-shot なイベント）でない場合 nullにする
 	if (events.at(-1)?.type !== "effect") newStage.effect = null;
@@ -380,6 +395,7 @@ export const handleEvent = (
 					id: event.bgmId,
 					volume: event.volume,
 					isPlaying: true,
+					loop: event.loop,
 					transitionDuration: event.transitionDuration,
 				},
 			};
@@ -393,6 +409,7 @@ export const handleEvent = (
 					id: event.soundEffectId,
 					volume: event.volume,
 					isPlaying: true,
+					loop: event.loop,
 					transitionDuration: event.transitionDuration,
 				},
 			};
