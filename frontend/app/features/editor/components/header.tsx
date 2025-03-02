@@ -14,20 +14,19 @@ export const Header = () => {
 		return null;
 	}
 
-	const previewSceneId = selectedSceneId
-		? selectedSceneId
-		: editorSlice.editingGame?.initialSceneId;
+	const previewSceneId =
+		selectedSceneId ?? editorSlice.editingGame?.initialSceneId;
 
 	// TODO: イベントはオーダーをもたせる
-	const previewEventId = selectedEventId
-		? selectedEventId
-			? editorSlice.editingGame.scenes.find(
-					(scene) => scene.id === selectedSceneId,
-				)?.events[0].id
-			: editorSlice.editingGame.scenes.find(
-					(scene) => scene.id === editorSlice.editingGame?.initialSceneId,
-				)?.events[0].id
-		: undefined;
+
+	const previewEventId =
+		selectedEventId ?? //選択中のイベントがある
+		editorSlice.editingGame.scenes.find((scene) => scene.id === previewSceneId)
+			?.events[0]?.id ?? //選択中のシーンの最初のイベントがある
+		editorSlice.editingGame.scenes.find(
+			(scene) => scene.id === editorSlice.editingGame?.initialSceneId,
+		)?.events[0]?.id ?? //初期シーンの最初のイベントがある
+		null;
 
 	return (
 		<Menubar className="rounded-none flex justify-between bg-[#1E1E1E] text-[#8D8D8D] w-full">

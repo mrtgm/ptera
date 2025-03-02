@@ -1,3 +1,4 @@
+import { generateKeyBetween } from "fractional-indexing";
 import {
 	EyeOff,
 	FileImage,
@@ -336,6 +337,7 @@ export const createEventFromSidebarItem = (
 		id: crypto.randomUUID(),
 		type: item.type,
 		category: getEventCategory(item.type),
+		order: generateKeyBetween(null, null),
 		...getDefaultValueForType(item.type, resources),
 	} as GameEvent;
 	return event;

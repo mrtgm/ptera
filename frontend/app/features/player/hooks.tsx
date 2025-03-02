@@ -44,8 +44,9 @@ export const usePlayerInitialize = ({
 			}
 		};
 
-		cleanup();
+		cleanup(); // Clear any existing listeners
 
+		// Setup new listeners
 		for (const state of states) {
 			player.emitter.on(state, () => {
 				setState(state);
@@ -65,6 +66,7 @@ export const usePlayerInitialize = ({
 		});
 
 		player.emitter.on("currentEventUpdated", (event) => {
+			console.log("currentEventUpdated2", event);
 			setCurrentEvent(event);
 		});
 
@@ -74,12 +76,11 @@ export const usePlayerInitialize = ({
 		});
 
 		return cleanup;
-	}, [player]);
+	}, [player]); // Only re-run if the player instance changes
 
+	// Load resources and game
 	useEffect(() => {
 		let isMounted = true;
-
-		console.log("Loading resources", resourcesToLoad);
 
 		resourceManager.loadResources(resourcesToLoad).then(() => {
 			if (!isMounted) return;

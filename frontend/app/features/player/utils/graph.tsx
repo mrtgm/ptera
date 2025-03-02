@@ -1,5 +1,6 @@
 import type { Edge, Node } from "@xyflow/react";
 import type { Game, GameEvent, GameResources, Scene, Stage } from "~/schema";
+import { sortByFractionalIndex } from "~/utils/sort";
 
 type PositionMap = {
 	[key: string]: {
@@ -281,12 +282,19 @@ export const buildCurrentStageFromScenes = ({
 	resources: GameResources;
 	eventId?: string;
 }): Stage => {
-	const events = scenes.flatMap((scene) => scene.events);
+	const events = scenes.flatMap((scene) =>
+		scene.events.sort((a, b) => {
+			return sortByFractionalIndex(a.order, b.order);
+		}),
+	);
+
 	let newStage = { ...currentStage };
+
 	for (const event of events) {
 		newStage = handleEvent(event, newStage, resources);
 		if (eventId !== undefined && event.id === eventId) break;
 	}
+
 	// もしイベントの最後が effect, soundEffect, characterEffect（one-shot なイベント）でない場合 nullにする
 	if (events.at(-1)?.type !== "effect") newStage.effect = null;
 	if (events.at(-1)?.type !== "soundEffect") newStage.soundEffect = null;
@@ -306,11 +314,12 @@ export const handleEvent = (
 	resources: GameResources | null,
 ): Stage => {
 	switch (event.type) {
-		case "appearMessageWindow":
+		case "appearMessageWindow": {
 			return {
 				...stage,
 				dialog: { ...stage.dialog, isVisible: true },
 			};
+		}
 		case "hideMessageWindow":
 			return { ...stage, dialog: { ...stage.dialog, isVisible: false } };
 		case "text":

@@ -41,12 +41,7 @@ export const SceneDetail = ({
 	const {
 		ConfirmDialog: SceneDeleteDialog,
 		setDeleteDialogOpen: setSceneDeleteDialogOpen,
-		deleteDialogOpen: sceneDeleteDialogOpen,
 	} = useDeleteConfirmationDialog();
-
-	useEffect(() => {
-		console.log("game", game);
-	}, [game]);
 
 	if (!selectedScene || !game || !resources) {
 		return null;
@@ -80,13 +75,15 @@ export const SceneDetail = ({
 					</BreadcrumbList>
 				</Breadcrumb>
 
-				<Button
-					onClick={() => setSceneDeleteDialogOpen(true)}
-					variant="destructive"
-					size="sm"
-				>
-					シーン削除
-				</Button>
+				{game.initialSceneId !== selectedScene.id && (
+					<Button
+						onClick={() => setSceneDeleteDialogOpen(true)}
+						variant="destructive"
+						size="sm"
+					>
+						シーン削除
+					</Button>
+				)}
 			</div>
 
 			<SortableContext

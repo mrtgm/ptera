@@ -51,7 +51,6 @@ export class ResourceManager {
 		url: string,
 		options: Partial<HowlOptions> = {},
 	): Promise<Howl> {
-		console.log("Loading sound", url);
 		return new Promise((resolve, reject) => {
 			const sound = new Howl({
 				src: url,

@@ -58,6 +58,7 @@ export const textRenderEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("text"),
 	category: z.literal("message"),
+	order: z.string(),
 	text: z.string().min(1, { message: "テキストを入力してください" }),
 	characterName: z.string().optional(),
 });
@@ -68,6 +69,7 @@ export const appearMessageWindowEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("appearMessageWindow"),
 	category: z.literal("message"),
+	order: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -79,6 +81,7 @@ export const hideMessageWindowEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("hideMessageWindow"),
 	category: z.literal("message"),
+	order: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -90,6 +93,7 @@ export const appearCharacterEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("appearCharacter"),
 	category: z.literal("character"),
+	order: z.string(),
 	characterId: z.string(),
 	characterImageId: z.string(),
 	position: z.tuple([z.number(), z.number()]),
@@ -103,6 +107,7 @@ export const hideCharacterEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("hideCharacter"),
 	category: z.literal("character"),
+	order: z.string(),
 	characterId: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
@@ -113,6 +118,7 @@ export const hideAllCharactersEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("hideAllCharacters"),
 	category: z.literal("character"),
+	order: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -124,6 +130,7 @@ export const moveCharacterEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("moveCharacter"),
 	category: z.literal("character"),
+	order: z.string(),
 	characterId: z.string(),
 	position: z.tuple([z.number(), z.number()]),
 	scale: z.number(),
@@ -135,6 +142,7 @@ export const bgmStartEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("bgmStart"),
 	category: z.literal("media"),
+	order: z.string(),
 	bgmId: z.string(),
 	volume: z.union([z.number(), z.string().transform(Number)]),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
@@ -146,6 +154,7 @@ export const bgmStopEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("bgmStop"),
 	category: z.literal("media"),
+	order: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -155,6 +164,7 @@ export const soundEffectEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("soundEffect"),
 	category: z.literal("media"),
+	order: z.string(),
 	volume: z.union([z.number(), z.string().transform(Number)]),
 	soundEffectId: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
@@ -166,6 +176,7 @@ export const changeBackgroundEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("changeBackground"),
 	category: z.literal("background"),
+	order: z.string(),
 	backgroundId: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
@@ -177,6 +188,7 @@ export const effectEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("effect"),
 	category: z.literal("effect"),
+	order: z.string(),
 	effectType: z.enum(effectType),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
@@ -196,6 +208,7 @@ export const characterEffectEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("characterEffect"),
 	category: z.literal("character"),
+	order: z.string(),
 	characterId: z.string(),
 	effectType: z.enum(characterEffectType),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
@@ -207,6 +220,7 @@ export const appearCGEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("appearCG"),
 	category: z.literal("cg"),
+	order: z.string(),
 	cgImageId: z.string(),
 	position: z.tuple([z.number(), z.number()]),
 	scale: z.number(),
@@ -219,6 +233,7 @@ export const hideCGEventSchema = z.object({
 	id: z.string(),
 	type: z.literal("hideCG"),
 	category: z.literal("cg"),
+	order: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -244,7 +259,7 @@ export const gameEventSchema = z.discriminatedUnion("type", [
 
 export type GameEvent = z.infer<typeof gameEventSchema>;
 
-type ExcludeCommonKeys<T> = Omit<T, "type" | "id" | "category">;
+type ExcludeCommonKeys<T> = Omit<T, "type" | "id" | "category" | "order">;
 export type EventProperties = {
 	[K in GameEvent as K["type"]]: ExcludeCommonKeys<K>;
 };

@@ -1,5 +1,6 @@
 import { ArrowUp, Pen, Split } from "lucide-react";
 import type { Game, GameEvent, GameResources, Scene } from "~/schema";
+import { sortByFractionalIndex } from "~/utils/sort";
 import { SpeechBubble } from "../../speech-bubble";
 import { EventItem } from "./event-item";
 
@@ -28,17 +29,19 @@ export const EventList = ({
 				<div className="absolute w-1 bg-gray-300 h-full left-[8px]" />
 
 				<div className="flex-1 relative w-full flex flex-col gap-y-3 pt-2">
-					{selectedScene?.events.map((event) => {
-						return (
-							<EventItem
-								key={event.id}
-								event={event}
-								resources={resources}
-								selectedEvent={selectedEvent}
-								onClickEvent={onClickEvent}
-							/>
-						);
-					})}
+					{selectedScene?.events
+						.sort((a, b) => sortByFractionalIndex(a.order, b.order))
+						.map((event) => {
+							return (
+								<EventItem
+									key={event.id}
+									event={event}
+									resources={resources}
+									selectedEvent={selectedEvent}
+									onClickEvent={onClickEvent}
+								/>
+							);
+						})}
 
 					{renderSceneEnding(selectedScene, game, onClickSceneEnding)}
 				</div>

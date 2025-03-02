@@ -192,12 +192,14 @@ export const EventDetail = ({
 						>
 							<MonitorPlay size={16} />
 						</Button>
-						<Button
-							variant="destructive"
-							onClick={() => setEventDeleteDialogOpen(true)}
-						>
-							イベント削除
-						</Button>
+						{selectedScene.events.length > 1 && (
+							<Button
+								variant="destructive"
+								onClick={() => setEventDeleteDialogOpen(true)}
+							>
+								イベント削除
+							</Button>
+						)}
 					</div>
 				</CardHeader>
 				<CardContent>
@@ -301,8 +303,6 @@ export const renderEventPreview = (
 			resources,
 			eventId: updatedEvent.id,
 		});
-
-		console.log("currentStage", currentStage);
 
 		player.previewGame(currentStage, updatedScene, updatedEvent);
 	}, [

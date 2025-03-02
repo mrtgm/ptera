@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import dummyAssets from "~/__mocks__/dummy-assets.json";
 import dummyGame from "~/__mocks__/dummy-game.json";
 import { Toaster } from "~/components/shadcn/sonner";
-import type { Game, GameEvent, Scene } from "~/schema";
+import { type Game, type GameEvent, type Scene, gameSchema } from "~/schema";
 import { useStore } from "~/stores";
 import {
 	AdjustSizeDialogContainer,
@@ -55,7 +55,8 @@ export const Editor = () => {
 
 	useEffect(() => {
 		// TODO: ロード
-		editorSlice.initializeEditor(dummyGame as Game, dummyAssets);
+		const game = gameSchema.parse(dummyGame);
+		editorSlice.initializeEditor(game, dummyAssets);
 	}, [editorSlice.initializeEditor]);
 
 	const handleNavigateToScene = (sceneId: string) => {

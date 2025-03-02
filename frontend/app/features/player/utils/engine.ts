@@ -10,6 +10,8 @@ import type {
 	Stage,
 } from "~/schema";
 import { updateOrAppend, waitMs } from "~/utils";
+import { sortByFractionalIndex } from "~/utils/sort";
+import { getFirstEvent } from "./event";
 
 type Events = {
 	stageUpdated: Stage;
@@ -44,7 +46,6 @@ export const INITIAL_STAGE: Stage = {
 };
 
 export class Player {
-	private static instance: Player;
 	currentGame: Game | null = null;
 	currentScene: Scene | null = null;
 	currentEvent: GameEvent | null = null;
@@ -91,30 +92,29 @@ export class Player {
 		}
 
 		this.disposed = true;
+
+		console.log("Player disposed");
 	}
 
 	setState(state: GameState) {
+		if (this.disposed) return;
+
 		this.state = state;
 		this.emitter.emit<GameState>(state);
 	}
 
 	loadGame(game: Game) {
+		if (this.disposed) return;
+
 		this.currentGame = game;
 		this.emitter.emit("gameLoaded", game);
 
-		const initialScene = game.scenes.find(
-			(scene) => scene.id === game.initialSceneId,
-		);
-
-		if (!initialScene) {
-			throw new Error("Initial scene not found");
-		}
-
-		this.updateScene(initialScene.id);
 		this.setState("beforeStart");
 	}
 
 	addCancelRequest(eventId: string) {
+		if (this.disposed) return;
+
 		if (this.cancelTransitionRequests.size > 5) {
 			this.cancelTransitionRequests.clear();
 		}
@@ -122,24 +122,31 @@ export class Player {
 	}
 
 	checkIfEventIsCanceled(eventId: string) {
+		if (this.disposed) return;
+
 		return this.cancelTransitionRequests.has(eventId);
 	}
 
 	removeCancelRequest(eventId: string) {
+		if (this.disposed) return;
+
 		this.cancelTransitionRequests.delete(eventId);
 	}
 
 	updateScene(sceneId: string) {
+		if (this.disposed) return;
+
 		const scene =
 			this.currentGame?.scenes.find((s) => s.id === sceneId) ?? null;
 
 		if (scene) {
 			this.updateCurrentScene(scene);
-			this.updateCurrentEvent(scene.events[0]);
 		}
 	}
 
 	updateStage(updates: Partial<Stage>) {
+		if (this.disposed) return;
+
 		this.stage = { ...this.stage, ...updates } as Stage;
 		this.emitter.emit("stageUpdated", {
 			...this.stage,
@@ -148,36 +155,61 @@ export class Player {
 	}
 
 	updateCurrentEvent(event: GameEvent | null) {
+		if (this.disposed) return;
+
+		console.log("currentEventUpdated1", event);
+
 		this.currentEvent = event;
 		this.emitter.emit("currentEventUpdated", event);
 	}
 
 	updateCurrentScene(scene: Scene | null) {
+		if (this.disposed) return;
+
 		this.currentScene = scene;
 		this.emitter.emit("currentSceneUpdated", scene);
 	}
 
 	toggleAutoMode() {
+		if (this.disposed) return;
+
 		this.isAutoMode = !this.isAutoMode;
 	}
 
 	toggleMute() {
+		if (this.disposed) return;
+
 		this.isMute = !this.isMute;
 		Howler.mute(this.isMute);
 	}
 
 	addToHistory(message: MessageHistory) {
+		if (this.disposed) return;
+
 		this.messageHistory.push(message);
 		this.emitter.emit("historyUpdated", this.messageHistory);
 	}
 
 	clearHistory() {
+		if (this.disposed) return;
+
 		this.messageHistory = [];
 		this.emitter.emit("historyUpdated", []);
 	}
 
 	async startGame() {
+		if (this.disposed) return;
 		if (!this.currentGame) return;
+
+		const initialScene = this.currentGame.scenes.find(
+			(scene) => scene.id === this.currentGame?.initialSceneId,
+		);
+
+		if (!initialScene) {
+			throw new Error("Initial scene not found");
+		}
+
+		this.updateScene(initialScene.id);
 		this.setState("playing");
 		await waitForGameScreenIsMounted();
 		this.runEvents(this.currentScene?.events ?? []);
@@ -188,6 +220,8 @@ export class Player {
 		currentScene: Scene,
 		currentEvent: GameEvent,
 	) {
+		if (this.disposed) return;
+
 		this.setState("playing");
 		await waitForGameScreenIsMounted();
 
@@ -205,6 +239,8 @@ export class Player {
 	}
 
 	resetGame() {
+		if (this.disposed) return;
+
 		const initialScene = this.currentGame?.scenes.find(
 			(scene) => scene.id === this.currentGame?.initialSceneId,
 		);
@@ -225,7 +261,12 @@ export class Player {
 	}
 
 	async runEvents(events: GameEvent[]) {
-		for (const event of events) {
+		if (this.disposed) return;
+
+		const sortedEvents = events.sort((a, b) =>
+			sortByFractionalIndex(a.order, b.order),
+		);
+		for (const event of sortedEvents) {
 			this.updateCurrentEvent(event);
 			await this.runEvent(event);
 		}
@@ -464,14 +505,14 @@ export class Player {
 	}
 
 	async waitCancelable(ms: number, eventId: string) {
-		console.log(eventId);
-
 		if (this.disposed) return;
 
 		const startTime = performance.now();
 		const wait = () =>
 			new Promise<void>((resolve) => {
 				const check = () => {
+					if (this.disposed) return;
+
 					if (
 						performance.now() - startTime > ms ||
 						this.checkIfEventIsCanceled(eventId)
@@ -520,6 +561,7 @@ export class Player {
 		}
 		if (scene.sceneType === "goto") {
 			this.updateScene(scene.nextSceneId);
+			console.log("goto", scene.nextSceneId);
 			this.runEvents(this.currentScene?.events ?? []);
 		}
 		if (scene.sceneType === "end") {
@@ -529,6 +571,8 @@ export class Player {
 	}
 
 	selectChoice(choice: Choice) {
+		if (this.disposed) return;
+
 		this.addToHistory({ text: choice.text, isChoice: true });
 		this.updateScene(choice.nextSceneId);
 		this.runEvents(this.currentScene?.events ?? []);

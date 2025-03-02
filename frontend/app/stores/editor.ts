@@ -1,3 +1,4 @@
+import { generateKeyBetween } from "fractional-indexing";
 import type { StateCreator } from "zustand";
 import type { SceneSettingsFormData } from "~/features/editor/components/scene-detail/scene-settings";
 import type { ProjectSettingsFormData } from "~/features/editor/components/scene-list/project-settings";
@@ -15,6 +16,7 @@ import type {
 	MediaAsset,
 	Scene,
 } from "~/schema";
+
 import type { State } from ".";
 
 export interface EditorState {
@@ -89,7 +91,15 @@ export const createEditorSlice: StateCreator<
 			id: newSceneId,
 			title: sceneTitle,
 			sceneType: "end",
-			events: [],
+			events: [
+				{
+					id: crypto.randomUUID(),
+					type: "text",
+					category: "message",
+					order: generateKeyBetween(null, null),
+					text: "新しいシーン",
+				},
+			],
 		};
 
 		let updatedScene = fromScene;
@@ -142,6 +152,10 @@ export const createEditorSlice: StateCreator<
 	deleteScene: (sceneId) => {
 		const { editingGame, markAsDirty } = get();
 		if (!editingGame) return;
+
+		if (editingGame.initialSceneId === sceneId) {
+			throw new Error("初期シーンは削除不能");
+		}
 
 		// 依存関係の更新（他シーンからの参照を削除）
 		const updatedScenes = editingGame.scenes.map((scene) => {
@@ -210,6 +224,15 @@ export const createEditorSlice: StateCreator<
 			if (scene.id === selectedSceneId) {
 				const newEvents = [...scene.events];
 				newEvents.splice(index, 0, newEvent);
+
+				newEvents[index] = {
+					...newEvents[index],
+					order: generateKeyBetween(
+						newEvents[index - 1]?.order ?? null,
+						newEvents[index + 1]?.order ?? null,
+					),
+				};
+
 				return { ...scene, events: newEvents };
 			}
 			return scene;
@@ -236,8 +259,18 @@ export const createEditorSlice: StateCreator<
 				const newEvents = [...scene.events];
 				const [movedEvent] = newEvents.splice(oldIndex, 1);
 				newEvents.splice(newIndex, 0, movedEvent);
+
+				newEvents[newIndex] = {
+					...newEvents[newIndex],
+					order: generateKeyBetween(
+						newEvents[newIndex - 1]?.order ?? null,
+						newEvents[newIndex + 1]?.order ?? null,
+					),
+				};
+
 				return { ...scene, events: newEvents };
 			}
+
 			return scene;
 		});
 
@@ -255,6 +288,16 @@ export const createEditorSlice: StateCreator<
 	deleteEvent: (eventId, selectedSceneId) => {
 		const { editingGame, markAsDirty } = get();
 		if (!editingGame) return;
+
+		const currentScene = editingGame.scenes.find(
+			(scene) => scene.id === selectedSceneId,
+		);
+
+		if (!currentScene) return;
+
+		if (currentScene.events.length === 1) {
+			throw new Error("最後のイベントは削除不能");
+		}
 
 		const updatedScenes = editingGame.scenes.map((scene) => {
 			if (scene.id === selectedSceneId) {

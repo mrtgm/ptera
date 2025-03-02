@@ -120,12 +120,13 @@ const CharacterDialog = ({
 	}
 
 	const mode = modalSlice.modalType;
+	const isManageMode = mode === "character.manage";
 	const isCharacterSelectionMode = mode === "character.select";
 	const isImageSelectionMode = mode === "character.image-select";
 
 	const handleCharacterSelect = (characterId: string) => {
 		setSelectedCharacterId(characterId);
-		if (isImageSelectionMode) {
+		if (isImageSelectionMode || isManageMode) {
 			setCurrentView("images");
 		}
 	};
