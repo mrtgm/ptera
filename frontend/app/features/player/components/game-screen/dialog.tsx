@@ -1,5 +1,4 @@
 import type { GameEvent, GameState, Stage } from "~/schema";
-import type { Player } from "../../utils/engine";
 import type { EventManager } from "../../utils/event";
 import { AnimatePresence } from "./animate-presence";
 

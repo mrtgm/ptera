@@ -1,8 +1,8 @@
-import type { MetaFunction } from "@remix-run/node";
+import { type MetaFunction, Outlet } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
 	return [
-		{ title: "Noveller" },
+		{ title: "Noveller Dashboard" },
 		{
 			name: "description",
 			content: "Noveller is a new way to create, share, and play stories.",
@@ -11,5 +11,5 @@ export const meta: MetaFunction = () => {
 };
 
 export default function Index() {
-	return <div>TBD</div>;
+	return <Outlet />;
 }

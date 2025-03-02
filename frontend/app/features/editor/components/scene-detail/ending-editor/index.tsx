@@ -410,7 +410,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 			</div>
 
 			<div className="col-span-4">
-				<Graph game={localGame} />
+				<Graph game={localGame} onNavigateToScene={onNavigateToScene} />
 			</div>
 		</div>
 	);

@@ -90,11 +90,12 @@ const CustomNode = memo((props: CustomNodeProps) => {
 
 export const Graph = ({
 	game,
+	onNavigateToScene,
 }: {
 	game: Game | null;
+	onNavigateToScene: (sceneId: string) => void;
 }) => {
 	const { sceneId } = useParams();
-	const navigate = useNavigate();
 	const [nodes, setNodes, onNodesChange] = useNodesState(
 		transfromToNodes(game, getAllNodesPosition({ game })),
 	);
@@ -103,9 +104,9 @@ export const Graph = ({
 
 	const onNodeClick = useCallback(
 		(event: React.MouseEvent, node: Node) => {
-			navigate(`/editor/${node.id}`);
+			onNavigateToScene(node.id);
 		},
-		[navigate],
+		[onNavigateToScene],
 	);
 
 	useEffect(() => {

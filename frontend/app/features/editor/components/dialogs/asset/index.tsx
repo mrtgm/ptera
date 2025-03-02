@@ -38,11 +38,13 @@ export const AssetDialogContainer = ({
 	resources,
 	onDeleteAsset,
 	onUploadAsset,
+	onNavigateToScene,
 }: {
 	game: Game | null;
 	resources: GameResources | null;
 	onDeleteAsset: (assetId: string, type: AssetDialogKeyType) => void;
 	onUploadAsset: (file: File, type: AssetDialogKeyType) => void;
+	onNavigateToScene: (sceneId: string) => void;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
 
@@ -71,6 +73,7 @@ export const AssetDialogContainer = ({
 				resources={resources}
 				onDeleteAsset={onDeleteAsset}
 				onUploadAsset={onUploadAsset}
+				onNavigateToScene={onNavigateToScene}
 			/>
 		</Dialog>
 	);
@@ -82,6 +85,7 @@ const AssetDialog = ({
 	game,
 	onDeleteAsset,
 	onUploadAsset,
+	onNavigateToScene,
 	params,
 }: {
 	type: "asset.manage" | "asset.select";
@@ -89,10 +93,10 @@ const AssetDialog = ({
 	game: Game;
 	onDeleteAsset: (assetId: string, type: AssetDialogKeyType) => void;
 	onUploadAsset: (file: File, type: AssetDialogKeyType) => void;
+	onNavigateToScene: (sceneId: string) => void;
 	params: AssetManageParams | AssetSelectParams;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
-	const navigate = useNavigate();
 
 	const isSelectionMode = type === "asset.select";
 
@@ -185,7 +189,7 @@ const AssetDialog = ({
 
 	const handleSceneNavigate = (sceneId: string, eventId: string) => {
 		modalSlice.closeModal();
-		navigate(`/editor/${sceneId}/${eventId}`);
+		onNavigateToScene(sceneId);
 	};
 
 	const AssetModalSideBarSettings: Record<

@@ -13,7 +13,7 @@ import type {
 	TextRenderEvent,
 } from "~/schema";
 import { ResourceManager } from "~/utils/preloader";
-import { Player } from "../../utils/engine";
+import { EventManager } from "../../utils/event";
 
 const mockStage: Stage = {
 	cg: {
@@ -67,6 +67,7 @@ const mockTextEvent: TextRenderEvent = {
 	category: "message",
 	text: "これはテストダイアログです。",
 	characterName: "キャラクター1",
+	order: "a0",
 };
 
 const GameScreenWrapper = (args: {
@@ -149,13 +150,16 @@ const GameScreenWrapper = (args: {
 			</div>
 
 			<GameScreen
-				handleTapScreen={handleTapScreen}
+				onTapScreen={handleTapScreen}
+				onChoiceSelected={() => {}}
+				onChangeAutoMode={() => {}}
+				onChangeMute={() => {}}
 				stage={stage || args.stage}
 				history={args.history || mockHistory}
 				state={args.state || "playing"}
 				resourceCache={args.resourceCache || cache}
 				currentEvent={args.currentEvent || mockTextEvent}
-				player={new Player()}
+				manager={new EventManager()}
 			/>
 		</div>
 	);
@@ -277,6 +281,7 @@ export const WithBGM: Story = {
 				id: "peaceful-day",
 				volume: 0.2,
 				isPlaying: true,
+				loop: true,
 				transitionDuration: 300,
 			},
 		},
@@ -292,6 +297,7 @@ export const WithSoundEffect: Story = {
 				id: "footsteps",
 				volume: 0.7,
 				isPlaying: true,
+				loop: false,
 				transitionDuration: 0,
 			},
 		},

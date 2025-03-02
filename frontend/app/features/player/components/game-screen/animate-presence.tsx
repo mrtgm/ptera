@@ -15,7 +15,6 @@ import {
 	Transition,
 	type TransitionConfig,
 } from "~/utils/transition";
-import type { Player } from "../../utils/engine";
 import type { EventManager } from "../../utils/event";
 type TransitionType = "enter" | "exit";
 

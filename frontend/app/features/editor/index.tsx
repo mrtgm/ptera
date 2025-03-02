@@ -42,6 +42,7 @@ export const Editor = () => {
 	const navigate = useNavigate();
 	const pathparams = useParams();
 
+	const gameId = pathparams.gameId;
 	const selectedSceneId = pathparams.sceneId;
 	const selectedEventId = pathparams.eventId;
 
@@ -60,19 +61,23 @@ export const Editor = () => {
 	}, [editorSlice.initializeEditor]);
 
 	const handleNavigateToScene = (sceneId: string) => {
-		navigate(`/editor/${sceneId}`);
+		navigate(`/dashboard/games/${gameId}/edit/scenes/${sceneId}`);
 	};
 
 	const handleNavigateToEvent = (eventId: string) => {
-		navigate(`/editor/${selectedSceneId}/${eventId}`);
+		navigate(
+			`/dashboard/games/${gameId}/edit/scenes/${selectedSceneId}/events/${eventId}`,
+		);
 	};
 
 	const handleNavigateToScenesList = () => {
-		navigate("/editor");
+		navigate(`/dashboard/games/${gameId}/edit`);
 	};
 
 	const handleClickSceneEnding = () => {
-		navigate(`/editor/${selectedSceneId}/ending`);
+		navigate(
+			`/dashboard/games/${gameId}/edit/scenes/${selectedSceneId}/events/ending`,
+		);
 	};
 
 	const handleAddScene = (
@@ -232,6 +237,7 @@ export const Editor = () => {
 				resources={editorSlice.editingResources}
 				onDeleteAsset={handleDeleteAsset}
 				onUploadAsset={handleUploadAsset}
+				onNavigateToScene={handleNavigateToScene}
 			/>
 			<PreviewDialogContainer
 				game={editorSlice.editingGame}
@@ -337,7 +343,10 @@ export const Editor = () => {
 
 					{!selectedEventId && !isOpenEnding && (
 						<div className="w-full h-[calc(100dvh-40px)] sticky top-0">
-							<Graph game={editorSlice.editingGame} />
+							<Graph
+								game={editorSlice.editingGame}
+								onNavigateToScene={handleNavigateToScene}
+							/>
 						</div>
 					)}
 				</div>
