@@ -328,15 +328,30 @@ export type Scene = z.infer<typeof sceneSchema>;
 /* ------------------------------------------------------
     Game
 ------------------------------------------------------ */
-export const gameSchema = z.object({
+
+export const gameMataDataSchema = z.object({
 	id: z.string(),
 	title: z.string(),
 	author: z.string(),
 	description: z.string(),
-	scenes: z.array(sceneSchema),
-	initialSceneId: z.string(),
-	version: z.string(),
+	coverImageUrl: z.string().optional(),
+	schemaVersion: z.string(),
+	status: z.union([
+		z.literal("draft"),
+		z.literal("published"),
+		z.literal("archived"),
+	]),
 });
+
+export type GameMetaData = z.infer<typeof gameMataDataSchema>;
+
+export const gameSchema = z
+	.object({
+		scenes: z.array(sceneSchema),
+		initialSceneId: z.string(),
+	})
+	.merge(gameMataDataSchema);
+
 export type Game = z.infer<typeof gameSchema>;
 
 /* ------------------------------------------------------
@@ -432,3 +447,16 @@ export const isChoiceScene = (scene: Scene): scene is ChoiceScene => {
 export const isEndScene = (scene: Scene): scene is EndScene => {
 	return scene.sceneType === "end";
 };
+
+/* ------------------------------------------------------
+		User
+------------------------------------------------------ */
+
+export const userProfileSchema = z.object({
+	id: z.string(),
+	name: z.string(),
+	email: z.string(),
+	avatarUrl: z.string().optional(),
+});
+
+export type UserProfile = z.infer<typeof userProfileSchema>;

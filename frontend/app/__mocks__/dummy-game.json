@@ -4,7 +4,9 @@
   "author": "MysteryWriter",
   "description": "穏やかな春の日、主人公は公園で不思議な少女と出会う。",
   "initialSceneId": "opening",
-  "version": "0.1",
+  "schemaVersion": "0.1",
+  "coverImageUrl": "https://dummyimage.com/600x400/000/fff",
+  "status": "published",
   "scenes": [
     {
       "id": "opening",

@@ -1,5 +1,5 @@
 {
-  "name": "Noveller",
+  "name": "Ptera",
   "customizations": {
     "vscode": {
       "extensions": ["biomejs.biome", "streetsidesoftware.code-spell-checker", "bradlc.vscode-tailwindcss"]

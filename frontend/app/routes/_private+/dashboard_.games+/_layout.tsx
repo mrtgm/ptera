@@ -2,7 +2,7 @@ import { type MetaFunction, Outlet } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
 	return [
-		{ title: "Noveller Dashboard" },
+		{ title: "Noveller" },
 		{
 			name: "description",
 			content: "Noveller is a new way to create, share, and play stories.",

@@ -26,6 +26,10 @@ export interface EditorState {
 
 	initializeEditor: (game: Game, resources: GameResources) => void;
 
+	createGame: (title: string, description: string) => Promise<string>; // Returns gameId
+	deleteGame: (gameId: string) => Promise<boolean>;
+	publishGame: (gameId: string, isPublic: boolean) => Promise<boolean>;
+
 	addScene: (
 		sceneTitle: string,
 		fromScene?: Scene,
@@ -534,5 +538,60 @@ export const createEditorSlice: StateCreator<
 
 	markAsClean: () => {
 		set({ isDirty: false });
+	},
+
+	createGame: async (title, description) => {
+		console.log("Creating game", title, description);
+
+		const INITIAL_GAME: Game = {
+			id: crypto.randomUUID(),
+			title,
+			description,
+			author: "anonymous",
+			initialSceneId: "opening",
+			coverImageUrl: undefined,
+			schemaVersion: "0.1",
+			status: "draft",
+			scenes: [
+				{
+					id: "opening",
+					title: "オープニング",
+					sceneType: "end",
+					events: [
+						{
+							id: "opening-event",
+							type: "text",
+							category: "message",
+							order: "a0",
+							text: "これはオープニングです。",
+						},
+					],
+				},
+			],
+		};
+
+		set({
+			editingGame: INITIAL_GAME,
+			editingResources: {
+				characters: {},
+				backgroundImages: {},
+				cgImages: {},
+				soundEffects: {},
+				bgms: {},
+			},
+			isDirty: false,
+		});
+
+		return "gameId";
+	},
+
+	deleteGame: async (gameId) => {
+		console.log("Deleting game", gameId);
+		return true;
+	},
+
+	publishGame: async (gameId, isPublic) => {
+		console.log("Publishing game", gameId, isPublic);
+		return true;
 	},
 });

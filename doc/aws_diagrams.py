@@ -7,7 +7,7 @@ from diagrams.aws.security import Cognito
 from diagrams.onprem.iac import Terraform
 from diagrams.aws.management import Cloudwatch
 
-with Diagram("Noveller Architecture", show=False, filename="noveller_architecture"):
+with Diagram("Ptera Architecture", show=False, filename="ptera_architecture"):
     user = Cognito("User")
 
     tf = Terraform("Terraform")
