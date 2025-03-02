@@ -8,6 +8,7 @@ import {
 } from "@remix-run/react";
 
 import "./tailwind.css";
+import { GeneralErrorBoundary } from "./components/error-boundary";
 
 export const links: LinksFunction = () => [
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -39,6 +40,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 		</html>
 	);
 }
+
+export const ErrorBoundary = GeneralErrorBoundary;
 
 export default function App() {
 	return <Outlet />;
