@@ -20,5 +20,6 @@
     "editor.tabSize": 2,
     "editor.quickSuggestions": {
       "strings": true
-    }
+    },
+    "deno.enable": true
   }

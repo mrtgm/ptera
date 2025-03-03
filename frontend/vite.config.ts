@@ -15,7 +15,7 @@ export default defineConfig({
 	plugins: [
 		!process.env.VITEST
 			? remix({
-					ssr: true,
+					ssr: false,
 					future: {
 						v3_fetcherPersist: true,
 						v3_relativeSplatPath: true,
@@ -54,6 +54,11 @@ export default defineConfig({
 		environment: "jsdom",
 		setupFiles: ["./setup-vitest.ts"],
 		globals: true,
+	},
+
+	server: {
+		port: 3000,
+		host: '0.0.0.0',
 	},
 
 	build: {
