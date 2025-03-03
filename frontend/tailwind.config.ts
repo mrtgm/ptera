@@ -1,26 +1,5 @@
 import type { Config } from "tailwindcss";
 
-// @keyframes character-bounce {
-//   0%, 100% { transform: translateY(0); }
-//   50% { transform: translateY(-20px); }
-// }
-
-// @keyframes character-sway {
-//   0%, 100% { transform: translateX(0); }
-//   25% { transform: translateX(-10px); }
-//   75% { transform: translateX(10px); }
-// }
-
-// @keyframes character-wobble {
-//   0%, 100% { transform: rotate(0deg); }
-//   25% { transform: rotate(-5deg); }
-//   75% { transform: rotate(5deg); }
-// }
-
-// @keyframes character-flash {
-//   0%, 100% { opacity: 1; }
-//   50% { opacity: 0; }
-// }
 export default {
 	darkMode: ["class"],
 	content: ["./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}"],
@@ -32,6 +11,7 @@ export default {
 				wobble: "wobble 1s cubic-bezier(.36,.07,.19,.97) infinite",
 				flash: "flash 1s cubic-bezier(.36,.07,.19,.97) infinite",
 				shake: "shake 0.82s cubic-bezier(.36,.07,.19,.97) both infinite",
+				"text-blink": "textBlink 0.8s infinite",
 			},
 			keyframes: {
 				bounce: {
@@ -85,6 +65,11 @@ export default {
 					"40%, 60%": {
 						transform: "translate3d(4px, 0, 0)",
 					},
+				},
+				textBlink: {
+					"0%": { opacity: "1" },
+					"50%": { opacity: "0.3" },
+					"100%": { opacity: "1" },
 				},
 			},
 			fontFamily: {

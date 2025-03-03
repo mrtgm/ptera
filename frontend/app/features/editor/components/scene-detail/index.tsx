@@ -3,6 +3,7 @@ import {
 	SortableContext,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { Trash } from "lucide-react";
 import { useEffect } from "react";
 import {
 	Breadcrumb,
@@ -78,10 +79,10 @@ export const SceneDetail = ({
 				{game.initialSceneId !== selectedScene.id && (
 					<Button
 						onClick={() => setSceneDeleteDialogOpen(true)}
-						variant="destructive"
-						size="sm"
+						size="icon"
+						variant="outline"
 					>
-						シーン削除
+						<Trash size={16} className="text-red-600" />
 					</Button>
 				)}
 			</div>

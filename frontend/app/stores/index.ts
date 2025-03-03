@@ -29,20 +29,14 @@ type UnionToIntersection<U> = (
 
 type SliceNames = keyof SliceStates;
 
-export type State = UnionToIntersection<SliceStates[SliceNames]>;
+export type State = UnionToIntersection<SliceStates[keyof SliceStates]>;
 
-type StoreWithSliceSelectors<S> = S extends {
-	getState: () => State;
-}
-	? S & {
-			use: {
-				[K in keyof State]: () => State[K];
-			};
-			useSlice: {
-				[K in SliceNames]: () => SliceStates[K];
-			};
-		}
-	: never;
+type StoreWithSliceSelectors<S> = S & {
+	use: { [K in keyof State]: () => State[K] };
+	useSlice: {
+		[K in keyof SliceStates]: () => SliceStates[K];
+	};
+} & StoreApi<State>;
 
 // セレクターを生成するヘルパー
 export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(
@@ -68,7 +62,7 @@ export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(
 				const sliceState = store.getState();
 				const initialSliceState = sliceDefinitions[
 					sliceName as keyof typeof sliceDefinitions
-				](store.setState, store.getState, store as StoreApi<State>);
+				](store.setState, store.getState, store);
 
 				// 初期状態のキーを使用してスライスの状態を構築
 				const result: Record<string, unknown> = {};

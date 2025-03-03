@@ -7,6 +7,9 @@ import {
 	ScrollRestoration,
 } from "@remix-run/react";
 
+import "@fontsource/dotgothic16";
+import "./base.css";
+
 import "./tailwind.css";
 import { GeneralErrorBoundary } from "./components/error-boundary";
 

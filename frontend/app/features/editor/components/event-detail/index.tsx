@@ -36,7 +36,7 @@ import {
 	getEventTitle,
 } from "../../constants";
 
-import { MonitorPlay } from "lucide-react";
+import { MonitorPlay, Trash } from "lucide-react";
 import { useUnsavedFormWarning } from "~/hooks/use-unsaved-form-warning";
 import { useStore } from "~/stores";
 import { useDeleteConfirmationDialog } from "../dialogs";
@@ -166,6 +166,7 @@ export const EventDetail = ({
 					</CardTitle>
 					<div className="flex gap-2 flex-wrap">
 						<Button
+							size="icon"
 							variant="outline"
 							onClick={() =>
 								modalSlice.openModal("preview", {
@@ -180,10 +181,11 @@ export const EventDetail = ({
 						</Button>
 						{selectedScene.events.length > 1 && (
 							<Button
-								variant="destructive"
+								size="icon"
+								variant="outline"
 								onClick={() => setEventDeleteDialogOpen(true)}
 							>
-								イベント削除
+								<Trash size={16} className="text-red-600" />
 							</Button>
 						)}
 					</div>

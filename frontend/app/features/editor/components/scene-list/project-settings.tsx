@@ -48,51 +48,56 @@ export const ProjectSettings = ({
 	}, [game, form.reset]);
 
 	return (
-		<Form {...form}>
-			<form onSubmit={form.handleSubmit(handleSubmit)}>
-				<FormField
-					control={form.control}
-					name="gameTitle"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>タイトル</FormLabel>
-							<FormControl>
-								<Input placeholder="ゲームのタイトル" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-				<FormField
-					control={form.control}
-					name="authorName"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>作者</FormLabel>
-							<FormControl>
-								<Input placeholder="作者名" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-				<FormField
-					control={form.control}
-					name="description"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>説明</FormLabel>
-							<FormControl>
-								<Input placeholder="ゲームの説明" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-				<Button type="submit" className="mt-2">
-					保存
-				</Button>
-			</form>
-		</Form>
+		<>
+			<h2 className="text-lg font-bold mb-2">ゲーム設定</h2>
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-2">
+					<FormField
+						control={form.control}
+						name="gameTitle"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>タイトル</FormLabel>
+								<FormControl>
+									<Input placeholder="ゲームのタイトル" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="authorName"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>作者</FormLabel>
+								<FormControl>
+									<Input placeholder="作者名" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="description"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>説明</FormLabel>
+								<FormControl>
+									<Input placeholder="ゲームの説明" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<div>
+						<Button type="submit" className="mt-2">
+							保存
+						</Button>
+					</div>
+				</form>
+			</Form>
+		</>
 	);
 };

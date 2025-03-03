@@ -333,7 +333,10 @@ export const gameMataDataSchema = z.object({
 	id: z.string(),
 	title: z.string(),
 	author: z.string(),
+	authorName: z.string().optional(),
+	authorAvatarUrl: z.string().optional(),
 	description: z.string(),
+	releaseDate: z.number().optional(),
 	coverImageUrl: z.string().optional(),
 	schemaVersion: z.string(),
 	status: z.union([
@@ -341,6 +344,11 @@ export const gameMataDataSchema = z.object({
 		z.literal("published"),
 		z.literal("archived"),
 	]),
+	genres: z.array(z.string()).optional(),
+	likeCount: z.number(),
+	playCount: z.number(),
+	createdAt: z.number(),
+	updatedAt: z.number(),
 });
 
 export type GameMetaData = z.infer<typeof gameMataDataSchema>;
@@ -456,7 +464,10 @@ export const userProfileSchema = z.object({
 	id: z.string(),
 	name: z.string(),
 	email: z.string(),
+	bio: z.string().optional(),
 	avatarUrl: z.string().optional(),
+	createdAt: z.string(),
+	updatedAt: z.string(),
 });
 
 export type UserProfile = z.infer<typeof userProfileSchema>;

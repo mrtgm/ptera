@@ -552,6 +552,10 @@ export const createEditorSlice: StateCreator<
 			coverImageUrl: undefined,
 			schemaVersion: "0.1",
 			status: "draft",
+			createdAt: Date.now(),
+			updatedAt: Date.now(),
+			playCount: 0,
+			likeCount: 0,
 			scenes: [
 				{
 					id: "opening",

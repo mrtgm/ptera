@@ -24,7 +24,7 @@ export const Sidebar = ({
 
 	return (
 		<div className="h-[calc(100dvh-40px)] overflow-y-scroll overflow-x-hidden">
-			<div className="p-2">
+			<div className="p-4">
 				<SceneSettings scene={selectedScene} onSaveSettings={onSaveSettings} />
 			</div>
 			<Separator className="my-2" />
@@ -32,7 +32,7 @@ export const Sidebar = ({
 				{Object.entries(sideBarSettings).map(([key, value]) => {
 					return (
 						<div key={key} className="w-full">
-							<div className="w-full p-2 cursor-pointer text-sm">
+							<div className="w-full p-4 cursor-pointer text-sm">
 								<div className="text-lg font-bold flex items-center gap-2">
 									<div
 										className="w-2 h-4"

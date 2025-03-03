@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import dummyAssets from "~/__mocks__/dummy-assets.json";
 import dummyGame from "~/__mocks__/dummy-game.json";
+import emptyGame from "~/__mocks__/empty-game.json";
 import { Toaster } from "~/components/shadcn/sonner";
 import { type Game, type GameEvent, type Scene, gameSchema } from "~/schema";
 import { useStore } from "~/stores";
@@ -56,7 +57,7 @@ export const Editor = () => {
 
 	useEffect(() => {
 		// TODO: ロード
-		const game = gameSchema.parse(dummyGame);
+		const game = gameSchema.parse(emptyGame);
 		editorSlice.initializeEditor(game, dummyAssets);
 	}, [editorSlice.initializeEditor]);
 
@@ -311,7 +312,7 @@ export const Editor = () => {
 				{selectedSceneId === undefined && (
 					<>
 						<div className="col-span-3 border-r-[1px] border-gray-200">
-							<div className="p-2">
+							<div className="p-4">
 								<ProjectSettings
 									game={editorSlice.editingGame}
 									onSaveSettings={handleSaveProjectSettings}

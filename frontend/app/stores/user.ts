@@ -34,11 +34,7 @@ export interface UserState {
 // Create the user slice
 export const createUserSlice: StateCreator<
 	State,
-	[
-		["zustand/devtools", never],
-		["zustand/immer", never],
-		["zustand/persist", unknown],
-	],
+	[["zustand/devtools", never], ["zustand/immer", never]],
 	[],
 	UserState
 > = (set, get) => ({

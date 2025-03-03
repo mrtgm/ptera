@@ -20,20 +20,23 @@ import {
 } from "~/components/shadcn/card";
 import { Input } from "~/components/shadcn/input";
 import { Label } from "~/components/shadcn/label";
+import { Textarea } from "~/components/shadcn/textarea";
 
+// lucide icons
 import { AlertTriangle, Camera, LogOut } from "lucide-react";
 
-// ダミー
 const currentUser = {
-	name: "test",
-	email: "hoge@example.com",
-	avatarUrl: "https://avatars.githubusercontent.com/u/123456",
+	name: "John Doe",
+	email: "example@example.com",
+	avatarUrl: "https://i.pravatar.cc/300",
 };
 
 export default function SettingsPage() {
+	// useStore からユーザー状態を取得
 	const updateProfile = useStore((state) => state.updateProfile);
 	const logout = useStore((state) => state.logout);
 
+	// ローカル状態
 	const [profileData, setProfileData] = useState<Partial<UserProfile>>({
 		name: "",
 		email: "",
@@ -124,7 +127,10 @@ export default function SettingsPage() {
 			)}
 
 			<Card>
-				<CardContent className="p-6">
+				<CardHeader>
+					<CardTitle>プロフィール情報</CardTitle>
+				</CardHeader>
+				<CardContent>
 					<form onSubmit={handleProfileSubmit} className="space-y-6">
 						<div className="space-y-4">
 							<div className="flex flex-col space-y-2 items-center sm:flex-row sm:space-y-0 sm:space-x-4">
@@ -154,6 +160,20 @@ export default function SettingsPage() {
 									onChange={handleProfileInputChange}
 									placeholder="表示名を入力"
 								/>
+							</div>
+							<div className="grid gap-1">
+								<Label htmlFor="bio">自己紹介</Label>
+								<Textarea
+									id="bio"
+									name="bio"
+									value={profileData.bio}
+									onChange={handleProfileInputChange}
+									placeholder="自分自身について簡単に説明"
+									rows={4}
+								/>
+								<p className="text-sm text-muted-foreground">
+									公開プロフィールに表示される簡単な自己紹介文
+								</p>
 							</div>
 						</div>
 					</form>

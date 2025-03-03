@@ -1,36 +1,14 @@
-import { Link, useNavigate } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import type { GameMetaData } from "~/schema";
 import { useStore } from "~/stores";
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "~/components/shadcn/alert-dialog";
-import { Badge } from "~/components/shadcn/badge";
 import { Button } from "~/components/shadcn/button";
 import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardHeader,
 	CardTitle,
 } from "~/components/shadcn/card";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "~/components/shadcn/dropdown-menu";
 import {
 	Tabs,
 	TabsContent,
@@ -39,17 +17,9 @@ import {
 } from "~/components/shadcn/tabs";
 
 // lucide icons
-import {
-	Edit,
-	Eye,
-	Gamepad2,
-	Globe,
-	Lock,
-	MoreVertical,
-	Plus,
-	Trash2,
-} from "lucide-react";
+import { Gamepad2, Plus } from "lucide-react";
 import CreateGameDialog from "~/features/dashboard/components/create-game-dialog";
+import GameCard from "~/features/dashboard/components/game-card";
 
 // Dummy game data
 const dummyGames: GameMetaData[] = [
@@ -57,12 +27,18 @@ const dummyGames: GameMetaData[] = [
 		id: "game-1",
 		title: "青い鳥を探して",
 		author: "user-1",
+		authorAvatarUrl: "https://placehold.co/32x32/3b82f6/ffffff?text=U",
+
 		description:
 			"幸せを探す少年の旅路を描いた物語。プレイヤーの選択によって異なる結末へと導かれる。",
 		coverImageUrl:
 			"https://placehold.co/400x225/3b82f6/ffffff?text=青い鳥を探して",
 		schemaVersion: "1.0",
 		status: "published",
+		createdAt: 1708444800000,
+		updatedAt: 1709913600000,
+		playCount: 253,
+		likeCount: 42,
 	},
 	{
 		id: "game-2",
@@ -74,6 +50,10 @@ const dummyGames: GameMetaData[] = [
 			"https://placehold.co/400x225/a855f7/ffffff?text=迷宮の魔術師",
 		schemaVersion: "1.0",
 		status: "published",
+		createdAt: 1706025600000,
+		updatedAt: 1708704000000,
+		playCount: 189,
+		likeCount: 28,
 	},
 	{
 		id: "game-3",
@@ -83,6 +63,10 @@ const dummyGames: GameMetaData[] = [
 			"未完成の作品です。小惑星から来た不思議な少年との出会いを描く物語。",
 		schemaVersion: "1.0",
 		status: "draft",
+		createdAt: 1709568000000,
+		updatedAt: 1710432000000,
+		playCount: 0,
+		likeCount: 0,
 	},
 	{
 		id: "game-4",
@@ -94,6 +78,10 @@ const dummyGames: GameMetaData[] = [
 			"https://placehold.co/400x225/10b981/ffffff?text=アトランティス",
 		schemaVersion: "1.0",
 		status: "draft",
+		createdAt: 1709395200000,
+		updatedAt: 1710777600000,
+		playCount: 0,
+		likeCount: 0,
 	},
 ];
 
@@ -117,6 +105,10 @@ export default function GamesPage() {
 			description,
 			schemaVersion: "1.0",
 			status: "draft",
+			createdAt: Date.now(),
+			updatedAt: Date.now(),
+			playCount: 0,
+			likeCount: 0,
 		};
 
 		setUserGames((prev) => [...prev, newGame]);
@@ -228,108 +220,14 @@ export default function GamesPage() {
 		return (
 			<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 				{games.map((game) => (
-					<Card key={game.id} className="overflow-hidden">
-						<div className="h-32 bg-gradient-to-r from-primary/20 to-secondary/20 relative">
-							{game.coverImageUrl ? (
-								<img
-									src={game.coverImageUrl}
-									alt={game.title}
-									className="w-full h-full object-cover"
-								/>
-							) : (
-								<div className="flex items-center justify-center h-full">
-									<Gamepad2 className="h-10 w-10 text-primary/40" />
-								</div>
-							)}
-
-							<div className="absolute top-2 right-2">
-								<DropdownMenu>
-									<DropdownMenuTrigger asChild>
-										<Button
-											variant="ghost"
-											size="icon"
-											className="h-8 w-8 bg-background/80 backdrop-blur-sm"
-										>
-											<MoreVertical className="h-4 w-4" />
-										</Button>
-									</DropdownMenuTrigger>
-									<DropdownMenuContent align="end">
-										<DropdownMenuLabel>アクション</DropdownMenuLabel>
-										<DropdownMenuSeparator />
-										<DropdownMenuItem asChild>
-											<Link to={`/dashboard/games/${game.id}/edit`}>
-												<Edit className="mr-2 h-4 w-4" /> 編集
-											</Link>
-										</DropdownMenuItem>
-										<DropdownMenuItem asChild>
-											<Link to={`/games/${game.id}`} target="_blank">
-												<Eye className="mr-2 h-4 w-4" /> プレイ
-											</Link>
-										</DropdownMenuItem>
-										<DropdownMenuItem
-											onClick={() => handlePublishToggle(game.id, game.status)}
-										>
-											{game.status === "published" ? (
-												<>
-													<Lock className="mr-2 h-4 w-4" /> 非公開にする
-												</>
-											) : (
-												<>
-													<Globe className="mr-2 h-4 w-4" /> 公開する
-												</>
-											)}
-										</DropdownMenuItem>
-										<DropdownMenuSeparator />
-										<AlertDialog>
-											<AlertDialogTrigger asChild>
-												<DropdownMenuItem
-													onSelect={(e) => e.preventDefault()}
-													className="text-destructive"
-												>
-													<Trash2 className="mr-2 h-4 w-4" /> 削除
-												</DropdownMenuItem>
-											</AlertDialogTrigger>
-											<AlertDialogContent>
-												<AlertDialogHeader>
-													<AlertDialogTitle>
-														本当に削除しますか？
-													</AlertDialogTitle>
-													<AlertDialogDescription>
-														この操作は元に戻せません。ゲームとそれに関連するすべてのデータが完全に削除されます。
-													</AlertDialogDescription>
-												</AlertDialogHeader>
-												<AlertDialogFooter>
-													<AlertDialogCancel>キャンセル</AlertDialogCancel>
-													<AlertDialogAction
-														onClick={() => deleteGame(game.id)}
-														className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-													>
-														削除
-													</AlertDialogAction>
-												</AlertDialogFooter>
-											</AlertDialogContent>
-										</AlertDialog>
-									</DropdownMenuContent>
-								</DropdownMenu>
-							</div>
-						</div>
-
-						<CardHeader className="pb-2">
-							<div className="flex justify-between items-center">
-								<CardTitle className="text-xl truncate">{game.title}</CardTitle>
-								<Badge
-									variant={
-										game.status === "published" ? "default" : "secondary"
-									}
-								>
-									{game.status === "published" ? "公開中" : "下書き"}
-								</Badge>
-							</div>
-							<CardDescription className="line-clamp-2 h-10">
-								{game.description || "説明なし"}
-							</CardDescription>
-						</CardHeader>
-					</Card>
+					<GameCard
+						key={game.id}
+						game={game}
+						showEdit
+						showAuthor={false}
+						onPublishToggle={handlePublishToggle}
+						onDelete={deleteGame}
+					/>
 				))}
 			</div>
 		);

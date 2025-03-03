@@ -257,7 +257,7 @@ export const GamePlayer = ({
 			</>
 
 			{process.env.NODE_ENV === "development" && (
-				<div className="absolute top-0 right-0 bg-black bg-opacity-70 text-white p-2 text-xs z-50">
+				<div className="absolute bottom-0 left-0 bg-black bg-opacity-70 text-white p-2 text-xs z-50">
 					<div>State: {state}</div>
 					<div>Scene: {currentScene?.id}</div>
 					<div>Event: {currentEvent?.id}</div>
