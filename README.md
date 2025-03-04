@@ -6,7 +6,7 @@
 ```
 ptera/
 ├── .devcontainer/     # devcontainer
-├── backend/           # Denoバックエンド
+├── backend/           # Node.js バックエンド
 └── frontend/          # Node.js/Reactフロントエンド
 ```
 
@@ -34,14 +34,12 @@ dev
 
 # バックエンドのみを起動
 cd backend
-deno task dev
+bun run dev
 
 # フロントエンドのみを起動
 cd frontend
-npm run dev
+bun run dev
 ```
-
-### 利用可能なエンドポイント
 
 - バックエンドAPI: http://localhost:8000
 - フロントエンドUI: http://localhost:3000
