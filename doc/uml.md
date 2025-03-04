@@ -2,90 +2,90 @@ classDiagram
 direction RL
 
 class User {
-id: string
+  id: string
 }
 
 class UserProfile {
-id: string
-name: string
-email: string
-bio: string
-avatarUrl: string
+  id: string
+  name: string
+  email: string
+  bio: string
+  avatarUrl: string
 }
 
 User "1" -- "1" UserProfile
 
 class Asset {
-id: string
-ownerId: string | null [null の場合はパブリック]
-type: bgm | soundEffect | characterImage | backgroundImage | cg
-　 isPublic: boolean
-name: string
-url: string
-metadata: json
+  id: string
+  ownerId: string | null [nullの場合はパブリック]
+  type: bgm | soundEffect | characterImage | backgroundImage | cg
+　isPublic: boolean
+  name: string
+  url: string
+  metadata: json
 }
 
-User "0..1" -- "0..\*" Asset
+User "0..1" -- "0..*" Asset
 
 class Character {
-id: string
-ownerId: string | null [null の場合はパブリック]
-isPublic: boolean
-name: string
+  id: string
+  ownerId: string | null [nullの場合はパブリック]
+  isPublic: boolean
+  name: string
 }
 
-Character "1"_--"0.._" Asset
-User "0..1" --"0..\*" Character
+Character "1"*--"0..*" Asset
+User "0..1" --"0..*" Character
 
 class Game {
-id: string
-name: string
-description: string
-coverImageUrl: string
-releaseDate: date
-status: enum
+  id: string
+  name: string
+  description: string
+  coverImageUrl: string
+  releaseDate: date
+  status: enum
 }
 
-Game "0..\*"--"1" User
+Game "0..*"--"1" User
 
 class Comment {
-id: string
-content: string
+  id: string
+  content: string
 }
 
-Game "0.._"_--"0.._" Comment
-User "0.._"--"0..\*" Comment
+Game "0..*"*--"0..*" Comment
+User "0..*"--"0..*" Comment
 
 class Like {
-id: string
+  id: string
 }
 
-Game "0.._"_--"0.._" Like
-User "0.._"--"0..\*" Like
+Game "0..*"*--"0..*" Like
+User "0..*"--"0..*" Like
 
 class GameCategory {
-id: string
-name: string
+  id: string
+  name: string
 }
 
-Game "0.._"o--"0.._" GameCategory
+Game "0..*"o--"0..*" GameCategory
 
 class Scene {
-id: string
-title: string
+  id: string
+  title: string
 }
 
 class ChoiceScene {
-id: string
+  id: string
 }
 
 class GotoScene {
-id: string
-nextSceneId: string
+  id: string
+  nextSceneId: string
 }
 
 class EndScene {
-id: string
+  id: string
 }
 
 Scene <|-- ChoiceScene
@@ -93,61 +93,61 @@ Scene <|-- GotoScene
 Scene <|-- EndScene
 
 class Choice {
-id: string
-text: string
-nextSceneId: string
+  id: string
+  text: string
+  nextSceneId: string
 }
 
-ChoiceScene "1"_--"1.._" Choice
+ChoiceScene "1"*--"1..*" Choice
 
-Game "1"_--"1.._" Scene
+Game "1"*--"1..*" Scene
 
 class Event {
-id: string
-type: enum
+  id: string
+  type: enum
 }
 
 class EventCategory {
-id: string
-name: string
+  id: string
+  name: string
 }
 
-Event "0.._"o--"0.._" EventCategory
+Event "0..*"o--"0..*" EventCategory
 
 class ChangeBackgroundEvent {
-id: string
-backgroundImageId: string
+  id: string
+  backgroundImageId: string
 }
 
 class AppearCharacterEvent {
-id: string
-characterId: string
-characterImageId: string
+  id: string
+  characterId: string
+  characterImageId: string
 }
 
 class BGMStartEvent {
-id: string
-bgmId: string
+  id: string
+  bgmId: string
 }
 
 class BGMStopEvent {
-id: string
+  id: string
 }
 
 class SoundEffectEvent {
-id: string
-soundEffectId: string
+  id: string
+  soundEffectId: string
 }
 
 class AppearCGEvent {
-id: string
-cgId: string
+  id: string
+  cgId: string
 }
 
 class TextRenderEvent {
-id: string
-text: string
-characterName: string
+  id: string
+  text: string
+  characterName: string
 }
 
 Event <|-- ChangeBackgroundEvent
@@ -158,4 +158,4 @@ Event <|-- SoundEffectEvent
 Event <|-- AppearCGEvent
 Event <|-- TextRenderEvent
 
-Scene "1"_--"1.._" Event
+Scene "1"*--"1..*" Event

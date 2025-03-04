@@ -9,29 +9,38 @@
         "biomejs.biome",
         "streetsidesoftware.code-spell-checker",
         "bradlc.vscode-tailwindcss",
-        "denoland.vscode-deno",
         "dbaeumer.vscode-eslint",
         "ms-azuretools.vscode-docker",
         "cweijan.vscode-postgresql-client2",
-        "mtxr.sqltools",
-        "mtxr.sqltools-driver-pg"
+        "github.copilot"
       ],
       "settings": {
-        "deno.enable": true,
-        "deno.lint": true,
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "denoland.vscode-deno",
+        "[javascript]": {
+          "editor.defaultFormatter": "biomejs.biome"
+        },
+        "[javascriptreact]": {
+          "editor.defaultFormatter": "biomejs.biome"
+        },
         "[typescript]": {
-          "editor.defaultFormatter": "denoland.vscode-deno"
+          "editor.defaultFormatter": "biomejs.biome"
         },
         "[typescriptreact]": {
-          "editor.defaultFormatter": "denoland.vscode-deno"
+          "editor.defaultFormatter": "biomejs.biome"
+        },
+        "editor.codeActionsOnSave": {
+          "quickfix.biome": "explicit",
+          "source.organizeImports.biome": "explicit",
+          "source.fixAll.eslint": "explicit"
+        },
+        "editor.tabSize": 2,
+        "editor.quickSuggestions": {
+          "strings": true
         }
       }
     }
   },
-
   "forwardPorts": [8000, 3000, 5432, 6379],
   "postCreateCommand": "bash .devcontainer/post-create.sh",
-  "remoteUser": "vscode"
+  "remoteUser": "node"
 }

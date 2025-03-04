@@ -1,31 +1,24 @@
-FROM mcr.microsoft.com/devcontainers/base:ubuntu
+FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:1-20
 
-# PostgreSQLクライアントと開発用ツールのインストール
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
   && apt-get -y install --no-install-recommends postgresql-client git curl unzip redis-tools
 
-# バックエンド用ツールチェーン
-ENV DENO_INSTALL=/usr/local
-RUN curl -fsSL https://deno.land/install.sh | sh
+ENV BUN_INSTALL=/bun
+ENV BUN_TMPDIR=/bun/tmp
 
-# フロントエンド用ツールチェーン
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-  && apt-get update \
-  && apt-get install -y nodejs \
-  && npm install -g npm@latest
+RUN mkdir -p /bun /bun/tmp \
+  && curl -fsSL https://bun.sh/install | bash \
+  && chown -R node:node /bun \
+  && chmod -R 755 /bun
+
+ENV PATH=${BUN_INSTALL}/bin:${PATH} \
+  BUN_DIR=${BUN_INSTALL}/.cache/bun \
+  TMPDIR=${BUN_TMPDIR}
 
 WORKDIR /workspace
 
-# Denoのキャッシュディレクトリ作成とパーミッション設定（不要かも）
-RUN mkdir -p /workspace/.deno-cache \
-  && chmod -R 777 /workspace/.deno-cache
+USER node
+RUN bun install --global @biomejs/biome
+RUN bun --version && node --version && npm --version
 
-RUN echo 'alias deno-run="deno run --allow-net --allow-read --allow-write --allow-env"' >> /home/vscode/.bashrc
-RUN echo 'alias dev="bash /workspace/.devcontainer/start-dev.sh"' >> /home/vscode/.bashrc
-
-# biome
-RUN npm install -g @biomejs/biome
-
-RUN deno --version && node --version && npm --version
-
-USER vscode
+USER root
