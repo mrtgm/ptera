@@ -2,6 +2,7 @@
 erDiagram
     User {
         string id PK
+        string jwtSub "UNIQUE"
         uuid publicId "UNIQUE"
         date updatedAt
         date createdAt
@@ -80,6 +81,20 @@ erDiagram
         date updatedAt
         date createdAt
     }
+
+    %% プレイ履歴
+    GamePlay {
+        string id PK
+        uuid publicId "UNIQUE"
+        string gameId FK
+        string userId FK "NULL"
+        date playedAt
+        date updatedAt
+        date createdAt
+    }
+
+    Game ||--|{ GamePlay : "1 to many"
+    User ||--o{ GamePlay : "1 to many"
 
     %% リレーション (Game 0..* - 1 User)
     User ||--|{ Game : "1 to many"

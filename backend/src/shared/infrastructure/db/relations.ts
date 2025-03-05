@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { user, userProfile, character, characterAsset, asset, game, scene, gameInitialScene, choiceScene, gotoScene, endScene, choice, comment, like, gameCategoryRelation, gameCategory, event, eventCategoryRelation, eventCategory, changeBackgroundEvent, appearCharacterEvent, hideCharacterEvent, hideAllCharactersEvent, moveCharacterEvent, characterEffectEvent, bgmStartEvent, bgmStopEvent, soundEffectEvent, hideCgEvent, appearCgEvent, textRenderEvent, appearMessageWindowEvent, hideMessageWindowEvent, effectEvent } from "./schema";
+import { user, userProfile, asset, character, characterAsset, game, gamePlay, gameInitialScene, scene, choiceScene, gotoScene, endScene, choice, comment, like, gameCategoryRelation, gameCategory, event, eventCategoryRelation, eventCategory, changeBackgroundEvent, appearCharacterEvent, hideCharacterEvent, hideAllCharactersEvent, moveCharacterEvent, characterEffectEvent, bgmStartEvent, bgmStopEvent, soundEffectEvent, appearCgEvent, hideCgEvent, textRenderEvent, appearMessageWindowEvent, hideMessageWindowEvent, effectEvent } from "./schema";
 
 export const userProfileRelations = relations(userProfile, ({one}) => ({
 	user: one(user, {
@@ -13,6 +13,34 @@ export const userRelations = relations(user, ({many}) => ({
 	assets: many(asset),
 	characters: many(character),
 	games: many(game),
+	gamePlays: many(gamePlay),
+	comments: many(comment),
+	likes: many(like),
+}));
+
+export const assetRelations = relations(asset, ({one, many}) => ({
+	user: one(user, {
+		fields: [asset.ownerId],
+		references: [user.id]
+	}),
+	characterAssets: many(characterAsset),
+	changeBackgroundEvents: many(changeBackgroundEvent),
+	appearCharacterEvents: many(appearCharacterEvent),
+	bgmStartEvents: many(bgmStartEvent),
+	soundEffectEvents: many(soundEffectEvent),
+	appearCgEvents: many(appearCgEvent),
+}));
+
+export const characterRelations = relations(character, ({one, many}) => ({
+	user: one(user, {
+		fields: [character.ownerId],
+		references: [user.id]
+	}),
+	characterAssets: many(characterAsset),
+	appearCharacterEvents: many(appearCharacterEvent),
+	hideCharacterEvents: many(hideCharacterEvent),
+	moveCharacterEvents: many(moveCharacterEvent),
+	characterEffectEvents: many(characterEffectEvent),
 }));
 
 export const characterAssetRelations = relations(characterAsset, ({one}) => ({
@@ -26,59 +54,28 @@ export const characterAssetRelations = relations(characterAsset, ({one}) => ({
 	}),
 }));
 
-export const characterRelations = relations(character, ({one, many}) => ({
-	characterAssets: many(characterAsset),
-	user: one(user, {
-		fields: [character.ownerId],
-		references: [user.id]
-	}),
-	appearCharacterEvents: many(appearCharacterEvent),
-	hideCharacterEvents: many(hideCharacterEvent),
-	moveCharacterEvents: many(moveCharacterEvent),
-	characterEffectEvents: many(characterEffectEvent),
-}));
-
-export const assetRelations = relations(asset, ({one, many}) => ({
-	characterAssets: many(characterAsset),
-	user: one(user, {
-		fields: [asset.ownerId],
-		references: [user.id]
-	}),
-	changeBackgroundEvents: many(changeBackgroundEvent),
-	appearCharacterEvents: many(appearCharacterEvent),
-	bgmStartEvents: many(bgmStartEvent),
-	soundEffectEvents: many(soundEffectEvent),
-	appearCgEvents: many(appearCgEvent),
-}));
-
-export const sceneRelations = relations(scene, ({one, many}) => ({
-	game: one(game, {
-		fields: [scene.gameId],
-		references: [game.id]
-	}),
-	gameInitialScenes: many(gameInitialScene),
-	choiceScenes: many(choiceScene),
-	gotoScenes_sceneId: many(gotoScene, {
-		relationName: "gotoScene_sceneId_scene_id"
-	}),
-	gotoScenes_nextSceneId: many(gotoScene, {
-		relationName: "gotoScene_nextSceneId_scene_id"
-	}),
-	endScenes: many(endScene),
-	choices: many(choice),
-	events: many(event),
-}));
-
 export const gameRelations = relations(game, ({one, many}) => ({
-	scenes: many(scene),
 	user: one(user, {
 		fields: [game.userId],
 		references: [user.id]
 	}),
+	gamePlays: many(gamePlay),
 	gameInitialScenes: many(gameInitialScene),
+	scenes: many(scene),
 	comments: many(comment),
 	likes: many(like),
 	gameCategoryRelations: many(gameCategoryRelation),
+}));
+
+export const gamePlayRelations = relations(gamePlay, ({one}) => ({
+	game: one(game, {
+		fields: [gamePlay.gameId],
+		references: [game.id]
+	}),
+	user: one(user, {
+		fields: [gamePlay.userId],
+		references: [user.id]
+	}),
 }));
 
 export const gameInitialSceneRelations = relations(gameInitialScene, ({one}) => ({
@@ -90,6 +87,24 @@ export const gameInitialSceneRelations = relations(gameInitialScene, ({one}) => 
 		fields: [gameInitialScene.sceneId],
 		references: [scene.id]
 	}),
+}));
+
+export const sceneRelations = relations(scene, ({one, many}) => ({
+	gameInitialScenes: many(gameInitialScene),
+	game: one(game, {
+		fields: [scene.gameId],
+		references: [game.id]
+	}),
+	choiceScenes: many(choiceScene),
+	gotoScenes_sceneId: many(gotoScene, {
+		relationName: "gotoScene_sceneId_scene_id"
+	}),
+	gotoScenes_nextSceneId: many(gotoScene, {
+		relationName: "gotoScene_nextSceneId_scene_id"
+	}),
+	endScenes: many(endScene),
+	choices: many(choice),
+	events: many(event),
 }));
 
 export const choiceSceneRelations = relations(choiceScene, ({one, many}) => ({
@@ -136,12 +151,20 @@ export const commentRelations = relations(comment, ({one}) => ({
 		fields: [comment.gameId],
 		references: [game.id]
 	}),
+	user: one(user, {
+		fields: [comment.userId],
+		references: [user.id]
+	}),
 }));
 
 export const likeRelations = relations(like, ({one}) => ({
 	game: one(game, {
 		fields: [like.gameId],
 		references: [game.id]
+	}),
+	user: one(user, {
+		fields: [like.userId],
+		references: [user.id]
 	}),
 }));
 
@@ -175,8 +198,8 @@ export const eventRelations = relations(event, ({one, many}) => ({
 	bgmStartEvents: many(bgmStartEvent),
 	bgmStopEvents: many(bgmStopEvent),
 	soundEffectEvents: many(soundEffectEvent),
-	hideCgEvents: many(hideCgEvent),
 	appearCgEvents: many(appearCgEvent),
+	hideCgEvents: many(hideCgEvent),
 	textRenderEvents: many(textRenderEvent),
 	appearMessageWindowEvents: many(appearMessageWindowEvent),
 	hideMessageWindowEvents: many(hideMessageWindowEvent),
@@ -293,13 +316,6 @@ export const soundEffectEventRelations = relations(soundEffectEvent, ({one}) => 
 	}),
 }));
 
-export const hideCgEventRelations = relations(hideCgEvent, ({one}) => ({
-	event: one(event, {
-		fields: [hideCgEvent.eventId],
-		references: [event.id]
-	}),
-}));
-
 export const appearCgEventRelations = relations(appearCgEvent, ({one}) => ({
 	event: one(event, {
 		fields: [appearCgEvent.eventId],
@@ -308,6 +324,13 @@ export const appearCgEventRelations = relations(appearCgEvent, ({one}) => ({
 	asset: one(asset, {
 		fields: [appearCgEvent.cgImageId],
 		references: [asset.id]
+	}),
+}));
+
+export const hideCgEventRelations = relations(hideCgEvent, ({one}) => ({
+	event: one(event, {
+		fields: [hideCgEvent.eventId],
+		references: [event.id]
 	}),
 }));
 

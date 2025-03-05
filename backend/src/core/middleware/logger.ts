@@ -1,0 +1,96 @@
+import { sentry } from "@hono/sentry";
+import type { MiddlewareHandler } from "hono";
+import { nanoid } from "nanoid";
+import { pino } from "pino";
+
+const isDevelopment = process.env.NODE_ENV !== "production";
+
+export const log = pino({
+	level: "info",
+	...(isDevelopment
+		? {
+				transport: {
+					target: "pino-pretty",
+					options: {
+						colorize: true,
+					},
+				},
+			}
+		: {}),
+});
+
+type PrintFunc = (str: string) => void;
+
+export enum LogPrefix {
+	Outgoing = "res",
+	Incoming = "req",
+	Error = "err",
+}
+
+export const logger = (fn: PrintFunc = console.info): MiddlewareHandler => {
+	return async function logger(c, next) {
+		const { method } = c.req;
+
+		// 一意なリクエスト ID を生成
+		const requestId = nanoid();
+		c.set("requestId", requestId);
+
+		// 150 文字までに短縮
+		const stripUrl = c.req.raw.url
+			.replace(/(https?:\/\/)?([^\/]+)/, "")
+			.slice(0, 150);
+
+		const headers = { ...c.req.header() };
+
+		const importantHeaders = {
+			"content-type": headers["content-type"],
+			"user-agent": headers["user-agent"],
+			accept: headers.accept,
+			"accept-encoding": headers["accept-encoding"],
+			host: headers.host,
+			referer: headers.referer,
+			"x-forwarded-for": headers["x-forwarded-for"],
+		};
+
+		// リクエスト
+		log.info({
+			requestId,
+			prefix: LogPrefix.Incoming,
+			method,
+			url: stripUrl,
+			headers: importantHeaders,
+		});
+
+		const start = Date.now();
+
+		await next();
+
+		const user = c.get("user")?.id || "na";
+
+		const responseTime = Date.now() - start;
+
+		// レスポンス
+		if (c.res.status >= 400 || responseTime > 1000) {
+			// エラーまたは遅いレスポンスのみ詳細ログを記録
+			log.warn({
+				requestId,
+				prefix: LogPrefix.Error,
+				method,
+				url: stripUrl,
+				status: c.res.status,
+				latency: Date.now() - start,
+				user,
+			});
+		} else {
+			log.info({
+				requestId,
+				prefix: LogPrefix.Outgoing,
+				method,
+				url: stripUrl,
+				status: c.res.status,
+				latency: `${Date.now() - start}ms`,
+				user,
+			});
+		}
+	};
+};

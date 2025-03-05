@@ -1,0 +1,21 @@
+# ~/.config/starship.toml
+
+add_newline = true
+
+# ファイルをスキャンする際のタイムアウト時間
+scan_timeout = 10
+
+# パスの表示設定
+[directory]
+format = "[$path]($style)[$read_only]($read_only_style) "
+truncation_length = 4
+truncate_to_repo = false
+truncation_symbol = "…/"
+
+# 記号の設定
+[character]
+success_symbol = "[\\(  ´∀｀\\)](dimmed green)" # コマンド成功時
+error_symbol = "[\\( ;´Д｀\\)](dimmed red)"    # コマンド失敗時
+
+[docker_context]
+format = 'via [🐋 $context](blue bold)'

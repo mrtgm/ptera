@@ -3,6 +3,14 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "devcontainer",
   "workspaceFolder": "/workspace",
+  "features": {
+    "ghcr.io/schlich/devcontainer-features/starship:0": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/aws-cli:1": {
+      "version": "latest"
+    }
+  },
   "customizations": {
     "vscode": {
       "extensions": [
@@ -15,6 +23,7 @@
         "github.copilot"
       ],
       "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
         "editor.formatOnSave": true,
         "[javascript]": {
           "editor.defaultFormatter": "biomejs.biome"

@@ -21,12 +21,9 @@ ptera/
 ### 開発環境のセットアップ
 
 1. VS Codeでプロジェクトを開く
-2. コマンドパレット（Ctrl+Shift+P / Cmd+Shift+P）を開き、「Remote-Containers: Reopen in Container」を選択
-3. DevContainerのビルドと開始を待つ
+2. コマンドパレットを開き、「Remote-Containers: Reopen in Container」を選択
 
 ### 開発環境での作業
-
-開発コンテナ内では、以下のコマンドが利用可能です：
 
 ```bash
 # フロントエンドとバックエンドの両方を起動
@@ -43,6 +40,9 @@ bun run dev
 
 - バックエンドAPI: http://localhost:8000
 - フロントエンドUI: http://localhost:3000
+
+# マイグレーション
+https://github.com/sqldef/sqldef
 
 # 素材提供
 
