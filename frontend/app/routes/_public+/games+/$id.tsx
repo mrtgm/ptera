@@ -64,7 +64,7 @@ const sampleGame: GameMetaData = {
 	playCount: 253,
 	likeCount: 42,
 	authorAvatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-	genres: ["アドベンチャー", "ファンタジー"],
+	categories: ["アドベンチャー", "ファンタジー"],
 	releaseDate: Date.now() - 30 * 24 * 60 * 60 * 1000,
 };
 
@@ -295,7 +295,7 @@ export default function GameDetailPage() {
 				<h1 className="text-3xl font-bold">{game.title}</h1>
 
 				<div className="flex flex-wrap gap-2 mt-4">
-					{game.genres?.map((genre) => (
+					{game.categories?.map((genre) => (
 						<Badge key={genre} variant="secondary">
 							{genre}
 						</Badge>

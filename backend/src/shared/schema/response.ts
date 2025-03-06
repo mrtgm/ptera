@@ -1,15 +1,16 @@
 import type { createRoute } from "@hono/zod-openapi";
+import type { Context } from "hono";
 import type {
 	ClientErrorStatusCode,
-	ContentfulStatusCode,
 	ServerErrorStatusCode,
 } from "hono/utils/http-status";
 import { z } from "zod";
-import { type Env, getContextUser } from "~/lib/context";
-
-import type { Context } from "hono";
 import { log } from "~/core/middleware/logger";
-import { type EntityType, entityTypeSchema } from "./entity";
+import { type Env, getContextUser } from "~/lib/context";
+import {
+	type EntityType,
+	entityTypeSchema,
+} from "../infrastructure/db/drizzle";
 
 type Responses = Parameters<typeof createRoute>[0]["responses"];
 
@@ -37,12 +38,12 @@ export const successWithoutDataResponse = (ctx: Context<Env>, status = 200) => {
 	return ctx.json({ success: true } as SuccessWithoutData, status as 200);
 };
 
-export const successWithDataResponse = <T, R extends Context<Env>>(
-	ctx: R,
+export const successWithDataResponse = <T>(
+	ctx: Context,
 	data: T,
 	status = 200,
 ) => {
-	return ctx.json({ success: true, data } as SuccessWithData<T>, status as 200);
+	return ctx.json({ success: true, data }, status as 200);
 };
 
 export const successWithPaginationResponse = <T>(
@@ -71,7 +72,7 @@ export const errorSchema = z.object({
 	type: z.string(),
 	status: z.number(),
 	severity: z.string(),
-	entityType: entityTypeSchema.optional(), // 関連する entity の種類
+	entityType: entityTypeSchema.optional(),
 	requestId: z.string().optional(), // 一意なリクエスト ID
 	path: z.string().optional(),
 	method: z.string().optional(),

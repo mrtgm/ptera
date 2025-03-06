@@ -1,0 +1,430 @@
+import { generateKeyBetween } from "fractional-indexing";
+import { z } from "zod";
+import { randomIntId, randomUUID } from "~/shared/utils/id";
+import type { GameResources } from "./resoucres";
+
+/* ------------------------------------------------------
+    GameEvent Entities
+------------------------------------------------------ */
+
+export const textRenderEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("text"),
+	category: z.literal("message"),
+	orderIndex: z.string(),
+	text: z.string().min(1, { message: "テキストは必須です" }),
+	characterName: z.string().optional(),
+});
+
+export type TextRenderEvent = z.infer<typeof textRenderEventSchema>;
+
+export const appearMessageWindowEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("appearMessageWindow"),
+	category: z.literal("message"),
+	orderIndex: z.string(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
+});
+
+export type AppearMessageWindowEvent = z.infer<
+	typeof appearMessageWindowEventSchema
+>;
+
+export const hideMessageWindowEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("hideMessageWindow"),
+	category: z.literal("message"),
+	orderIndex: z.string(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
+});
+
+export type HideMessageWindowEvent = z.infer<
+	typeof hideMessageWindowEventSchema
+>;
+
+export const appearCharacterEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("appearCharacter"),
+	category: z.literal("character"),
+	orderIndex: z.string(),
+	characterId: z.number(),
+	characterImageId: z.number(),
+	position: z.tuple([z.number(), z.number()]),
+	scale: z.string(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
+});
+
+export type AppearCharacterEvent = z.infer<typeof appearCharacterEventSchema>;
+
+export const hideCharacterEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("hideCharacter"),
+	category: z.literal("character"),
+	orderIndex: z.string(),
+	characterId: z.string(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
+});
+
+export type HideCharacterEvent = z.infer<typeof hideCharacterEventSchema>;
+
+export const hideAllCharactersEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("hideAllCharacters"),
+	category: z.literal("character"),
+	orderIndex: z.string(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
+});
+
+export type HideAllCharactersEvent = z.infer<
+	typeof hideAllCharactersEventSchema
+>;
+
+export const moveCharacterEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("moveCharacter"),
+	category: z.literal("character"),
+	orderIndex: z.string(),
+	characterId: z.number(),
+	position: z.tuple([z.number(), z.number()]),
+	scale: z.string(),
+});
+
+export type MoveCharacterEvent = z.infer<typeof moveCharacterEventSchema>;
+
+export const bgmStartEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("bgmStart"),
+	category: z.literal("media"),
+	orderIndex: z.string(),
+	bgmId: z.number(),
+	loop: z.boolean(),
+	volume: z.union([z.number(), z.string().transform(Number)]),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
+});
+
+export type BGMStartEvent = z.infer<typeof bgmStartEventSchema>;
+
+export const bgmStopEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("bgmStop"),
+	category: z.literal("media"),
+	orderIndex: z.string(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
+});
+
+export type BGMStopEvent = z.infer<typeof bgmStopEventSchema>;
+
+export const soundEffectEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("soundEffect"),
+	category: z.literal("media"),
+	orderIndex: z.string(),
+	volume: z.union([z.number(), z.string().transform(Number)]),
+	loop: z.boolean(),
+	soundEffectId: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
+});
+
+export type SoundEffectEvent = z.infer<typeof soundEffectEventSchema>;
+
+export const changeBackgroundEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("changeBackground"),
+	category: z.literal("background"),
+	orderIndex: z.string(),
+	backgroundId: z.number(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
+});
+
+export type ChangeBackgroundEvent = z.infer<typeof changeBackgroundEventSchema>;
+
+export const effectType = ["fadeIn", "fadeOut", "shake"] as const;
+export const effectEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("effect"),
+	category: z.literal("effect"),
+	orderIndex: z.string(),
+	effectType: z.enum(effectType),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
+});
+
+export type EffectEvent = z.infer<typeof effectEventSchema>;
+
+export const characterEffectType = [
+	"shake",
+	"flash",
+	"bounce",
+	"sway",
+	"wobble",
+	"blackOn",
+	"blackOff",
+] as const;
+
+export const characterEffectEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("characterEffect"),
+	category: z.literal("character"),
+	orderIndex: z.string(),
+	characterId: z.number(),
+	effectType: z.enum(characterEffectType),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
+});
+
+export type CharacterEffectEvent = z.infer<typeof characterEffectEventSchema>;
+
+export const appearCGEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("appearCG"),
+	category: z.literal("cg"),
+	orderIndex: z.string(),
+	cgImageId: z.number(),
+	position: z.tuple([z.number(), z.number()]),
+	scale: z.string(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
+});
+
+export type AppearCGEvent = z.infer<typeof appearCGEventSchema>;
+
+export const hideCGEventSchema = z.object({
+	id: z.number(),
+	publicId: z.string(),
+	type: z.literal("hideCG"),
+	category: z.literal("cg"),
+	orderIndex: z.string(),
+	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
+});
+
+export type HideCGEvent = z.infer<typeof hideCGEventSchema>;
+
+export const gameEventSchema = z.discriminatedUnion("type", [
+	textRenderEventSchema,
+	appearMessageWindowEventSchema,
+	hideMessageWindowEventSchema,
+	appearCharacterEventSchema,
+	hideCharacterEventSchema,
+	hideAllCharactersEventSchema,
+	moveCharacterEventSchema,
+	bgmStartEventSchema,
+	bgmStopEventSchema,
+	soundEffectEventSchema,
+	changeBackgroundEventSchema,
+	effectEventSchema,
+	characterEffectEventSchema,
+	appearCGEventSchema,
+	hideCGEventSchema,
+]);
+
+export type GameEvent = z.infer<typeof gameEventSchema>;
+
+type ExcludeCommonKeys<T> = Omit<T, "type" | "id" | "category" | "orderIndex">;
+export type EventProperties = {
+	[K in GameEvent as K["type"]]: ExcludeCommonKeys<K>;
+};
+
+export type AllPropertyTypes = {
+	[K in GameEvent as K["type"]]: {
+		[P in keyof ExcludeCommonKeys<K>]: ExcludeCommonKeys<K>[P];
+	};
+}[GameEvent["type"]];
+
+export type UniquePropertyUnion = {
+	[K in keyof AllPropertyTypes]: AllPropertyTypes[K];
+};
+
+/* ------------------------------------------------------
+    GameEvent Factory Functions
+------------------------------------------------------ */
+
+export const createEvent = (
+	type: GameEvent["type"],
+	resources: GameResources,
+) => {
+	const event = {
+		id: randomIntId(),
+		type,
+		category: getEventCategory(type),
+		orderIndex: generateKeyBetween(null, null),
+		...getDefaultValueForType(type, resources),
+	} as GameEvent;
+	return event;
+};
+
+export const getEventCategory = (
+	type: GameEvent["type"],
+): GameEvent["category"] => {
+	switch (type) {
+		case "text":
+		case "appearMessageWindow":
+		case "hideMessageWindow":
+			return "message";
+		case "appearCharacter":
+		case "hideCharacter":
+		case "hideAllCharacters":
+		case "moveCharacter":
+		case "characterEffect":
+			return "character";
+		case "bgmStart":
+		case "bgmStop":
+		case "soundEffect":
+			return "media";
+		case "changeBackground":
+			return "background";
+		case "effect":
+			return "effect";
+		case "appearCG":
+		case "hideCG":
+			return "cg";
+		default:
+			return "message";
+	}
+};
+
+export const getDefaultValueForType = (
+	type: GameEvent["type"],
+	resources: GameResources,
+): EventProperties[GameEvent["type"]] => {
+	const defaults = {} as EventProperties[GameEvent["type"]];
+
+	switch (type) {
+		case "text":
+			return {
+				publicId: randomUUID(),
+				text: "テキストを入力してください",
+				characterName: "",
+			};
+		case "appearMessageWindow":
+			return {
+				publicId: randomUUID(),
+
+				transitionDuration: 1000,
+			};
+		case "hideMessageWindow":
+			return {
+				publicId: randomUUID(),
+
+				transitionDuration: 1000,
+			};
+		case "appearCharacter": {
+			//TODO: 使用履歴を見て最後に選択したキャラクターを選択する
+			const characterId = Object.keys(resources.characters)[0];
+			const characterImageId = Object.values(
+				resources.characters[characterId].images,
+			)[0].id;
+			return {
+				publicId: randomUUID(),
+				characterId,
+				characterImageId,
+				transitionDuration: 1000,
+				scale: "1",
+				position: [0, 0],
+			};
+		}
+		case "hideCharacter":
+			return {
+				publicId: randomUUID(),
+				characterId: Object.keys(resources.characters)[0],
+				transitionDuration: 1000,
+			};
+		case "hideAllCharacters":
+			return {
+				publicId: randomUUID(),
+				transitionDuration: 1000,
+			};
+		case "moveCharacter":
+			return {
+				publicId: randomUUID(),
+				characterId: Object.keys(resources.characters)[0],
+				position: [0, 0],
+				transitionDuration: 1000,
+			};
+		case "characterEffect":
+			return {
+				publicId: randomUUID(),
+				characterId: Object.values(resources.characters)[0].id,
+				effectType: "shake",
+				transitionDuration: 1000,
+			};
+		case "bgmStart":
+			return {
+				publicId: randomUUID(),
+				bgmId: Object.values(resources.bgms)[0].id,
+				volume: 1,
+				loop: true,
+				transitionDuration: 1000,
+			};
+		case "bgmStop":
+			return {
+				publicId: randomUUID(),
+				transitionDuration: 1000,
+			};
+		case "soundEffect":
+			return {
+				publicId: randomUUID(),
+				soundEffectId: Object.values(resources.soundEffects)[0].id,
+				volume: 1,
+				loop: false,
+				transitionDuration: 1000,
+			};
+		case "changeBackground":
+			return {
+				publicId: randomUUID(),
+				backgroundId: Object.values(resources.backgroundImages)[0].id,
+				transitionDuration: 1000,
+			};
+		case "effect":
+			return {
+				publicId: randomUUID(),
+				effectType: "shake",
+				transitionDuration: 1000,
+			};
+		case "appearCG":
+			return {
+				publicId: randomUUID(),
+				cgImageId: Object.values(resources.cgImages)[0].id,
+				transitionDuration: 1000,
+			};
+		case "hideCG":
+			return {
+				publicId: randomUUID(),
+				transitionDuration: 1000,
+			};
+		default:
+			return defaults;
+	}
+};
+
+// fractional-indexing
+export const sortEvent = (ag: GameEvent, bg: GameEvent) => {
+	const EXTENDED_ALPHABET =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+	const a = ag.orderIndex;
+	const b = bg.orderIndex;
+
+	const minLength = Math.min(a.length, b.length);
+
+	for (let i = 0; i < minLength; i++) {
+		const indexA = EXTENDED_ALPHABET.indexOf(a[i]);
+		const indexB = EXTENDED_ALPHABET.indexOf(b[i]);
+
+		if (indexA !== indexB) {
+			return indexA - indexB;
+		}
+	}
+
+	return a.length - b.length;
+};

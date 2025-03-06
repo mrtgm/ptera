@@ -37,6 +37,7 @@ CREATE TABLE "asset" (
 );
 CREATE INDEX idx_asset_owner_id ON "asset"(owner_id);
 
+
 -- キャラクター関連テーブル
 CREATE TABLE "character" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -67,7 +68,7 @@ CREATE TABLE "scene" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     game_id INT NOT NULL,
-    title VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -110,6 +111,7 @@ CREATE TABLE "game_initial_scene" (
 );
 CREATE INDEX idx_game_initial_scene_scene_id ON "game_initial_scene"(scene_id);
 
+
 -- sceneテーブルの外部キー制約
 ALTER TABLE "scene" ADD CONSTRAINT fk_scene_game
     FOREIGN KEY (game_id) REFERENCES "game"(id) ON DELETE CASCADE;
@@ -128,7 +130,7 @@ CREATE TABLE "goto_scene" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     scene_id INT NOT NULL UNIQUE,
-    next_scene_id INT,
+    next_scene_id INT NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_goto_scene_scene FOREIGN KEY (scene_id) REFERENCES "scene"(id) ON DELETE CASCADE,
@@ -160,6 +162,31 @@ CREATE TABLE "choice" (
 );
 CREATE INDEX idx_choice_next_scene_id ON "choice"(next_scene_id);
 CREATE INDEX idx_choice_choice_scene_id ON "choice"(choice_scene_id);
+
+-- ゲームとアセットの関連テーブル
+CREATE TABLE "asset_game" (
+    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    asset_id INT NOT NULL,
+    game_id INT NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_asset_game_asset FOREIGN KEY (asset_id) REFERENCES "asset"(id) ON DELETE CASCADE,
+    CONSTRAINT fk_asset_game_game FOREIGN KEY (game_id) REFERENCES "game"(id) ON DELETE CASCADE
+);
+CREATE INDEX idx_asset_game_asset_id ON "asset_game"(asset_id);
+CREATE INDEX idx_asset_game_game_id ON "asset_game"(game_id);
+
+CREATE TABLE "character_game" (
+    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    character_id INT NOT NULL,
+    game_id INT NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_character_game_character FOREIGN KEY (character_id) REFERENCES "character"(id) ON DELETE CASCADE,
+    CONSTRAINT fk_character_game_game FOREIGN KEY (game_id) REFERENCES "game"(id) ON DELETE CASCADE
+);
+CREATE INDEX idx_character_game_character_id ON "character_game"(character_id);
+CREATE INDEX idx_character_game_game_id ON "character_game"(game_id);
 
 -- コメント・いいね
 CREATE TABLE "comment" (
@@ -218,6 +245,7 @@ CREATE TABLE "event" (
     scene_id INT NOT NULL,
     public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     "type" VARCHAR(50) NOT NULL,
+    category VARCHAR(50) NOT NULL,
     order_index VARCHAR(255) NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -225,26 +253,6 @@ CREATE TABLE "event" (
 );
 CREATE INDEX idx_event_scene_id ON "event"(scene_id);
 
-CREATE TABLE "event_category" (
-    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL UNIQUE,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE "event_category_relation" (
-    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    event_id INT NOT NULL,
-    event_category_id INT NOT NULL,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_event_category_relation_event FOREIGN KEY (event_id) REFERENCES "event"(id) ON DELETE CASCADE,
-    CONSTRAINT fk_event_category_relation_category FOREIGN KEY (event_category_id) REFERENCES "event_category"(id) ON DELETE CASCADE,
-    UNIQUE (event_id, event_category_id)
-);
-CREATE INDEX idx_event_category_relation_event_id ON "event_category_relation"(event_id);
-CREATE INDEX idx_event_category_relation_category_id ON "event_category_relation"(event_category_id);
 
 -- イベント派生テーブル
 CREATE TABLE "change_background_event" (
@@ -357,8 +365,6 @@ CREATE TABLE "appear_cg_event" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     event_id INT NOT NULL UNIQUE,
     cg_image_id INT NOT NULL,
-    position POINT NOT NULL,
-    scale NUMERIC(10, 2) NOT NULL DEFAULT 1.0,
     transition_duration INTEGER NOT NULL DEFAULT 0,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

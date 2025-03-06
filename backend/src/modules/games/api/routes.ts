@@ -1,13 +1,43 @@
-import { isPublicAccess } from "~/core/middleware/auth";
+import { isAuthenticated, isPublicAccess } from "~/core/middleware/auth";
 import { createRouteConfig } from "~/lib/doc";
+import { getRequestSchema } from "~/shared/schema/request";
 import {
 	errorResponses,
+	successWithDataSchema,
 	successWithPaginationSchema,
 } from "~/shared/schema/response";
-import { gameResponseDtoSchema } from "../application/dto";
+import {
+	createGameDtoSchema,
+	gameDetailResponseDtoSchema,
+	gameListResponseDtoSchema,
+	gameResponseDtoSchema,
+	resourseResponseDtoSchema,
+} from "../application/dto";
 import { getGamesRequstSchema } from "./validator";
 
 export const gameRouteCongfigs = {
+	getGame: createRouteConfig({
+		method: "get",
+		path: "/{publicId}",
+		guard: [isPublicAccess],
+		tags: ["games"],
+		summary: "ゲームを取得します。",
+		request: {
+			params: getRequestSchema,
+		},
+		responses: {
+			200: {
+				description: "Game",
+				content: {
+					"application/json": {
+						schema: successWithDataSchema(gameDetailResponseDtoSchema),
+					},
+				},
+			},
+			...errorResponses,
+		},
+	}),
+
 	getGames: createRouteConfig({
 		method: "get",
 		path: "/",
@@ -19,10 +49,60 @@ export const gameRouteCongfigs = {
 		},
 		responses: {
 			200: {
-				description: "Users",
+				description: "Games",
 				content: {
 					"application/json": {
-						schema: successWithPaginationSchema(gameResponseDtoSchema),
+						schema: successWithPaginationSchema(gameListResponseDtoSchema),
+					},
+				},
+			},
+			...errorResponses,
+		},
+	}),
+
+	createGame: createRouteConfig({
+		method: "post",
+		path: "/",
+		guard: [isAuthenticated],
+		tags: ["games"],
+		summary: "ゲームを作成します。",
+		request: {
+			body: {
+				content: {
+					"application/json": {
+						schema: createGameDtoSchema,
+					},
+				},
+			},
+		},
+		responses: {
+			200: {
+				description: "Game",
+				content: {
+					"application/json": {
+						schema: successWithDataSchema(gameResponseDtoSchema),
+					},
+				},
+			},
+			...errorResponses,
+		},
+	}),
+
+	getAsset: createRouteConfig({
+		method: "get",
+		path: "/{publicId}/assets",
+		guard: [isPublicAccess],
+		tags: ["games"],
+		summary: "ゲームのアセットを取得します。",
+		request: {
+			params: getRequestSchema,
+		},
+		responses: {
+			200: {
+				description: "Game",
+				content: {
+					"application/json": {
+						schema: successWithDataSchema(resourseResponseDtoSchema),
 					},
 				},
 			},

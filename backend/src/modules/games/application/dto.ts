@@ -1,12 +1,21 @@
 import { z } from "zod";
-import { userResponseDtoSchema } from "~/modules/users/application/dto";
-import { type Game, checkStatus, gameStatusSchema } from "../domain/entities";
-import type { GameRowSelect } from "../infrastructure/mapper";
+import type { User } from "~/modules/users/domain/entities";
+import {
+	type Game,
+	type GameWithScene,
+	gameSchema,
+	gameStatusSchema,
+	gameWithSceneSchema,
+} from "../domain/game";
+import { type GameResources, gameResourcesSchema } from "../domain/resoucres";
+
+// *------------------------------------------------------
+//      Request DTOs
+// ------------------------------------------------------ */
 
 export const createGameDtoSchema = z.object({
 	name: z.string().min(1).max(100),
 	description: z.string().optional(),
-	isPublic: z.boolean().optional().default(false),
 });
 
 export type CreateGameDto = z.infer<typeof createGameDtoSchema>;
@@ -15,54 +24,65 @@ export const updateGameDtoSchema = z.object({
 	name: z.string().min(1).max(100).optional(),
 	description: z.string().optional(),
 	status: gameStatusSchema.optional(),
-	isPublic: z.boolean().optional(),
 });
 
 export type UpdateGameDto = z.infer<typeof updateGameDtoSchema>;
 
-export const gameResponseDtoSchema = z.object({
-	name: z.string(),
-	publicId: z.string(),
-	coverImageUrl: z.string().optional(),
-	description: z.string().optional(),
-	releaseDate: z.string().optional(),
-	initialScenePublicId: z.string().optional(),
-	status: gameStatusSchema,
-	likeCount: z.number().optional(),
-	playCount: z.number().optional(),
-	createdAt: z.string(),
-	updatedAt: z.string(),
-	categories: z.array(z.string()).optional(),
-	userPublicId: z.string(),
-	username: z.string(),
-	avatarUrl: z.string().optional(),
-});
+export const gameListResponseDtoSchema = gameSchema.omit({ id: true }).merge(
+	z.object({
+		userPublicId: z.string(),
+		username: z.string(),
+		avatarUrl: z.string().optional(),
+	}),
+);
 
-export const mapGameToResponseDto = (
-	game: GameRowSelect,
-	initialScenePublicId?: string,
-	likeCount?: number,
-	playCount?: number,
-	categories?: string[],
-	userInfo?: { publicId: string; name: string; avatarUrl: string | null },
-): GameResponseDto => {
-	return {
-		name: game.name,
-		publicId: game.publicId,
-		coverImageUrl: game.coverImageUrl || undefined,
-		description: game.description || undefined,
-		releaseDate: game.releaseDate || undefined,
-		initialScenePublicId: initialScenePublicId,
-		status: checkStatus(game.status) ? game.status : "draft",
-		likeCount: likeCount || 0,
-		playCount: playCount || 0,
-		createdAt: game.createdAt,
-		updatedAt: game.updatedAt,
-		categories: categories,
-		userPublicId: userInfo?.publicId || "",
-		username: userInfo?.name || "",
-		avatarUrl: userInfo?.avatarUrl || undefined,
-	};
+// *------------------------------------------------------
+//      Response DTOs
+// ------------------------------------------------------ */
+
+export type GameListResponseDto = z.infer<typeof gameListResponseDtoSchema>;
+export const mapDomainToListResponseDto = (
+	game: Game[],
+	users: Record<string, User>,
+): GameListResponseDto[] => {
+	return game.map((v) => {
+		return gameListResponseDtoSchema.parse({
+			...v,
+			userPublicId: users[v.userId].publicId,
+			username: users[v.userId].name,
+			avatarUrl: users[v.userId].avatarUrl,
+		});
+	});
 };
 
+export const gameResponseDtoSchema = gameSchema;
 export type GameResponseDto = z.infer<typeof gameResponseDtoSchema>;
+export const mapDomainToResponseDto = (game: Game): Game => {
+	return gameResponseDtoSchema.parse(game);
+};
+
+export const gameDetailResponseDtoSchema = gameWithSceneSchema.merge(
+	z.object({
+		userPublicId: z.string(),
+		username: z.string(),
+		avatarUrl: z.string().optional(),
+	}),
+);
+export const mapDomainToDetailResponseDto = (
+	gameWithScene: GameWithScene,
+	user: User,
+): GameDetailResponseDto => {
+	return gameDetailResponseDtoSchema.parse({
+		...gameWithScene,
+		userPublicId: user.publicId,
+		username: user.name,
+		avatarUrl: user.avatarUrl,
+	});
+};
+export type GameDetailResponseDto = z.infer<typeof gameDetailResponseDtoSchema>;
+
+export const resourseResponseDtoSchema = gameResourcesSchema;
+export type ResourceResponseDto = z.infer<typeof resourseResponseDtoSchema>;
+export const mapDomainToResourceResponseDto = (resources: GameResources) => {
+	return resourseResponseDtoSchema.parse(resources);
+};

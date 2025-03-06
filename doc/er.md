@@ -67,6 +67,30 @@ erDiagram
     Character ||--|{ CharacterAsset : "1 to many"
     Asset ||--|{ CharacterAsset : "1 to many"
 
+
+    AssetGame ||--|{ Asset : "many to 1"
+    Game ||--|{ AssetGame : "1 to many"
+
+    AssetGame {
+        string id PK
+        string gameId FK
+        string assetId FK
+        date updatedAt
+        date createdAt
+    }
+
+    CharacterGame ||--|{ Character : "many to 1"
+    Game ||--|{ CharacterGame : "1 to many"
+
+    CharacterGame {
+        string id PK
+        string gameId FK
+        string characterId FK
+        date updatedAt
+        date createdAt
+    }
+
+
     Game {
         string id PK
         uuid publicId "UNIQUE"

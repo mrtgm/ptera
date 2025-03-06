@@ -30,7 +30,6 @@ import {
 	user,
 	userProfile,
 } from "~/shared/infrastructure/db/schema";
-import type { Scene as DomainScene, Game, GameEvent } from "../domain/entities";
 
 export async function fetchCompleteGameById(publicId: string) {
 	async function fetchGameData() {
@@ -89,7 +88,7 @@ export async function fetchCompleteGameById(publicId: string) {
 			.limit(1);
 
 		// ジャンル（カテゴリ）を取得
-		const genres = await db
+		const categories = await db
 			.select({
 				name: gameCategory.name,
 			})
@@ -105,7 +104,7 @@ export async function fetchCompleteGameById(publicId: string) {
 			initialSceneId: initialSceneData[0]?.sceneId || "",
 			likeCount: likesCount[0]?.count || 0,
 			playCount: playsCount[0]?.count || 0,
-			genres: genres.map((g) => g.name),
+			categories: categories.map((g) => g.name),
 			schemaVersion: ENV.API_VERSION,
 		};
 	}
@@ -115,7 +114,7 @@ export async function fetchCompleteGameById(publicId: string) {
 		const scenesData = await db
 			.select({
 				id: scene.id,
-				title: scene.title,
+				name: scene.name,
 			})
 			.from(scene)
 			.where(eq(scene.gameId, gameId));
@@ -304,162 +303,81 @@ export async function fetchCompleteGameById(publicId: string) {
 		]);
 
 		// イベントの詳細情報をマッピング
-		const detailsMap: Record<string, any> = {};
+		const detailsMap: Record<string, unknown> = {};
 
 		// テキストイベント
 		for (const e of textEvents) {
-			detailsMap[e.eventId] = {
-				type: "text",
-				category: "message",
-				text: e.text,
-				characterName: e.characterName,
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// メッセージウィンドウ表示イベント
 		for (const e of appearMessageEvents) {
-			detailsMap[e.eventId] = {
-				type: "appearMessageWindow",
-				category: "message",
-				transitionDuration: Number(e.transitionDuration),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// メッセージウィンドウ非表示イベント
 		for (const e of hideMessageEvents) {
-			detailsMap[e.eventId] = {
-				type: "hideMessageWindow",
-				category: "message",
-				transitionDuration: Number(e.transitionDuration),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// キャラクター表示イベント
 		for (const e of appearCharEvents) {
-			detailsMap[e.eventId] = {
-				type: "appearCharacter",
-				category: "character",
-				characterId: e.characterId,
-				characterImageId: e.characterImageId,
-				position: e.position,
-				scale: Number(e.scale),
-				transitionDuration: Number(e.transitionDuration),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// キャラクター非表示イベント
 		for (const e of hideCharEvents) {
-			detailsMap[e.eventId] = {
-				type: "hideCharacter",
-				category: "character",
-				characterId: e.characterId,
-				transitionDuration: Number(e.transitionDuration),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// すべてのキャラクター非表示イベント
 		for (const e of hideAllCharsEvents) {
-			detailsMap[e.eventId] = {
-				type: "hideAllCharacters",
-				category: "character",
-				transitionDuration: Number(e.transitionDuration),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// キャラクター移動イベント
 		for (const e of moveCharEvents) {
-			detailsMap[e.eventId] = {
-				type: "moveCharacter",
-				category: "character",
-				characterId: e.characterId,
-				position: e.position,
-				scale: Number(e.scale),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// BGM開始イベント
 		for (const e of bgmStartEvents) {
-			detailsMap[e.eventId] = {
-				type: "bgmStart",
-				category: "media",
-				bgmId: e.bgmId,
-				loop: e.loop,
-				volume: Number(e.volume),
-				transitionDuration: Number(e.transitionDuration),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// BGM停止イベント
 		for (const e of bgmStopEvents) {
-			detailsMap[e.eventId] = {
-				type: "bgmStop",
-				category: "media",
-				transitionDuration: Number(e.transitionDuration),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// 効果音イベント
 		for (const e of soundEffectEvents) {
-			detailsMap[e.eventId] = {
-				type: "soundEffect",
-				category: "media",
-				soundEffectId: e.soundEffectId,
-				volume: Number(e.volume),
-				loop: e.loop,
-				transitionDuration: Number(e.transitionDuration),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// 背景変更イベント
 		for (const e of changeBgEvents) {
-			detailsMap[e.eventId] = {
-				type: "changeBackground",
-				category: "background",
-				backgroundId: e.backgroundId,
-				transitionDuration: Number(e.transitionDuration),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// エフェクトイベント
 		for (const e of effectEvents) {
-			detailsMap[e.eventId] = {
-				type: "effect",
-				category: "effect",
-				effectType: e.effectType,
-				transitionDuration: Number(e.transitionDuration),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// キャラクターエフェクトイベント
 		for (const e of charEffectEvents) {
-			detailsMap[e.eventId] = {
-				type: "characterEffect",
-				category: "character",
-				characterId: e.characterId,
-				effectType: e.effectType,
-				transitionDuration: Number(e.transitionDuration),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// CG表示イベント
 		for (const e of appearCgEvents) {
-			detailsMap[e.eventId] = {
-				type: "appearCG",
-				category: "cg",
-				cgImageId: e.cgImageId,
-				position: e.position,
-				scale: Number(e.scale),
-				transitionDuration: Number(e.transitionDuration),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		// CG非表示イベント
 		for (const e of hideCgEvents) {
-			detailsMap[e.eventId] = {
-				type: "hideCG",
-				category: "cg",
-				transitionDuration: Number(e.transitionDuration),
-			};
+			detailsMap[e.eventId] = e;
 		}
 
 		return detailsMap;
@@ -510,16 +428,15 @@ export async function fetchCompleteGameById(publicId: string) {
 
 	function mapEvent(
 		eventBase: { id: number; type: string; order: string },
-		detailsMap: Record<string, any>,
-	): GameEvent {
+		detailsMap: Record<string, unknown>,
+	) {
 		const details = detailsMap[eventBase.id] || {};
 
 		return {
-			id: eventBase.id,
-			type: eventBase.type as any,
-			category: details.category || "unknown",
-			order: eventBase.order,
 			...details,
+			id: eventBase.id,
+			type: eventBase.type,
+			order: eventBase.order,
 		};
 	}
 

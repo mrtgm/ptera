@@ -1,7 +1,21 @@
+import { HTTPException } from "hono/http-exception";
 import type { UserRepository } from "~/modules/users/infrastructure/repository";
 import type { GetGamesRequest } from "../api/validator";
+import {
+	GameNotFoundError,
+	InitialSceneNotFoundError,
+	ScenesNotFoundError,
+	UserNotFoundError,
+} from "../domain/error";
+import type { GameWithScene } from "../domain/game";
 import type { GameRepository } from "../infrastructure/repository";
-import { type GameResponseDto, mapGameToResponseDto } from "./dto";
+import {
+	type GameDetailResponseDto,
+	type GameListResponseDto,
+	mapDomainToDetailResponseDto,
+	mapDomainToListResponseDto,
+	mapDomainToResourceResponseDto,
+} from "./dto";
 
 export const createQuery = ({
 	gameRepository,
@@ -13,63 +27,65 @@ export const createQuery = ({
 	return {
 		executeSearch: async (
 			params: GetGamesRequest,
-		): Promise<{ items: GameResponseDto[]; total: number }> => {
+		): Promise<{ items: GameListResponseDto[]; total: number }> => {
 			const { items, total } = await gameRepository.getGames(params);
-			const gameIds = items.map((item) => item.id);
-
-			// シーン情報の取得
-			const initialScenesByGameId =
-				await gameRepository.getInitialScenesByGameIds(gameIds);
-
-			// いいね数の取得
-			const likeCountByGameId = await gameRepository.getLikesByGameIds(gameIds);
-
-			// プレイ数の取得
-			const playCountByGameId =
-				await gameRepository.getPlayerCountByGameIds(gameIds);
-
-			// カテゴリ情報の取得
-			const categoriesByGameId =
-				await gameRepository.getCategoriesByGameIds(gameIds);
-
-			// ユーザー情報の取得
 			const userIds = items.map((v) => v.userId);
-			const users = await userRepository.findUsersByIds(userIds);
-
-			const dtos: GameResponseDto[] = items
-				.map((item) =>
-					mapGameToResponseDto(
-						item,
-						initialScenesByGameId[item.id],
-						likeCountByGameId[item.id],
-						playCountByGameId[item.id],
-						categoriesByGameId[item.id],
-						users[item.userId],
-					),
-				)
-				.sort((a, b) => {
-					const first = params.order === "asc" ? a : b;
-					const second = params.order === "asc" ? b : a;
-
-					if (params.sort === "likeCount") {
-						return (first.likeCount || 0) - (second.likeCount || 0);
-					}
-					if (params.sort === "playCount") {
-						return (first.playCount || 0) - (second.playCount || 0);
-					}
-					if (params.sort === "createdAt") {
-						return (
-							new Date(first.createdAt).getTime() -
-							new Date(second.createdAt).getTime()
-						);
-					}
-					return 0;
-				});
-
+			const users = await userRepository.getUsersByIds(userIds);
 			return {
-				items: dtos,
+				items: mapDomainToListResponseDto(items, users),
 				total,
 			};
+		},
+
+		executeGetAsset: async (publicId: string) => {
+			const game = await gameRepository.getGameById(publicId);
+
+			if (!game) {
+				throw new GameNotFoundError(publicId);
+			}
+
+			const resources = await gameRepository.getResource(game.id);
+			return mapDomainToResourceResponseDto(resources);
+		},
+
+		executeGetGame: async (
+			publicId: string,
+		): Promise<GameDetailResponseDto> => {
+			const game = await gameRepository.getGameById(publicId);
+
+			if (!game) {
+				throw new GameNotFoundError(publicId);
+			}
+
+			const initialSceneIdMap = await gameRepository.getGameInitialScenes([
+				game.id,
+			]);
+			const scenes = await gameRepository.getScenes(game.id);
+			const user = await userRepository.getById(game.userId);
+
+			if (initialSceneIdMap === null) {
+				throw new InitialSceneNotFoundError(game.id);
+			}
+			if (!scenes) {
+				throw new ScenesNotFoundError(game.id);
+			}
+			if (!user) {
+				throw new UserNotFoundError(game.userId);
+			}
+
+			const eventMap = await gameRepository.getEvents(scenes.map((v) => v.id));
+
+			for (const scene of scenes) {
+				scene.events = eventMap[scene.id] || [];
+			}
+
+			const gameWithScene: GameWithScene = {
+				...game,
+				initialSceneId: initialSceneIdMap[game.id],
+				scenes,
+			};
+
+			return mapDomainToDetailResponseDto(gameWithScene, user);
 		},
 	};
 };

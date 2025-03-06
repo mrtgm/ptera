@@ -7,6 +7,7 @@ export const getGamesRequstSchema = paginationRequestSchema.merge(
 			.enum(["createdAt", "likeCount", "playCount"])
 			.default("createdAt")
 			.optional(),
+		categoryId: z.union([z.number(), z.string().transform(Number)]).optional(),
 	}),
 );
 

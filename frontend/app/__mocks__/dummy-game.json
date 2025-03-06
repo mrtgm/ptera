@@ -13,7 +13,7 @@
   "updatedAt": 1640995200000,
   "coverImageUrl": "https://picsum.photos/seed/picsum/800/600",
   "status": "published",
-  "genres": ["mystery", "romance"],
+  "categories": ["mystery", "romance"],
   "scenes": [
     {
       "id": "opening",

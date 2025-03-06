@@ -1,5 +1,149 @@
 import { relations } from "drizzle-orm/relations";
-import { user, userProfile, asset, character, characterAsset, game, gamePlay, gameInitialScene, scene, choiceScene, gotoScene, endScene, choice, comment, like, gameCategoryRelation, gameCategory, event, eventCategoryRelation, eventCategory, changeBackgroundEvent, appearCharacterEvent, hideCharacterEvent, hideAllCharactersEvent, moveCharacterEvent, characterEffectEvent, bgmStartEvent, bgmStopEvent, soundEffectEvent, appearCgEvent, hideCgEvent, textRenderEvent, appearMessageWindowEvent, hideMessageWindowEvent, effectEvent } from "./schema";
+import { event, hideAllCharactersEvent, changeBackgroundEvent, asset, appearCharacterEvent, character, hideCharacterEvent, moveCharacterEvent, characterEffectEvent, bgmStartEvent, bgmStopEvent, soundEffectEvent, user, userProfile, characterAsset, game, gamePlay, gameInitialScene, scene, choiceScene, gotoScene, endScene, choice, assetGame, characterGame, comment, like, gameCategoryRelation, gameCategory, appearCgEvent, hideCgEvent, textRenderEvent, appearMessageWindowEvent, hideMessageWindowEvent, effectEvent } from "./schema";
+
+export const hideAllCharactersEventRelations = relations(hideAllCharactersEvent, ({one}) => ({
+	event: one(event, {
+		fields: [hideAllCharactersEvent.eventId],
+		references: [event.id]
+	}),
+}));
+
+export const eventRelations = relations(event, ({one, many}) => ({
+	hideAllCharactersEvents: many(hideAllCharactersEvent),
+	changeBackgroundEvents: many(changeBackgroundEvent),
+	appearCharacterEvents: many(appearCharacterEvent),
+	hideCharacterEvents: many(hideCharacterEvent),
+	moveCharacterEvents: many(moveCharacterEvent),
+	characterEffectEvents: many(characterEffectEvent),
+	bgmStartEvents: many(bgmStartEvent),
+	bgmStopEvents: many(bgmStopEvent),
+	soundEffectEvents: many(soundEffectEvent),
+	scene: one(scene, {
+		fields: [event.sceneId],
+		references: [scene.id]
+	}),
+	appearCgEvents: many(appearCgEvent),
+	hideCgEvents: many(hideCgEvent),
+	textRenderEvents: many(textRenderEvent),
+	appearMessageWindowEvents: many(appearMessageWindowEvent),
+	hideMessageWindowEvents: many(hideMessageWindowEvent),
+	effectEvents: many(effectEvent),
+}));
+
+export const changeBackgroundEventRelations = relations(changeBackgroundEvent, ({one}) => ({
+	event: one(event, {
+		fields: [changeBackgroundEvent.eventId],
+		references: [event.id]
+	}),
+	asset: one(asset, {
+		fields: [changeBackgroundEvent.backgroundId],
+		references: [asset.id]
+	}),
+}));
+
+export const assetRelations = relations(asset, ({one, many}) => ({
+	changeBackgroundEvents: many(changeBackgroundEvent),
+	appearCharacterEvents: many(appearCharacterEvent),
+	bgmStartEvents: many(bgmStartEvent),
+	soundEffectEvents: many(soundEffectEvent),
+	user: one(user, {
+		fields: [asset.ownerId],
+		references: [user.id]
+	}),
+	characterAssets: many(characterAsset),
+	assetGames: many(assetGame),
+	appearCgEvents: many(appearCgEvent),
+}));
+
+export const appearCharacterEventRelations = relations(appearCharacterEvent, ({one}) => ({
+	event: one(event, {
+		fields: [appearCharacterEvent.eventId],
+		references: [event.id]
+	}),
+	character: one(character, {
+		fields: [appearCharacterEvent.characterId],
+		references: [character.id]
+	}),
+	asset: one(asset, {
+		fields: [appearCharacterEvent.characterImageId],
+		references: [asset.id]
+	}),
+}));
+
+export const characterRelations = relations(character, ({one, many}) => ({
+	appearCharacterEvents: many(appearCharacterEvent),
+	hideCharacterEvents: many(hideCharacterEvent),
+	moveCharacterEvents: many(moveCharacterEvent),
+	characterEffectEvents: many(characterEffectEvent),
+	user: one(user, {
+		fields: [character.ownerId],
+		references: [user.id]
+	}),
+	characterAssets: many(characterAsset),
+	characterGames: many(characterGame),
+}));
+
+export const hideCharacterEventRelations = relations(hideCharacterEvent, ({one}) => ({
+	event: one(event, {
+		fields: [hideCharacterEvent.eventId],
+		references: [event.id]
+	}),
+	character: one(character, {
+		fields: [hideCharacterEvent.characterId],
+		references: [character.id]
+	}),
+}));
+
+export const moveCharacterEventRelations = relations(moveCharacterEvent, ({one}) => ({
+	event: one(event, {
+		fields: [moveCharacterEvent.eventId],
+		references: [event.id]
+	}),
+	character: one(character, {
+		fields: [moveCharacterEvent.characterId],
+		references: [character.id]
+	}),
+}));
+
+export const characterEffectEventRelations = relations(characterEffectEvent, ({one}) => ({
+	event: one(event, {
+		fields: [characterEffectEvent.eventId],
+		references: [event.id]
+	}),
+	character: one(character, {
+		fields: [characterEffectEvent.characterId],
+		references: [character.id]
+	}),
+}));
+
+export const bgmStartEventRelations = relations(bgmStartEvent, ({one}) => ({
+	event: one(event, {
+		fields: [bgmStartEvent.eventId],
+		references: [event.id]
+	}),
+	asset: one(asset, {
+		fields: [bgmStartEvent.bgmId],
+		references: [asset.id]
+	}),
+}));
+
+export const bgmStopEventRelations = relations(bgmStopEvent, ({one}) => ({
+	event: one(event, {
+		fields: [bgmStopEvent.eventId],
+		references: [event.id]
+	}),
+}));
+
+export const soundEffectEventRelations = relations(soundEffectEvent, ({one}) => ({
+	event: one(event, {
+		fields: [soundEffectEvent.eventId],
+		references: [event.id]
+	}),
+	asset: one(asset, {
+		fields: [soundEffectEvent.soundEffectId],
+		references: [asset.id]
+	}),
+}));
 
 export const userProfileRelations = relations(userProfile, ({one}) => ({
 	user: one(user, {
@@ -16,31 +160,6 @@ export const userRelations = relations(user, ({many}) => ({
 	gamePlays: many(gamePlay),
 	comments: many(comment),
 	likes: many(like),
-}));
-
-export const assetRelations = relations(asset, ({one, many}) => ({
-	user: one(user, {
-		fields: [asset.ownerId],
-		references: [user.id]
-	}),
-	characterAssets: many(characterAsset),
-	changeBackgroundEvents: many(changeBackgroundEvent),
-	appearCharacterEvents: many(appearCharacterEvent),
-	bgmStartEvents: many(bgmStartEvent),
-	soundEffectEvents: many(soundEffectEvent),
-	appearCgEvents: many(appearCgEvent),
-}));
-
-export const characterRelations = relations(character, ({one, many}) => ({
-	user: one(user, {
-		fields: [character.ownerId],
-		references: [user.id]
-	}),
-	characterAssets: many(characterAsset),
-	appearCharacterEvents: many(appearCharacterEvent),
-	hideCharacterEvents: many(hideCharacterEvent),
-	moveCharacterEvents: many(moveCharacterEvent),
-	characterEffectEvents: many(characterEffectEvent),
 }));
 
 export const characterAssetRelations = relations(characterAsset, ({one}) => ({
@@ -62,6 +181,8 @@ export const gameRelations = relations(game, ({one, many}) => ({
 	gamePlays: many(gamePlay),
 	gameInitialScenes: many(gameInitialScene),
 	scenes: many(scene),
+	assetGames: many(assetGame),
+	characterGames: many(characterGame),
 	comments: many(comment),
 	likes: many(like),
 	gameCategoryRelations: many(gameCategoryRelation),
@@ -146,6 +267,28 @@ export const choiceRelations = relations(choice, ({one}) => ({
 	}),
 }));
 
+export const assetGameRelations = relations(assetGame, ({one}) => ({
+	asset: one(asset, {
+		fields: [assetGame.assetId],
+		references: [asset.id]
+	}),
+	game: one(game, {
+		fields: [assetGame.gameId],
+		references: [game.id]
+	}),
+}));
+
+export const characterGameRelations = relations(characterGame, ({one}) => ({
+	character: one(character, {
+		fields: [characterGame.characterId],
+		references: [character.id]
+	}),
+	game: one(game, {
+		fields: [characterGame.gameId],
+		references: [game.id]
+	}),
+}));
+
 export const commentRelations = relations(comment, ({one}) => ({
 	game: one(game, {
 		fields: [comment.gameId],
@@ -181,139 +324,6 @@ export const gameCategoryRelationRelations = relations(gameCategoryRelation, ({o
 
 export const gameCategoryRelations = relations(gameCategory, ({many}) => ({
 	gameCategoryRelations: many(gameCategoryRelation),
-}));
-
-export const eventRelations = relations(event, ({one, many}) => ({
-	scene: one(scene, {
-		fields: [event.sceneId],
-		references: [scene.id]
-	}),
-	eventCategoryRelations: many(eventCategoryRelation),
-	changeBackgroundEvents: many(changeBackgroundEvent),
-	appearCharacterEvents: many(appearCharacterEvent),
-	hideCharacterEvents: many(hideCharacterEvent),
-	hideAllCharactersEvents: many(hideAllCharactersEvent),
-	moveCharacterEvents: many(moveCharacterEvent),
-	characterEffectEvents: many(characterEffectEvent),
-	bgmStartEvents: many(bgmStartEvent),
-	bgmStopEvents: many(bgmStopEvent),
-	soundEffectEvents: many(soundEffectEvent),
-	appearCgEvents: many(appearCgEvent),
-	hideCgEvents: many(hideCgEvent),
-	textRenderEvents: many(textRenderEvent),
-	appearMessageWindowEvents: many(appearMessageWindowEvent),
-	hideMessageWindowEvents: many(hideMessageWindowEvent),
-	effectEvents: many(effectEvent),
-}));
-
-export const eventCategoryRelationRelations = relations(eventCategoryRelation, ({one}) => ({
-	event: one(event, {
-		fields: [eventCategoryRelation.eventId],
-		references: [event.id]
-	}),
-	eventCategory: one(eventCategory, {
-		fields: [eventCategoryRelation.eventCategoryId],
-		references: [eventCategory.id]
-	}),
-}));
-
-export const eventCategoryRelations = relations(eventCategory, ({many}) => ({
-	eventCategoryRelations: many(eventCategoryRelation),
-}));
-
-export const changeBackgroundEventRelations = relations(changeBackgroundEvent, ({one}) => ({
-	event: one(event, {
-		fields: [changeBackgroundEvent.eventId],
-		references: [event.id]
-	}),
-	asset: one(asset, {
-		fields: [changeBackgroundEvent.backgroundId],
-		references: [asset.id]
-	}),
-}));
-
-export const appearCharacterEventRelations = relations(appearCharacterEvent, ({one}) => ({
-	event: one(event, {
-		fields: [appearCharacterEvent.eventId],
-		references: [event.id]
-	}),
-	character: one(character, {
-		fields: [appearCharacterEvent.characterId],
-		references: [character.id]
-	}),
-	asset: one(asset, {
-		fields: [appearCharacterEvent.characterImageId],
-		references: [asset.id]
-	}),
-}));
-
-export const hideCharacterEventRelations = relations(hideCharacterEvent, ({one}) => ({
-	event: one(event, {
-		fields: [hideCharacterEvent.eventId],
-		references: [event.id]
-	}),
-	character: one(character, {
-		fields: [hideCharacterEvent.characterId],
-		references: [character.id]
-	}),
-}));
-
-export const hideAllCharactersEventRelations = relations(hideAllCharactersEvent, ({one}) => ({
-	event: one(event, {
-		fields: [hideAllCharactersEvent.eventId],
-		references: [event.id]
-	}),
-}));
-
-export const moveCharacterEventRelations = relations(moveCharacterEvent, ({one}) => ({
-	event: one(event, {
-		fields: [moveCharacterEvent.eventId],
-		references: [event.id]
-	}),
-	character: one(character, {
-		fields: [moveCharacterEvent.characterId],
-		references: [character.id]
-	}),
-}));
-
-export const characterEffectEventRelations = relations(characterEffectEvent, ({one}) => ({
-	event: one(event, {
-		fields: [characterEffectEvent.eventId],
-		references: [event.id]
-	}),
-	character: one(character, {
-		fields: [characterEffectEvent.characterId],
-		references: [character.id]
-	}),
-}));
-
-export const bgmStartEventRelations = relations(bgmStartEvent, ({one}) => ({
-	event: one(event, {
-		fields: [bgmStartEvent.eventId],
-		references: [event.id]
-	}),
-	asset: one(asset, {
-		fields: [bgmStartEvent.bgmId],
-		references: [asset.id]
-	}),
-}));
-
-export const bgmStopEventRelations = relations(bgmStopEvent, ({one}) => ({
-	event: one(event, {
-		fields: [bgmStopEvent.eventId],
-		references: [event.id]
-	}),
-}));
-
-export const soundEffectEventRelations = relations(soundEffectEvent, ({one}) => ({
-	event: one(event, {
-		fields: [soundEffectEvent.eventId],
-		references: [event.id]
-	}),
-	asset: one(asset, {
-		fields: [soundEffectEvent.soundEffectId],
-		references: [asset.id]
-	}),
 }));
 
 export const appearCgEventRelations = relations(appearCgEvent, ({one}) => ({

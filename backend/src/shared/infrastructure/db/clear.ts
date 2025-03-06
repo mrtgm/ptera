@@ -1,6 +1,5 @@
 import { sql } from "drizzle-orm";
 import { db } from "./index.ts";
-import * as schema from "./schema.ts"; // あなたのスキーマ定義ファイルをインポート
 
 export const clear = async () => {
 	await db.execute(sql`

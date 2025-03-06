@@ -148,7 +148,7 @@ const sampleGames: GameMetaData[] = [
 ];
 
 // ジャンルのサンプルリスト
-const genres = [
+const categories = [
 	"すべて",
 	"アドベンチャー",
 	"ミステリー",
@@ -279,7 +279,7 @@ export default function GamesListPage() {
 							<SelectValue placeholder="ジャンル" />
 						</SelectTrigger>
 						<SelectContent>
-							{genres.map((genre) => (
+							{categories.map((genre) => (
 								<SelectItem key={genre} value={genre}>
 									{genre}
 								</SelectItem>

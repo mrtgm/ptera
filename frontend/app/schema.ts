@@ -344,7 +344,7 @@ export const gameMataDataSchema = z.object({
 		z.literal("published"),
 		z.literal("archived"),
 	]),
-	genres: z.array(z.string()).optional(),
+	categories: z.array(z.string()).optional(),
 	likeCount: z.number(),
 	playCount: z.number(),
 	createdAt: z.number(),
