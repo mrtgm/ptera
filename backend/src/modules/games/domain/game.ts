@@ -19,7 +19,7 @@ export const gameSchema = z.object({
 	id: z.number(),
 	userId: z.number(),
 	publicId: z.string(),
-	name: z.string(),
+	name: z.string().min(1).max(100),
 	description: z.string().nullable(),
 	releaseDate: z.string().nullable(),
 	coverImageUrl: z.string().nullable(),

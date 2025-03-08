@@ -1,5 +1,5 @@
 from diagrams import Diagram, Cluster
-from diagrams.aws.compute import Lambda, ECR
+from diagrams.aws.compute import Lambda
 from diagrams.aws.network import APIGateway, CloudFront
 from diagrams.aws.database import RDS, ElastiCache
 from diagrams.aws.storage import S3
@@ -14,16 +14,13 @@ with Diagram("Ptera Architecture", show=False, filename="ptera_architecture"):
 
     with Cluster("AWS Cloud"):
         # 静的コンテンツ配信
-        cdn = CloudFront("CloudFront\n+ SPA Hosting")
+        cdn = CloudFront("CloudFront")
         static_site = S3("S3 (Remix SPA)")
 
         # API関連
         api_gw = APIGateway("API Gateway")
 
-        # ECR にコンテナイメージを格納し、Lambda で利用
-        deno_lambda = Lambda("Deno on Lambda (Container)")
-        ecr = ECR("ECR")
-        ecr >> deno_lambda
+        node_lambda = Lambda("Lambda(Node.js)")
 
         with Cluster("VPC"):
             aurora = RDS("Aurora\nServerless v2")
@@ -36,17 +33,17 @@ with Diagram("Ptera Architecture", show=False, filename="ptera_architecture"):
         monitoring = Cloudwatch("CloudWatch")
 
         # ユーザーの操作フロー
-        user >> cdn >> static_site >> api_gw >> deno_lambda
-        user >> cognito
-        deno_lambda >> aurora
-        deno_lambda >> redis
+        user >> cdn
+        cdn >> static_site
+        cdn >> api_gw >> node_lambda
+        node_lambda >> aurora
+        node_lambda >> redis
 
         tf >> [
             cdn,
             static_site,
             api_gw,
-            deno_lambda,
-            ecr,
+            node_lambda,
             aurora,
             redis,
             cognito,

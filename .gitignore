@@ -1,1 +1,15 @@
 .DS_Store
+
+/**/.DS_Store
+/**/.idea
+
+/**/.terraform
+/**/.terragrunt-cache
+
+/**/.env
+/**/.env.local
+/**/.env.development
+/**/.env.test
+/**/.env.production
+
+/**/node_modules

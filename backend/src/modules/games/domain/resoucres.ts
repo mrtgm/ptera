@@ -7,7 +7,7 @@ import { randomIntId, randomUUID } from "~/shared/utils/id";
 export const mediaAssetSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	filename: z.string(),
+	filename: z.string().max(255),
 	url: z.string(),
 	metadata: z
 		.object({
@@ -39,7 +39,7 @@ export type BGM = z.infer<typeof bgmSchema>;
 export const characterSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	name: z.string(),
+	name: z.string().min(1).max(100),
 	images: z.record(z.string(), characterImageSchema),
 });
 export type Character = z.infer<typeof characterSchema>;

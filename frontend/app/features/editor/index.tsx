@@ -57,7 +57,7 @@ export const Editor = () => {
 
 	useEffect(() => {
 		// TODO: ロード
-		const game = gameSchema.parse(emptyGame);
+		const game = gameSchema.parse(dummyGame);
 		editorSlice.initializeEditor(game, dummyAssets);
 	}, [editorSlice.initializeEditor]);
 

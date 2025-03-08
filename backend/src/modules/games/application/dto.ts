@@ -13,33 +13,29 @@ import { type GameResources, gameResourcesSchema } from "../domain/resoucres";
 //      Request DTOs
 // ------------------------------------------------------ */
 
-export const createGameDtoSchema = z.object({
-	name: z.string().min(1).max(100),
-	description: z.string().optional(),
+export const createGameDtoSchema = gameSchema.pick({
+	name: true,
+	description: true,
 });
-
 export type CreateGameDto = z.infer<typeof createGameDtoSchema>;
 
-export const updateGameDtoSchema = z.object({
-	name: z.string().min(1).max(100).optional(),
-	description: z.string().optional(),
-	status: gameStatusSchema.optional(),
+export const updateGameDtoSchema = gameSchema.pick({
+	name: true,
+	description: true,
 });
-
 export type UpdateGameDto = z.infer<typeof updateGameDtoSchema>;
 
-export const gameListResponseDtoSchema = gameSchema.omit({ id: true }).merge(
+// *------------------------------------------------------
+//      Response DTOs
+// ------------------------------------------------------ */
+
+export const gameListResponseDtoSchema = gameSchema.merge(
 	z.object({
 		userPublicId: z.string(),
 		username: z.string(),
 		avatarUrl: z.string().optional(),
 	}),
 );
-
-// *------------------------------------------------------
-//      Response DTOs
-// ------------------------------------------------------ */
-
 export type GameListResponseDto = z.infer<typeof gameListResponseDtoSchema>;
 export const mapDomainToListResponseDto = (
 	game: Game[],

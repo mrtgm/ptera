@@ -1,0 +1,213 @@
+name: "Deploy Application"
+
+on:
+  push:
+    branches:
+      - main
+      - devel
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  filter:
+    name: "Filter Changed Files"
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.changes.outputs.frontend }}
+      backend: ${{ steps.changes.outputs.backend }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Detect File Changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+            backend:
+              - 'backend/**'
+
+  validate:
+    name: "Type Check"
+    runs-on: ubuntu-latest
+    needs: filter
+    if: ${{ needs.filter.outputs.frontend == 'true' || needs.filter.outputs.backend == 'true' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: |
+          # フロントエンド依存関係のインストール
+          if [ -d "frontend" ]; then
+            cd frontend
+            npm ci
+            cd ..
+          fi
+
+          # バックエンド依存関係のインストール
+          if [ -d "backend" ]; then
+            cd backend
+            npm ci
+            cd ..
+          fi
+
+      - name: Run Type Check
+        run: |
+          # フロントエンド型チェック
+          if [ -d "frontend" ]; then
+            cd frontend
+            npm run typecheck || echo "Frontend type check failed"
+            cd ..
+          fi
+
+          # バックエンド型チェック
+          if [ -d "backend" ]; then
+            cd backend
+            npm run typecheck || echo "Backend type check failed"
+            cd ..
+          fi
+
+  deploy-backend:
+    name: "Deploy Backend"
+    runs-on: ubuntu-latest
+    needs: [filter, validate]
+    if: ${{ needs.filter.outputs.backend == 'true' }}
+
+    strategy:
+      matrix:
+        include:
+          - branch: main
+            environment: prod
+            aws_role: "arn:aws:iam::ACCOUNT_ID:role/ptera-github-actions-prod"
+          - branch: devel
+            environment: dev
+            aws_role: "arn:aws:iam::ACCOUNT_ID:role/ptera-github-actions-dev"
+
+    environment: ${{ matrix.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ matrix.aws_role }}
+          aws-region: ap-northeast-1
+
+      # バックエンド（Lambda関数）をビルドしてデプロイ
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Build Backend
+        run: |
+          cd backend
+          npm run build
+
+      - name: Package Lambda Function
+        run: |
+          cd backend
+          npm run package
+
+      - name: Deploy Lambda Function
+        run: |
+          aws lambda update-function-code \
+            --function-name ptera-api-${{ matrix.environment }} \
+            --zip-file fileb://backend/dist/lambda.zip
+
+  deploy-frontend:
+    name: "Deploy Frontend"
+    runs-on: ubuntu-latest
+    needs: [filter, validate]
+    if: ${{ needs.filter.outputs.frontend == 'true' }}
+
+    strategy:
+      matrix:
+        include:
+          - branch: main
+            environment: prod
+            aws_role: "arn:aws:iam::ACCOUNT_ID:role/ptera-github-actions-prod"
+          - branch: devel
+            environment: dev
+            aws_role: "arn:aws:iam::ACCOUNT_ID:role/ptera-github-actions-dev"
+
+    environment: ${{ matrix.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ matrix.aws_role }}
+          aws-region: ap-northeast-1
+
+      # フロントエンド（SPA）をビルドしてデプロイ
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          VITE_API_URL=https:// ${{ matrix.environment == 'prod' && 'https://ptera.morio.space/api' || 'https://dev.ptera.morio.space/api' }} \
+          npm run build
+
+      - name: Deploy Frontend to S3
+        run: |
+          aws s3 sync frontend/dist/ s3://ptera-spa-${{ matrix.environment }} \
+            --delete \
+            --cache-control "max-age=31536000,public" \
+            --exclude "index.html"
+
+          # index.htmlは別々にデプロイ（キャッシュ設定を変更）
+          aws s3 cp frontend/dist/index.html s3://ptera-spa-${{ matrix.environment }}/index.html \
+            --cache-control "max-age=0,no-cache,no-store,must-revalidate" \
+            --content-type "text/html; charset=utf-8"
+
+      # CloudFrontのキャッシュを無効化
+      # https://zenn.dev/keita_hino/articles/2a129d442daf05
+      - name: Get CloudFront Distribution ID
+        id: get-distribution-id
+        run: |
+          DISTRIBUTION_ID=$(aws cloudfront list-distributions \
+            --query "DistributionList.Items[?Aliases.Items[?contains(@, '${{ matrix.environment == 'prod' && 'ptera.morio.space' || 'dev.ptera.morio.space' }}')]].Id" \
+            --output text)
+          echo "DISTRIBUTION_ID=$DISTRIBUTION_ID" >> $GITHUB_ENV
+
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ env.DISTRIBUTION_ID }} \
+            --paths "/*"

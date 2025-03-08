@@ -1,4 +1,5 @@
 python 3.11.9
 poetry 1.8.2
 bun 1.2.4
-
+terraform 1.9.8
+terragrunt 0.75.3

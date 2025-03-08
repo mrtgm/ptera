@@ -8,7 +8,8 @@
     "zip": "zip -j lambda.zip dist/index.js",
     "update": "aws lambda update-function-code --zip-file fileb://lambda.zip --function-name hello",
     "deploy": "run-s build zip update",
-    "db:migrate": "./src/shared/infrastructure/db/migrate.sh",
+    "typecheck": "tsc --noEmit",
+    "db:migrate:local": "db:clear && ./src/shared/infrastructure/db/migrate.sh",
     "db:clear": "bun run ./src/shared/infrastructure/db/clear.ts",
     "db:seed": "bun run ./src/shared/infrastructure/db/seed.ts"
   },

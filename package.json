@@ -1,0 +1,9 @@
+{
+  "workspaces": [
+    "frontend/*",
+    "backend/*"
+  ],
+  "dependencies": {
+    "turbo": "^2.4.4"
+  }
+}
