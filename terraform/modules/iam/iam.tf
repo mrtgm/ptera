@@ -155,7 +155,10 @@ resource "aws_iam_policy" "github_actions_deploy" {
         Action = [
           "cloudfront:CreateInvalidation",
           "cloudfront:GetInvalidation",
-          "cloudfront:ListInvalidations"
+          "cloudfront:ListInvalidations",
+          "cloudfront:ListDistributions",
+          "cloudfront:GetDistribution",
+          "cloudfront:UpdateDistribution"
         ]
         Effect   = "Allow"
         Resource = "*"
