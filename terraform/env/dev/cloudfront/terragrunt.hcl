@@ -2,17 +2,14 @@ include {
   path = find_in_parent_folders("root.hcl")
 }
 
-# モジュールのソース
 terraform {
   source = "../../../modules//cloudfront"
 }
 
-# 依存関係
 dependencies {
   paths = ["../storage", "../lambda", "../acm"]
 }
 
-# 依存関係からの出力を取得
 dependency "storage" {
   config_path = "../storage"
 

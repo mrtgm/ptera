@@ -30,8 +30,3 @@ variable "tags" {
   default     = {}
 }
 
-variable "use_elasticache" {
-  description = "Whether to use ElastiCache or not"
-  type        = bool
-  default     = false
-}

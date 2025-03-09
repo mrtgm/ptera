@@ -31,11 +31,9 @@ export const logger = (fn: PrintFunc = console.info): MiddlewareHandler => {
 	return async function logger(c, next) {
 		const { method } = c.req;
 
-		// 一意なリクエスト ID を生成
 		const requestId = nanoid();
 		c.set("requestId", requestId);
 
-		// 150 文字までに短縮
 		const stripUrl = c.req.raw.url
 			.replace(/(https?:\/\/)?([^\/]+)/, "")
 			.slice(0, 150);
@@ -52,7 +50,6 @@ export const logger = (fn: PrintFunc = console.info): MiddlewareHandler => {
 			"x-forwarded-for": headers["x-forwarded-for"],
 		};
 
-		// リクエスト
 		log.info({
 			requestId,
 			prefix: LogPrefix.Incoming,
@@ -69,7 +66,6 @@ export const logger = (fn: PrintFunc = console.info): MiddlewareHandler => {
 
 		const responseTime = Date.now() - start;
 
-		// レスポンス
 		if (c.res.status >= 400 || responseTime > 1000) {
 			// エラーまたは遅いレスポンスのみ詳細ログを記録
 			log.warn({

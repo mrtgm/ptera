@@ -2,12 +2,10 @@ include {
   path = find_in_parent_folders("root.hcl")
 }
 
-# モジュールのソース
 terraform {
   source = "../../../modules//networking"
 }
 
-# 依存関係
 dependencies {
   paths = []  # VPCは他のリソースに依存しない
 }

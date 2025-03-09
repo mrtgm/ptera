@@ -1,7 +1,7 @@
 from diagrams import Diagram, Cluster
 from diagrams.aws.compute import Lambda
 from diagrams.aws.network import APIGateway, CloudFront
-from diagrams.aws.database import RDS, ElastiCache
+from diagrams.aws.database import RDS
 from diagrams.aws.storage import S3
 from diagrams.aws.security import Cognito
 from diagrams.onprem.iac import Terraform
@@ -24,7 +24,6 @@ with Diagram("Ptera Architecture", show=False, filename="ptera_architecture"):
 
         with Cluster("VPC"):
             aurora = RDS("Aurora\nServerless v2")
-            redis = ElastiCache("ElastiCache Redis")
 
         # 認証
         cognito = Cognito("Cognito")
@@ -37,7 +36,6 @@ with Diagram("Ptera Architecture", show=False, filename="ptera_architecture"):
         cdn >> static_site
         cdn >> api_gw >> node_lambda
         node_lambda >> aurora
-        node_lambda >> redis
 
         tf >> [
             cdn,
@@ -45,7 +43,6 @@ with Diagram("Ptera Architecture", show=False, filename="ptera_architecture"):
             api_gw,
             node_lambda,
             aurora,
-            redis,
             cognito,
             monitoring,
         ]

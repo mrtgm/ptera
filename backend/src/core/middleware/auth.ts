@@ -25,7 +25,7 @@ export const isAuthenticated = async (c: Context, next: Next) => {
 
 		const payload = await verifier.verify(token);
 
-		const user = await userRepository.findByJwtSub(payload.sub);
+		const user = await userRepository.getByJwtSub(payload.sub);
 
 		if (!user) {
 			return errorResponse(c, 401, "userNotFound", "warn");

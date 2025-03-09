@@ -33,7 +33,6 @@ locals {
 }
 
 
-# 現在の環境変数をすべてのモジュールに渡す
 inputs = {
   project_name   = local.common_vars.locals.project_name
   env            = local.env
@@ -65,7 +64,4 @@ inputs = {
 
   # API Path Pattern
   api_path_pattern = local.common_vars.locals.api_path_pattern
-
-  # キャッシュ設定 (開発環境ではElastiCacheを使わない)
-  use_elasticache = false
 }

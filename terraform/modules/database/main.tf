@@ -10,8 +10,7 @@ resource "aws_security_group" "aurora" {
   description = "Allow access to Aurora Serverless v2"
   vpc_id      = var.vpc_id
 
-  # データAPIはインバウンドの許可が不要
-
+  # RDS Data API はインバウンドの許可が不要
   # 全ての送信トラフィックを許可
   egress {
     from_port   = 0

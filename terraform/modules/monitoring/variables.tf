@@ -49,15 +49,3 @@ variable "aurora_config" {
     max_capacity = number
   })
 }
-
-variable "use_elasticache" {
-  description = "Whether ElastiCache is used"
-  type        = bool
-  default     = false
-}
-
-variable "elasticache_cluster_id" {
-  description = "ID of the ElastiCache cluster to monitor"
-  type        = string
-  default     = ""
-}

@@ -50,8 +50,6 @@ inputs = {
   # Lambda設定
   lambda_config = local.common_vars.locals.lambda_config
 
-  # ElastiCache設定
-  elasticache_config = local.prod_settings.elasticache
 
   # CloudFront設定
   cloudfront_config = {
@@ -67,7 +65,4 @@ inputs = {
 
   # API Path Pattern
   api_path_pattern = local.common_vars.locals.api_path_pattern
-
-  # キャッシュ設定 (本番環境ではElastiCacheを使用)
-  use_elasticache = true
 }

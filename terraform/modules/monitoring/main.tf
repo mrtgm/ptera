@@ -170,24 +170,3 @@ resource "aws_cloudwatch_metric_alarm" "aurora_cpu_utilization" {
   tags = var.tags
 }
 
-# CloudWatch アラーム - ElastiCache CPU使用率 (本番環境のみ)
-resource "aws_cloudwatch_metric_alarm" "elasticache_cpu" {
-  count               = var.use_elasticache ? 1 : 0
-
-  alarm_name          = "${var.project_name}-elasticache-cpu${var.name_suffix}"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 3
-  metric_name         = "CPUUtilization"
-  namespace           = "AWS/ElastiCache"
-  period              = 300  # 5分
-  statistic           = "Average"
-  threshold           = 90   # 90%以上のCPU使用率
-  alarm_description   = "ElastiCache CPU utilization is high"
-  alarm_actions       = [aws_sns_topic.alerts.arn]
-
-  dimensions = {
-    CacheClusterId = var.elasticache_cluster_id
-  }
-
-  tags = var.tags
-}

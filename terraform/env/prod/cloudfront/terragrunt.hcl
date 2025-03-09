@@ -2,17 +2,14 @@ include {
   path = find_in_parent_folders()
 }
 
-# モジュールのソース
 terraform {
   source = "../../../modules//cloudfront"
 }
 
-# 依存関係
 dependencies {
   paths = ["../storage", "../lambda", "../acm"]
 }
 
-# 依存関係からの出力を取得
 dependency "storage" {
   config_path = "../storage"
 
@@ -54,10 +51,3 @@ inputs = {
   certificate_arn       = dependency.acm.outputs.certificate_validation_arn
 }
 
-# ACMモジュールに戻って、CloudFrontのドメイン名とゾーンIDを設定
-terraform {
-  after_hook "update_acm_module" {
-    commands = ["apply"]
-    execute  = ["terragrunt", "run-all", "apply", "--terragrunt-non-interactive", "-target=module.acm", "${path_relative_from_include()/../acm}"]
-  }
-}

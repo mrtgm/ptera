@@ -19,16 +19,14 @@ import {
 export const hideAllCharactersEvent = pgTable(
 	"hide_all_characters_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "hide_all_characters_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "hide_all_characters_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		transitionDuration: integer("transition_duration").default(0).notNull(),
 		updatedAt: timestamp("updated_at", { mode: "string" })
@@ -51,16 +49,14 @@ export const hideAllCharactersEvent = pgTable(
 export const changeBackgroundEvent = pgTable(
 	"change_background_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "change_background_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "change_background_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		backgroundId: integer("background_id").notNull(),
 		transitionDuration: integer("transition_duration").default(0).notNull(),
@@ -93,16 +89,14 @@ export const changeBackgroundEvent = pgTable(
 export const appearCharacterEvent = pgTable(
 	"appear_character_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "appear_character_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "appear_character_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		characterId: integer("character_id").notNull(),
 		characterImageId: integer("character_image_id").notNull(),
@@ -139,16 +133,14 @@ export const appearCharacterEvent = pgTable(
 export const hideCharacterEvent = pgTable(
 	"hide_character_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "hide_character_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "hide_character_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		characterId: integer("character_id").notNull(),
 		transitionDuration: integer("transition_duration").default(0).notNull(),
@@ -177,16 +169,14 @@ export const hideCharacterEvent = pgTable(
 export const moveCharacterEvent = pgTable(
 	"move_character_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "move_character_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "move_character_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		characterId: integer("character_id").notNull(),
 		position: point().notNull(),
@@ -216,16 +206,14 @@ export const moveCharacterEvent = pgTable(
 export const characterEffectEvent = pgTable(
 	"character_effect_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "character_effect_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "character_effect_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		characterId: integer("character_id").notNull(),
 		effectType: varchar("effect_type", { length: 50 }).notNull(),
@@ -255,16 +243,14 @@ export const characterEffectEvent = pgTable(
 export const bgmStartEvent = pgTable(
 	"bgm_start_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "bgm_start_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "bgm_start_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		bgmId: integer("bgm_id").notNull(),
 		loop: boolean().default(true).notNull(),
@@ -295,16 +281,14 @@ export const bgmStartEvent = pgTable(
 export const bgmStopEvent = pgTable(
 	"bgm_stop_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "bgm_stop_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "bgm_stop_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		transitionDuration: integer("transition_duration").default(0).notNull(),
 		updatedAt: timestamp("updated_at", { mode: "string" })
@@ -327,16 +311,14 @@ export const bgmStopEvent = pgTable(
 export const soundEffectEvent = pgTable(
 	"sound_effect_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "sound_effect_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "sound_effect_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		soundEffectId: integer("sound_effect_id").notNull(),
 		volume: numeric({ precision: 5, scale: 2 }).default("1.0").notNull(),
@@ -367,16 +349,14 @@ export const soundEffectEvent = pgTable(
 export const user = pgTable(
 	"user",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "user_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "user_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		isDeleted: boolean("is_deleted").default(false).notNull(),
 		jwtSub: varchar("jwt_sub", { length: 255 }).notNull(),
 		publicId: uuid("public_id").defaultRandom().notNull(),
@@ -396,16 +376,14 @@ export const user = pgTable(
 export const userProfile = pgTable(
 	"user_profile",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "user_profile_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "user_profile_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		name: varchar({ length: 255 }).notNull(),
 		bio: text(),
 		avatarUrl: varchar("avatar_url", { length: 255 }),
@@ -434,16 +412,14 @@ export const userProfile = pgTable(
 export const asset = pgTable(
 	"asset",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "asset_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "asset_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		publicId: uuid("public_id").defaultRandom().notNull(),
 		ownerId: integer("owner_id"),
 		isPublic: boolean("is_public").default(false).notNull(),
@@ -479,16 +455,14 @@ export const asset = pgTable(
 export const character = pgTable(
 	"character",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "character_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "character_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		publicId: uuid("public_id").defaultRandom().notNull(),
 		ownerId: integer("owner_id"),
 		isPublic: boolean("is_public").default(false).notNull(),
@@ -517,16 +491,14 @@ export const character = pgTable(
 export const characterAsset = pgTable(
 	"character_asset",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "character_asset_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "character_asset_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		characterId: integer("character_id").notNull(),
 		assetId: integer("asset_id").notNull(),
 		updatedAt: timestamp("updated_at", { mode: "string" })
@@ -561,16 +533,14 @@ export const characterAsset = pgTable(
 export const game = pgTable(
 	"game",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "game_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "game_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		publicId: uuid("public_id").defaultRandom().notNull(),
 		userId: integer("user_id").notNull(),
 		name: varchar({ length: 255 }).notNull(),
@@ -606,16 +576,14 @@ export const game = pgTable(
 export const gamePlay = pgTable(
 	"game_play",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "game_play_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "game_play_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		gameId: integer("game_id").notNull(),
 		userId: integer("user_id").notNull(),
 		updatedAt: timestamp("updated_at", { mode: "string" })
@@ -680,16 +648,14 @@ export const gameInitialScene = pgTable(
 export const scene = pgTable(
 	"scene",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "scene_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "scene_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		publicId: uuid("public_id").defaultRandom().notNull(),
 		gameId: integer("game_id").notNull(),
 		name: varchar({ length: 255 }).notNull(),
@@ -717,16 +683,14 @@ export const scene = pgTable(
 export const choiceScene = pgTable(
 	"choice_scene",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "choice_scene_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "choice_scene_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		publicId: uuid("public_id").defaultRandom().notNull(),
 		sceneId: integer("scene_id").notNull(),
 		updatedAt: timestamp("updated_at", { mode: "string" })
@@ -750,16 +714,14 @@ export const choiceScene = pgTable(
 export const gotoScene = pgTable(
 	"goto_scene",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "goto_scene_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "goto_scene_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		publicId: uuid("public_id").defaultRandom().notNull(),
 		sceneId: integer("scene_id").notNull(),
 		nextSceneId: integer("next_scene_id").notNull(),
@@ -797,16 +759,14 @@ export const gotoScene = pgTable(
 export const endScene = pgTable(
 	"end_scene",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "end_scene_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "end_scene_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		publicId: uuid("public_id").defaultRandom().notNull(),
 		sceneId: integer("scene_id").notNull(),
 		updatedAt: timestamp("updated_at", { mode: "string" })
@@ -834,16 +794,14 @@ export const endScene = pgTable(
 export const choice = pgTable(
 	"choice",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "choice_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "choice_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		publicId: uuid("public_id").defaultRandom().notNull(),
 		choiceSceneId: integer("choice_scene_id").notNull(),
 		text: text().notNull(),
@@ -881,16 +839,14 @@ export const choice = pgTable(
 export const assetGame = pgTable(
 	"asset_game",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "asset_game_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "asset_game_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		assetId: integer("asset_id").notNull(),
 		gameId: integer("game_id").notNull(),
 		updatedAt: timestamp("updated_at", { mode: "string" })
@@ -925,16 +881,14 @@ export const assetGame = pgTable(
 export const characterGame = pgTable(
 	"character_game",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "character_game_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "character_game_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		characterId: integer("character_id").notNull(),
 		gameId: integer("game_id").notNull(),
 		updatedAt: timestamp("updated_at", { mode: "string" })
@@ -969,16 +923,14 @@ export const characterGame = pgTable(
 export const comment = pgTable(
 	"comment",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "comment_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "comment_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		publicId: uuid("public_id").defaultRandom().notNull(),
 		gameId: integer("game_id").notNull(),
 		userId: integer("user_id").notNull(),
@@ -1016,16 +968,14 @@ export const comment = pgTable(
 export const like = pgTable(
 	"like",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "like_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "like_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		publicId: uuid("public_id").defaultRandom().notNull(),
 		gameId: integer("game_id").notNull(),
 		userId: integer("user_id").notNull(),
@@ -1063,16 +1013,14 @@ export const like = pgTable(
 export const gameCategoryRelation = pgTable(
 	"game_category_relation",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "game_category_relation_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "game_category_relation_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		gameId: integer("game_id").notNull(),
 		gameCategoryId: integer("game_category_id").notNull(),
 		updatedAt: timestamp("updated_at", { mode: "string" })
@@ -1108,16 +1056,14 @@ export const gameCategoryRelation = pgTable(
 export const gameCategory = pgTable(
 	"game_category",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "game_category_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "game_category_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		publicId: uuid("public_id").defaultRandom().notNull(),
 		name: varchar({ length: 255 }).notNull(),
 		updatedAt: timestamp("updated_at", { mode: "string" })
@@ -1136,16 +1082,14 @@ export const gameCategory = pgTable(
 export const event = pgTable(
 	"event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		sceneId: integer("scene_id").notNull(),
 		publicId: uuid("public_id").defaultRandom().notNull(),
 		type: varchar({ length: 50 }).notNull(),
@@ -1175,16 +1119,14 @@ export const event = pgTable(
 export const appearCgEvent = pgTable(
 	"appear_cg_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "appear_cg_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "appear_cg_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		cgImageId: integer("cg_image_id").notNull(),
 		transitionDuration: integer("transition_duration").default(0).notNull(),
@@ -1213,16 +1155,14 @@ export const appearCgEvent = pgTable(
 export const hideCgEvent = pgTable(
 	"hide_cg_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "hide_cg_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "hide_cg_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		transitionDuration: integer("transition_duration").default(0).notNull(),
 		updatedAt: timestamp("updated_at", { mode: "string" })
@@ -1245,16 +1185,14 @@ export const hideCgEvent = pgTable(
 export const textRenderEvent = pgTable(
 	"text_render_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "text_render_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "text_render_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		text: text().notNull(),
 		characterName: varchar("character_name", { length: 255 }),
@@ -1278,16 +1216,14 @@ export const textRenderEvent = pgTable(
 export const appearMessageWindowEvent = pgTable(
 	"appear_message_window_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "appear_message_window_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "appear_message_window_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		transitionDuration: integer("transition_duration").default(0).notNull(),
 		updatedAt: timestamp("updated_at", { mode: "string" })
@@ -1310,16 +1246,14 @@ export const appearMessageWindowEvent = pgTable(
 export const hideMessageWindowEvent = pgTable(
 	"hide_message_window_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "hide_message_window_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "hide_message_window_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		transitionDuration: integer("transition_duration").default(0).notNull(),
 		updatedAt: timestamp("updated_at", { mode: "string" })
@@ -1342,16 +1276,14 @@ export const hideMessageWindowEvent = pgTable(
 export const effectEvent = pgTable(
 	"effect_event",
 	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "effect_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
+		id: integer().primaryKey().generatedAlwaysAsIdentity({
+			name: "effect_event_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 		eventId: integer("event_id").notNull(),
 		effectType: varchar("effect_type", { length: 50 }).notNull(),
 		transitionDuration: integer("transition_duration").default(0).notNull(),

@@ -1,123 +1,123 @@
 {
-  "cgImages":{
-    "sakura": {
-      "id": "sakura",
-      "filename": "sakura.jpeg",
-      "url": "/presets/cgs/sakura.jpeg",
-      "metadata": {
-        "size": 2048000
-      }
-    }
-  },
-  "characters": {
-    "longhair-woman": {
-      "id": "longhair-woman",
-      "name": "謎のおねーさん",
-      "images": {
-        "longhair-woman-smile": {
-          "id": "longhair-woman-smile",
-          "filename": "smile.png",
-          "url": "/presets/characters/longhair-woman/smile.png",
-          "metadata": {
-            "size": 1024000
-          }
-        },
-        "longhair-woman-happy": {
-          "id": "longhair-woman-happy",
-          "filename": "happy.png",
-          "url": "/presets/characters/longhair-woman/happy.png",
-          "metadata": {
-            "size": 1024000
-          }
-        },
-        "longhair-woman-sad": {
-          "id": "longhair-woman-sad",
-          "filename": "sad.png",
-          "url": "/presets/characters/longhair-woman/sad.png",
-          "metadata": {
-            "size": 1024000
-          }
-        }
-      }
-    },
-    "mysterious-girl": {
-      "id": "mysterious-girl",
-      "name": "謎の少女",
-      "images": {
-        "mysterious-girl-smile": {
-          "id": "mysterious-girl-smile",
-          "filename": "mysterious-girl-smile.png",
-          "url": "/presets/characters/mysterious-girl/smile.png",
-          "metadata": {
-            "size": 1024000
-          }
-        },
-        "mysterious-girl-happy": {
-          "id": "mysterious-girl-happy",
-          "filename": "mysterious-girl-happy.png",
-          "url": "/presets/characters/mysterious-girl/happy.png",
-          "metadata": {
-            "size": 1024000
-          }
-        },
-        "mysterious-girl-sad": {
-          "id": "mysterious-girl-sad",
-          "filename": "mysterious-girl-sad.png",
-          "url": "/presets/characters/mysterious-girl/sad.png",
-          "metadata": {
-            "size": 1024000
-          }
-        }
-      }
-    }
-  },
-  "backgroundImages": {
-    "park-day": {
-      "id": "park-day",
-      "filename": "park-day.jpg",
-      "url": "/presets/backgrounds/park-day.jpeg",
-      "metadata": {
-        "size": 2048000
-      }
-    },
-    "school": {
-      "id": "school",
-      "filename": "school.png",
-      "url": "/presets/backgrounds/school.png",
-      "metadata": {
-        "size": 2048000
-      }
-    }
-  },
-  "soundEffects": {
-    "footsteps": {
-      "id": "footsteps",
-      "filename": "footsteps.mp3",
-      "url": "/presets/sounds/footsteps.m4a",
-      "metadata": {
-        "duration": 2.5,
-        "size": 102400
-      }
-    }
-  },
-  "bgms": {
-    "peaceful-day": {
-      "id": "peaceful-day",
-      "filename": "peaceful-day.mp3",
-      "url": "/presets/bgms/peaceful-day.mp3",
-      "metadata": {
-        "duration": 180.0,
-        "size": 4096000
-      }
-    },
-    "jazzy": {
-      "id": "jazzy",
-      "filename": "jazzy.mp3",
-      "url": "/presets/bgms/jazzy.mp3",
-      "metadata": {
-        "duration": 180.0,
-        "size": 4096000
-      }
-    }
-  }
+	"cgImages": {
+		"sakura": {
+			"id": "sakura",
+			"filename": "sakura.jpeg",
+			"url": "/presets/cgs/sakura.jpeg",
+			"metadata": {
+				"size": 2048000
+			}
+		}
+	},
+	"characters": {
+		"longhair-woman": {
+			"id": "longhair-woman",
+			"name": "謎のおねーさん",
+			"images": {
+				"longhair-woman-smile": {
+					"id": "longhair-woman-smile",
+					"filename": "smile.png",
+					"url": "/presets/characters/longhair-woman/smile.png",
+					"metadata": {
+						"size": 1024000
+					}
+				},
+				"longhair-woman-happy": {
+					"id": "longhair-woman-happy",
+					"filename": "happy.png",
+					"url": "/presets/characters/longhair-woman/happy.png",
+					"metadata": {
+						"size": 1024000
+					}
+				},
+				"longhair-woman-sad": {
+					"id": "longhair-woman-sad",
+					"filename": "sad.png",
+					"url": "/presets/characters/longhair-woman/sad.png",
+					"metadata": {
+						"size": 1024000
+					}
+				}
+			}
+		},
+		"mysterious-girl": {
+			"id": "mysterious-girl",
+			"name": "謎の少女",
+			"images": {
+				"mysterious-girl-smile": {
+					"id": "mysterious-girl-smile",
+					"filename": "mysterious-girl-smile.png",
+					"url": "/presets/characters/mysterious-girl/smile.png",
+					"metadata": {
+						"size": 1024000
+					}
+				},
+				"mysterious-girl-happy": {
+					"id": "mysterious-girl-happy",
+					"filename": "mysterious-girl-happy.png",
+					"url": "/presets/characters/mysterious-girl/happy.png",
+					"metadata": {
+						"size": 1024000
+					}
+				},
+				"mysterious-girl-sad": {
+					"id": "mysterious-girl-sad",
+					"filename": "mysterious-girl-sad.png",
+					"url": "/presets/characters/mysterious-girl/sad.png",
+					"metadata": {
+						"size": 1024000
+					}
+				}
+			}
+		}
+	},
+	"backgroundImages": {
+		"park-day": {
+			"id": "park-day",
+			"filename": "park-day.jpg",
+			"url": "/presets/backgrounds/park-day.jpeg",
+			"metadata": {
+				"size": 2048000
+			}
+		},
+		"school": {
+			"id": "school",
+			"filename": "school.png",
+			"url": "/presets/backgrounds/school.png",
+			"metadata": {
+				"size": 2048000
+			}
+		}
+	},
+	"soundEffects": {
+		"footsteps": {
+			"id": "footsteps",
+			"filename": "footsteps.mp3",
+			"url": "/presets/sounds/footsteps.m4a",
+			"metadata": {
+				"duration": 2.5,
+				"size": 102400
+			}
+		}
+	},
+	"bgms": {
+		"peaceful-day": {
+			"id": "peaceful-day",
+			"filename": "peaceful-day.mp3",
+			"url": "/presets/bgms/peaceful-day.mp3",
+			"metadata": {
+				"duration": 180.0,
+				"size": 4096000
+			}
+		},
+		"jazzy": {
+			"id": "jazzy",
+			"filename": "jazzy.mp3",
+			"url": "/presets/bgms/jazzy.mp3",
+			"metadata": {
+				"duration": 180.0,
+				"size": 4096000
+			}
+		}
+	}
 }

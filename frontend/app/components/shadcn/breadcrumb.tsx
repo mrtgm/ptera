@@ -1,6 +1,9 @@
-import { Slot } from "@radix-ui/react-slot";
-import { ChevronRight, MoreHorizontal } from "lucide-react";
-import * as React from "react";
+import { Slot } from "../../../$node_modules/@radix-ui/react-slot/dist/index.mjs";
+import * as React from "../../../$node_modules/@types/react/index.js";
+import {
+	ChevronRight,
+	MoreHorizontal,
+} from "../../../$node_modules/lucide-react/dist/lucide-react.js";
 
 import { cn } from "@/utils/cn";
 
@@ -63,7 +66,6 @@ const BreadcrumbPage = React.forwardRef<
 >(({ className, ...props }, ref) => (
 	<span
 		ref={ref}
-		role="link"
 		aria-disabled="true"
 		aria-current="page"
 		className={cn("font-normal text-foreground", className)}

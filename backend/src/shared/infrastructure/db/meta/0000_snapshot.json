@@ -1,3223 +1,2960 @@
 {
-  "id": "00000000-0000-0000-0000-000000000000",
-  "prevId": "",
-  "version": "7",
-  "dialect": "postgresql",
-  "tables": {
-    "public.User": {
-      "name": "User",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "isDeleted": {
-          "name": "isDeleted",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "User_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "User_publicId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.UserProfile": {
-      "name": "UserProfile",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "bio": {
-          "name": "bio",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "avatarUrl": {
-          "name": "avatarUrl",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "userId": {
-          "name": "userId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_user_profile_user_id": {
-          "name": "idx_user_profile_user_id",
-          "columns": [
-            {
-              "expression": "userId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "UserProfile_userId_fkey": {
-          "name": "UserProfile_userId_fkey",
-          "tableFrom": "UserProfile",
-          "tableTo": "User",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "UserProfile_userId_key": {
-          "columns": [
-            "userId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "UserProfile_userId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.CharacterAsset": {
-      "name": "CharacterAsset",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "characterId": {
-          "name": "characterId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "assetId": {
-          "name": "assetId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_character_asset_asset_id": {
-          "name": "idx_character_asset_asset_id",
-          "columns": [
-            {
-              "expression": "assetId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "idx_character_asset_character_id": {
-          "name": "idx_character_asset_character_id",
-          "columns": [
-            {
-              "expression": "characterId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "CharacterAsset_characterId_fkey": {
-          "name": "CharacterAsset_characterId_fkey",
-          "tableFrom": "CharacterAsset",
-          "tableTo": "Character",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "characterId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "CharacterAsset_assetId_fkey": {
-          "name": "CharacterAsset_assetId_fkey",
-          "tableFrom": "CharacterAsset",
-          "tableTo": "Asset",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "assetId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.Asset": {
-      "name": "Asset",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "ownerId": {
-          "name": "ownerId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "isPublic": {
-          "name": "isPublic",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "type": {
-          "name": "type",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "url": {
-          "name": "url",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "metadata": {
-          "name": "metadata",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_asset_owner_id": {
-          "name": "idx_asset_owner_id",
-          "columns": [
-            {
-              "expression": "ownerId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "Asset_ownerId_fkey": {
-          "name": "Asset_ownerId_fkey",
-          "tableFrom": "Asset",
-          "tableTo": "User",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "ownerId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "Asset_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "Asset_publicId_key"
-        }
-      },
-      "checkConstraints": {
-        "Asset_type_check": {
-          "name": "Asset_type_check",
-          "value": "(type)::text = ANY ((ARRAY['bgm'::character varying, 'soundEffect'::character varying, 'characterImage'::character varying, 'backgroundImage'::character varying, 'cg'::character varying])::text[])"
-        }
-      },
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.Character": {
-      "name": "Character",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "ownerId": {
-          "name": "ownerId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "isPublic": {
-          "name": "isPublic",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_character_owner_id": {
-          "name": "idx_character_owner_id",
-          "columns": [
-            {
-              "expression": "ownerId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "Character_ownerId_fkey": {
-          "name": "Character_ownerId_fkey",
-          "tableFrom": "Character",
-          "tableTo": "User",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "ownerId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "Character_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "Character_publicId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.Scene": {
-      "name": "Scene",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "gameId": {
-          "name": "gameId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "title": {
-          "name": "title",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_scene_game_id": {
-          "name": "idx_scene_game_id",
-          "columns": [
-            {
-              "expression": "gameId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "fk_scene_game": {
-          "name": "fk_scene_game",
-          "tableFrom": "Scene",
-          "tableTo": "Game",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "gameId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "Scene_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "Scene_publicId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.Game": {
-      "name": "Game",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "userId": {
-          "name": "userId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "coverImageUrl": {
-          "name": "coverImageUrl",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "releaseDate": {
-          "name": "releaseDate",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_game_user_id": {
-          "name": "idx_game_user_id",
-          "columns": [
-            {
-              "expression": "userId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "Game_userId_fkey": {
-          "name": "Game_userId_fkey",
-          "tableFrom": "Game",
-          "tableTo": "User",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "Game_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "Game_publicId_key"
-        }
-      },
-      "checkConstraints": {
-        "Game_status_check": {
-          "name": "Game_status_check",
-          "value": "(status)::text = ANY ((ARRAY['draft'::character varying, 'published'::character varying, 'archived'::character varying])::text[])"
-        }
-      },
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.GameInitialScene": {
-      "name": "GameInitialScene",
-      "schema": "",
-      "columns": {
-        "gameId": {
-          "name": "gameId",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "sceneId": {
-          "name": "sceneId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_game_initial_scene_scene_id": {
-          "name": "idx_game_initial_scene_scene_id",
-          "columns": [
-            {
-              "expression": "sceneId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "GameInitialScene_gameId_fkey": {
-          "name": "GameInitialScene_gameId_fkey",
-          "tableFrom": "GameInitialScene",
-          "tableTo": "Game",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "gameId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "GameInitialScene_sceneId_fkey": {
-          "name": "GameInitialScene_sceneId_fkey",
-          "tableFrom": "GameInitialScene",
-          "tableTo": "Scene",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "sceneId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "restrict",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.ChoiceScene": {
-      "name": "ChoiceScene",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "sceneId": {
-          "name": "sceneId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "ChoiceScene_sceneId_fkey": {
-          "name": "ChoiceScene_sceneId_fkey",
-          "tableFrom": "ChoiceScene",
-          "tableTo": "Scene",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "sceneId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "ChoiceScene_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "ChoiceScene_publicId_key"
-        },
-        "ChoiceScene_sceneId_key": {
-          "columns": [
-            "sceneId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "ChoiceScene_sceneId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.GotoScene": {
-      "name": "GotoScene",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "sceneId": {
-          "name": "sceneId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "nextSceneId": {
-          "name": "nextSceneId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_goto_scene_next_scene_id": {
-          "name": "idx_goto_scene_next_scene_id",
-          "columns": [
-            {
-              "expression": "nextSceneId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "idx_goto_scene_scene_id": {
-          "name": "idx_goto_scene_scene_id",
-          "columns": [
-            {
-              "expression": "sceneId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "GotoScene_sceneId_fkey": {
-          "name": "GotoScene_sceneId_fkey",
-          "tableFrom": "GotoScene",
-          "tableTo": "Scene",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "sceneId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "GotoScene_nextSceneId_fkey": {
-          "name": "GotoScene_nextSceneId_fkey",
-          "tableFrom": "GotoScene",
-          "tableTo": "Scene",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "nextSceneId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "GotoScene_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "GotoScene_publicId_key"
-        },
-        "GotoScene_sceneId_key": {
-          "columns": [
-            "sceneId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "GotoScene_sceneId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.EndScene": {
-      "name": "EndScene",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "sceneId": {
-          "name": "sceneId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_end_scene_scene_id": {
-          "name": "idx_end_scene_scene_id",
-          "columns": [
-            {
-              "expression": "sceneId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "EndScene_sceneId_fkey": {
-          "name": "EndScene_sceneId_fkey",
-          "tableFrom": "EndScene",
-          "tableTo": "Scene",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "sceneId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "EndScene_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "EndScene_publicId_key"
-        },
-        "EndScene_sceneId_key": {
-          "columns": [
-            "sceneId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "EndScene_sceneId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.Choice": {
-      "name": "Choice",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "choiceSceneId": {
-          "name": "choiceSceneId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "text": {
-          "name": "text",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "nextSceneId": {
-          "name": "nextSceneId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_choice_choice_scene_id": {
-          "name": "idx_choice_choice_scene_id",
-          "columns": [
-            {
-              "expression": "choiceSceneId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "idx_choice_next_scene_id": {
-          "name": "idx_choice_next_scene_id",
-          "columns": [
-            {
-              "expression": "nextSceneId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "Choice_choiceSceneId_fkey": {
-          "name": "Choice_choiceSceneId_fkey",
-          "tableFrom": "Choice",
-          "tableTo": "ChoiceScene",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "choiceSceneId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "Choice_nextSceneId_fkey": {
-          "name": "Choice_nextSceneId_fkey",
-          "tableFrom": "Choice",
-          "tableTo": "Scene",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "nextSceneId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "Choice_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "Choice_publicId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.Comment": {
-      "name": "Comment",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "gameId": {
-          "name": "gameId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "userId": {
-          "name": "userId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "content": {
-          "name": "content",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_comment_game_id": {
-          "name": "idx_comment_game_id",
-          "columns": [
-            {
-              "expression": "gameId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "idx_comment_user_id": {
-          "name": "idx_comment_user_id",
-          "columns": [
-            {
-              "expression": "userId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "Comment_gameId_fkey": {
-          "name": "Comment_gameId_fkey",
-          "tableFrom": "Comment",
-          "tableTo": "Game",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "gameId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "Comment_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "Comment_publicId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.Like": {
-      "name": "Like",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "gameId": {
-          "name": "gameId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "userId": {
-          "name": "userId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_like_game_id": {
-          "name": "idx_like_game_id",
-          "columns": [
-            {
-              "expression": "gameId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "idx_like_user_id": {
-          "name": "idx_like_user_id",
-          "columns": [
-            {
-              "expression": "userId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "Like_gameId_fkey": {
-          "name": "Like_gameId_fkey",
-          "tableFrom": "Like",
-          "tableTo": "Game",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "gameId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "Like_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "Like_publicId_key"
-        },
-        "Like_gameId_userId_key": {
-          "columns": [
-            "gameId",
-            "userId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "Like_gameId_userId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.GameCategoryRelation": {
-      "name": "GameCategoryRelation",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "gameId": {
-          "name": "gameId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "gameCategoryId": {
-          "name": "gameCategoryId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_game_category_relation_category_id": {
-          "name": "idx_game_category_relation_category_id",
-          "columns": [
-            {
-              "expression": "gameCategoryId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "idx_game_category_relation_game_id": {
-          "name": "idx_game_category_relation_game_id",
-          "columns": [
-            {
-              "expression": "gameId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "GameCategoryRelation_gameId_fkey": {
-          "name": "GameCategoryRelation_gameId_fkey",
-          "tableFrom": "GameCategoryRelation",
-          "tableTo": "Game",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "gameId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "GameCategoryRelation_gameCategoryId_fkey": {
-          "name": "GameCategoryRelation_gameCategoryId_fkey",
-          "tableFrom": "GameCategoryRelation",
-          "tableTo": "GameCategory",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "gameCategoryId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "GameCategoryRelation_gameId_gameCategoryId_key": {
-          "columns": [
-            "gameId",
-            "gameCategoryId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "GameCategoryRelation_gameId_gameCategoryId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.GameCategory": {
-      "name": "GameCategory",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "GameCategory_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "GameCategory_publicId_key"
-        },
-        "GameCategory_name_key": {
-          "columns": [
-            "name"
-          ],
-          "nullsNotDistinct": false,
-          "name": "GameCategory_name_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.Event": {
-      "name": "Event",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "sceneId": {
-          "name": "sceneId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "type": {
-          "name": "type",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "orderIndex": {
-          "name": "orderIndex",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_event_scene_id": {
-          "name": "idx_event_scene_id",
-          "columns": [
-            {
-              "expression": "sceneId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "Event_sceneId_fkey": {
-          "name": "Event_sceneId_fkey",
-          "tableFrom": "Event",
-          "tableTo": "Scene",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "sceneId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "Event_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "Event_publicId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.EventCategory": {
-      "name": "EventCategory",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "publicId": {
-          "name": "publicId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "EventCategory_publicId_key": {
-          "columns": [
-            "publicId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "EventCategory_publicId_key"
-        },
-        "EventCategory_name_key": {
-          "columns": [
-            "name"
-          ],
-          "nullsNotDistinct": false,
-          "name": "EventCategory_name_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.EventCategoryRelation": {
-      "name": "EventCategoryRelation",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "eventCategoryId": {
-          "name": "eventCategoryId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_event_category_relation_category_id": {
-          "name": "idx_event_category_relation_category_id",
-          "columns": [
-            {
-              "expression": "eventCategoryId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "idx_event_category_relation_event_id": {
-          "name": "idx_event_category_relation_event_id",
-          "columns": [
-            {
-              "expression": "eventId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "EventCategoryRelation_eventId_fkey": {
-          "name": "EventCategoryRelation_eventId_fkey",
-          "tableFrom": "EventCategoryRelation",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "EventCategoryRelation_eventCategoryId_fkey": {
-          "name": "EventCategoryRelation_eventCategoryId_fkey",
-          "tableFrom": "EventCategoryRelation",
-          "tableTo": "EventCategory",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventCategoryId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "EventCategoryRelation_eventId_eventCategoryId_key": {
-          "columns": [
-            "eventId",
-            "eventCategoryId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "EventCategoryRelation_eventId_eventCategoryId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.ChangeBackgroundEvent": {
-      "name": "ChangeBackgroundEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "backgroundId": {
-          "name": "backgroundId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transitionDuration": {
-          "name": "transitionDuration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "idx_change_background_event_background_id": {
-          "name": "idx_change_background_event_background_id",
-          "columns": [
-            {
-              "expression": "backgroundId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "ChangeBackgroundEvent_eventId_fkey": {
-          "name": "ChangeBackgroundEvent_eventId_fkey",
-          "tableFrom": "ChangeBackgroundEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "ChangeBackgroundEvent_backgroundId_fkey": {
-          "name": "ChangeBackgroundEvent_backgroundId_fkey",
-          "tableFrom": "ChangeBackgroundEvent",
-          "tableTo": "Asset",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "backgroundId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "ChangeBackgroundEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "ChangeBackgroundEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.AppearCharacterEvent": {
-      "name": "AppearCharacterEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "characterId": {
-          "name": "characterId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "characterImageId": {
-          "name": "characterImageId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "position": {
-          "name": "position",
-          "type": "point",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "scale": {
-          "name": "scale",
-          "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'1.0'"
-        },
-        "transitionDuration": {
-          "name": "transitionDuration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "AppearCharacterEvent_eventId_fkey": {
-          "name": "AppearCharacterEvent_eventId_fkey",
-          "tableFrom": "AppearCharacterEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "AppearCharacterEvent_characterId_fkey": {
-          "name": "AppearCharacterEvent_characterId_fkey",
-          "tableFrom": "AppearCharacterEvent",
-          "tableTo": "Character",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "characterId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "AppearCharacterEvent_characterImageId_fkey": {
-          "name": "AppearCharacterEvent_characterImageId_fkey",
-          "tableFrom": "AppearCharacterEvent",
-          "tableTo": "Asset",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "characterImageId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "AppearCharacterEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "AppearCharacterEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.HideCharacterEvent": {
-      "name": "HideCharacterEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "characterId": {
-          "name": "characterId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transitionDuration": {
-          "name": "transitionDuration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "HideCharacterEvent_eventId_fkey": {
-          "name": "HideCharacterEvent_eventId_fkey",
-          "tableFrom": "HideCharacterEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "HideCharacterEvent_characterId_fkey": {
-          "name": "HideCharacterEvent_characterId_fkey",
-          "tableFrom": "HideCharacterEvent",
-          "tableTo": "Character",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "characterId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "HideCharacterEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "HideCharacterEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.HideAllCharactersEvent": {
-      "name": "HideAllCharactersEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transitionDuration": {
-          "name": "transitionDuration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "HideAllCharactersEvent_eventId_fkey": {
-          "name": "HideAllCharactersEvent_eventId_fkey",
-          "tableFrom": "HideAllCharactersEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "HideAllCharactersEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "HideAllCharactersEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.MoveCharacterEvent": {
-      "name": "MoveCharacterEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "characterId": {
-          "name": "characterId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "position": {
-          "name": "position",
-          "type": "point",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "scale": {
-          "name": "scale",
-          "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'1.0'"
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "MoveCharacterEvent_eventId_fkey": {
-          "name": "MoveCharacterEvent_eventId_fkey",
-          "tableFrom": "MoveCharacterEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "MoveCharacterEvent_characterId_fkey": {
-          "name": "MoveCharacterEvent_characterId_fkey",
-          "tableFrom": "MoveCharacterEvent",
-          "tableTo": "Character",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "characterId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "MoveCharacterEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "MoveCharacterEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.CharacterEffectEvent": {
-      "name": "CharacterEffectEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "characterId": {
-          "name": "characterId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "effectType": {
-          "name": "effectType",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transitionDuration": {
-          "name": "transitionDuration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "CharacterEffectEvent_eventId_fkey": {
-          "name": "CharacterEffectEvent_eventId_fkey",
-          "tableFrom": "CharacterEffectEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "CharacterEffectEvent_characterId_fkey": {
-          "name": "CharacterEffectEvent_characterId_fkey",
-          "tableFrom": "CharacterEffectEvent",
-          "tableTo": "Character",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "characterId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "CharacterEffectEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "CharacterEffectEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.BGMStartEvent": {
-      "name": "BGMStartEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "bgmId": {
-          "name": "bgmId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "loop": {
-          "name": "loop",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "volume": {
-          "name": "volume",
-          "type": "numeric(5, 2)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'1.0'"
-        },
-        "transitionDuration": {
-          "name": "transitionDuration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "BGMStartEvent_eventId_fkey": {
-          "name": "BGMStartEvent_eventId_fkey",
-          "tableFrom": "BGMStartEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "BGMStartEvent_bgmId_fkey": {
-          "name": "BGMStartEvent_bgmId_fkey",
-          "tableFrom": "BGMStartEvent",
-          "tableTo": "Asset",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "bgmId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "BGMStartEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "BGMStartEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.BGMStopEvent": {
-      "name": "BGMStopEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transitionDuration": {
-          "name": "transitionDuration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "BGMStopEvent_eventId_fkey": {
-          "name": "BGMStopEvent_eventId_fkey",
-          "tableFrom": "BGMStopEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "BGMStopEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "BGMStopEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.SoundEffectEvent": {
-      "name": "SoundEffectEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "soundEffectId": {
-          "name": "soundEffectId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "volume": {
-          "name": "volume",
-          "type": "numeric(5, 2)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'1.0'"
-        },
-        "loop": {
-          "name": "loop",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "transitionDuration": {
-          "name": "transitionDuration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "SoundEffectEvent_eventId_fkey": {
-          "name": "SoundEffectEvent_eventId_fkey",
-          "tableFrom": "SoundEffectEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "SoundEffectEvent_soundEffectId_fkey": {
-          "name": "SoundEffectEvent_soundEffectId_fkey",
-          "tableFrom": "SoundEffectEvent",
-          "tableTo": "Asset",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "soundEffectId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "SoundEffectEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "SoundEffectEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.HideCGEvent": {
-      "name": "HideCGEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transitionDuration": {
-          "name": "transitionDuration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "HideCGEvent_eventId_fkey": {
-          "name": "HideCGEvent_eventId_fkey",
-          "tableFrom": "HideCGEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "HideCGEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "HideCGEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.AppearCGEvent": {
-      "name": "AppearCGEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "cgImageId": {
-          "name": "cgImageId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "position": {
-          "name": "position",
-          "type": "point",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "scale": {
-          "name": "scale",
-          "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'1.0'"
-        },
-        "transitionDuration": {
-          "name": "transitionDuration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "AppearCGEvent_eventId_fkey": {
-          "name": "AppearCGEvent_eventId_fkey",
-          "tableFrom": "AppearCGEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "AppearCGEvent_cgImageId_fkey": {
-          "name": "AppearCGEvent_cgImageId_fkey",
-          "tableFrom": "AppearCGEvent",
-          "tableTo": "Asset",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "cgImageId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "AppearCGEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "AppearCGEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.TextRenderEvent": {
-      "name": "TextRenderEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "text": {
-          "name": "text",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "characterName": {
-          "name": "characterName",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "TextRenderEvent_eventId_fkey": {
-          "name": "TextRenderEvent_eventId_fkey",
-          "tableFrom": "TextRenderEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "TextRenderEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "TextRenderEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.AppearMessageWindowEvent": {
-      "name": "AppearMessageWindowEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transitionDuration": {
-          "name": "transitionDuration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "AppearMessageWindowEvent_eventId_fkey": {
-          "name": "AppearMessageWindowEvent_eventId_fkey",
-          "tableFrom": "AppearMessageWindowEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "AppearMessageWindowEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "AppearMessageWindowEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.HideMessageWindowEvent": {
-      "name": "HideMessageWindowEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transitionDuration": {
-          "name": "transitionDuration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "HideMessageWindowEvent_eventId_fkey": {
-          "name": "HideMessageWindowEvent_eventId_fkey",
-          "tableFrom": "HideMessageWindowEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "HideMessageWindowEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "HideMessageWindowEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.EffectEvent": {
-      "name": "EffectEvent",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "eventId": {
-          "name": "eventId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "effectType": {
-          "name": "effectType",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transitionDuration": {
-          "name": "transitionDuration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "EffectEvent_eventId_fkey": {
-          "name": "EffectEvent_eventId_fkey",
-          "tableFrom": "EffectEvent",
-          "tableTo": "Event",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "eventId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "EffectEvent_eventId_key": {
-          "columns": [
-            "eventId"
-          ],
-          "nullsNotDistinct": false,
-          "name": "EffectEvent_eventId_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    }
-  },
-  "enums": {},
-  "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
-  "views": {},
-  "_meta": {
-    "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
-    "tables": {}
-  }
+	"id": "00000000-0000-0000-0000-000000000000",
+	"prevId": "",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.User": {
+			"name": "User",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"isDeleted": {
+					"name": "isDeleted",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"User_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "User_publicId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.UserProfile": {
+			"name": "UserProfile",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"email": {
+					"name": "email",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"bio": {
+					"name": "bio",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"avatarUrl": {
+					"name": "avatarUrl",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"userId": {
+					"name": "userId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_user_profile_user_id": {
+					"name": "idx_user_profile_user_id",
+					"columns": [
+						{
+							"expression": "userId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"UserProfile_userId_fkey": {
+					"name": "UserProfile_userId_fkey",
+					"tableFrom": "UserProfile",
+					"tableTo": "User",
+					"schemaTo": "public",
+					"columnsFrom": ["userId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"UserProfile_userId_key": {
+					"columns": ["userId"],
+					"nullsNotDistinct": false,
+					"name": "UserProfile_userId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.CharacterAsset": {
+			"name": "CharacterAsset",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"characterId": {
+					"name": "characterId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"assetId": {
+					"name": "assetId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_character_asset_asset_id": {
+					"name": "idx_character_asset_asset_id",
+					"columns": [
+						{
+							"expression": "assetId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"idx_character_asset_character_id": {
+					"name": "idx_character_asset_character_id",
+					"columns": [
+						{
+							"expression": "characterId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"CharacterAsset_characterId_fkey": {
+					"name": "CharacterAsset_characterId_fkey",
+					"tableFrom": "CharacterAsset",
+					"tableTo": "Character",
+					"schemaTo": "public",
+					"columnsFrom": ["characterId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"CharacterAsset_assetId_fkey": {
+					"name": "CharacterAsset_assetId_fkey",
+					"tableFrom": "CharacterAsset",
+					"tableTo": "Asset",
+					"schemaTo": "public",
+					"columnsFrom": ["assetId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.Asset": {
+			"name": "Asset",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"ownerId": {
+					"name": "ownerId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"isPublic": {
+					"name": "isPublic",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"type": {
+					"name": "type",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"url": {
+					"name": "url",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"metadata": {
+					"name": "metadata",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_asset_owner_id": {
+					"name": "idx_asset_owner_id",
+					"columns": [
+						{
+							"expression": "ownerId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"Asset_ownerId_fkey": {
+					"name": "Asset_ownerId_fkey",
+					"tableFrom": "Asset",
+					"tableTo": "User",
+					"schemaTo": "public",
+					"columnsFrom": ["ownerId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"Asset_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "Asset_publicId_key"
+				}
+			},
+			"checkConstraints": {
+				"Asset_type_check": {
+					"name": "Asset_type_check",
+					"value": "(type)::text = ANY ((ARRAY['bgm'::character varying, 'soundEffect'::character varying, 'characterImage'::character varying, 'backgroundImage'::character varying, 'cg'::character varying])::text[])"
+				}
+			},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.Character": {
+			"name": "Character",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"ownerId": {
+					"name": "ownerId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"isPublic": {
+					"name": "isPublic",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_character_owner_id": {
+					"name": "idx_character_owner_id",
+					"columns": [
+						{
+							"expression": "ownerId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"Character_ownerId_fkey": {
+					"name": "Character_ownerId_fkey",
+					"tableFrom": "Character",
+					"tableTo": "User",
+					"schemaTo": "public",
+					"columnsFrom": ["ownerId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"Character_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "Character_publicId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.Scene": {
+			"name": "Scene",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"gameId": {
+					"name": "gameId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"title": {
+					"name": "title",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_scene_game_id": {
+					"name": "idx_scene_game_id",
+					"columns": [
+						{
+							"expression": "gameId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"fk_scene_game": {
+					"name": "fk_scene_game",
+					"tableFrom": "Scene",
+					"tableTo": "Game",
+					"schemaTo": "public",
+					"columnsFrom": ["gameId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"Scene_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "Scene_publicId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.Game": {
+			"name": "Game",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"userId": {
+					"name": "userId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"coverImageUrl": {
+					"name": "coverImageUrl",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"releaseDate": {
+					"name": "releaseDate",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"status": {
+					"name": "status",
+					"type": "varchar(20)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_game_user_id": {
+					"name": "idx_game_user_id",
+					"columns": [
+						{
+							"expression": "userId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"Game_userId_fkey": {
+					"name": "Game_userId_fkey",
+					"tableFrom": "Game",
+					"tableTo": "User",
+					"schemaTo": "public",
+					"columnsFrom": ["userId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"Game_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "Game_publicId_key"
+				}
+			},
+			"checkConstraints": {
+				"Game_status_check": {
+					"name": "Game_status_check",
+					"value": "(status)::text = ANY ((ARRAY['draft'::character varying, 'published'::character varying, 'archived'::character varying])::text[])"
+				}
+			},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.GameInitialScene": {
+			"name": "GameInitialScene",
+			"schema": "",
+			"columns": {
+				"gameId": {
+					"name": "gameId",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"sceneId": {
+					"name": "sceneId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_game_initial_scene_scene_id": {
+					"name": "idx_game_initial_scene_scene_id",
+					"columns": [
+						{
+							"expression": "sceneId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"GameInitialScene_gameId_fkey": {
+					"name": "GameInitialScene_gameId_fkey",
+					"tableFrom": "GameInitialScene",
+					"tableTo": "Game",
+					"schemaTo": "public",
+					"columnsFrom": ["gameId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"GameInitialScene_sceneId_fkey": {
+					"name": "GameInitialScene_sceneId_fkey",
+					"tableFrom": "GameInitialScene",
+					"tableTo": "Scene",
+					"schemaTo": "public",
+					"columnsFrom": ["sceneId"],
+					"columnsTo": ["id"],
+					"onDelete": "restrict",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.ChoiceScene": {
+			"name": "ChoiceScene",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"sceneId": {
+					"name": "sceneId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"ChoiceScene_sceneId_fkey": {
+					"name": "ChoiceScene_sceneId_fkey",
+					"tableFrom": "ChoiceScene",
+					"tableTo": "Scene",
+					"schemaTo": "public",
+					"columnsFrom": ["sceneId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"ChoiceScene_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "ChoiceScene_publicId_key"
+				},
+				"ChoiceScene_sceneId_key": {
+					"columns": ["sceneId"],
+					"nullsNotDistinct": false,
+					"name": "ChoiceScene_sceneId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.GotoScene": {
+			"name": "GotoScene",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"sceneId": {
+					"name": "sceneId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"nextSceneId": {
+					"name": "nextSceneId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_goto_scene_next_scene_id": {
+					"name": "idx_goto_scene_next_scene_id",
+					"columns": [
+						{
+							"expression": "nextSceneId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"idx_goto_scene_scene_id": {
+					"name": "idx_goto_scene_scene_id",
+					"columns": [
+						{
+							"expression": "sceneId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"GotoScene_sceneId_fkey": {
+					"name": "GotoScene_sceneId_fkey",
+					"tableFrom": "GotoScene",
+					"tableTo": "Scene",
+					"schemaTo": "public",
+					"columnsFrom": ["sceneId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"GotoScene_nextSceneId_fkey": {
+					"name": "GotoScene_nextSceneId_fkey",
+					"tableFrom": "GotoScene",
+					"tableTo": "Scene",
+					"schemaTo": "public",
+					"columnsFrom": ["nextSceneId"],
+					"columnsTo": ["id"],
+					"onDelete": "set null",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"GotoScene_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "GotoScene_publicId_key"
+				},
+				"GotoScene_sceneId_key": {
+					"columns": ["sceneId"],
+					"nullsNotDistinct": false,
+					"name": "GotoScene_sceneId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.EndScene": {
+			"name": "EndScene",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"sceneId": {
+					"name": "sceneId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_end_scene_scene_id": {
+					"name": "idx_end_scene_scene_id",
+					"columns": [
+						{
+							"expression": "sceneId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"EndScene_sceneId_fkey": {
+					"name": "EndScene_sceneId_fkey",
+					"tableFrom": "EndScene",
+					"tableTo": "Scene",
+					"schemaTo": "public",
+					"columnsFrom": ["sceneId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"EndScene_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "EndScene_publicId_key"
+				},
+				"EndScene_sceneId_key": {
+					"columns": ["sceneId"],
+					"nullsNotDistinct": false,
+					"name": "EndScene_sceneId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.Choice": {
+			"name": "Choice",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"choiceSceneId": {
+					"name": "choiceSceneId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"text": {
+					"name": "text",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"nextSceneId": {
+					"name": "nextSceneId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_choice_choice_scene_id": {
+					"name": "idx_choice_choice_scene_id",
+					"columns": [
+						{
+							"expression": "choiceSceneId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"idx_choice_next_scene_id": {
+					"name": "idx_choice_next_scene_id",
+					"columns": [
+						{
+							"expression": "nextSceneId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"Choice_choiceSceneId_fkey": {
+					"name": "Choice_choiceSceneId_fkey",
+					"tableFrom": "Choice",
+					"tableTo": "ChoiceScene",
+					"schemaTo": "public",
+					"columnsFrom": ["choiceSceneId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"Choice_nextSceneId_fkey": {
+					"name": "Choice_nextSceneId_fkey",
+					"tableFrom": "Choice",
+					"tableTo": "Scene",
+					"schemaTo": "public",
+					"columnsFrom": ["nextSceneId"],
+					"columnsTo": ["id"],
+					"onDelete": "set null",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"Choice_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "Choice_publicId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.Comment": {
+			"name": "Comment",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"gameId": {
+					"name": "gameId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"userId": {
+					"name": "userId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"content": {
+					"name": "content",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_comment_game_id": {
+					"name": "idx_comment_game_id",
+					"columns": [
+						{
+							"expression": "gameId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"idx_comment_user_id": {
+					"name": "idx_comment_user_id",
+					"columns": [
+						{
+							"expression": "userId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"Comment_gameId_fkey": {
+					"name": "Comment_gameId_fkey",
+					"tableFrom": "Comment",
+					"tableTo": "Game",
+					"schemaTo": "public",
+					"columnsFrom": ["gameId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"Comment_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "Comment_publicId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.Like": {
+			"name": "Like",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"gameId": {
+					"name": "gameId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"userId": {
+					"name": "userId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_like_game_id": {
+					"name": "idx_like_game_id",
+					"columns": [
+						{
+							"expression": "gameId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"idx_like_user_id": {
+					"name": "idx_like_user_id",
+					"columns": [
+						{
+							"expression": "userId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"Like_gameId_fkey": {
+					"name": "Like_gameId_fkey",
+					"tableFrom": "Like",
+					"tableTo": "Game",
+					"schemaTo": "public",
+					"columnsFrom": ["gameId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"Like_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "Like_publicId_key"
+				},
+				"Like_gameId_userId_key": {
+					"columns": ["gameId", "userId"],
+					"nullsNotDistinct": false,
+					"name": "Like_gameId_userId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.GameCategoryRelation": {
+			"name": "GameCategoryRelation",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"gameId": {
+					"name": "gameId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"gameCategoryId": {
+					"name": "gameCategoryId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_game_category_relation_category_id": {
+					"name": "idx_game_category_relation_category_id",
+					"columns": [
+						{
+							"expression": "gameCategoryId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"idx_game_category_relation_game_id": {
+					"name": "idx_game_category_relation_game_id",
+					"columns": [
+						{
+							"expression": "gameId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"GameCategoryRelation_gameId_fkey": {
+					"name": "GameCategoryRelation_gameId_fkey",
+					"tableFrom": "GameCategoryRelation",
+					"tableTo": "Game",
+					"schemaTo": "public",
+					"columnsFrom": ["gameId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"GameCategoryRelation_gameCategoryId_fkey": {
+					"name": "GameCategoryRelation_gameCategoryId_fkey",
+					"tableFrom": "GameCategoryRelation",
+					"tableTo": "GameCategory",
+					"schemaTo": "public",
+					"columnsFrom": ["gameCategoryId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"GameCategoryRelation_gameId_gameCategoryId_key": {
+					"columns": ["gameId", "gameCategoryId"],
+					"nullsNotDistinct": false,
+					"name": "GameCategoryRelation_gameId_gameCategoryId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.GameCategory": {
+			"name": "GameCategory",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"GameCategory_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "GameCategory_publicId_key"
+				},
+				"GameCategory_name_key": {
+					"columns": ["name"],
+					"nullsNotDistinct": false,
+					"name": "GameCategory_name_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.Event": {
+			"name": "Event",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"sceneId": {
+					"name": "sceneId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"type": {
+					"name": "type",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"orderIndex": {
+					"name": "orderIndex",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_event_scene_id": {
+					"name": "idx_event_scene_id",
+					"columns": [
+						{
+							"expression": "sceneId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"Event_sceneId_fkey": {
+					"name": "Event_sceneId_fkey",
+					"tableFrom": "Event",
+					"tableTo": "Scene",
+					"schemaTo": "public",
+					"columnsFrom": ["sceneId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"Event_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "Event_publicId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.EventCategory": {
+			"name": "EventCategory",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"publicId": {
+					"name": "publicId",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"EventCategory_publicId_key": {
+					"columns": ["publicId"],
+					"nullsNotDistinct": false,
+					"name": "EventCategory_publicId_key"
+				},
+				"EventCategory_name_key": {
+					"columns": ["name"],
+					"nullsNotDistinct": false,
+					"name": "EventCategory_name_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.EventCategoryRelation": {
+			"name": "EventCategoryRelation",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"eventCategoryId": {
+					"name": "eventCategoryId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_event_category_relation_category_id": {
+					"name": "idx_event_category_relation_category_id",
+					"columns": [
+						{
+							"expression": "eventCategoryId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"idx_event_category_relation_event_id": {
+					"name": "idx_event_category_relation_event_id",
+					"columns": [
+						{
+							"expression": "eventId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"EventCategoryRelation_eventId_fkey": {
+					"name": "EventCategoryRelation_eventId_fkey",
+					"tableFrom": "EventCategoryRelation",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"EventCategoryRelation_eventCategoryId_fkey": {
+					"name": "EventCategoryRelation_eventCategoryId_fkey",
+					"tableFrom": "EventCategoryRelation",
+					"tableTo": "EventCategory",
+					"schemaTo": "public",
+					"columnsFrom": ["eventCategoryId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"EventCategoryRelation_eventId_eventCategoryId_key": {
+					"columns": ["eventId", "eventCategoryId"],
+					"nullsNotDistinct": false,
+					"name": "EventCategoryRelation_eventId_eventCategoryId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.ChangeBackgroundEvent": {
+			"name": "ChangeBackgroundEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"backgroundId": {
+					"name": "backgroundId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"transitionDuration": {
+					"name": "transitionDuration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {
+				"idx_change_background_event_background_id": {
+					"name": "idx_change_background_event_background_id",
+					"columns": [
+						{
+							"expression": "backgroundId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"ChangeBackgroundEvent_eventId_fkey": {
+					"name": "ChangeBackgroundEvent_eventId_fkey",
+					"tableFrom": "ChangeBackgroundEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"ChangeBackgroundEvent_backgroundId_fkey": {
+					"name": "ChangeBackgroundEvent_backgroundId_fkey",
+					"tableFrom": "ChangeBackgroundEvent",
+					"tableTo": "Asset",
+					"schemaTo": "public",
+					"columnsFrom": ["backgroundId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"ChangeBackgroundEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "ChangeBackgroundEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.AppearCharacterEvent": {
+			"name": "AppearCharacterEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"characterId": {
+					"name": "characterId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"characterImageId": {
+					"name": "characterImageId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"position": {
+					"name": "position",
+					"type": "point",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"scale": {
+					"name": "scale",
+					"type": "numeric(10, 2)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'1.0'"
+				},
+				"transitionDuration": {
+					"name": "transitionDuration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"AppearCharacterEvent_eventId_fkey": {
+					"name": "AppearCharacterEvent_eventId_fkey",
+					"tableFrom": "AppearCharacterEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"AppearCharacterEvent_characterId_fkey": {
+					"name": "AppearCharacterEvent_characterId_fkey",
+					"tableFrom": "AppearCharacterEvent",
+					"tableTo": "Character",
+					"schemaTo": "public",
+					"columnsFrom": ["characterId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"AppearCharacterEvent_characterImageId_fkey": {
+					"name": "AppearCharacterEvent_characterImageId_fkey",
+					"tableFrom": "AppearCharacterEvent",
+					"tableTo": "Asset",
+					"schemaTo": "public",
+					"columnsFrom": ["characterImageId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"AppearCharacterEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "AppearCharacterEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.HideCharacterEvent": {
+			"name": "HideCharacterEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"characterId": {
+					"name": "characterId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"transitionDuration": {
+					"name": "transitionDuration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"HideCharacterEvent_eventId_fkey": {
+					"name": "HideCharacterEvent_eventId_fkey",
+					"tableFrom": "HideCharacterEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"HideCharacterEvent_characterId_fkey": {
+					"name": "HideCharacterEvent_characterId_fkey",
+					"tableFrom": "HideCharacterEvent",
+					"tableTo": "Character",
+					"schemaTo": "public",
+					"columnsFrom": ["characterId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"HideCharacterEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "HideCharacterEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.HideAllCharactersEvent": {
+			"name": "HideAllCharactersEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"transitionDuration": {
+					"name": "transitionDuration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"HideAllCharactersEvent_eventId_fkey": {
+					"name": "HideAllCharactersEvent_eventId_fkey",
+					"tableFrom": "HideAllCharactersEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"HideAllCharactersEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "HideAllCharactersEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.MoveCharacterEvent": {
+			"name": "MoveCharacterEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"characterId": {
+					"name": "characterId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"position": {
+					"name": "position",
+					"type": "point",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"scale": {
+					"name": "scale",
+					"type": "numeric(10, 2)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'1.0'"
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"MoveCharacterEvent_eventId_fkey": {
+					"name": "MoveCharacterEvent_eventId_fkey",
+					"tableFrom": "MoveCharacterEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"MoveCharacterEvent_characterId_fkey": {
+					"name": "MoveCharacterEvent_characterId_fkey",
+					"tableFrom": "MoveCharacterEvent",
+					"tableTo": "Character",
+					"schemaTo": "public",
+					"columnsFrom": ["characterId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"MoveCharacterEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "MoveCharacterEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.CharacterEffectEvent": {
+			"name": "CharacterEffectEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"characterId": {
+					"name": "characterId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"effectType": {
+					"name": "effectType",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"transitionDuration": {
+					"name": "transitionDuration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"CharacterEffectEvent_eventId_fkey": {
+					"name": "CharacterEffectEvent_eventId_fkey",
+					"tableFrom": "CharacterEffectEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"CharacterEffectEvent_characterId_fkey": {
+					"name": "CharacterEffectEvent_characterId_fkey",
+					"tableFrom": "CharacterEffectEvent",
+					"tableTo": "Character",
+					"schemaTo": "public",
+					"columnsFrom": ["characterId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"CharacterEffectEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "CharacterEffectEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.BGMStartEvent": {
+			"name": "BGMStartEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"bgmId": {
+					"name": "bgmId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"loop": {
+					"name": "loop",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": true
+				},
+				"volume": {
+					"name": "volume",
+					"type": "numeric(5, 2)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'1.0'"
+				},
+				"transitionDuration": {
+					"name": "transitionDuration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"BGMStartEvent_eventId_fkey": {
+					"name": "BGMStartEvent_eventId_fkey",
+					"tableFrom": "BGMStartEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"BGMStartEvent_bgmId_fkey": {
+					"name": "BGMStartEvent_bgmId_fkey",
+					"tableFrom": "BGMStartEvent",
+					"tableTo": "Asset",
+					"schemaTo": "public",
+					"columnsFrom": ["bgmId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"BGMStartEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "BGMStartEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.BGMStopEvent": {
+			"name": "BGMStopEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"transitionDuration": {
+					"name": "transitionDuration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"BGMStopEvent_eventId_fkey": {
+					"name": "BGMStopEvent_eventId_fkey",
+					"tableFrom": "BGMStopEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"BGMStopEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "BGMStopEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.SoundEffectEvent": {
+			"name": "SoundEffectEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"soundEffectId": {
+					"name": "soundEffectId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"volume": {
+					"name": "volume",
+					"type": "numeric(5, 2)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'1.0'"
+				},
+				"loop": {
+					"name": "loop",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"transitionDuration": {
+					"name": "transitionDuration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"SoundEffectEvent_eventId_fkey": {
+					"name": "SoundEffectEvent_eventId_fkey",
+					"tableFrom": "SoundEffectEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"SoundEffectEvent_soundEffectId_fkey": {
+					"name": "SoundEffectEvent_soundEffectId_fkey",
+					"tableFrom": "SoundEffectEvent",
+					"tableTo": "Asset",
+					"schemaTo": "public",
+					"columnsFrom": ["soundEffectId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"SoundEffectEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "SoundEffectEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.HideCGEvent": {
+			"name": "HideCGEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"transitionDuration": {
+					"name": "transitionDuration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"HideCGEvent_eventId_fkey": {
+					"name": "HideCGEvent_eventId_fkey",
+					"tableFrom": "HideCGEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"HideCGEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "HideCGEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.AppearCGEvent": {
+			"name": "AppearCGEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"cgImageId": {
+					"name": "cgImageId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"position": {
+					"name": "position",
+					"type": "point",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"scale": {
+					"name": "scale",
+					"type": "numeric(10, 2)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'1.0'"
+				},
+				"transitionDuration": {
+					"name": "transitionDuration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"AppearCGEvent_eventId_fkey": {
+					"name": "AppearCGEvent_eventId_fkey",
+					"tableFrom": "AppearCGEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"AppearCGEvent_cgImageId_fkey": {
+					"name": "AppearCGEvent_cgImageId_fkey",
+					"tableFrom": "AppearCGEvent",
+					"tableTo": "Asset",
+					"schemaTo": "public",
+					"columnsFrom": ["cgImageId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"AppearCGEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "AppearCGEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.TextRenderEvent": {
+			"name": "TextRenderEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"text": {
+					"name": "text",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"characterName": {
+					"name": "characterName",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"TextRenderEvent_eventId_fkey": {
+					"name": "TextRenderEvent_eventId_fkey",
+					"tableFrom": "TextRenderEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"TextRenderEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "TextRenderEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.AppearMessageWindowEvent": {
+			"name": "AppearMessageWindowEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"transitionDuration": {
+					"name": "transitionDuration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"AppearMessageWindowEvent_eventId_fkey": {
+					"name": "AppearMessageWindowEvent_eventId_fkey",
+					"tableFrom": "AppearMessageWindowEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"AppearMessageWindowEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "AppearMessageWindowEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.HideMessageWindowEvent": {
+			"name": "HideMessageWindowEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"transitionDuration": {
+					"name": "transitionDuration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"HideMessageWindowEvent_eventId_fkey": {
+					"name": "HideMessageWindowEvent_eventId_fkey",
+					"tableFrom": "HideMessageWindowEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"HideMessageWindowEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "HideMessageWindowEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.EffectEvent": {
+			"name": "EffectEvent",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"eventId": {
+					"name": "eventId",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"effectType": {
+					"name": "effectType",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"transitionDuration": {
+					"name": "transitionDuration",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"EffectEvent_eventId_fkey": {
+					"name": "EffectEvent_eventId_fkey",
+					"tableFrom": "EffectEvent",
+					"tableTo": "Event",
+					"schemaTo": "public",
+					"columnsFrom": ["eventId"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"EffectEvent_eventId_key": {
+					"columns": ["eventId"],
+					"nullsNotDistinct": false,
+					"name": "EffectEvent_eventId_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {},
+	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"schemas": {},
+		"tables": {},
+		"columns": {}
+	},
+	"internal": {
+		"tables": {}
+	}
 }
