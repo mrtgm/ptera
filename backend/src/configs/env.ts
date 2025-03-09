@@ -9,7 +9,7 @@ export const ENV = createEnv({
 		API_VERSION: z.string().default("v1"),
 		DOMAIN_NAME: z.string(),
 		ENV: z.string(),
-		PORT: z.string(),
+		PORT: z.string().default("8000"),
 
 		DB_NAME: z.string(),
 		CLUSTER_ARN: z.string(),

@@ -3,5 +3,5 @@ import app from "./server.ts";
 
 export default {
 	fetch: app.fetch,
-	port: ENV.PORT ?? "8000",
+	port: ENV.PORT,
 };
