@@ -13,6 +13,7 @@ import "./base.css";
 import "./tailwind.css";
 import { GeneralErrorBoundary } from "./components/error-boundary";
 
+//
 export const links: LinksFunction = () => [
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
 	{
