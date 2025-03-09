@@ -28,6 +28,7 @@ dependency "lambda" {
 
   mock_outputs = {
     lambda_function_url = "lambda_function_url"
+    lambda_function_name = "lambda_function_name"
   }
 }
 
@@ -51,6 +52,7 @@ inputs = {
 
   # Lambda関数URL
   lambda_function_url   = dependency.lambda.outputs.lambda_function_url
+  lambda_function_name  = dependency.lambda.outputs.lambda_function_name
 
   # ACM証明書
   certificate_arn       = dependency.acm.outputs.certificate_validation_arn

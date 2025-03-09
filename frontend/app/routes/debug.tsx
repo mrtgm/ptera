@@ -9,7 +9,7 @@ import type { Game } from "~/schema";
 const eventManager = new EventManager();
 export default function Debug() {
 	useEffect(() => {
-		fetch("/api/health", {
+		fetch("/api/", {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",

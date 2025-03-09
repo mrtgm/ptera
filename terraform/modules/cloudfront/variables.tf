@@ -49,6 +49,16 @@ variable "lambda_function_url" {
   type        = string
 }
 
+variable "lambda_function_name" {
+  description = "Name of the Lambda function for API"
+  type        = string
+}
+
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+}
+
 variable "certificate_arn" {
   description = "ARN of ACM certificate for the domain"
   type        = string

@@ -42,6 +42,7 @@ resource "aws_cloudfront_distribution" "main" {
   origin {
     domain_name = replace(replace(var.lambda_function_url, "https://", ""), "/", "")
     origin_id   = "Lambda-${var.project_name}-api${var.name_suffix}"
+    origin_access_control_id = aws_cloudfront_origin_access_control.lambda_oac.id
 
     custom_origin_config {
       http_port              = 80
@@ -72,6 +73,7 @@ resource "aws_cloudfront_distribution" "main" {
     max_ttl                = 0
     compress               = true
     viewer_protocol_policy = "redirect-to-https"
+
   }
 
   # index.html用のキャッシュ動作設定
@@ -234,6 +236,14 @@ resource "aws_route53_record" "cloudfront" {
     zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
     evaluate_target_health = false
   }
+}
+
+resource "aws_lambda_permission" "cloudfront" {
+  statement_id  = "AllowExecutionFromCloudFront"
+  action        = "lambda:InvokeFunction"
+  function_name = var.lambda_function_name
+  principal     = "cloudfront.amazonaws.com"
+  source_arn    = aws_cloudfront_distribution.main.arn
 }
 
 
