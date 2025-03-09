@@ -125,7 +125,7 @@ jobs:
       - name: Deploy Lambda Function
         run: |
           aws lambda update-function-code \
-            --function-name ptera-api-${{ needs.setup.outputs.environment }} \
+            --function-name ptera-api-${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }} \
             --zip-file fileb://backend/lambda.zip
 
   deploy-frontend:
@@ -159,7 +159,7 @@ jobs:
       - name: Build Frontend
         run: |
           cd frontend
-          VITE_API_URL=https:// ${{ github.ref == 'refs/heads/main' && 'https://ptera.morio.space/api' || 'https://dev.ptera.morio.space/api' }} \
+          export VITE_API_URL=${{ github.ref == 'refs/heads/main' && 'https://ptera.morio.space/api' || 'https://dev.ptera.morio.space/api' }}
           bun run build
 
       # index.htmlは別々にデプロイ
