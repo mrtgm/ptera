@@ -51,7 +51,9 @@ jobs:
       - name: Use Cached node_modules
         uses: actions/cache@v4
         with:
-          path: node_modules
+          path: |
+            frontend/node_modules
+            backend/node_modules
           key: node-modules-${{ hashFiles('**/bun.lockb') }}
           restore-keys: |
             node-modules-
@@ -99,7 +101,7 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.AWS_ROLE }}
           aws-region: ap-northeast-1
