@@ -11,6 +11,20 @@ permissions:
   contents: read
 
 jobs:
+  setup:
+    name: "Setup Environment"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Dev
+        if: ${{ github.ref == 'refs/heads/devel' }}
+        run: echo "environment=dev"" >> "$GITHUB_ENV"
+      - name: Prod
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: echo "environment=prod"" >> "$GITHUB_ENV"
+      - name: Output branch
+        run: echo "environment=${{ env.environment }}" >> "$GITHUB_OUTPUT"
+
   filter:
     name: "Filter Changed Files"
     runs-on: ubuntu-latest
@@ -84,20 +98,8 @@ jobs:
   deploy-backend:
     name: "Deploy Backend"
     runs-on: ubuntu-latest
-    needs: [filter, validate]
-    if: ${{ needs.filter.outputs.backend == 'true' }}
-
-    strategy:
-      matrix:
-        include:
-          - branch: main
-            environment: prod
-            aws_role: "arn:aws:iam::ACCOUNT_ID:role/ptera-github-actions-prod"
-          - branch: devel
-            environment: dev
-            aws_role: "arn:aws:iam::ACCOUNT_ID:role/ptera-github-actions-dev"
-
-    environment: ${{ matrix.environment }}
+    needs: [filter, validate, setup]
+    environment: ${{ needs.setup.outputs.environment }}
 
     steps:
       - name: Checkout
@@ -109,7 +111,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: ${{ matrix.aws_role }}
+          role-to-assume: ${{ secrets.AWS_ROLE }}
           aws-region: ap-northeast-1
 
       # バックエンド（Lambda関数）をビルドしてデプロイ
@@ -131,26 +133,16 @@ jobs:
       - name: Deploy Lambda Function
         run: |
           aws lambda update-function-code \
-            --function-name ptera-api-${{ matrix.environment }} \
+            --function-name ptera-api-${{ needs.setup.outputs.environment }} \
             --zip-file fileb://backend/lambda.zip
 
   deploy-frontend:
     name: "Deploy Frontend"
     runs-on: ubuntu-latest
-    needs: [filter, validate]
+    needs: [filter, validate, setup]
     if: ${{ needs.filter.outputs.frontend == 'true' }}
 
-    strategy:
-      matrix:
-        include:
-          - branch: main
-            environment: prod
-            aws_role: "arn:aws:iam::ACCOUNT_ID:role/ptera-github-actions-prod"
-          - branch: devel
-            environment: dev
-            aws_role: "arn:aws:iam::ACCOUNT_ID:role/ptera-github-actions-dev"
-
-    environment: ${{ matrix.environment }}
+    environment: ${{ needs.setup.outputs.environment }}
 
     steps:
       - name: Checkout
@@ -160,9 +152,9 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ matrix.aws_role }}
+          role-to-assume: ${{ secrets.AWS_ROLE }}
           aws-region: ap-northeast-1
 
       # フロントエンド（SPA）をビルドしてデプロイ
@@ -174,17 +166,17 @@ jobs:
       - name: Build Frontend
         run: |
           cd frontend
-          VITE_API_URL=https:// ${{ matrix.environment == 'prod' && 'https://ptera.morio.space/api' || 'https://dev.ptera.morio.space/api' }} \
+          VITE_API_URL=https:// ${{ needs.setup.outputs.environment  == 'prod' && 'https://ptera.morio.space/api' || 'https://dev.ptera.morio.space/api' }} \
           bun run build
 
       # index.htmlは別々にデプロイ
       - name: Deploy Frontend to S3
         run: |
-          aws s3 sync frontend/dist/ s3://ptera-spa-${{ matrix.environment }} \
+          aws s3 sync frontend/dist/ s3://ptera-spa-${{ needs.setup.outputs.environment  }} \
             --delete \
             --cache-control "max-age=31536000,public" \
             --exclude "index.html"
-          aws s3 cp frontend/dist/index.html s3://ptera-spa-${{ matrix.environment }}/index.html \
+          aws s3 cp frontend/dist/index.html s3://ptera-spa-${{ needs.setup.outputs.environment }}/index.html \
             --cache-control "max-age=0,no-cache,no-store,must-revalidate" \
             --content-type "text/html; charset=utf-8"
 
@@ -194,12 +186,12 @@ jobs:
         id: get-distribution-id
         run: |
           DISTRIBUTION_ID=$(aws cloudfront list-distributions \
-            --query "DistributionList.Items[?Aliases.Items[?contains(@, '${{ matrix.environment == 'prod' && 'ptera.morio.space' || 'dev.ptera.morio.space' }}')]].Id" \
+            --query "DistributionList.Items[?Aliases.Items[?contains(@, '${{ needs.setup.outputs.environment  == 'prod' && 'ptera.morio.space' || 'dev.ptera.morio.space' }}')]].Id" \
             --output text)
           echo "DISTRIBUTION_ID=$DISTRIBUTION_ID" >> $GITHUB_ENV
 
       - name: Invalidate CloudFront Cache
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id ${{ env.DISTRIBUTION_ID }} \
+            --distribution-id ${{ secrets.DISTRIBUTION_ID }} \
             --paths "/*"
