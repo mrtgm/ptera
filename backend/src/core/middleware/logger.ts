@@ -5,7 +5,7 @@ import { pino } from "pino";
 import pretty from "pino-pretty";
 import { env } from "std-env";
 
-const isDevelopment = env.isDevelopment;
+const isDevelopment = !env.isCI;
 
 const prettyPrint = pretty({
 	colorize: true,

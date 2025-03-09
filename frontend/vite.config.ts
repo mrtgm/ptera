@@ -50,15 +50,16 @@ export default defineConfig({
 		}),
 	],
 
-	test: {
-		environment: "jsdom",
-		setupFiles: ["./setup-vitest.ts"],
-		globals: true,
-	},
-
 	server: {
 		port: 3000,
-		host: '0.0.0.0',
+		host: "0.0.0.0",
+		proxy: {
+			"/api": {
+				target: "http://localhost:8000",
+				changeOrigin: true,
+				rewrite: (path) => path.replace(/^\/api/, ""),
+			},
+		},
 	},
 
 	build: {

@@ -12,7 +12,7 @@ import { gameRoutes } from "~/modules/games/api/controller";
 import { errorResponse } from "~/shared/schema/response";
 import { logger } from "./middleware/logger";
 
-const isDevelopment = env.isDevelopment;
+const isDevelopment = !env.isCI;
 
 const app = honoWithHook();
 
