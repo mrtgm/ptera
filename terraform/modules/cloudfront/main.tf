@@ -136,10 +136,10 @@ resource "aws_cloudfront_distribution" "main" {
     viewer_protocol_policy = "redirect-to-https"
 
     # SPAルーティング用の設定
-    # function_association {
-    #   event_type   = "viewer-request"
-    #   function_arn = aws_cloudfront_function.spa_router.arn
-    # }
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.spa_router.arn
+    }
   }
 
   # 地理的制限（なし）
@@ -165,37 +165,37 @@ resource "aws_cloudfront_distribution" "main" {
 
 
 # SPA用のCloudFront Function（リクエストを/index.htmlにリダイレクト）
-# resource "aws_cloudfront_function" "spa_router" {
-#   name    = "${var.project_name}-spa-router${var.name_suffix}"
-#   runtime = "cloudfront-js-1.0"
-#   comment = "Redirect requests to index.html for SPA routing"
-#   publish = true
-#   code    = <<-EOT
-# function handler(event) {
-#   var request = event.request;
-#   var uri = request.uri;
+resource "aws_cloudfront_function" "spa_router" {
+  name    = "${var.project_name}-spa-router${var.name_suffix}"
+  runtime = "cloudfront-js-1.0"
+  comment = "Redirect requests to index.html for SPA routing"
+  publish = true
+  code    = <<-EOT
+function handler(event) {
+  var request = event.request;
+  var uri = request.uri;
 
-#   // APIリクエストはそのまま転送
-#   if (uri.startsWith('/api')) {
-#     return request;
-#   }
+  // APIリクエストはそのまま転送
+  if (uri.startsWith('/api')) {
+    return request;
+  }
 
-#   // アセットファイルはそのまま転送
-#   if (uri.startsWith('/assets/')) {
-#     return request;
-#   }
+  // アセットファイルはそのまま転送
+  if (uri.startsWith('/assets/')) {
+    return request;
+  }
 
-#   // ファイル拡張子を持つリクエストはそのまま転送（静的ファイル）
-#   if (uri.match(/\.[a-zA-Z0-9]+$/)) {
-#     return request;
-#   }
+  // ファイル拡張子を持つリクエストはそのまま転送（静的ファイル）
+  if (uri.match(/\.[a-zA-Z0-9]+$/)) {
+    return request;
+  }
 
-#   // その他のリクエストは/index.htmlにリダイレクト
-#   request.uri = '/index.html';
-#   return request;
-# }
-#   EOT
-# }
+  // その他のリクエストは/index.htmlにリダイレクト
+  request.uri = '/index.html';
+  return request;
+}
+  EOT
+}
 
 # S3バケットポリシー - CloudFrontからのアクセスを許可
 resource "aws_s3_bucket_policy" "spa" {

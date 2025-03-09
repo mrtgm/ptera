@@ -3,6 +3,11 @@ variable "project_name" {
   type        = string
 }
 
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+}
+
 variable "env" {
   description = "Environment name (dev, prod)"
   type        = string
@@ -55,4 +60,14 @@ variable "aurora_secret_arn" {
   description = "ARN of the Aurora secret in Secrets Manager"
   type        = string
   default     = ""
+}
+
+variable "user_pool_id" {
+  description = "ID of the Cognito user pool"
+  type        = string
+}
+
+variable "user_pool_client_id" {
+  description = "ID of the Cognito user pool client"
+  type        = string
 }

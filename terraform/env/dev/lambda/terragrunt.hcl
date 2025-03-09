@@ -7,7 +7,7 @@ terraform {
 }
 
 dependencies {
-  paths = ["../iam", "../database"]
+  paths = ["../iam", "../database", "../cognito"]
 }
 
 dependency "iam" {
@@ -27,9 +27,21 @@ dependency "database" {
   }
 }
 
+dependency "cognito" {
+  config_path = "../cognito"
+
+  mock_outputs = {
+    user_pool_id = "us-west-2_123456789012"
+    user_pool_client_id = "my-client"
+  }
+}
+
 inputs = {
   lambda_execution_role_arn = dependency.iam.outputs.lambda_execution_role_arn
 
   aurora_cluster_arn = dependency.database.outputs.aurora_cluster_arn
   aurora_secret_arn  = dependency.database.outputs.aurora_secret_arn
+
+  user_pool_id = dependency.cognito.outputs.user_pool_id
+  user_pool_client_id = dependency.cognito.outputs.user_pool_client_id
 }

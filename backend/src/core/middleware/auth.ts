@@ -8,11 +8,11 @@ export const isAuthenticated = async (c: Context, next: Next) => {
 	try {
 		const token = c.req.header("authorization");
 
-		const verifier = CognitoJwtVerifier.create({
-			userPoolId: ENV.AWS_COGNITO_USER_POOL_ID,
-			clientId: ENV.AWS_COGNITO_CLIENT_ID,
-			tokenUse: "access",
-		});
+		// const verifier = CognitoJwtVerifier.create({
+		// 	userPoolId: ENV.,
+		// 	clientId: ENV.AWS_COGNITO_CLIENT_ID,
+		// 	tokenUse: "access",
+		// });
 
 		if (!token) {
 			return c.json(
@@ -23,15 +23,15 @@ export const isAuthenticated = async (c: Context, next: Next) => {
 			);
 		}
 
-		const payload = await verifier.verify(token);
+		// const payload = await verifier.verify(token);
 
-		const user = await userRepository.getByJwtSub(payload.sub);
+		// const user = await userRepository.getByJwtSub(payload.sub);
 
-		if (!user) {
-			return errorResponse(c, 401, "userNotFound", "warn");
-		}
+		// if (!user) {
+		// 	return errorResponse(c, 401, "userNotFound", "warn");
+		// }
 
-		c.set("user", user);
+		// c.set("user", user);
 
 		await next();
 	} catch (error) {

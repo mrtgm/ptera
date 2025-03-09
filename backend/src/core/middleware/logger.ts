@@ -3,8 +3,9 @@ import type { MiddlewareHandler } from "hono";
 import { nanoid } from "nanoid";
 import { pino } from "pino";
 import pretty from "pino-pretty";
+import { env } from "std-env";
 
-const isDevelopment = process.env.NODE_ENV !== "production";
+const isDevelopment = env.isDevelopment;
 
 const prettyPrint = pretty({
 	colorize: true,

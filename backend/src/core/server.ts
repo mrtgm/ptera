@@ -4,6 +4,7 @@ import { contextStorage } from "hono/context-storage";
 import { cors } from "hono/cors";
 import { csrf } from "hono/csrf";
 import { secureHeaders } from "hono/secure-headers";
+import { env } from "std-env";
 import { ENV } from "~/configs/env";
 import { docs } from "~/lib/doc";
 import { honoWithHook } from "~/lib/hono";
@@ -11,7 +12,7 @@ import { gameRoutes } from "~/modules/games/api/controller";
 import { errorResponse } from "~/shared/schema/response";
 import { logger } from "./middleware/logger";
 
-const isDevelopment = process.env.NODE_ENV === "development";
+const isDevelopment = env.isDevelopment;
 
 const app = honoWithHook();
 
@@ -28,7 +29,7 @@ app.get("/health", (c) => c.json({ status: "ok" }));
 
 // CORS
 const corsOptions: Parameters<typeof cors>[0] = {
-	origin: ENV.FRONTEND_URL,
+	origin: `https://${ENV.DOMAIN_NAME}`,
 	credentials: true,
 	allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE"],
 	allowHeaders: [],
@@ -36,7 +37,7 @@ const corsOptions: Parameters<typeof cors>[0] = {
 app.use("*", cors(corsOptions));
 
 // CSRF
-app.use("*", csrf({ origin: ENV.FRONTEND_URL }));
+app.use("*", csrf({ origin: `https://${ENV.DOMAIN_NAME}` }));
 
 // GET の場合は圧縮
 isDevelopment &&

@@ -1,3 +1,14 @@
+resource "random_password" "oidc_auth_secret" {
+  length           = 32
+  special          = true
+  override_special = "_%@"
+}
+
+data "aws_cognito_user_pool_client" "client" {
+  user_pool_id = var.user_pool_id
+  client_id    = var.user_pool_client_id
+}
+
 resource "aws_lambda_function" "api" {
   function_name = "${var.project_name}-api${var.name_suffix}"
   role          = var.lambda_execution_role_arn
@@ -12,11 +23,16 @@ resource "aws_lambda_function" "api" {
   # 環境変数設定
   environment {
     variables = {
+      API_VERSION = "v1"
       ENV         = var.env
       DOMAIN_NAME = var.domain_name
       DB_NAME     = var.aurora_config.database_name
       CLUSTER_ARN = var.aurora_cluster_arn
       SECRET_ARN  = var.aurora_secret_arn
+      OIDC_AUTH_SECRET = random_password.oidc_auth_secret.result
+      OIDC_ISSUER = "https://cognito-idp.${var.aws_region}.amazonaws.com/${var.user_pool_id}"
+      OIDC_CLIENT_ID = var.user_pool_client_id
+      OIDC_CLIENT_SECRET = data.aws_cognito_user_pool_client.client.client_secret
     }
   }
   tags = var.tags

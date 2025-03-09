@@ -1,3 +1,16 @@
+# Google の OAuth 認証情報を SSM から取得
+data "aws_secretsmanager_secret" "google_auth" {
+  name = "${var.project_name}/google-auth${var.name_suffix}"
+}
+
+data "aws_secretsmanager_secret_version" "secrets" {
+  secret_id = data.aws_secretsmanager_secret.google_auth.id
+}
+
+locals {
+  auth = jsondecode(data.aws_secretsmanager_secret_version.secrets.secret_string)
+}
+
 resource "aws_cognito_user_pool" "main" {
   name = "${var.project_name}${var.name_suffix}"
 
@@ -108,8 +121,8 @@ resource "aws_cognito_identity_provider" "google" {
   provider_type = "Google"
 
   provider_details = {
-    client_id                     = var.google_client_id
-    client_secret                 = var.google_client_secret
+    client_id                     = local.auth.google-client-id
+    client_secret                 = local.auth.google-client-secret
     authorize_scopes              = "profile email openid"
     oidc_issuer                   = "https://accounts.google.com"
     attributes_url                = "https://people.googleapis.com/v1/people/me?personFields="
