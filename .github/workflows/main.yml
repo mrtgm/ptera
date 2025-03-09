@@ -14,16 +14,19 @@ jobs:
   setup:
     name: "Setup Environment"
     runs-on: ubuntu-latest
-
+    outputs:
+      environment: ${{ steps.set.outputs.environment }}
     steps:
-      - name: Dev
+      - name: Set environment for Dev
         if: ${{ github.ref == 'refs/heads/devel' }}
-        run: echo "environment=dev"" >> "$GITHUB_ENV"
-      - name: Prod
+        run: echo "environment=dev" >> $GITHUB_ENV
+      - name: Set environment for Prod
         if: ${{ github.ref == 'refs/heads/main' }}
-        run: echo "environment=prod"" >> "$GITHUB_ENV"
-      - name: Output branch
-        run: echo "environment=${{ env.environment }}" >> "$GITHUB_OUTPUT"
+        run: echo "environment=prod" >> $GITHUB_ENV
+      - name: Set output variable
+        id: set
+        run: |
+          echo "environment=${{ env.environment }}" >> $GITHUB_OUTPUT
 
   filter:
     name: "Filter Changed Files"
@@ -193,5 +196,5 @@ jobs:
       - name: Invalidate CloudFront Cache
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.DISTRIBUTION_ID }} \
+            --distribution-id ${{ env.DISTRIBUTION_ID }} \
             --paths "/*"
