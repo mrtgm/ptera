@@ -2,22 +2,20 @@ import { sentry } from "@hono/sentry";
 import type { MiddlewareHandler } from "hono";
 import { nanoid } from "nanoid";
 import { pino } from "pino";
+import pretty from "pino-pretty";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-export const log = pino({
-	level: "info",
-	...(isDevelopment
-		? {
-				transport: {
-					target: "pino-pretty",
-					options: {
-						colorize: true,
-					},
-				},
-			}
-		: {}),
+const prettyPrint = pretty({
+	colorize: true,
 });
+
+export const log = pino(
+	{
+		level: "info",
+	},
+	isDevelopment ? prettyPrint : undefined,
+);
 
 type PrintFunc = (str: string) => void;
 

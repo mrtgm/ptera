@@ -166,11 +166,11 @@ jobs:
       # index.htmlは別々にデプロイ
       - name: Deploy Frontend to S3
         run: |
-          aws s3 sync frontend/dist/ s3://ptera-spa-${{ env.SUFFIX  }} \
+          aws s3 sync frontend/build/client/ s3://ptera-spa-${{ env.SUFFIX  }} \
             --delete \
             --cache-control "max-age=31536000,public" \
             --exclude "index.html"
-          aws s3 cp frontend/dist/index.html s3://ptera-spa-${{ env.SUFFIX }}/index.html \
+          aws s3 cp frontend/build/client/index.html s3://ptera-spa-${{ env.SUFFIX }}/index.html \
             --cache-control "max-age=0,no-cache,no-store,must-revalidate" \
             --content-type "text/html; charset=utf-8"
 
