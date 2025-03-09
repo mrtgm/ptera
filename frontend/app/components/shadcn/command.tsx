@@ -1,10 +1,9 @@
-import type { DialogProps } from "../../../$node_modules/@radix-ui/react-dialog/dist/index.mjs";
-import * as React from "../../../$node_modules/@types/react/index.js";
-import { Command as CommandPrimitive } from "../../../$node_modules/cmdk/dist/index.js";
-import { Search } from "../../../$node_modules/lucide-react/dist/lucide-react.js";
-
 import { Dialog, DialogContent } from "@/components/shadcn/dialog";
 import { cn } from "@/utils/cn";
+import type { DialogProps } from "@radix-ui/react-dialog";
+import { Command as CommandPrimitive } from "cmdk";
+import { Search } from "lucide-react";
+import * as React from "react";
 
 const Command = React.forwardRef<
 	React.ElementRef<typeof CommandPrimitive>,

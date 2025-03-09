@@ -10,6 +10,7 @@ permissions:
   id-token: write
   contents: read
 
+# この辺っていい感じにやる方法ないのか・・・（個人のプライベートリポジトリだと ENVIRONMENTS 使えない）
 env:
   AWS_REGION: ap-northeast-1
   AWS_ROLE: ${{ github.ref == 'refs/heads/main' && secrets.AWS_ROLE_PROD || secrets.AWS_ROLE_DEV }}
