@@ -22,11 +22,6 @@ app.use(contextStorage());
 
 app.use("*", secureHeaders());
 
-app.get("/", (c) => c.text("Hello Hono!おめでとうございます！")); // 確認用
-
-// ヘルスチェック
-app.get("/health", (c) => c.json({ status: "ok" }));
-
 // CORS
 const corsOptions: Parameters<typeof cors>[0] = {
 	origin: `https://${ENV.DOMAIN_NAME}`,
@@ -65,12 +60,17 @@ app.use("*", logger());
 
 const routes = honoWithHook();
 
-routes.route("/games", gameRoutes);
-// .route("/users", userRoutes)
+routes.get("/", (c) => c.text("Hello Hono!おめでとうございます！")); // 確認用
+routes.get("/health", (c) => c.json({ status: "ok" }));
+
+const nestedRoutes = honoWithHook();
+
+nestedRoutes.route("/games", gameRoutes);
+routes.route(`${ENV.API_VERSION}`, nestedRoutes);
 // .route("/characters", characterRoutes)
 // .route("/assets", assetRoutes)
 
-app.route(`/${ENV.API_VERSION}`, routes);
+app.route("/api", routes);
 
 app.notFound((c) =>
 	errorResponse(c, 404, "notFound", "warn", undefined, { path: c.req.path }),

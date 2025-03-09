@@ -16,6 +16,14 @@ resource "aws_cloudfront_origin_access_control" "lambda_oac" {
   signing_protocol                  = "sigv4"
 }
 
+data "aws_cloudfront_origin_request_policy" "Managed-AllViewerExceptHostHeader" {
+  name = "Managed-AllViewerExceptHostHeader"
+}
+
+data "aws_cloudfront_cache_policy" "Managed-CachingDisabled" {
+  name = "Managed-CachingDisabled"
+}
+
 # CloudFront Distribution
 resource "aws_cloudfront_distribution" "main" {
   enabled             = true
@@ -58,22 +66,11 @@ resource "aws_cloudfront_distribution" "main" {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "Lambda-${var.project_name}-api${var.name_suffix}"
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.Managed-AllViewerExceptHostHeader.id
+    cache_policy_id          = data.aws_cloudfront_cache_policy.Managed-CachingDisabled.id
 
-    forwarded_values {
-      query_string = true
-      headers      = ["Authorization", "Origin", "Content-Type", "Accept"]
-
-      cookies {
-        forward = "all"
-      }
-    }
-
-    min_ttl                = 0
-    default_ttl            = 0
-    max_ttl                = 0
     compress               = true
     viewer_protocol_policy = "redirect-to-https"
-
   }
 
   # index.html用のキャッシュ動作設定
@@ -240,7 +237,7 @@ resource "aws_route53_record" "cloudfront" {
 
 resource "aws_lambda_permission" "cloudfront" {
   statement_id  = "AllowExecutionFromCloudFront"
-  action        = "lambda:InvokeFunction"
+  action        = "lambda:InvokeFunctionUrl"
   function_name = var.lambda_function_name
   principal     = "cloudfront.amazonaws.com"
   source_arn    = aws_cloudfront_distribution.main.arn
