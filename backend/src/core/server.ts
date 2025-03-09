@@ -40,7 +40,7 @@ app.use("*", cors(corsOptions));
 app.use("*", csrf({ origin: `https://${ENV.DOMAIN_NAME}` }));
 
 // GET の場合は圧縮
-isDevelopment &&
+!isDevelopment &&
 	app.use("*", (c, next) => {
 		if (c.req.method === "GET") {
 			return compress()(c, next);
@@ -70,7 +70,7 @@ routes.route("/games", gameRoutes);
 // .route("/characters", characterRoutes)
 // .route("/assets", assetRoutes)
 
-app.route(`/api/${ENV.API_VERSION}`, routes);
+app.route(`/${ENV.API_VERSION}`, routes);
 
 app.notFound((c) =>
 	errorResponse(c, 404, "notFound", "warn", undefined, { path: c.req.path }),
