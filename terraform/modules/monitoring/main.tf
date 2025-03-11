@@ -48,7 +48,6 @@ locals {
   services = [
     "Lambda",
     "CloudFront",
-    "RDS",
     "S3",
   ]
 }
@@ -129,44 +128,3 @@ resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
 
   tags = var.tags
 }
-
-# CloudWatch アラーム - Aurora Serverless v2 ACU使用率
-resource "aws_cloudwatch_metric_alarm" "aurora_acu_utilization" {
-  alarm_name          = "${var.project_name}-aurora-acu${var.name_suffix}"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 3
-  metric_name         = "ServerlessDatabaseCapacity"
-  namespace           = "AWS/RDS"
-  period              = 300  # 5分
-  statistic           = "Maximum"
-  threshold           = var.aurora_config.max_capacity * 0.8 # 最大ACUの80%
-  alarm_description   = "Aurora Serverless v2 capacity utilization is high"
-  alarm_actions       = [aws_sns_topic.alerts.arn]
-
-  dimensions = {
-    DBClusterIdentifier = var.aurora_cluster_id
-  }
-
-  tags = var.tags
-}
-
-# CloudWatch アラーム - Aurora Serverless v2 CPUUtilization
-resource "aws_cloudwatch_metric_alarm" "aurora_cpu_utilization" {
-  alarm_name          = "${var.project_name}-aurora-cpu${var.name_suffix}"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 3
-  metric_name         = "CPUUtilization"
-  namespace           = "AWS/RDS"
-  period              = 300  # 5分
-  statistic           = "Average"
-  threshold           = 90   # 90%以上のCPU使用率
-  alarm_description   = "Aurora Serverless v2 CPU utilization is high"
-  alarm_actions       = [aws_sns_topic.alerts.arn]
-
-  dimensions = {
-    DBClusterIdentifier = var.aurora_cluster_id
-  }
-
-  tags = var.tags
-}
-

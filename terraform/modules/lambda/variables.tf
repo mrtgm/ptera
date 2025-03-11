@@ -43,25 +43,6 @@ variable "domain_name" {
   type        = string
 }
 
-variable "aurora_config" {
-  description = "Aurora database configuration"
-  type = object({
-    database_name = string
-  })
-}
-
-variable "aurora_cluster_arn" {
-  description = "ARN of the Aurora cluster"
-  type        = string
-  default     = ""
-}
-
-variable "aurora_secret_arn" {
-  description = "ARN of the Aurora secret in Secrets Manager"
-  type        = string
-  default     = ""
-}
-
 variable "user_pool_id" {
   description = "ID of the Cognito user pool"
   type        = string

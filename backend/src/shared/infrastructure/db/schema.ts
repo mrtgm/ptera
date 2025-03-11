@@ -38,7 +38,7 @@ export const asset = pgTable("asset", {
 	publicId: uuid("public_id").defaultRandom().notNull(),
 	ownerId: integer("owner_id"),
 	isPublic: boolean("is_public").default(false).notNull(),
-	type: varchar({ length: 50 }).notNull(),
+	assetType: varchar("asset_type", { length: 50 }).notNull(),
 	name: varchar({ length: 255 }).notNull(),
 	url: varchar({ length: 255 }).notNull(),
 	metadata: jsonb(),
@@ -52,7 +52,7 @@ export const asset = pgTable("asset", {
 			name: "fk_asset_owner"
 		}).onDelete("cascade"),
 	unique("asset_public_id_key").on(table.publicId),
-	check("asset_type_check", sql`(type)::text = ANY ((ARRAY['bgm'::character varying, 'soundEffect'::character varying, 'characterImage'::character varying, 'backgroundImage'::character varying, 'cg'::character varying])::text[])`),
+	check("asset_type_check", sql`(asset_type)::text = ANY ((ARRAY['bgm'::character varying, 'soundEffect'::character varying, 'characterImage'::character varying, 'backgroundImage'::character varying, 'cg'::character varying])::text[])`),
 ]);
 
 export const character = pgTable("character", {
@@ -83,14 +83,14 @@ export const characterAsset = pgTable("character_asset", {
 	index("idx_character_asset_asset_id").using("btree", table.assetId.asc().nullsLast().op("int4_ops")),
 	index("idx_character_asset_character_id").using("btree", table.characterId.asc().nullsLast().op("int4_ops")),
 	foreignKey({
-			columns: [table.characterId],
-			foreignColumns: [character.id],
-			name: "fk_character_asset_character"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.assetId],
 			foreignColumns: [asset.id],
 			name: "fk_character_asset_asset"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.characterId],
+			foreignColumns: [character.id],
+			name: "fk_character_asset_character"
 		}).onDelete("cascade"),
 ]);
 
@@ -200,15 +200,15 @@ export const gotoScene = pgTable("goto_scene", {
 	index("idx_goto_scene_next_scene_id").using("btree", table.nextSceneId.asc().nullsLast().op("int4_ops")),
 	index("idx_goto_scene_scene_id").using("btree", table.sceneId.asc().nullsLast().op("int4_ops")),
 	foreignKey({
-			columns: [table.sceneId],
-			foreignColumns: [scene.id],
-			name: "fk_goto_scene_scene"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.nextSceneId],
 			foreignColumns: [scene.id],
 			name: "fk_goto_scene_next_scene"
 		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.sceneId],
+			foreignColumns: [scene.id],
+			name: "fk_goto_scene_scene"
+		}).onDelete("cascade"),
 	unique("goto_scene_public_id_key").on(table.publicId),
 	unique("goto_scene_scene_id_key").on(table.sceneId),
 ]);
@@ -354,14 +354,14 @@ export const gameCategoryRelation = pgTable("game_category_relation", {
 	index("idx_game_category_relation_category_id").using("btree", table.gameCategoryId.asc().nullsLast().op("int4_ops")),
 	index("idx_game_category_relation_game_id").using("btree", table.gameId.asc().nullsLast().op("int4_ops")),
 	foreignKey({
-			columns: [table.gameId],
-			foreignColumns: [game.id],
-			name: "fk_game_category_relation_game"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.gameCategoryId],
 			foreignColumns: [gameCategory.id],
 			name: "fk_game_category_relation_category"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.gameId],
+			foreignColumns: [game.id],
+			name: "fk_game_category_relation_game"
 		}).onDelete("cascade"),
 	unique("uq_game_category_relation").on(table.gameId, table.gameCategoryId),
 ]);
@@ -381,7 +381,7 @@ export const event = pgTable("event", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity({ name: "event_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
 	sceneId: integer("scene_id").notNull(),
 	publicId: uuid("public_id").defaultRandom().notNull(),
-	type: varchar({ length: 50 }).notNull(),
+	evnetType: varchar("evnet_type", { length: 50 }).notNull(),
 	category: varchar({ length: 50 }).notNull(),
 	orderIndex: varchar("order_index", { length: 255 }).notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
@@ -406,14 +406,14 @@ export const changeBackgroundEvent = pgTable("change_background_event", {
 }, (table) => [
 	index("idx_change_background_event_background_id").using("btree", table.backgroundId.asc().nullsLast().op("int4_ops")),
 	foreignKey({
-			columns: [table.eventId],
-			foreignColumns: [event.id],
-			name: "fk_change_background_event_event"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.backgroundId],
 			foreignColumns: [asset.id],
 			name: "fk_change_background_event_background"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.eventId],
+			foreignColumns: [event.id],
+			name: "fk_change_background_event_event"
 		}).onDelete("cascade"),
 	unique("change_background_event_event_id_key").on(table.eventId),
 ]);
@@ -430,14 +430,14 @@ export const appearCharacterEvent = pgTable("appear_character_event", {
 	createdAt: timestamp("created_at", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 }, (table) => [
 	foreignKey({
-			columns: [table.eventId],
-			foreignColumns: [event.id],
-			name: "fk_appear_character_event_event"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.characterId],
 			foreignColumns: [character.id],
 			name: "fk_appear_character_event_character"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.eventId],
+			foreignColumns: [event.id],
+			name: "fk_appear_character_event_event"
 		}).onDelete("cascade"),
 	foreignKey({
 			columns: [table.characterImageId],
@@ -456,14 +456,14 @@ export const hideCharacterEvent = pgTable("hide_character_event", {
 	createdAt: timestamp("created_at", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 }, (table) => [
 	foreignKey({
-			columns: [table.eventId],
-			foreignColumns: [event.id],
-			name: "fk_hide_character_event_event"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.characterId],
 			foreignColumns: [character.id],
 			name: "fk_hide_character_event_character"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.eventId],
+			foreignColumns: [event.id],
+			name: "fk_hide_character_event_event"
 		}).onDelete("cascade"),
 	unique("hide_character_event_event_id_key").on(table.eventId),
 ]);
@@ -493,14 +493,14 @@ export const moveCharacterEvent = pgTable("move_character_event", {
 	createdAt: timestamp("created_at", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 }, (table) => [
 	foreignKey({
-			columns: [table.eventId],
-			foreignColumns: [event.id],
-			name: "fk_move_character_event_event"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.characterId],
 			foreignColumns: [character.id],
 			name: "fk_move_character_event_character"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.eventId],
+			foreignColumns: [event.id],
+			name: "fk_move_character_event_event"
 		}).onDelete("cascade"),
 	unique("move_character_event_event_id_key").on(table.eventId),
 ]);
@@ -515,14 +515,14 @@ export const characterEffectEvent = pgTable("character_effect_event", {
 	createdAt: timestamp("created_at", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 }, (table) => [
 	foreignKey({
-			columns: [table.eventId],
-			foreignColumns: [event.id],
-			name: "fk_character_effect_event_event"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.characterId],
 			foreignColumns: [character.id],
 			name: "fk_character_effect_event_character"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.eventId],
+			foreignColumns: [event.id],
+			name: "fk_character_effect_event_event"
 		}).onDelete("cascade"),
 	unique("character_effect_event_event_id_key").on(table.eventId),
 ]);
@@ -538,14 +538,14 @@ export const bgmStartEvent = pgTable("bgm_start_event", {
 	createdAt: timestamp("created_at", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 }, (table) => [
 	foreignKey({
-			columns: [table.eventId],
-			foreignColumns: [event.id],
-			name: "fk_bgm_start_event_event"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.bgmId],
 			foreignColumns: [asset.id],
 			name: "fk_bgm_start_event_bgm"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.eventId],
+			foreignColumns: [event.id],
+			name: "fk_bgm_start_event_event"
 		}).onDelete("cascade"),
 	unique("bgm_start_event_event_id_key").on(table.eventId),
 ]);

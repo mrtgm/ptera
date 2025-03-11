@@ -1,22 +1,8 @@
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { ENV } from "~/configs/env";
 import * as schema from "./schema";
 
-import { RDSDataClient } from "@aws-sdk/client-rds-data";
-import { drizzle } from "drizzle-orm/aws-data-api/pg";
-import { isCI } from "std-env";
-
-const client = new RDSDataClient(
-	isCI
-		? {}
-		: {
-				region: "us-west-1",
-				endpoint: "http://127.0.0.1:8080",
-			},
-);
-
-export const db = drizzle(client, {
-	database: ENV.DB_NAME,
-	secretArn: ENV.SECRET_ARN,
-	resourceArn: ENV.CLUSTER_ARN,
-	schema,
-});
+const connectionString = `postgres://${ENV.DATABASE_USER}:${ENV.DATABASE_PASSWORD}@${ENV.DATABASE_HOST}:${ENV.DATABASE_PORT}/${ENV.DATABASE_NAME}`;
+export const client = postgres(connectionString, { prepare: false });
+export const db = drizzle(client, { schema });

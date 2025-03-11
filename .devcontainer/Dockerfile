@@ -30,6 +30,10 @@ RUN mkdir -p /home/node/.zshrc.d \
   && echo 'source ~/.zshrc.d/zinit.zsh' >> /home/node/.zshrc \
   && chown -R node:node /home/node/.zshrc.d
 
+# install direnv
+RUN curl -sfL https://direnv.net/install.sh | bash
+RUN echo 'eval "$(direnv hook zsh)"' >> /home/node/.zshrc
+
 # starship
 RUN mkdir -p /home/node/.config && chown -R node:node /home/node/.config
 COPY --chown=node:node .devcontainer/starship.toml /home/node/.config/starship.toml

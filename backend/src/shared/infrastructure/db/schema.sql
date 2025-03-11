@@ -26,14 +26,14 @@ CREATE TABLE "asset" (
     public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     owner_id INT,
     is_public BOOLEAN NOT NULL DEFAULT false,
-    "type" VARCHAR(50) NOT NULL,
+    asset_type VARCHAR(50) NOT NULL,
     name VARCHAR(255) NOT NULL,
     url VARCHAR(255) NOT NULL,
     metadata JSONB,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_asset_owner FOREIGN KEY (owner_id) REFERENCES "user"(id) ON DELETE CASCADE,
-    CONSTRAINT asset_type_check CHECK ("type" IN ('bgm', 'soundEffect', 'characterImage', 'backgroundImage', 'cg'))
+    CONSTRAINT asset_type_check CHECK ("asset_type" IN ('bgm', 'soundEffect', 'characterImage', 'backgroundImage', 'cg'))
 );
 CREATE INDEX idx_asset_owner_id ON "asset"(owner_id);
 
@@ -244,7 +244,7 @@ CREATE TABLE "event" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     scene_id INT NOT NULL,
     public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
-    "type" VARCHAR(50) NOT NULL,
+    evnet_type VARCHAR(50) NOT NULL,
     category VARCHAR(50) NOT NULL,
     order_index VARCHAR(255) NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

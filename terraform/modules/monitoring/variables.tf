@@ -37,15 +37,3 @@ variable "lambda_function_name" {
   description = "Name of the Lambda function to monitor"
   type        = string
 }
-
-variable "aurora_cluster_id" {
-  description = "ID of the Aurora cluster to monitor"
-  type        = string
-}
-
-variable "aurora_config" {
-  description = "Aurora configuration for setting alarms"
-  type = object({
-    max_capacity = number
-  })
-}

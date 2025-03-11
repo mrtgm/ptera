@@ -88,7 +88,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[0].id,
 					isPublic: true,
-					type: "characterImage",
+					assetType: "characterImage",
 					name: "主人公（男性）",
 					url: "https://example.com/images/char1.png",
 					metadata: {
@@ -99,7 +99,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[0].id,
 					isPublic: true,
-					type: "characterImage",
+					assetType: "characterImage",
 					name: "ヒロイン",
 					url: "https://example.com/images/char2.png",
 					metadata: {
@@ -110,7 +110,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[1].id,
 					isPublic: true,
-					type: "characterImage",
+					assetType: "characterImage",
 					name: "ライバル",
 					url: "https://example.com/images/char3.png",
 					metadata: {
@@ -121,7 +121,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[2].id,
 					isPublic: true,
-					type: "characterImage",
+					assetType: "characterImage",
 					name: "幼なじみ",
 					url: "https://example.com/images/char4.png",
 					metadata: {
@@ -133,7 +133,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[0].id,
 					isPublic: true,
-					type: "backgroundImage",
+					assetType: "backgroundImage",
 					name: "教室（昼）",
 					url: "https://example.com/images/bg_classroom_day.jpg",
 					metadata: { tags: ["室内", "昼"], description: "昼間の教室の背景" },
@@ -141,7 +141,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[0].id,
 					isPublic: true,
-					type: "backgroundImage",
+					assetType: "backgroundImage",
 					name: "教室（夕方）",
 					url: "https://example.com/images/bg_classroom_evening.jpg",
 					metadata: { tags: ["室内", "夕方"], description: "夕方の教室の背景" },
@@ -149,7 +149,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[1].id,
 					isPublic: true,
-					type: "backgroundImage",
+					assetType: "backgroundImage",
 					name: "公園",
 					url: "https://example.com/images/bg_park.jpg",
 					metadata: { tags: ["屋外", "昼"], description: "公園の背景" },
@@ -157,7 +157,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[2].id,
 					isPublic: true,
-					type: "backgroundImage",
+					assetType: "backgroundImage",
 					name: "カフェ",
 					url: "https://example.com/images/bg_cafe.jpg",
 					metadata: { tags: ["室内", "昼"], description: "カフェの背景" },
@@ -166,7 +166,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[1].id,
 					isPublic: true,
-					type: "bgm",
+					assetType: "bgm",
 					name: "メインテーマ",
 					url: "https://example.com/audio/main_theme.mp3",
 					metadata: { length: "2:45", composer: "音楽太郎" },
@@ -174,7 +174,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[2].id,
 					isPublic: true,
-					type: "bgm",
+					assetType: "bgm",
 					name: "日常シーン",
 					url: "https://example.com/audio/daily_life.mp3",
 					metadata: { length: "3:10", composer: "音楽太郎" },
@@ -182,7 +182,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[0].id,
 					isPublic: true,
-					type: "bgm",
+					assetType: "bgm",
 					name: "感動シーン",
 					url: "https://example.com/audio/emotional.mp3",
 					metadata: { length: "4:20", composer: "音楽花子" },
@@ -191,7 +191,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[2].id,
 					isPublic: true,
-					type: "soundEffect",
+					assetType: "soundEffect",
 					name: "ドア開閉音",
 					url: "https://example.com/audio/door.wav",
 					metadata: { category: "環境音" },
@@ -199,7 +199,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[1].id,
 					isPublic: true,
-					type: "soundEffect",
+					assetType: "soundEffect",
 					name: "足音",
 					url: "https://example.com/audio/footsteps.wav",
 					metadata: { category: "環境音" },
@@ -207,7 +207,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[0].id,
 					isPublic: true,
-					type: "soundEffect",
+					assetType: "soundEffect",
 					name: "衝撃音",
 					url: "https://example.com/audio/impact.wav",
 					metadata: { category: "演出" },
@@ -216,7 +216,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[2].id,
 					isPublic: true,
-					type: "cg",
+					assetType: "cg",
 					name: "出会いシーン",
 					url: "https://example.com/images/event_meeting.jpg",
 					metadata: {
@@ -227,7 +227,7 @@ async function seedDatabase() {
 				{
 					ownerId: users[1].id,
 					isPublic: true,
-					type: "cg",
+					assetType: "cg",
 					name: "告白シーン",
 					url: "https://example.com/images/event_confession.jpg",
 					metadata: {
@@ -511,94 +511,94 @@ async function seedDatabase() {
 				// シーン0のイベント（導入シーン）
 				{
 					sceneId: scenes[0].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[0].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[0].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
 				{
 					sceneId: scenes[0].id,
-					type: "bgmStart",
+					evnetType: "bgmStart",
 					category: "media",
 					orderIndex: "0040",
 				},
 				// シーン1のイベント（登校シーン）
 				{
 					sceneId: scenes[1].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[1].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[1].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
 				{
 					sceneId: scenes[1].id,
-					type: "soundEffect",
+					evnetType: "soundEffect",
 					category: "media",
 					orderIndex: "0040",
 				},
 				// シーン2のイベント（選択肢シーン）
 				{
 					sceneId: scenes[2].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[2].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[2].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
 				// シーン3のイベント（エンディング）
 				{
 					sceneId: scenes[3].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[3].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[3].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
 				{
 					sceneId: scenes[3].id,
-					type: "bgmStart",
+					evnetType: "bgmStart",
 					category: "media",
 					orderIndex: "0040",
 				},
@@ -612,63 +612,63 @@ async function seedDatabase() {
 				// シーン4のイベント（序章）
 				{
 					sceneId: scenes[4].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[4].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[4].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
 				// シーン5のイベント（謎の発見）
 				{
 					sceneId: scenes[5].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[5].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[5].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
 				{
 					sceneId: scenes[5].id,
-					type: "soundEffect",
+					evnetType: "soundEffect",
 					category: "media",
 					orderIndex: "0040",
 				},
 				// シーン6のイベント（調査開始）
 				{
 					sceneId: scenes[6].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[6].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[6].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
@@ -682,88 +682,88 @@ async function seedDatabase() {
 				// シーン7のイベント（再会）
 				{
 					sceneId: scenes[7].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[7].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[7].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
 				{
 					sceneId: scenes[7].id,
-					type: "soundEffect",
+					evnetType: "soundEffect",
 					category: "media",
 					orderIndex: "0040",
 				},
 				// シーン8のイベント（カフェでの会話）
 				{
 					sceneId: scenes[8].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[8].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[8].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
 				// シーン9のイベント（告白シーン）
 				{
 					sceneId: scenes[9].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[9].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[9].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
 				{
 					sceneId: scenes[9].id,
-					type: "appearCG",
+					evnetType: "appearCG",
 					category: "cg",
 					orderIndex: "0040",
 				},
 				// シーン10のイベント（エンディング）
 				{
 					sceneId: scenes[10].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[10].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[10].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
@@ -777,44 +777,44 @@ async function seedDatabase() {
 				// シーン11のイベント（異世界への召喚）
 				{
 					sceneId: scenes[11].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[11].id,
-					type: "effect",
+					evnetType: "effect",
 					category: "effect",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[11].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
 				{
 					sceneId: scenes[11].id,
-					type: "soundEffect",
+					evnetType: "soundEffect",
 					category: "media",
 					orderIndex: "0040",
 				},
 				// シーン12のイベント（仲間との出会い）
 				{
 					sceneId: scenes[12].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[12].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[12].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
@@ -828,50 +828,50 @@ async function seedDatabase() {
 				// シーン13のイベント（未来学園への入学）
 				{
 					sceneId: scenes[13].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[13].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[13].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
 				{
 					sceneId: scenes[13].id,
-					type: "bgmStart",
+					evnetType: "bgmStart",
 					category: "media",
 					orderIndex: "0040",
 				},
 				// シーン14のイベント（不思議な実験）
 				{
 					sceneId: scenes[14].id,
-					type: "changeBackground",
+					evnetType: "changeBackground",
 					category: "background",
 					orderIndex: "0010",
 				},
 				{
 					sceneId: scenes[14].id,
-					type: "appearCharacter",
+					evnetType: "appearCharacter",
 					category: "character",
 					orderIndex: "0020",
 				},
 				{
 					sceneId: scenes[14].id,
-					type: "text",
+					evnetType: "text",
 					category: "message",
 					orderIndex: "0030",
 				},
 				{
 					sceneId: scenes[14].id,
-					type: "soundEffect",
+					evnetType: "soundEffect",
 					category: "media",
 					orderIndex: "0040",
 				},

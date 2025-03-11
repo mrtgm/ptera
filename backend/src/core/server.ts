@@ -58,19 +58,13 @@ app.use(
 
 app.use("*", logger());
 
-const routes = honoWithHook();
-
-routes.get("/", (c) => c.text("Hello Hono!おめでとうございます！")); // 確認用
-routes.get("/health", (c) => c.json({ status: "ok" }));
+app.get("/api", (c) => c.text("Hello Hono!おめでとうございます！"));
+app.get("/api/", (c) => c.text("Hello Hono!おめでとうございます！"));
+app.get("/api/health", (c) => c.json({ status: "ok" }));
 
 const nestedRoutes = honoWithHook();
-
 nestedRoutes.route("/games", gameRoutes);
-routes.route(`${ENV.API_VERSION}`, nestedRoutes);
-// .route("/characters", characterRoutes)
-// .route("/assets", assetRoutes)
-
-app.route("/api", routes);
+app.route(`/api/${ENV.API_VERSION}`, nestedRoutes);
 
 app.notFound((c) =>
 	errorResponse(c, 404, "notFound", "warn", undefined, { path: c.req.path }),

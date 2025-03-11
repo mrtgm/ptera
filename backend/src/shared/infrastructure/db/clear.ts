@@ -1,5 +1,7 @@
 import { sql } from "drizzle-orm";
+import { ENV } from "~/configs/env.ts";
 import { db } from "./index.ts";
+
 
 export const clear = async () => {
 	await db.execute(sql`

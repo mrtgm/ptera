@@ -7,7 +7,7 @@ terraform {
 }
 
 dependencies {
-  paths = ["../lambda", "../database"]
+  paths = ["../lambda"]
 }
 
 dependency "lambda" {
@@ -18,17 +18,8 @@ dependency "lambda" {
   }
 }
 
-dependency "database" {
-  config_path = "../database"
-
-  mock_outputs = {
-    aurora_cluster_id = "dummy-aurora-cluster-id"
-  }
-}
-
 inputs = {
   alert_emails = ["xtarako@gmail.com"]
 
   lambda_function_name = dependency.lambda.outputs.lambda_function_name
-  aurora_cluster_id = dependency.database.outputs.aurora_cluster_id
 }
