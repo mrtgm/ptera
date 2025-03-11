@@ -5,7 +5,7 @@
     "studio": "bunx drizzle-kit studio",
     "dev": "bun --watch ./src/core/local.ts",
     "lint": "biome lint --write ./src",
-    "build": "vercel build",
+    "start": "vercel dev",
     "deploy": "vercel",
     "format": "biome format --write ./src",
     "typecheck": "tsc --noEmit",
