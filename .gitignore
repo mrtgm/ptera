@@ -13,3 +13,4 @@
 /**/.env.production
 
 /**/node_modules
+.vercel

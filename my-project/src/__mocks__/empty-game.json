@@ -1,0 +1,33 @@
+{
+	"id": "mystery-in-the-park",
+	"title": "公園での出会い",
+	"author": "MysteryWriter",
+	"authorName": "謎の作家",
+	"description": "穏やかな春の日、主人公は公園で不思議な少女と出会う。",
+	"initialSceneId": "opening",
+	"schemaVersion": "0.1",
+	"releaseDate": 1640995200000,
+	"likeCount": 0,
+	"playCount": 0,
+	"createdAt": 1640995200000,
+	"updatedAt": 1640995200000,
+	"coverImageUrl": "https://picsum.photos/seed/picsum/800/600",
+	"status": "published",
+	"categories": ["mystery", "romance"],
+	"scenes": [
+		{
+			"id": "opening",
+			"title": "オープニング",
+			"sceneType": "end",
+			"events": [
+				{
+					"id": "opening-event",
+					"type": "text",
+					"category": "message",
+					"order": "a0",
+					"text": "これはオープニングです。"
+				}
+			]
+		}
+	]
+}
