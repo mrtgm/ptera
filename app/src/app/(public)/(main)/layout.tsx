@@ -1,5 +1,6 @@
 "use client";
 
+import "@fontsource/dotgothic16";
 import "../../globals.css";
 
 import {
@@ -44,10 +45,6 @@ import {
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-
-const dotGothic16 = DotGothic16({
-	weight: "400",
-});
 
 export default function MainLayout({
 	children,
@@ -99,7 +96,7 @@ export default function MainLayout({
 
 	return (
 		<html lang="ja">
-			<body className={`${dotGothic16.className}  antialiased`}>
+			<body>
 				<div className="flex flex-col min-h-screen">
 					{/* ヘッダー */}
 					<header className="border-b sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

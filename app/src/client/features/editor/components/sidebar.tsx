@@ -2,6 +2,7 @@ import { Card } from "@/client/components/shadcn/card";
 import { Separator } from "@/client/components/shadcn/separator";
 import type { Scene } from "@/client/schema";
 import { useDraggable } from "@dnd-kit/core";
+import type { LucideProps } from "lucide-react";
 import { cloneElement } from "react";
 import type { SideBarSettings, SidebarItem } from "../constants";
 import {
@@ -99,7 +100,7 @@ export const SidebarItemCore = ({
 		<Card className="p-2 flex gap-2 items-center cursor-move hover:bg-gray-50 select-none">
 			{cloneElement(item.icon, {
 				color,
-			})}
+			} as LucideProps)}
 			<div>{item.label}</div>
 		</Card>
 	);

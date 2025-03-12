@@ -35,13 +35,14 @@ app.use("*", cors(corsOptions));
 app.use("*", csrf({ origin: `https://${ENV.DOMAIN_NAME}` }));
 
 // GET の場合は圧縮
-!isDevelopment &&
+if (!isDevelopment) {
 	app.use("*", (c, next) => {
 		if (c.req.method === "GET") {
 			return compress()(c, next);
 		}
 		return next();
 	});
+}
 
 // Body のサイズ制限
 app.use(

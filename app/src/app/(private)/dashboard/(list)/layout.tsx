@@ -3,19 +3,10 @@
 import { Header } from "~/client/features/dashboard/components/header";
 
 import { NavLinks } from "@/client/features/dashboard/components/nav-link";
-import {
-	ChevronRight,
-	Gamepad2,
-	HomeIcon,
-	LogOut,
-	Settings,
-	User,
-} from "lucide-react";
-import type { Metadata } from "next";
+import { ChevronRight, HomeIcon, LogOut, User } from "lucide-react";
 import { NavigationGuardProvider } from "next-navigation-guard";
-import { DotGothic16 } from "next/font/google";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
 	Avatar,
 	AvatarFallback,
@@ -26,12 +17,9 @@ import { Separator } from "~/client/components/shadcn/separator";
 import { useStore } from "~/client/stores";
 
 import "../../../globals.css";
+import "@fontsource/dotgothic16";
 
 // export const meta: Metadata = { title: "Dashboard | Game Creator" };
-
-const dotGothic16 = DotGothic16({
-	weight: "400",
-});
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
 	const userSlice = useStore.useSlice.user();
@@ -47,7 +35,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 
 	return (
 		<html lang="ja">
-			<body className={`${dotGothic16.className}  antialiased`}>
+			<body>
 				<NavigationGuardProvider>
 					<div className="min-h-screen flex flex-col">
 						<Header />

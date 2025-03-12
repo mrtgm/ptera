@@ -2,7 +2,6 @@ import { sql } from "drizzle-orm";
 import { ENV } from "@/server/configs/env.js";
 import { db } from "./index.js";
 
-
 export const clear = async () => {
 	await db.execute(sql`
    DROP SCHEMA public CASCADE;

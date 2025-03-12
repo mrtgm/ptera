@@ -1,8 +1,0 @@
-{
-  "name": "backend",
-  "type": "module",
-  "scripts": {
-    "dev:backend": "bunx vercel dev"
-  },
-  "packageManager": "bun@1.2.4"
-}

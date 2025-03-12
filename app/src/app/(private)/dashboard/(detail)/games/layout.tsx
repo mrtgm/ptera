@@ -1,7 +1,7 @@
 "use client";
 
 import type { Metadata } from "next";
-import { DotGothic16 } from "next/font/google";
+import "@fontsource/dotgothic16";
 import "../../../../globals.css";
 import { NavigationGuardProvider } from "next-navigation-guard";
 
@@ -10,10 +10,6 @@ import { NavigationGuardProvider } from "next-navigation-guard";
 // 	description: "Ptera is a new way to create, share, and play stories.",
 // };
 
-const dotGothic16 = DotGothic16({
-	weight: "400",
-});
-
 export default function RootLayout({
 	children,
 }: Readonly<{
@@ -21,7 +17,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="ja">
-			<body className={`${dotGothic16.className}  antialiased`}>
+			<body>
 				<NavigationGuardProvider>{children}</NavigationGuardProvider>
 			</body>
 		</html>
