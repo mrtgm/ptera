@@ -22,6 +22,7 @@ import * as changeCase from "change-case";
 import { count, eq, inArray, sql } from "drizzle-orm";
 import { generateKeyBetween } from "fractional-indexing";
 import { omit } from "remeda";
+import { ResourceRepository } from "../../../assets/infrastructure/repositories/resource";
 import {
 	EventNotFoundError,
 	EventsNotFoundError,
@@ -31,7 +32,6 @@ import {
 import { type GameEvent, createEvent, sortEvent } from "../../domain/event";
 import { domainToPersitence } from "../mapper";
 import { BaseRepository, type Transaction } from "./base";
-import { ResourceRepository } from "./resource";
 import { getEventAssetId } from "./utils";
 
 export class EventRepository extends BaseRepository {

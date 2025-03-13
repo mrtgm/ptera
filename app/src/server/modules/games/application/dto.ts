@@ -1,6 +1,10 @@
 import type { User } from "@/server/modules/users/domain/entities";
 import { paginationRequestSchema } from "@/server/shared/schema/request";
 import { z } from "zod";
+import {
+	type GameResources,
+	gameResourcesSchema,
+} from "../../assets/domain/resoucres";
 import { type Comment, commentSchema } from "../domain/comment";
 import {
 	type GameEvent,
@@ -13,7 +17,6 @@ import {
 	gameSchema,
 	gameWithSceneSchema,
 } from "../domain/game";
-import { type GameResources, gameResourcesSchema } from "../domain/resoucres";
 import type { Scene } from "../domain/scene";
 
 // *------------------------------------------------------

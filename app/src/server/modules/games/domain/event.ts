@@ -1,7 +1,7 @@
 import { randomIntId, randomUUID } from "@/server/shared/utils/id";
 import { generateKeyBetween } from "fractional-indexing";
 import { z } from "zod";
-import type { GameResources } from "./resoucres";
+import type { GameResources } from "../../assets/domain/resoucres";
 
 /* ------------------------------------------------------
     GameEvent Entities

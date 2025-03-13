@@ -5,9 +5,10 @@ import {
 	gameCategoryRelation,
 	gamePlay,
 	like,
+	user,
 } from "@/server/shared/infrastructure/db/schema";
 import { and, count, eq, ilike, sql } from "drizzle-orm";
-import type { GetGamesRequest } from "../../api/validator";
+import type { GetGamesRequest } from "../../application/dto";
 import type { UpdateGameDto } from "../../application/dto";
 import { GameNotFoundError } from "../../domain/error";
 import { type Game, createGame } from "../../domain/game";
@@ -197,6 +198,54 @@ export class GameRepository extends BaseRepository {
 			);
 			await txLocal.delete(game).where(eq(game.id, gameId));
 		}, tx);
+	}
+
+	async getGamesByUserId(userId: number): Promise<Game[]> {
+		const items = await this.db
+			.select({
+				id: game.id,
+				publicId: game.publicId,
+				name: game.name,
+				userId: game.userId,
+				description: game.description,
+				coverImageUrl: game.coverImageUrl,
+				releaseDate: game.releaseDate,
+				status: game.status,
+				createdAt: game.createdAt,
+				updatedAt: game.updatedAt,
+			})
+			.from(game)
+			.where(eq(game.userId, userId))
+			.execute()
+			.then((v) =>
+				v.map((game) => ({
+					...game,
+					status: game.status as Game["status"],
+					categoryIds: [] as number[],
+					playCount: 0,
+					likeCount: 0,
+					schemaVersion: ENV.API_VERSION,
+				})),
+			);
+
+		const gameIds = items.map((v) => v.id);
+
+		const statisticsRepository = new StatisticsRepository();
+
+		const [likeCountByGameId, playCountByGameId, categoriesByGameId] =
+			await Promise.all([
+				statisticsRepository.getLikes(gameIds),
+				statisticsRepository.getPlayerCounts(gameIds),
+				statisticsRepository.getCategoryIds(gameIds),
+			]);
+
+		for (const item of items) {
+			item.categoryIds = categoriesByGameId[item.id] || [];
+			item.playCount = playCountByGameId[item.id] || 0;
+			item.likeCount = likeCountByGameId[item.id] || 0;
+		}
+
+		return items;
 	}
 
 	async getGames(

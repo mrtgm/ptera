@@ -10,7 +10,10 @@ import { cors } from "hono/cors";
 import { csrf } from "hono/csrf";
 import { secureHeaders } from "hono/secure-headers";
 import { env } from "std-env";
+import { assetRoutes, characterRoutes } from "../modules/assets/api/controller";
 import { authRoutes } from "../modules/auth/api/controller";
+import { dashboardRoutes } from "../modules/me/api/controller";
+import { userRoutes } from "../modules/users/api/controller";
 import { logger } from "./middleware/logger";
 
 const isDevelopment = !env.isCI;
@@ -23,7 +26,6 @@ app.use(contextStorage());
 
 app.use("*", secureHeaders());
 
-// CORS
 const corsOptions: Parameters<typeof cors>[0] = {
 	origin: isDevelopment ? "*" : `https://${ENV.DOMAIN_NAME}`,
 	credentials: true,
@@ -32,7 +34,6 @@ const corsOptions: Parameters<typeof cors>[0] = {
 };
 app.use("*", cors(corsOptions));
 
-// CSRF
 app.use("*", csrf({ origin: `https://${ENV.DOMAIN_NAME}` }));
 
 // GET の場合は圧縮
@@ -45,7 +46,6 @@ if (!isDevelopment) {
 	});
 }
 
-// Body のサイズ制限
 app.use(
 	"*",
 	bodyLimit({
@@ -70,6 +70,10 @@ app.get("/api/health", (c) => {
 const nestedRoutes = honoWithHook();
 nestedRoutes.route("/games", gameRoutes);
 nestedRoutes.route("/auth", authRoutes);
+nestedRoutes.route("/users", userRoutes);
+nestedRoutes.route("/characters", characterRoutes);
+nestedRoutes.route("/me", dashboardRoutes);
+nestedRoutes.route("/assets", assetRoutes);
 
 app.route(`/api/${ENV.API_VERSION}`, nestedRoutes);
 

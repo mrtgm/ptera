@@ -7,6 +7,7 @@ import {
 	successWithPaginationResponse,
 	successWithoutDataResponse,
 } from "../../../shared/schema/response";
+import { ResourceRepository } from "../../assets/infrastructure/repositories/resource";
 import { userRepository } from "../../users/infrastructure/repository";
 import { createCommand } from "../application/commands";
 import { createQuery } from "../application/queries";
@@ -14,7 +15,6 @@ import { CommentRepository } from "../infrastructure/repositories/comment";
 import {
 	EventRepository,
 	GameRepository,
-	ResourceRepository,
 	SceneRepository,
 	StatisticsRepository,
 } from "../infrastructure/repository";

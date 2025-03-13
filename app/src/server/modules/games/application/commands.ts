@@ -7,7 +7,6 @@ import { userRepository } from "../../users/infrastructure/repository";
 
 import { CommentNotFoundError, GameNotFoundError } from "../domain/error";
 import type { Game } from "../domain/game";
-import type { Scene } from "../domain/scene";
 import type { CommentRepository } from "../infrastructure/repositories/comment";
 import type {
 	EventRepository,

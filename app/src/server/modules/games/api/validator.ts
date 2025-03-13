@@ -1,6 +1,4 @@
-import { paginationRequestSchema } from "@/server/shared/schema/request";
 import { z } from "zod";
-import { gameEventSchema, gameEventTypeSchema } from "../domain/event";
 
 export const gameParamSchema = z.object({ gameId: z.string().uuid() });
 export const commentParamSchema = z.object({

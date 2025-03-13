@@ -2,7 +2,7 @@ import type { Howl } from "howler";
 import { z } from "zod";
 
 export const mediaAssetSchema = z.object({
-	id: z.string(),
+	id: z.number(),
 	filename: z.string(),
 	url: z.string(),
 	metadata: z

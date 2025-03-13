@@ -2,6 +2,7 @@ import { db } from "@/server/shared/infrastructure/db";
 import { user, userProfile } from "@/server/shared/infrastructure/db/schema";
 import { eq, inArray } from "drizzle-orm";
 import type { User } from "../domain/entities";
+import { UserNotFoundError } from "../domain/error";
 
 export interface UserRepository {
 	getById(id: number): Promise<User | null>;
@@ -12,8 +13,8 @@ export interface UserRepository {
 	updateUserProfile(
 		id: number,
 		name: string,
-		bio: string,
-		avatarUrl: string,
+		bio: string | null | undefined,
+		avatarUrl: string | null | undefined,
 	): Promise<void>;
 
 	create(jwtSub: string, name: string): Promise<User>;
@@ -154,8 +155,8 @@ export const userRepository: UserRepository = {
 	updateUserProfile: async (
 		id: number,
 		name: string,
-		bio: string,
-		avatarUrl: string,
+		bio: string | null | undefined,
+		avatarUrl: string | null | undefined,
 	) => {
 		return db.transaction(async (tx) => {
 			const existingUser = await tx
@@ -166,7 +167,7 @@ export const userRepository: UserRepository = {
 				.execute();
 
 			if (existingUser.length === 0) {
-				throw new Error(`User with id ${id} not found`);
+				throw new UserNotFoundError("");
 			}
 
 			await tx

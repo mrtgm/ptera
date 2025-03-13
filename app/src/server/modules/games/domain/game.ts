@@ -1,8 +1,8 @@
 import { scene } from "@/server/shared/infrastructure/db/schema";
 import { randomIntId, randomUUID } from "@/server/shared/utils/id";
 import { z } from "zod";
+import type { GameResources } from "../../assets/domain/resoucres";
 import { createEvent } from "./event";
-import type { GameResources } from "./resoucres";
 import { sceneSchema } from "./scene";
 
 /* ------------------------------------------------------

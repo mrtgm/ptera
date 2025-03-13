@@ -1,18 +1,19 @@
 import {
 	asset,
-	assetGame,
 	character,
 	characterAsset,
-	characterGame,
-	game,
 } from "@/server/shared/infrastructure/db/schema";
-import { and, eq, inArray, or } from "drizzle-orm";
+import { eq, inArray, or } from "drizzle-orm";
+import { BaseRepository } from "../../../games/infrastructure/repositories/base";
 import type {
+	BGM,
+	BackgroundImage,
+	CGImage,
 	Character,
+	CharacterImage,
 	GameResources,
-	MediaAsset,
+	SoundEffect,
 } from "../../domain/resoucres";
-import { BaseRepository } from "./base";
 
 export class ResourceRepository extends BaseRepository {
 	async getResource(userId: number): Promise<GameResources> {
@@ -31,7 +32,7 @@ export class ResourceRepository extends BaseRepository {
 				characterId: characterAsset.characterId,
 				assetId: characterAsset.assetId,
 				publicId: asset.publicId,
-				filename: asset.name,
+				name: asset.name,
 				url: asset.url,
 				metadata: asset.metadata,
 			})
@@ -53,13 +54,14 @@ export class ResourceRepository extends BaseRepository {
 				acc[cur.characterId][cur.assetId] = {
 					id: cur.assetId,
 					publicId: cur.publicId,
-					filename: cur.filename,
+					name: cur.name,
+					assetType: "characterImage",
 					url: cur.url,
 					metadata: cur.metadata as Record<string, unknown>,
 				};
 				return acc;
 			},
-			{} as Record<number, Record<string, MediaAsset>>,
+			{} as Record<number, Record<string, CharacterImage>>,
 		);
 
 		const charactersMap = characters
@@ -80,7 +82,7 @@ export class ResourceRepository extends BaseRepository {
 				id: asset.id,
 				publicId: asset.publicId,
 				type: asset.assetType,
-				filename: asset.name,
+				name: asset.name,
 				url: asset.url,
 				metadata: asset.metadata,
 			})
@@ -97,34 +99,34 @@ export class ResourceRepository extends BaseRepository {
 
 		const bgmsMap = bgms.reduce(
 			(acc, cur) => {
-				acc[cur.id] = cur as MediaAsset;
+				acc[cur.id] = { ...cur, assetType: "bgm" };
 				return acc;
 			},
-			{} as Record<string, MediaAsset>,
+			{} as Record<string, BGM>,
 		);
 
 		const soundEffectsMap = soundEffects.reduce(
 			(acc, cur) => {
-				acc[cur.id] = cur as MediaAsset;
+				acc[cur.id] = { ...cur, assetType: "soundEffect" };
 				return acc;
 			},
-			{} as Record<string, MediaAsset>,
+			{} as Record<string, SoundEffect>,
 		);
 
 		const backgroundImagesMap = backgroundImages.reduce(
 			(acc, cur) => {
-				acc[cur.id] = cur as MediaAsset;
+				acc[cur.id] = { ...cur, assetType: "backgroundImage" };
 				return acc;
 			},
-			{} as Record<string, MediaAsset>,
+			{} as Record<string, BackgroundImage>,
 		);
 
 		const cgImagesMap = cgImages.reduce(
 			(acc, cur) => {
-				acc[cur.id] = cur as MediaAsset;
+				acc[cur.id] = { ...cur, assetType: "cgImage" };
 				return acc;
 			},
-			{} as Record<string, MediaAsset>,
+			{} as Record<string, CGImage>,
 		);
 
 		return {

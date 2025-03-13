@@ -71,7 +71,6 @@ export const errorHandler: ErrorHandler = (err, c) => {
 		});
 	}
 
-	// デフォルトエラー
 	return errorResponse(c, 500, "internalServerError", "error", "game", {
 		err,
 	});

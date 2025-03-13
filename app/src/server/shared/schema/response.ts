@@ -158,7 +158,8 @@ export type SimplifiedErrorKey =
 	| "rateLimit"
 	| "tokenNotValid"
 	| "userNotFound"
-	| "payloadTooLarge";
+	| "payloadTooLarge"
+	| "fileUploadError";
 
 const getErrorMessage = (
 	type: SimplifiedErrorKey,
@@ -185,6 +186,8 @@ const getErrorMessage = (
 			return "指定されたユーザーが見つかりませんでした。";
 		case "payloadTooLarge":
 			return "リクエストのサイズが大きすぎます。";
+		case "fileUploadError":
+			return "ファイルのアップロード中にエラーが発生しました。";
 		default:
 			return "不明なエラーが発生しました。";
 	}
