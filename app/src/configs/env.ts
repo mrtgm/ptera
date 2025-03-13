@@ -17,10 +17,9 @@ export const ENV = createEnv({
 		DATABASE_USER: z.string(),
 		DATABASE_PASSWORD: z.string(),
 
-		OIDC_AUTH_SECRET: z.string(),
-		OIDC_ISSUER: z.string(),
-		OIDC_CLIENT_ID: z.string(),
-		OIDC_CLIENT_SECRET: z.string(),
+		GOOGLE_CLIENT_ID: z.string(),
+		GOOGLE_CLIENT_SECRET: z.string(),
+		JWT_SECRET: z.string(),
 	},
 	runtimeEnv: {
 		API_VERSION: process.env.API_VERSION,
@@ -34,10 +33,9 @@ export const ENV = createEnv({
 		DATABASE_USER: process.env.DATABASE_USER,
 		DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
 
-		OIDC_AUTH_SECRET: process.env.OIDC_AUTH_SECRET,
-		OIDC_ISSUER: process.env.OIDC_ISSUER,
-		OIDC_CLIENT_ID: process.env.OIDC_CLIENT_ID,
-		OIDC_CLIENT_SECRET: process.env.OIDC_CLIENT_SECRET,
+		GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+		GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+		JWT_SECRET: process.env.JWT_SECRET,
 	},
 	emptyStringAsUndefined: true,
 });

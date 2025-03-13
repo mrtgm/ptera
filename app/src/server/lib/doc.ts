@@ -1,4 +1,4 @@
-import { ENV } from "@/server/configs/env";
+import { ENV } from "@/configs/env";
 import { swaggerUI } from "@hono/swagger-ui";
 import type { OpenAPIHono } from "@hono/zod-openapi";
 import { createRoute } from "@hono/zod-openapi";
@@ -15,9 +15,10 @@ const commonModulesList = [
 export const docs = (app: OpenAPIHono<Env>) => {
 	const registry = app.openAPIRegistry;
 
-	registry.registerComponent("securitySchemes", "jwtAuth", {
-		type: "http",
-		scheme: "bearer",
+	registry.registerComponent("securitySchemes", "cookieAuth", {
+		type: "apiKey",
+		in: "cookie",
+		name: "auth-token",
 	});
 
 	// OpenAPI

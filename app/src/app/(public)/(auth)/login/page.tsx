@@ -138,18 +138,6 @@ export default function Login() {
 							</p>
 						</div>
 					</CardContent>
-					<CardFooter className="flex flex-col">
-						<Separator className="my-4" />
-						<div className="text-center text-sm">
-							アカウントをお持ちでないですか？{" "}
-							<Link
-								href="/register"
-								className="font-medium text-primary hover:underline"
-							>
-								新規登録
-							</Link>
-						</div>
-					</CardFooter>
 				</Card>
 
 				<div className="text-center mt-8 text-sm text-slate-500">

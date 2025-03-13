@@ -4,7 +4,6 @@ const offsetRefine = (value: string | undefined) => Number(value) >= 0;
 const limitRefine = (value: string | undefined) =>
 	Number(value) > 0 && Number(value) <= 1000;
 
-export const getRequestSchema = z.object({ publicId: z.string().uuid() });
 export const paginationRequestSchema = z.object({
 	q: z.string().optional(), // キーワード
 	sort: z.enum(["createdAt"]).default("createdAt").optional(), // ソート対象

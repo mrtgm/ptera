@@ -1,9 +1,9 @@
-import { z } from "zod";
 import { scene } from "@/server/shared/infrastructure/db/schema";
 import { randomIntId, randomUUID } from "@/server/shared/utils/id";
+import { z } from "zod";
 import { createEvent } from "./event";
 import type { GameResources } from "./resoucres";
-import { createScene, sceneSchema } from "./scene";
+import { sceneSchema } from "./scene";
 
 /* ------------------------------------------------------
     Game Entities
@@ -34,12 +34,6 @@ export const gameSchema = z.object({
 
 export type Game = z.infer<typeof gameSchema>;
 
-const hasInitialScene = (
-	game: Game,
-): game is Game & { initialSceneId: number } => {
-	return "initialSceneId" in game;
-};
-
 export const gameWithSceneSchema = z
 	.object({
 		scenes: z.array(sceneSchema),
@@ -49,24 +43,21 @@ export const gameWithSceneSchema = z
 
 export type GameWithScene = z.infer<typeof gameWithSceneSchema>;
 
-export const createGameWithScene = ({
+export const createGame = ({
 	userId,
 	name,
 	description,
-	resources,
 }: {
 	userId: number;
 	name: string;
-	description: string;
-	resources: GameResources;
-}): GameWithScene => {
-	const initial: GameWithScene = {
+	description: string | null | undefined;
+}): Game => {
+	const initial: Game = {
 		id: randomIntId(),
 		publicId: randomUUID(),
 		userId,
 		name,
-		description,
-		initialSceneId: randomIntId(),
+		description: description ?? null,
 		coverImageUrl: null,
 		releaseDate: null,
 		categoryIds: [],
@@ -76,16 +67,7 @@ export const createGameWithScene = ({
 		updatedAt: Date.now().toString(),
 		playCount: 0,
 		likeCount: 0,
-		scenes: [],
 	};
 
-	initial.scenes = [
-		createScene({
-			id: initial.initialSceneId,
-			name: "最初のシーン",
-		}),
-	];
-
-	initial.scenes[0].events = [createEvent("text", resources)];
 	return initial;
 };

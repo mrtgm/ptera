@@ -1,14 +1,18 @@
-import { z } from "zod";
 import { paginationRequestSchema } from "@/server/shared/schema/request";
+import { z } from "zod";
+import { gameEventSchema, gameEventTypeSchema } from "../domain/event";
 
-export const getGamesRequstSchema = paginationRequestSchema.merge(
-	z.object({
-		sort: z
-			.enum(["createdAt", "likeCount", "playCount"])
-			.default("createdAt")
-			.optional(),
-		categoryId: z.union([z.number(), z.string().transform(Number)]).optional(),
-	}),
-);
-
-export type GetGamesRequest = z.infer<typeof getGamesRequstSchema>;
+export const gameParamSchema = z.object({ gameId: z.string().uuid() });
+export const commentParamSchema = z.object({
+	gameId: z.string().uuid(),
+	commentId: z.string().uuid(),
+});
+export const sceneParamSchema = z.object({
+	gameId: z.string().uuid(),
+	sceneId: z.string().uuid(),
+});
+export const eventParamSchema = z.object({
+	gameId: z.string().uuid(),
+	sceneId: z.string().uuid(),
+	eventId: z.string().uuid(),
+});

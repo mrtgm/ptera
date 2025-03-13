@@ -1,17 +1,26 @@
-import { HTTPException } from "hono/http-exception";
 import type { UserRepository } from "@/server/modules/users/infrastructure/repository";
-import type { GetGamesRequest } from "../api/validator";
+import { HTTPException } from "hono/http-exception";
+import { UserNotFoundError } from "../../users/domain/error";
+import type { GetCommentsRequest, GetGamesRequest } from "../api/validator";
 import {
 	GameNotFoundError,
 	InitialSceneNotFoundError,
 	ScenesNotFoundError,
-	UserNotFoundError,
 } from "../domain/error";
 import type { GameWithScene } from "../domain/game";
-import type { GameRepository } from "../infrastructure/repository";
+import type { CommentRepository } from "../infrastructure/repositories/comment";
+import type {
+	EventRepository,
+	GameRepository,
+	ResourceRepository,
+	SceneRepository,
+	StatisticsRepository,
+} from "../infrastructure/repository";
 import {
+	type CommentResponseDto,
 	type GameDetailResponseDto,
 	type GameListResponseDto,
+	mapDomainToCommentResponseDto,
 	mapDomainToDetailResponseDto,
 	mapDomainToListResponseDto,
 	mapDomainToResourceResponseDto,
@@ -20,9 +29,19 @@ import {
 export const createQuery = ({
 	gameRepository,
 	userRepository,
+	eventRepository,
+	sceneRepository,
+	resourceRepository,
+	statisticsRepository,
+	commentRepository,
 }: {
 	gameRepository: GameRepository;
+	statisticsRepository: StatisticsRepository;
+	eventRepository: EventRepository;
+	sceneRepository: SceneRepository;
+	resourceRepository: ResourceRepository;
 	userRepository: UserRepository;
+	commentRepository: CommentRepository;
 }) => {
 	return {
 		executeSearch: async (
@@ -44,7 +63,7 @@ export const createQuery = ({
 				throw new GameNotFoundError(publicId);
 			}
 
-			const resources = await gameRepository.getResource(game.id);
+			const resources = await resourceRepository.getResource(publicId);
 			return mapDomainToResourceResponseDto(resources);
 		},
 
@@ -57,23 +76,24 @@ export const createQuery = ({
 				throw new GameNotFoundError(publicId);
 			}
 
-			const initialSceneIdMap = await gameRepository.getGameInitialScenes([
-				game.id,
-			]);
-			const scenes = await gameRepository.getScenes(game.id);
+			const initialSceneIdMap = await statisticsRepository.getGameInitialScenes(
+				[game.id],
+			);
+
+			const scenes = await sceneRepository.getScenes(publicId);
 			const user = await userRepository.getById(game.userId);
 
 			if (initialSceneIdMap === null) {
-				throw new InitialSceneNotFoundError(game.id);
+				throw new InitialSceneNotFoundError(publicId);
 			}
 			if (!scenes) {
-				throw new ScenesNotFoundError(game.id);
+				throw new ScenesNotFoundError(publicId);
 			}
 			if (!user) {
-				throw new UserNotFoundError(game.userId);
+				throw new UserNotFoundError("User not found");
 			}
 
-			const eventMap = await gameRepository.getEvents(scenes.map((v) => v.id));
+			const eventMap = await eventRepository.getEvents(scenes.map((v) => v.id));
 
 			for (const scene of scenes) {
 				scene.events = eventMap[scene.id] || [];
@@ -86,6 +106,29 @@ export const createQuery = ({
 			};
 
 			return mapDomainToDetailResponseDto(gameWithScene, user);
+		},
+
+		executeGetComments: async (
+			gamePublicId: string,
+			params: GetCommentsRequest,
+		): Promise<{ items: CommentResponseDto[]; total: number }> => {
+			const game = await gameRepository.getGameById(gamePublicId);
+			if (!game) {
+				throw new GameNotFoundError(gamePublicId);
+			}
+			const { items, total } = await commentRepository.getComments(
+				gamePublicId,
+				params,
+			);
+
+			const mappedItems = items.map((v) => {
+				return mapDomainToCommentResponseDto(v);
+			});
+
+			return {
+				items: mappedItems,
+				total,
+			};
 		},
 	};
 };

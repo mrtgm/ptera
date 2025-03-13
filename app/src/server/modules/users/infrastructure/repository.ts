@@ -1,6 +1,6 @@
-import { eq, inArray } from "drizzle-orm";
 import { db } from "@/server/shared/infrastructure/db";
 import { user, userProfile } from "@/server/shared/infrastructure/db/schema";
+import { eq, inArray } from "drizzle-orm";
 import type { User } from "../domain/entities";
 
 export interface UserRepository {
@@ -16,15 +16,36 @@ export interface UserRepository {
 		avatarUrl: string,
 	): Promise<void>;
 
-	// createUser(
-	// 	jwtSub: string,
-	// 	name: string,
-	// 	bio: string,
-	// 	avatarUrl: string,
-	// ): Promise<User>;
+	create(jwtSub: string, name: string): Promise<User>;
 }
 
 export const userRepository: UserRepository = {
+	create: async (jwtSub: string, name: string) => {
+		return await db.transaction(async (tx) => {
+			const newUser = await tx.insert(user).values({ jwtSub }).returning({
+				id: user.id,
+				publicId: user.publicId,
+				jwtSub: user.jwtSub,
+			});
+			if (!newUser[0]) {
+				throw new Error("Failed to create user");
+			}
+			await tx.insert(userProfile).values({
+				userId: newUser[0].id,
+				name,
+			});
+			return {
+				id: newUser[0].id,
+				publicId: newUser[0].publicId,
+				jwtSub: newUser[0].jwtSub,
+				name,
+				avatarUrl: "",
+				bio: "",
+				isDeleted: false,
+			};
+		});
+	},
+
 	getById: async (id: number) => {
 		return db
 			.select({
@@ -136,11 +157,23 @@ export const userRepository: UserRepository = {
 		bio: string,
 		avatarUrl: string,
 	) => {
-		return db
-			.update(userProfile)
-			.set({ name, bio, avatarUrl })
-			.where(eq(userProfile.userId, id))
-			.execute()
-			.then(() => {});
+		return db.transaction(async (tx) => {
+			const existingUser = await tx
+				.select({ id: user.id })
+				.from(user)
+				.where(eq(user.id, id))
+				.limit(1)
+				.execute();
+
+			if (existingUser.length === 0) {
+				throw new Error(`User with id ${id} not found`);
+			}
+
+			await tx
+				.update(userProfile)
+				.set({ name, bio, avatarUrl })
+				.where(eq(userProfile.userId, id))
+				.execute();
+		});
 	},
 };

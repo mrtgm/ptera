@@ -1,6 +1,6 @@
-import { z } from "zod";
 import { randomIntId, randomUUID } from "@/server/shared/utils/id";
-import { type TextRenderEvent, gameEventSchema } from "./event";
+import { z } from "zod";
+import { gameEventSchema } from "./event";
 
 /* ------------------------------------------------------
      Scenes Entities
@@ -61,22 +61,40 @@ export const createChoice = (nextSceneId: number, text: string): Choice => ({
 	nextSceneId,
 });
 
-export const createScene = ({
-	id,
-	name,
-}: { id?: number; name: string }): Scene => ({
-	id: id ?? randomIntId(),
+export const createEndScene = ({ name }: { name: string }): Scene => ({
+	id: randomIntId(),
 	publicId: randomUUID(),
 	name,
 	sceneType: "end",
-	events: [
-		{
-			id: randomIntId(),
-			publicId: randomUUID(),
-			type: "text",
-			text: "テキストを入力してください。",
-			category: "message",
-			orderIndex: "a0",
-		} as TextRenderEvent,
-	],
+	events: [],
+});
+
+export const createGotoScene = ({
+	name,
+	nextSceneId,
+}: {
+	name: string;
+	nextSceneId: number;
+}): Scene => ({
+	id: randomIntId(),
+	publicId: randomUUID(),
+	name,
+	sceneType: "goto",
+	events: [],
+	nextSceneId,
+});
+
+export const createChoiceScene = ({
+	name,
+	choices,
+}: {
+	name: string;
+	choices: Choice[];
+}): Scene => ({
+	id: randomIntId(),
+	publicId: randomUUID(),
+	name,
+	sceneType: "choice",
+	events: [],
+	choices,
 });

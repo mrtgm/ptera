@@ -33,7 +33,7 @@ CREATE TABLE "asset" (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_asset_owner FOREIGN KEY (owner_id) REFERENCES "user"(id) ON DELETE CASCADE,
-    CONSTRAINT asset_type_check CHECK ("asset_type" IN ('bgm', 'soundEffect', 'characterImage', 'backgroundImage', 'cg'))
+    CONSTRAINT asset_type_check CHECK ("asset_type" IN ('bgm', 'soundEffect', 'characterImage', 'backgroundImage', 'cgImage'))
 );
 CREATE INDEX idx_asset_owner_id ON "asset"(owner_id);
 
@@ -92,7 +92,8 @@ CREATE INDEX idx_game_user_id ON "game"(user_id);
 CREATE TABLE "game_play" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     game_id INT NOT NULL,
-    user_id INT NOT NULL,
+    user_id INT,
+    guest_id UUID UNIQUE,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_game_play_game FOREIGN KEY (game_id) REFERENCES "game"(id) ON DELETE CASCADE,
@@ -171,7 +172,8 @@ CREATE TABLE "asset_game" (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_asset_game_asset FOREIGN KEY (asset_id) REFERENCES "asset"(id) ON DELETE CASCADE,
-    CONSTRAINT fk_asset_game_game FOREIGN KEY (game_id) REFERENCES "game"(id) ON DELETE CASCADE
+    CONSTRAINT fk_asset_game_game FOREIGN KEY (game_id) REFERENCES "game"(id) ON DELETE CASCADE,
+    CONSTRAINT uq_asset_game UNIQUE (asset_id, game_id)
 );
 CREATE INDEX idx_asset_game_asset_id ON "asset_game"(asset_id);
 CREATE INDEX idx_asset_game_game_id ON "asset_game"(game_id);
@@ -184,6 +186,7 @@ CREATE TABLE "character_game" (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_character_game_character FOREIGN KEY (character_id) REFERENCES "character"(id) ON DELETE CASCADE,
     CONSTRAINT fk_character_game_game FOREIGN KEY (game_id) REFERENCES "game"(id) ON DELETE CASCADE
+    CONSTRAINT uq_character_game UNIQUE (character_id, game_id)
 );
 CREATE INDEX idx_character_game_character_id ON "character_game"(character_id);
 CREATE INDEX idx_character_game_game_id ON "character_game"(game_id);
@@ -244,7 +247,7 @@ CREATE TABLE "event" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     scene_id INT NOT NULL,
     public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
-    evnet_type VARCHAR(50) NOT NULL,
+    event_type VARCHAR(50) NOT NULL,
     category VARCHAR(50) NOT NULL,
     order_index VARCHAR(255) NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

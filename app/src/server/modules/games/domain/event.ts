@@ -1,6 +1,6 @@
+import { randomIntId, randomUUID } from "@/server/shared/utils/id";
 import { generateKeyBetween } from "fractional-indexing";
 import { z } from "zod";
-import { randomIntId, randomUUID } from "@/server/shared/utils/id";
 import type { GameResources } from "./resoucres";
 
 /* ------------------------------------------------------
@@ -10,11 +10,11 @@ import type { GameResources } from "./resoucres";
 export const textRenderEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("text"),
+	eventType: z.literal("textRender"),
 	category: z.literal("message"),
 	orderIndex: z.string(),
 	text: z.string().min(1, { message: "テキストは必須です" }),
-	characterName: z.string().optional(),
+	characterName: z.string().optional().nullable(),
 });
 
 export type TextRenderEvent = z.infer<typeof textRenderEventSchema>;
@@ -22,7 +22,7 @@ export type TextRenderEvent = z.infer<typeof textRenderEventSchema>;
 export const appearMessageWindowEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("appearMessageWindow"),
+	eventType: z.literal("appearMessageWindow"),
 	category: z.literal("message"),
 	orderIndex: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
@@ -35,7 +35,7 @@ export type AppearMessageWindowEvent = z.infer<
 export const hideMessageWindowEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("hideMessageWindow"),
+	eventType: z.literal("hideMessageWindow"),
 	category: z.literal("message"),
 	orderIndex: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
@@ -48,7 +48,7 @@ export type HideMessageWindowEvent = z.infer<
 export const appearCharacterEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("appearCharacter"),
+	eventType: z.literal("appearCharacter"),
 	category: z.literal("character"),
 	orderIndex: z.string(),
 	characterId: z.number(),
@@ -63,10 +63,10 @@ export type AppearCharacterEvent = z.infer<typeof appearCharacterEventSchema>;
 export const hideCharacterEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("hideCharacter"),
+	eventType: z.literal("hideCharacter"),
 	category: z.literal("character"),
 	orderIndex: z.string(),
-	characterId: z.string(),
+	characterId: z.number(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -75,7 +75,7 @@ export type HideCharacterEvent = z.infer<typeof hideCharacterEventSchema>;
 export const hideAllCharactersEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("hideAllCharacters"),
+	eventType: z.literal("hideAllCharacters"),
 	category: z.literal("character"),
 	orderIndex: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
@@ -88,7 +88,7 @@ export type HideAllCharactersEvent = z.infer<
 export const moveCharacterEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("moveCharacter"),
+	eventType: z.literal("moveCharacter"),
 	category: z.literal("character"),
 	orderIndex: z.string(),
 	characterId: z.number(),
@@ -101,7 +101,7 @@ export type MoveCharacterEvent = z.infer<typeof moveCharacterEventSchema>;
 export const bgmStartEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("bgmStart"),
+	eventType: z.literal("bgmStart"),
 	category: z.literal("media"),
 	orderIndex: z.string(),
 	bgmId: z.number(),
@@ -115,7 +115,7 @@ export type BGMStartEvent = z.infer<typeof bgmStartEventSchema>;
 export const bgmStopEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("bgmStop"),
+	eventType: z.literal("bgmStop"),
 	category: z.literal("media"),
 	orderIndex: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
@@ -126,7 +126,7 @@ export type BGMStopEvent = z.infer<typeof bgmStopEventSchema>;
 export const soundEffectEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("soundEffect"),
+	eventType: z.literal("soundEffect"),
 	category: z.literal("media"),
 	orderIndex: z.string(),
 	volume: z.union([z.number(), z.string().transform(Number)]),
@@ -140,7 +140,7 @@ export type SoundEffectEvent = z.infer<typeof soundEffectEventSchema>;
 export const changeBackgroundEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("changeBackground"),
+	eventType: z.literal("changeBackground"),
 	category: z.literal("background"),
 	orderIndex: z.string(),
 	backgroundId: z.number(),
@@ -153,7 +153,7 @@ export const effectType = ["fadeIn", "fadeOut", "shake"] as const;
 export const effectEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("effect"),
+	eventType: z.literal("effect"),
 	category: z.literal("effect"),
 	orderIndex: z.string(),
 	effectType: z.enum(effectType),
@@ -175,7 +175,7 @@ export const characterEffectType = [
 export const characterEffectEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("characterEffect"),
+	eventType: z.literal("characterEffect"),
 	category: z.literal("character"),
 	orderIndex: z.string(),
 	characterId: z.number(),
@@ -188,7 +188,7 @@ export type CharacterEffectEvent = z.infer<typeof characterEffectEventSchema>;
 export const appearCGEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("appearCG"),
+	eventType: z.literal("appearCG"),
 	category: z.literal("cg"),
 	orderIndex: z.string(),
 	cgImageId: z.number(),
@@ -202,7 +202,7 @@ export type AppearCGEvent = z.infer<typeof appearCGEventSchema>;
 export const hideCGEventSchema = z.object({
 	id: z.number(),
 	publicId: z.string(),
-	type: z.literal("hideCG"),
+	eventType: z.literal("hideCG"),
 	category: z.literal("cg"),
 	orderIndex: z.string(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
@@ -210,7 +210,7 @@ export const hideCGEventSchema = z.object({
 
 export type HideCGEvent = z.infer<typeof hideCGEventSchema>;
 
-export const gameEventSchema = z.discriminatedUnion("type", [
+export const gameEventSchema = z.discriminatedUnion("eventType", [
 	textRenderEventSchema,
 	appearMessageWindowEventSchema,
 	hideMessageWindowEventSchema,
@@ -228,18 +228,30 @@ export const gameEventSchema = z.discriminatedUnion("type", [
 	hideCGEventSchema,
 ]);
 
+const eventTypes = gameEventSchema._def.options.map(
+	(v) => v.shape.eventType._def.value,
+);
+export const gameEventTypeSchema = z.enum(
+	eventTypes as [GameEvent["eventType"], ...GameEvent["eventType"][]],
+);
+
+export type GameEventType = z.infer<typeof gameEventTypeSchema>;
+
 export type GameEvent = z.infer<typeof gameEventSchema>;
 
-type ExcludeCommonKeys<T> = Omit<T, "type" | "id" | "category" | "orderIndex">;
+type ExcludeCommonKeys<T> = Omit<
+	T,
+	"eventType" | "id" | "category" | "orderIndex"
+>;
 export type EventProperties = {
-	[K in GameEvent as K["type"]]: ExcludeCommonKeys<K>;
+	[K in GameEvent as K["eventType"]]: ExcludeCommonKeys<K>;
 };
 
 export type AllPropertyTypes = {
-	[K in GameEvent as K["type"]]: {
+	[K in GameEvent as K["eventType"]]: {
 		[P in keyof ExcludeCommonKeys<K>]: ExcludeCommonKeys<K>[P];
 	};
-}[GameEvent["type"]];
+}[GameEvent["eventType"]];
 
 export type UniquePropertyUnion = {
 	[K in keyof AllPropertyTypes]: AllPropertyTypes[K];
@@ -250,24 +262,25 @@ export type UniquePropertyUnion = {
 ------------------------------------------------------ */
 
 export const createEvent = (
-	type: GameEvent["type"],
+	eventType: GameEventType,
+	orderIndex: string | null | undefined,
 	resources: GameResources,
 ) => {
 	const event = {
 		id: randomIntId(),
-		type,
-		category: getEventCategory(type),
-		orderIndex: generateKeyBetween(null, null),
-		...getDefaultValueForType(type, resources),
+		eventType,
+		category: getEventCategory(eventType),
+		orderIndex: generateKeyBetween(orderIndex, null),
+		...getDefaultValueForType(eventType, resources),
 	} as GameEvent;
 	return event;
 };
 
 export const getEventCategory = (
-	type: GameEvent["type"],
+	type: GameEventType,
 ): GameEvent["category"] => {
 	switch (type) {
-		case "text":
+		case "textRender":
 		case "appearMessageWindow":
 		case "hideMessageWindow":
 			return "message";
@@ -294,13 +307,13 @@ export const getEventCategory = (
 };
 
 export const getDefaultValueForType = (
-	type: GameEvent["type"],
+	type: GameEventType,
 	resources: GameResources,
-): EventProperties[GameEvent["type"]] => {
-	const defaults = {} as EventProperties[GameEvent["type"]];
+): EventProperties[GameEventType] => {
+	const defaults = {} as EventProperties[GameEventType];
 
 	switch (type) {
-		case "text":
+		case "textRender":
 			return {
 				publicId: randomUUID(),
 				text: "テキストを入力してください",
@@ -309,18 +322,16 @@ export const getDefaultValueForType = (
 		case "appearMessageWindow":
 			return {
 				publicId: randomUUID(),
-
 				transitionDuration: 1000,
 			};
 		case "hideMessageWindow":
 			return {
 				publicId: randomUUID(),
-
 				transitionDuration: 1000,
 			};
 		case "appearCharacter": {
 			//TODO: 使用履歴を見て最後に選択したキャラクターを選択する
-			const characterId = Object.keys(resources.characters)[0];
+			const characterId = Number(Object.keys(resources.characters)[0]);
 			const characterImageId = Object.values(
 				resources.characters[characterId].images,
 			)[0].id;
@@ -336,7 +347,7 @@ export const getDefaultValueForType = (
 		case "hideCharacter":
 			return {
 				publicId: randomUUID(),
-				characterId: Object.keys(resources.characters)[0],
+				characterId: Number(Object.keys(resources.characters)[0]),
 				transitionDuration: 1000,
 			};
 		case "hideAllCharacters":
@@ -347,14 +358,14 @@ export const getDefaultValueForType = (
 		case "moveCharacter":
 			return {
 				publicId: randomUUID(),
-				characterId: Object.keys(resources.characters)[0],
+				characterId: Number(Object.keys(resources.characters)[0]),
 				position: [0, 0],
 				transitionDuration: 1000,
 			};
 		case "characterEffect":
 			return {
 				publicId: randomUUID(),
-				characterId: Object.values(resources.characters)[0].id,
+				characterId: Number(Object.values(resources.characters)[0].id),
 				effectType: "shake",
 				transitionDuration: 1000,
 			};

@@ -1,46 +1,72 @@
-import { ENV } from "@/server/configs/env";
+import { ENV } from "@/configs/env";
+import type { Env } from "@/server/lib/context";
 import { userRepository } from "@/server/modules/users/infrastructure/repository";
 import { errorResponse } from "@/server/shared/schema/response";
 import type { Context, Next } from "hono";
+import { getCookie, setCookie } from "hono/cookie";
+import { createMiddleware } from "hono/factory";
+import { verify } from "hono/jwt";
+import { log } from "./logger";
 
-export const isAuthenticated = async (c: Context, next: Next) => {
+export const AUTH_TOKEN_COOKIE_NAME = "auth-token";
+export const AUTH_TOKEN_LIFETIME = 60 * 60 * 24 * 7; // 1週間
+
+const getRedirectUrl = (url: string | null): string => {
+	if (!url) return "";
 	try {
-		const token = c.req.header("authorization");
-
-		// const verifier = CognitoJwtVerifier.create({
-		// 	userPoolId: ENV.,
-		// 	clientId: ENV.AWS_COGNITO_CLIENT_ID,
-		// 	tokenUse: "access",
-		// });
-
-		if (!token) {
-			return c.json(
-				{
-					message: "Authorization header missing",
-				},
-				401,
-			);
-		}
-
-		// const payload = await verifier.verify(token);
-
-		// const user = await userRepository.getByJwtSub(payload.sub);
-
-		// if (!user) {
-		// 	return errorResponse(c, 401, "userNotFound", "warn");
-		// }
-
-		// c.set("user", user);
-
-		await next();
+		return new URL(url).pathname;
 	} catch (error) {
-		const errorMessage =
-			error instanceof Error ? error.message : "Unknown error";
-		return errorResponse(c, 401, "tokenNotValid", "warn", undefined, {
-			error: errorMessage,
+		log.error({
+			prefix: "url",
+			message: "無効な URL",
+			error: error,
 		});
+		return "";
 	}
 };
+
+export const isAuthenticated = createMiddleware<Env>(async (c, next) => {
+	const signedCookie = await getCookie(c, AUTH_TOKEN_COOKIE_NAME);
+
+	const redirectUrl = getRedirectUrl(c.req.raw.headers.get("referer"));
+
+	if (!signedCookie) {
+		if (redirectUrl)
+			setCookie(c, "redirectUrl", redirectUrl, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+				sameSite: "strict",
+			});
+		return errorResponse(c, 401, "unauthorized", "error");
+	}
+
+	const parsedToken = await verify(signedCookie, ENV.JWT_SECRET);
+	const userId = parsedToken.userId as number | undefined;
+
+	if (!userId) {
+		if (redirectUrl)
+			setCookie(c, "redirectUrl", redirectUrl, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+				sameSite: "strict",
+			});
+		return errorResponse(c, 401, "unauthorized", "error");
+	}
+
+	const user = await userRepository.getById(userId);
+
+	if (!user) {
+		setCookie(c, "redirectUrl", redirectUrl, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "strict",
+		});
+		return errorResponse(c, 401, "unauthorized", "error");
+	}
+
+	c.set("user", user);
+	await next();
+});
 
 export async function isPublicAccess(_: Context, next: Next): Promise<void> {
 	await next();

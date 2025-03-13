@@ -1,4 +1,4 @@
-import { ENV } from "@/server/configs/env";
+import { ENV } from "@/configs/env";
 import { docs } from "@/server/lib/doc";
 import { honoWithHook } from "@/server/lib/hono";
 import { gameRoutes } from "@/server/modules/games/api/controller";
@@ -10,6 +10,7 @@ import { cors } from "hono/cors";
 import { csrf } from "hono/csrf";
 import { secureHeaders } from "hono/secure-headers";
 import { env } from "std-env";
+import { authRoutes } from "../modules/auth/api/controller";
 import { logger } from "./middleware/logger";
 
 const isDevelopment = !env.isCI;
@@ -24,7 +25,7 @@ app.use("*", secureHeaders());
 
 // CORS
 const corsOptions: Parameters<typeof cors>[0] = {
-	origin: `https://${ENV.DOMAIN_NAME}`,
+	origin: isDevelopment ? "*" : `https://${ENV.DOMAIN_NAME}`,
 	credentials: true,
 	allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE"],
 	allowHeaders: [],
@@ -60,10 +61,16 @@ app.use(
 app.use("*", logger());
 
 app.get("/api", (c) => c.text("Hello Hono!おめでとうございます！"));
-app.get("/api/health", (c) => c.json({ status: "ok" }));
+app.get("/api/health", (c) => {
+	console.log(c.get("token"));
+
+	return c.json({ status: "ok" });
+});
 
 const nestedRoutes = honoWithHook();
 nestedRoutes.route("/games", gameRoutes);
+nestedRoutes.route("/auth", authRoutes);
+
 app.route(`/api/${ENV.API_VERSION}`, nestedRoutes);
 
 app.notFound((c) =>
