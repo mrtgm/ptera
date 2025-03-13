@@ -67,13 +67,13 @@ app.get("/api/health", (c) => {
 	return c.json({ status: "ok" });
 });
 
-const nestedRoutes = honoWithHook();
-nestedRoutes.route("/games", gameRoutes);
-nestedRoutes.route("/auth", authRoutes);
-nestedRoutes.route("/users", userRoutes);
-nestedRoutes.route("/characters", characterRoutes);
-nestedRoutes.route("/me", dashboardRoutes);
-nestedRoutes.route("/assets", assetRoutes);
+const nestedRoutes = honoWithHook()
+	.route("/games", gameRoutes)
+	.route("/auth", authRoutes)
+	.route("/users", userRoutes)
+	.route("/characters", characterRoutes)
+	.route("/me", dashboardRoutes)
+	.route("/assets", assetRoutes);
 
 app.route(`/api/${ENV.API_VERSION}`, nestedRoutes);
 
@@ -84,5 +84,8 @@ app.notFound((c) =>
 app.onError((err, ctx) =>
 	errorResponse(ctx, 500, "internalServerError", "error", undefined, {}, err),
 );
+
+export { nestedRoutes };
+export type AppType = typeof nestedRoutes;
 
 export default app;

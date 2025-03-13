@@ -106,6 +106,7 @@ export const assetRouteConfigs = {
 	}),
 };
 
+// キャラクター関連のルート設定
 export const characterRouteConfigs = {
 	// キャラクター作成
 	createCharacter: createRouteConfig({

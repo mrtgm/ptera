@@ -62,7 +62,6 @@ export class AssetRepository extends BaseRepository {
 				throw new AssetNotFoundError(params.assetId);
 			}
 
-			// 更新するフィールドを準備
 			const updateFields: Record<string, unknown> = {};
 			if (params.name) {
 				updateFields.name = params.name;
