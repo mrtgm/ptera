@@ -12,11 +12,11 @@ import { Howl, type HowlOptions } from "howler";
 export class ResourceManager {
 	private static instance: ResourceManager;
 	cache: ResourceCache = {
-		characters: {},
-		backgroundImages: {},
-		cgImages: {},
-		soundEffects: {},
-		bgms: {},
+		character: {},
+		backgroundImage: {},
+		cgImage: {},
+		soundEffect: {},
+		bgm: {},
 	};
 
 	private constructor() {}
@@ -30,11 +30,11 @@ export class ResourceManager {
 
 	clearCache() {
 		this.cache = {
-			characters: {},
-			backgroundImages: {},
-			cgImages: {},
-			soundEffects: {},
-			bgms: {},
+			character: {},
+			backgroundImage: {},
+			cgImage: {},
+			soundEffect: {},
+			bgm: {},
 		};
 	}
 
@@ -68,11 +68,11 @@ export class ResourceManager {
 
 		for (const [id, image] of Object.entries(characterImages)) {
 			const loadPromise = this.loadImage(image.url).then((img) => {
-				this.cache.characters[character.id] = {
+				this.cache.character[character.id] = {
 					...character,
 					images: {
-						...this.cache.characters[character.id]?.images,
-						[id]: {
+						...this.cache.character[character.id]?.images,
+						[Number(id)]: {
 							...image,
 							cache: img,
 						},
@@ -87,7 +87,7 @@ export class ResourceManager {
 
 	async loadBackgroundImage(image: BackgroundImage): Promise<void> {
 		const img = await this.loadImage(image.url);
-		this.cache.backgroundImages[image.id] = {
+		this.cache.backgroundImage[image.id] = {
 			...image,
 			cache: img,
 		};
@@ -95,7 +95,7 @@ export class ResourceManager {
 
 	async loadCGImage(image: CGImage): Promise<void> {
 		const img = await this.loadImage(image.url);
-		this.cache.cgImages[image.id] = {
+		this.cache.cgImage[image.id] = {
 			...image,
 			cache: img,
 		};
@@ -103,7 +103,7 @@ export class ResourceManager {
 
 	async loadSoundEffect(soundEffect: SoundEffect): Promise<void> {
 		const sound = await this.loadSound(soundEffect.url, { loop: false });
-		this.cache.soundEffects[soundEffect.id] = {
+		this.cache.soundEffect[soundEffect.id] = {
 			...soundEffect,
 			cache: sound,
 		};
@@ -111,7 +111,7 @@ export class ResourceManager {
 
 	async loadBGM(bgm: BGM): Promise<void> {
 		const sound = await this.loadSound(bgm.url, { loop: true });
-		this.cache.bgms[bgm.id] = {
+		this.cache.bgm[bgm.id] = {
 			...bgm,
 			cache: sound,
 		};
@@ -119,17 +119,17 @@ export class ResourceManager {
 
 	async loadResources(resources: GameResources): Promise<void> {
 		const loadPromises: Promise<void>[] = [
-			...Object.values(resources.characters).map((character) =>
+			...Object.values(resources.character).map((character) =>
 				this.loadCharacter(character),
 			),
-			...Object.values(resources.backgroundImages).map((image) =>
+			...Object.values(resources.backgroundImage).map((image) =>
 				this.loadBackgroundImage(image),
 			),
-			...Object.values(resources.soundEffects).map((soundEffect) =>
+			...Object.values(resources.soundEffect).map((soundEffect) =>
 				this.loadSoundEffect(soundEffect),
 			),
-			...Object.values(resources.bgms).map((bgm) => this.loadBGM(bgm)),
-			...Object.values(resources.cgImages).map((cgImage) =>
+			...Object.values(resources.bgm).map((bgm) => this.loadBGM(bgm)),
+			...Object.values(resources.cgImage).map((cgImage) =>
 				this.loadCGImage(cgImage),
 			),
 		];
@@ -139,10 +139,10 @@ export class ResourceManager {
 
 	getCacheState() {
 		return {
-			characters: Object.keys(this.cache.characters).length,
-			backgroundImages: Object.keys(this.cache.backgroundImages).length,
-			soundEffects: Object.keys(this.cache.soundEffects).length,
-			bgms: Object.keys(this.cache.bgms).length,
+			characters: Object.keys(this.cache.character).length,
+			backgroundImages: Object.keys(this.cache.backgroundImage).length,
+			soundEffects: Object.keys(this.cache.soundEffect).length,
+			bgms: Object.keys(this.cache.bgm).length,
 		};
 	}
 }

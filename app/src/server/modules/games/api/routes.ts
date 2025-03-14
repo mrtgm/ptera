@@ -7,6 +7,7 @@ import {
 	successWithoutDataSchema,
 } from "@/server/shared/schema/response";
 import {
+	categoryResponseSchema,
 	commentResponseSchema,
 	countResponseSchema,
 	createCommentRequestSchema,
@@ -35,6 +36,26 @@ import {
 } from "./validator";
 
 export const gameRouteCongfigs = {
+	getCategories: createRouteConfig({
+		method: "get",
+		path: "/categories",
+		guard: [isPublicAccess],
+		tags: ["games"],
+		summary: "ゲームカテゴリ一覧を取得します。",
+		request: {},
+		responses: {
+			200: {
+				description: "Categories",
+				content: {
+					"application/json": {
+						schema: successWithDataSchema(categoryResponseSchema),
+					},
+				},
+			},
+			...errorResponses,
+		},
+	}),
+
 	getGame: createRouteConfig({
 		method: "get",
 		path: "/{gameId}",

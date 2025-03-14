@@ -31,16 +31,16 @@ export const BackgroundSelect = ({
 					<FormItem>
 						<FormLabel>{label}</FormLabel>
 
-						{field.value && resources.backgroundImages[field.value] ? (
+						{field.value && resources.backgroundImage[field.value] ? (
 							<div>
 								<div className="w-full max-w-[200px] h-auto bg-cover bg-center bg-no-repeat rounded-md mb-2">
 									<img
-										src={resources.backgroundImages[field.value].url}
+										src={resources.backgroundImage[field.value].url}
 										alt="background"
 									/>
 								</div>
 								<p className="text-sm text-gray-500 mb-2">
-									{resources.backgroundImages[field.value].filename}
+									{resources.backgroundImage[field.value].name}
 								</p>
 							</div>
 						) : (
@@ -52,8 +52,8 @@ export const BackgroundSelect = ({
 								size="sm"
 								onClick={() => {
 									modalSlice.openModal("asset.select", {
-										target: "backgroundImages",
-										callback: (backgroundId: string) => {
+										target: "backgroundImage",
+										callback: (backgroundId: number) => {
 											form.setValue(FORM_NAME, backgroundId, {
 												shouldDirty: true,
 											});

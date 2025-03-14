@@ -7,9 +7,9 @@ import { Button } from "@/client/components/shadcn/button";
 import { AlertTriangle } from "lucide-react";
 
 interface Usage {
-	sceneId: string;
+	sceneId: number;
 	sceneName: string;
-	eventId: string;
+	eventId: number;
 	eventType: string;
 }
 
@@ -17,7 +17,7 @@ interface ValidationErrorAlertProps {
 	message: string;
 	usages: Usage[];
 	onClose: () => void;
-	onNavigate?: (sceneId: string, eventId: string) => void;
+	onNavigate?: (sceneId: number, eventId: number) => void;
 }
 
 export const ValidationErrorAlert = ({

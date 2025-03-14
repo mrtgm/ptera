@@ -26,8 +26,8 @@ export const InitialScreen = ({
 			onKeyDown={() => {}}
 		>
 			<div className="absolute bottom-16 right-16 p-4 bg-black/70 rounded-sm space-y-2">
-				<div className="text-white text-4xl">{game?.title}</div>
-				<div className="text-white text-2xl">by {game?.authorName}</div>
+				<div className="text-white text-4xl">{game?.name}</div>
+				<div className="text-white text-2xl">by {game?.username}</div>
 				<div className="text-white text-lg">タップしてスタート</div>
 			</div>
 		</div>

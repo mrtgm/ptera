@@ -32,13 +32,13 @@ export const CharacterSelect = ({
 						<FormLabel>{label}</FormLabel>
 
 						{field.value &&
-						resources.characters[form.getValues().characterId] ? (
+						resources.character[form.getValues().characterId] ? (
 							<>
 								<div className="w-full max-w-[200px] h-auto bg-cover bg-center bg-no-repeat rounded-md mb-4">
 									<img
 										src={
 											findFirstObjectValue(
-												resources.characters[form.getValues().characterId]
+												resources.character[form.getValues().characterId]
 													.images,
 											)?.url
 										}
@@ -46,7 +46,7 @@ export const CharacterSelect = ({
 									/>
 								</div>
 								<p className="text-sm text-gray-500 mb-2">
-									{resources.characters[form.getValues().characterId].name}
+									{resources.character[form.getValues().characterId].name}
 								</p>
 							</>
 						) : (
@@ -58,7 +58,7 @@ export const CharacterSelect = ({
 								size="sm"
 								onClick={() => {
 									modalSlice.openModal("character.select", {
-										callback: (characterId: string) => {
+										callback: (characterId: number) => {
 											form.setValue("characterId", characterId, {
 												shouldDirty: true,
 											});

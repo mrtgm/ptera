@@ -2,10 +2,10 @@ import { cn } from "@/client/utils/cn";
 import { X } from "lucide-react";
 
 interface AssetCardProps {
-	id: string;
+	id: number;
 	selected?: boolean;
-	onSelect?: (id: string) => void;
-	onDelete?: (e: React.MouseEvent, id: string) => void;
+	onSelect?: (id: number) => void;
+	onDelete?: (e: React.MouseEvent, id: number) => void;
 	className?: string;
 	showDeleteButton?: boolean;
 	previewType?: "image" | "audio" | "video" | "placeholder";

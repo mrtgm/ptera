@@ -1,394 +1,113 @@
 import type { Howl } from "howler";
-import { z } from "zod";
 
-export const mediaAssetSchema = z.object({
-	id: z.number(),
-	filename: z.string(),
-	url: z.string(),
-	metadata: z
-		.object({
-			mimeType: z.string().optional(),
-			size: z.number().optional(),
-		})
-		.optional(),
-});
-export type MediaAsset = z.infer<typeof mediaAssetSchema>;
+import type { AssetResponse, CharacterResponse } from "@/schemas/assets/dto";
 
-export const characterImageSchema = mediaAssetSchema.extend({});
-export type CharacterImage = z.infer<typeof characterImageSchema>;
+import type {
+	GameDetailResponse,
+	GameListResponse,
+	ResourceResponse,
+	SceneResponse,
+} from "@/schemas/games/dto";
 
-export const backgroundImageSchema = mediaAssetSchema.extend({});
-export type BackgroundImage = z.infer<typeof backgroundImageSchema>;
+import type { UserResponse } from "@/schemas/users/dto";
 
-export const cgImageSchema = mediaAssetSchema.extend({});
-export type CGImage = z.infer<typeof cgImageSchema>;
+import type {
+	ChoiceScene,
+	EndScene,
+	GotoScene,
+} from "@/schemas/games/domain/scene";
 
-export const soundEffectSchema = mediaAssetSchema.extend({});
-export type SoundEffect = z.infer<typeof soundEffectSchema>;
-
-export const bgmSchema = mediaAssetSchema.extend({});
-export type BGM = z.infer<typeof bgmSchema>;
-
-/* ------------------------------------------------------
-    Character
------------------------------------------------------- */
-export const characterSchema = z.object({
-	id: z.string(),
-	name: z.string(),
-	images: z.record(z.string(), characterImageSchema),
-});
-export type Character = z.infer<typeof characterSchema>;
-
-/* ------------------------------------------------------
-    GameResources
------------------------------------------------------- */
-export const gameResourcesSchema = z.object({
-	characters: z.record(z.string(), characterSchema),
-	backgroundImages: z.record(z.string(), backgroundImageSchema),
-	soundEffects: z.record(z.string(), soundEffectSchema),
-	bgms: z.record(z.string(), bgmSchema),
-	cgImages: z.record(z.string(), cgImageSchema),
-});
-export type GameResources = z.infer<typeof gameResourcesSchema>;
-
-/* ------------------------------------------------------
-    GameEvent (Discriminated Union)
------------------------------------------------------- */
-
-export const textRenderEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("text"),
-	category: z.literal("message"),
-	order: z.string(),
-	text: z.string().min(1, { message: "テキストを入力してください" }),
-	characterName: z.string().optional(),
-});
-
-export type TextRenderEvent = z.infer<typeof textRenderEventSchema>;
-
-export const appearMessageWindowEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("appearMessageWindow"),
-	category: z.literal("message"),
-	order: z.string(),
-	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
-});
-
-export type AppearMessageWindowEvent = z.infer<
-	typeof appearMessageWindowEventSchema
->;
-
-export const hideMessageWindowEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("hideMessageWindow"),
-	category: z.literal("message"),
-	order: z.string(),
-	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
-});
-
-export type HideMessageWindowEvent = z.infer<
-	typeof hideMessageWindowEventSchema
->;
-
-export const appearCharacterEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("appearCharacter"),
-	category: z.literal("character"),
-	order: z.string(),
-	characterId: z.string(),
-	characterImageId: z.string(),
-	position: z.tuple([z.number(), z.number()]),
-	scale: z.number(),
-	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
-});
-
-export type AppearCharacterEvent = z.infer<typeof appearCharacterEventSchema>;
-
-export const hideCharacterEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("hideCharacter"),
-	category: z.literal("character"),
-	order: z.string(),
-	characterId: z.string(),
-	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
-});
-
-export type HideCharacterEvent = z.infer<typeof hideCharacterEventSchema>;
-
-export const hideAllCharactersEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("hideAllCharacters"),
-	category: z.literal("character"),
-	order: z.string(),
-	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
-});
-
-export type HideAllCharactersEvent = z.infer<
-	typeof hideAllCharactersEventSchema
->;
-
-export const moveCharacterEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("moveCharacter"),
-	category: z.literal("character"),
-	order: z.string(),
-	characterId: z.string(),
-	position: z.tuple([z.number(), z.number()]),
-	scale: z.number(),
-});
-
-export type MoveCharacterEvent = z.infer<typeof moveCharacterEventSchema>;
-
-export const bgmStartEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("bgmStart"),
-	category: z.literal("media"),
-	order: z.string(),
-	bgmId: z.string(),
-	loop: z.boolean(),
-	volume: z.union([z.number(), z.string().transform(Number)]),
-	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
-});
-
-export type BGMStartEvent = z.infer<typeof bgmStartEventSchema>;
-
-export const bgmStopEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("bgmStop"),
-	category: z.literal("media"),
-	order: z.string(),
-	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
-});
-
-export type BGMStopEvent = z.infer<typeof bgmStopEventSchema>;
-
-export const soundEffectEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("soundEffect"),
-	category: z.literal("media"),
-	order: z.string(),
-	volume: z.union([z.number(), z.string().transform(Number)]),
-	loop: z.boolean(),
-	soundEffectId: z.string(),
-	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
-});
-
-export type SoundEffectEvent = z.infer<typeof soundEffectEventSchema>;
-
-export const changeBackgroundEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("changeBackground"),
-	category: z.literal("background"),
-	order: z.string(),
-	backgroundId: z.string(),
-	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
-});
-
-export type ChangeBackgroundEvent = z.infer<typeof changeBackgroundEventSchema>;
-
-export const effectType = ["fadeIn", "fadeOut", "shake"] as const;
-export const effectEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("effect"),
-	category: z.literal("effect"),
-	order: z.string(),
-	effectType: z.enum(effectType),
-	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
-});
-
-export type EffectEvent = z.infer<typeof effectEventSchema>;
-
-export const characterEffectType = [
-	"shake",
-	"flash",
-	"bounce",
-	"sway",
-	"wobble",
-	"blackOn",
-	"blackOff",
-] as const;
-export const characterEffectEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("characterEffect"),
-	category: z.literal("character"),
-	order: z.string(),
-	characterId: z.string(),
-	effectType: z.enum(characterEffectType),
-	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
-});
-
-export type CharacterEffectEvent = z.infer<typeof characterEffectEventSchema>;
-
-export const appearCGEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("appearCG"),
-	category: z.literal("cg"),
-	order: z.string(),
-	cgImageId: z.string(),
-	position: z.tuple([z.number(), z.number()]),
-	scale: z.number(),
-	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
-});
-
-export type AppearCGEvent = z.infer<typeof appearCGEventSchema>;
-
-export const hideCGEventSchema = z.object({
-	id: z.string(),
-	type: z.literal("hideCG"),
-	category: z.literal("cg"),
-	order: z.string(),
-	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
-});
-
-export type HideCGEvent = z.infer<typeof hideCGEventSchema>;
-
-export const gameEventSchema = z.discriminatedUnion("type", [
-	textRenderEventSchema,
-	appearMessageWindowEventSchema,
-	hideMessageWindowEventSchema,
+export {
+	type GameEvent,
+	type GameEventType,
+	type AppearCGEvent,
+	type AppearCharacterEvent,
+	type CharacterEffectEvent,
+	type HideCharacterEvent,
+	type MoveCharacterEvent,
+	type TextRenderEvent,
+	effectType,
+	characterEffectType,
+	appearCGEventSchema,
 	appearCharacterEventSchema,
-	hideCharacterEventSchema,
-	hideAllCharactersEventSchema,
-	moveCharacterEventSchema,
+	appearMessageWindowEventSchema,
 	bgmStartEventSchema,
 	bgmStopEventSchema,
-	soundEffectEventSchema,
 	changeBackgroundEventSchema,
-	effectEventSchema,
 	characterEffectEventSchema,
-	appearCGEventSchema,
-	hideCGEventSchema,
-]);
+	effectEventSchema,
+	hideAllCharactersEventSchema,
+	hideCharacterEventSchema,
+	hideMessageWindowEventSchema,
+	moveCharacterEventSchema,
+	soundEffectEventSchema,
+	textRenderEventSchema,
+} from "@/schemas/games/domain/event";
 
-export type GameEvent = z.infer<typeof gameEventSchema>;
+export type MediaAsset = AssetResponse;
+export type Character = CharacterResponse;
 
-type ExcludeCommonKeys<T> = Omit<T, "type" | "id" | "category" | "order">;
-export type EventProperties = {
-	[K in GameEvent as K["type"]]: ExcludeCommonKeys<K>;
+export type CharacterImage = MediaAsset;
+export type BackgroundImage = MediaAsset;
+export type CGImage = MediaAsset;
+export type SoundEffect = MediaAsset;
+export type BGM = MediaAsset;
+
+export type Game = GameDetailResponse;
+export type GameMetaData = GameListResponse;
+export type Scene = SceneResponse;
+export type GameResources = ResourceResponse;
+
+export type UserProfile = UserResponse;
+
+export type { GotoScene, ChoiceScene, EndScene };
+
+export const isGotoScene = (
+	scene: Scene,
+): scene is GotoScene & { sceneType: "goto" } => {
+	return scene.sceneType === "goto";
 };
 
-export type AllPropertyTypes = {
-	[K in GameEvent as K["type"]]: {
-		[P in keyof ExcludeCommonKeys<K>]: ExcludeCommonKeys<K>[P];
-	};
-}[GameEvent["type"]];
-
-export type UniquePropertyUnion = {
-	[K in keyof AllPropertyTypes]: AllPropertyTypes[K];
+export const isChoiceScene = (
+	scene: Scene,
+): scene is ChoiceScene & { sceneType: "choice" } => {
+	return scene.sceneType === "choice";
 };
 
-/* ------------------------------------------------------
-     Choice
------------------------------------------------------- */
-export const choiceSchema = z.object({
-	id: z.string(),
-	text: z.string(),
-	nextSceneId: z.string(),
-});
-export type Choice = z.infer<typeof choiceSchema>;
+export const isEndScene = (
+	scene: EndScene,
+): scene is Scene & { sceneType: "end" } => {
+	return scene.sceneType === "end";
+};
 
-/* ------------------------------------------------------
-     Scenes
------------------------------------------------------- */
-const gotoSceneSchema = z.object({
-	id: z.string(),
-	title: z.string(),
-	sceneType: z.literal("goto"),
-	events: z.array(gameEventSchema),
-	nextSceneId: z.string(),
-});
-
-export type GotoScene = z.infer<typeof gotoSceneSchema>;
-
-const choiceSceneSchema = z.object({
-	id: z.string(),
-	title: z.string(),
-	sceneType: z.literal("choice"),
-	events: z.array(gameEventSchema),
-	choices: z.array(choiceSchema),
-});
-
-export type ChoiceScene = z.infer<typeof choiceSceneSchema>;
-
-const endSceneSchema = z.object({
-	id: z.string(),
-	title: z.string(),
-	sceneType: z.literal("end"),
-	events: z.array(gameEventSchema),
-});
-
-export type EndScene = z.infer<typeof endSceneSchema>;
-
-export const sceneSchema = z.discriminatedUnion("sceneType", [
-	gotoSceneSchema,
-	choiceSceneSchema,
-	endSceneSchema,
-]);
-export type Scene = z.infer<typeof sceneSchema>;
-
-/* ------------------------------------------------------
-    Game
------------------------------------------------------- */
-
-export const gameMataDataSchema = z.object({
-	id: z.string(),
-	title: z.string(),
-	author: z.string(),
-	authorName: z.string().optional(),
-	authorAvatarUrl: z.string().optional(),
-	description: z.string(),
-	releaseDate: z.number().optional(),
-	coverImageUrl: z.string().optional(),
-	schemaVersion: z.string(),
-	status: z.union([
-		z.literal("draft"),
-		z.literal("published"),
-		z.literal("archived"),
-	]),
-	categories: z.array(z.string()).optional(),
-	likeCount: z.number(),
-	playCount: z.number(),
-	createdAt: z.number(),
-	updatedAt: z.number(),
-});
-
-export type GameMetaData = z.infer<typeof gameMataDataSchema>;
-
-export const gameSchema = z
-	.object({
-		scenes: z.array(sceneSchema),
-		initialSceneId: z.string(),
-	})
-	.merge(gameMataDataSchema);
-
-export type Game = z.infer<typeof gameSchema>;
-
-/* ------------------------------------------------------
-		GameData
------------------------------------------------------- */
+export type Choice = {
+	id: number;
+	text: string;
+	nextSceneId: number;
+};
 
 export type Stage = {
 	cg: {
 		item: {
-			id: string;
+			id: number;
 			scale: number;
 			position: [number, number];
 		} | null;
 		transitionDuration: number;
 	};
 	background: {
-		id: string;
+		id: number;
 		transitionDuration: number;
 	} | null;
 	characters: {
 		transitionDuration: number;
 		items: {
-			id: string;
+			id: number;
 			scale: number;
-			imageId: string;
+			imageId: number;
 			position: [number, number];
 			effect: {
-				type: CharacterEffectEvent["effectType"];
+				type: string;
 				transitionDuration: number;
 			} | null;
 		}[];
@@ -396,26 +115,26 @@ export type Stage = {
 	dialog: {
 		isVisible: boolean;
 		text: string;
-		characterName: string | undefined;
+		characterName: string | undefined | null;
 		transitionDuration: number;
 	};
 	choices: Choice[];
 	soundEffect: {
-		id: string;
+		id: number;
 		volume: number;
 		loop: boolean;
 		isPlaying: boolean;
 		transitionDuration: number;
 	} | null;
 	bgm: {
-		id: string;
+		id: number;
 		volume: number;
 		loop: boolean;
 		isPlaying: boolean;
 		transitionDuration: number;
 	} | null;
 	effect: {
-		type: EffectEvent["effectType"];
+		type: string;
 		transitionDuration: number;
 	} | null;
 };
@@ -429,46 +148,17 @@ export type MessageHistory = {
 export type GameState = "loading" | "beforeStart" | "playing" | "idle" | "end";
 
 export type ResourceCache = {
-	characters: {
-		[id: string]: Character & {
-			images: { [id: string]: { cache: HTMLImageElement } };
+	character: {
+		[id: number]: Character & {
+			images: { [id: number]: { cache: HTMLImageElement } };
 		};
 	};
-	backgroundImages: {
-		[id: string]: BackgroundImage & { cache: HTMLImageElement };
+	backgroundImage: {
+		[id: number]: BackgroundImage & { cache: HTMLImageElement };
 	};
-	cgImages: {
-		[id: string]: CGImage & { cache: HTMLImageElement };
+	cgImage: {
+		[id: number]: CGImage & { cache: HTMLImageElement };
 	};
-	soundEffects: { [id: string]: SoundEffect & { cache: Howl } };
-	bgms: { [id: string]: BGM & { cache: Howl } };
+	soundEffect: { [id: number]: SoundEffect & { cache: Howl } };
+	bgm: { [id: number]: BGM & { cache: Howl } };
 };
-
-// ユーティリティ関数
-export const isGotoScene = (scene: Scene): scene is GotoScene => {
-	return scene.sceneType === "goto";
-};
-
-export const isChoiceScene = (scene: Scene): scene is ChoiceScene => {
-	return scene.sceneType === "choice";
-};
-
-export const isEndScene = (scene: Scene): scene is EndScene => {
-	return scene.sceneType === "end";
-};
-
-/* ------------------------------------------------------
-		User
------------------------------------------------------- */
-
-export const userProfileSchema = z.object({
-	id: z.string(),
-	name: z.string(),
-	email: z.string(),
-	bio: z.string().optional(),
-	avatarUrl: z.string().optional(),
-	createdAt: z.string(),
-	updatedAt: z.string(),
-});
-
-export type UserProfile = z.infer<typeof userProfileSchema>;

@@ -8,14 +8,13 @@ export const createUserQuery = ({
 	userRepository: UserRepository;
 }) => {
 	return {
-		executeGetUser: async (userPublicId: string): Promise<UserResponse> => {
-			const user = await userRepository.getByPublicId(userPublicId);
+		executeGetUser: async (userId: number): Promise<UserResponse> => {
+			const user = await userRepository.getById(userId);
 			if (!user) {
-				throw new UserNotFoundError(userPublicId);
+				throw new UserNotFoundError(userId);
 			}
 			return {
 				id: user.id,
-				publicId: user.publicId,
 				name: user.name,
 				bio: user.bio,
 				avatarUrl: user.avatarUrl,

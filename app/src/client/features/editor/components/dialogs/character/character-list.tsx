@@ -5,8 +5,8 @@ import { UserCircle, UserPlus } from "lucide-react";
 
 interface CharacterListProps {
 	resources: GameResources;
-	selectedCharacterId: string | null;
-	onCharacterSelect: (characterId: string) => void;
+	selectedCharacterId: number | null;
+	onCharacterSelect: (characterId: number) => void;
 	onAddCharacterClick: () => void;
 	onConfirmSelection?: () => void;
 	selectionMode?: boolean;
@@ -23,7 +23,7 @@ export const CharacterList = ({
 	return (
 		<div className="h-[500px] flex flex-col">
 			<div className="flex-1 overflow-y-auto grid grid-cols-3 gap-4 pb-4">
-				{Object.values(resources.characters).map((character) => {
+				{Object.values(resources.character).map((character) => {
 					const previewImage = Object.values(character.images)[0]?.url || null;
 
 					return (

@@ -16,7 +16,7 @@ export const EventList = ({
 	selectedEvent: GameEvent | undefined | null;
 	game: Game;
 	resources: GameResources;
-	onClickEvent: (eventId: string) => void;
+	onClickEvent: (eventId: number) => void;
 	onClickSceneEnding: () => void;
 }) => {
 	if (!selectedScene) {
@@ -30,7 +30,7 @@ export const EventList = ({
 
 				<div className="flex-1 relative w-full flex flex-col gap-y-3 pt-2">
 					{selectedScene?.events
-						.sort((a, b) => sortByFractionalIndex(a.order, b.order))
+						.sort((a, b) => sortByFractionalIndex(a.orderIndex, b.orderIndex))
 						.map((event) => {
 							return (
 								<EventItem
@@ -59,7 +59,6 @@ const renderSceneEnding = (
 		return (
 			<SpeechBubble
 				key="ending"
-				id="ending"
 				hex="#000000"
 				title="ゲーム終了"
 				icon={<Pen />}
@@ -74,7 +73,6 @@ const renderSceneEnding = (
 		return (
 			<SpeechBubble
 				key="choice"
-				id="choice"
 				hex="#000000"
 				title="選択肢"
 				icon={<Split />}
@@ -95,13 +93,12 @@ const renderSceneEnding = (
 		return (
 			<SpeechBubble
 				key="goto"
-				id="goto"
 				hex="#000000"
 				title="次のシーン"
 				icon={<ArrowUp />}
 				onClick={onClickSceneEnding}
 			>
-				{nextScene?.title || "不明なシーン"}
+				{nextScene?.name || "不明なシーン"}
 			</SpeechBubble>
 		);
 	}

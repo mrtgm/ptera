@@ -6,8 +6,8 @@ export class DomainError extends Error {
 }
 
 export class UserNotFoundError extends DomainError {
-	constructor(publicId: string) {
-		super(`User with publicId ${publicId} not found`);
+	constructor(id: number) {
+		super(`User with id ${id} not found`);
 	}
 }
 

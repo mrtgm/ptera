@@ -25,7 +25,7 @@ export const SceneSettings = ({
 }) => {
 	const form = useForm<SceneSettingsFormData>({
 		defaultValues: {
-			sceneTitle: scene?.title || "",
+			sceneTitle: scene?.name || "",
 		},
 	});
 
@@ -36,7 +36,7 @@ export const SceneSettings = ({
 	useEffect(() => {
 		if (scene) {
 			form.reset({
-				sceneTitle: scene.title || "",
+				sceneTitle: scene.name || "",
 			});
 		}
 	}, [scene, form.reset]);

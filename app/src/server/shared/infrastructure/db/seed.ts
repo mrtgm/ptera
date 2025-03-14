@@ -1,5 +1,5 @@
-import { db } from "./index.js";
-import * as schema from "./schema.js"; // あなたのスキーマ定義ファイルをインポート
+import { db } from "./";
+import * as schema from "./schema"; // あなたのスキーマ定義ファイルをインポート
 
 async function seedDatabase() {
 	try {

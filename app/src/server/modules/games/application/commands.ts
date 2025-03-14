@@ -27,6 +27,7 @@ import {
 } from "~/schemas/games/dto";
 import type { CommentRepository } from "../infrastructure/repositories/comment";
 import type {
+	CategoryRepository,
 	EventRepository,
 	GameRepository,
 	SceneRepository,
@@ -39,21 +40,28 @@ export const createCommand = ({
 	eventRepository,
 	statisticsRepository,
 	commentRepository,
+	categoryRepository,
 }: {
 	gameRepository: GameRepository;
 	sceneRepository: SceneRepository;
 	eventRepository: EventRepository;
 	statisticsRepository: StatisticsRepository;
 	commentRepository: CommentRepository;
+	categoryRepository: CategoryRepository;
 }) => {
 	return {
+		executeGetCategories: async () => {
+			const categories = await categoryRepository.getCategories();
+			return categories;
+		},
+
 		executePlayGame: async (
-			gamePublicId: string,
+			gameId: number,
 			userId: number | undefined | null,
 			guestId: string | undefined | null,
 		) => {
 			const count = await statisticsRepository.playGame(
-				gamePublicId,
+				gameId,
 				userId,
 				guestId,
 			);
@@ -73,7 +81,7 @@ export const createCommand = ({
 
 				const scene = await sceneRepository.createScene({
 					params: {
-						gamePublicId: game.publicId,
+						gameId: game.id,
 						userId,
 						name: "Start",
 					},
@@ -90,8 +98,8 @@ export const createCommand = ({
 
 				const event = await eventRepository.createEvent({
 					params: {
-						gamePublicId: game.publicId,
-						scenePublicId: scene.publicId,
+						gameId: game.id,
+						sceneId: scene.id,
 						type: "textRender",
 						userId,
 					},
@@ -118,14 +126,14 @@ export const createCommand = ({
 		},
 
 		executeUpdateGameStatus: async (
-			gamePublicId: string,
+			gameId: number,
 			status: Game["status"],
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
-				const game = await gameRepository.getGameById(gamePublicId, tx);
+				const game = await gameRepository.getGameById(gameId, tx);
 				if (!game) {
-					throw new GameNotFoundError(gamePublicId);
+					throw new GameNotFoundError(gameId);
 				}
 				// ユーザーが所有者か確認
 				if (game.userId !== userId) {
@@ -133,7 +141,7 @@ export const createCommand = ({
 				}
 
 				const updatedGame = await gameRepository.updateGameStatus({
-					params: { gamePublicId, status },
+					params: { gameId, status },
 					tx,
 				});
 
@@ -142,14 +150,14 @@ export const createCommand = ({
 		},
 
 		executeUpdateGame: async (
-			gamePublicId: string,
+			gameId: number,
 			dto: UpdateGameRequest,
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
-				const game = await gameRepository.getGameById(gamePublicId, tx);
+				const game = await gameRepository.getGameById(gameId, tx);
 				if (!game) {
-					throw new GameNotFoundError(gamePublicId);
+					throw new GameNotFoundError(gameId);
 				}
 				// ユーザーが所有者か確認
 				if (game.userId !== userId) {
@@ -157,7 +165,7 @@ export const createCommand = ({
 				}
 
 				const updatedGame = await gameRepository.updateGame({
-					gamePublicId,
+					gameId,
 					params: dto,
 					tx,
 				});
@@ -166,11 +174,11 @@ export const createCommand = ({
 			});
 		},
 
-		executeDeleteGame: async (gamePublicId: string, userId: number) => {
+		executeDeleteGame: async (gameId: number, userId: number) => {
 			return await db.transaction(async (tx) => {
-				const game = await gameRepository.getGameById(gamePublicId);
+				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
-					throw new GameNotFoundError(gamePublicId);
+					throw new GameNotFoundError(gameId);
 				}
 				// ユーザーが所有者か確認
 				if (game.userId !== userId) {
@@ -178,7 +186,7 @@ export const createCommand = ({
 				}
 
 				await gameRepository.deleteGame({
-					params: { gamePublicId },
+					params: { gameId },
 					tx,
 				});
 
@@ -187,20 +195,20 @@ export const createCommand = ({
 		},
 
 		// いいね追加
-		executeLikeGame: async (gamePublicId: string, userId: number) => {
-			const count = await statisticsRepository.likeGame(gamePublicId, userId);
+		executeLikeGame: async (gameId: number, userId: number) => {
+			const count = await statisticsRepository.likeGame(gameId, userId);
 			return count;
 		},
 
 		// いいね取り消し
-		executeUnlikeGame: async (gamePublicId: string, userId: number) => {
-			const count = await statisticsRepository.unlikeGame(gamePublicId, userId);
+		executeUnlikeGame: async (gameId: number, userId: number) => {
+			const count = await statisticsRepository.unlikeGame(gameId, userId);
 			return count;
 		},
 
 		// コメント投稿
 		executeCreateComment: async (
-			gamePublicId: string,
+			gameId: number,
 			dto: CreateCommentRequest,
 			userId: number,
 		) => {
@@ -212,8 +220,8 @@ export const createCommand = ({
 			return await db.transaction(async (tx) => {
 				const comment = await commentRepository.createComment({
 					params: {
-						gamePublicId,
-						userPublicId: user.publicId,
+						gameId,
+						userId: user.id,
 						content: dto.content,
 					},
 					tx,
@@ -223,39 +231,38 @@ export const createCommand = ({
 			});
 		},
 
-		executeDeleteComment: async (commentPublicId: string, userId: number) => {
+		executeDeleteComment: async (commentId: number, userId: number) => {
 			// ユーザーが所有者か確認
-			const comment =
-				await commentRepository.getCommentByPublicId(commentPublicId);
+			const comment = await commentRepository.getCommentById(commentId);
 
 			if (!comment) {
-				throw new CommentNotFoundError(commentPublicId);
+				throw new CommentNotFoundError(commentId);
 			}
 
 			const user = await userRepository.getById(userId);
 			if (!user) {
-				throw new UserNotFoundError("");
+				throw new UserNotFoundError(userId);
 			}
 
-			if (comment.userPublicId !== user.publicId) {
+			if (comment.userId !== user.id) {
 				throw new UserUnauthorizedError();
 			}
 
 			await commentRepository.deleteComment({
-				params: { commentPublicId },
+				params: { commentId },
 			});
 
 			return { success: true };
 		},
 
 		executeCreateScene: async (
-			gamePublicId: string,
+			gameId: number,
 			dto: CreateSceneRequest,
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
 				// ユーザーが所有者か確認
-				const game = await gameRepository.getGameById(gamePublicId);
+				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
 					throw new Error("Game not found");
 				}
@@ -264,7 +271,7 @@ export const createCommand = ({
 				}
 
 				const scene = await sceneRepository.createScene({
-					params: { ...dto, gamePublicId, userId },
+					params: { ...dto, gameId, userId },
 					tx,
 				});
 
@@ -273,14 +280,14 @@ export const createCommand = ({
 		},
 
 		executeUpdateScene: async (
-			gamePublicId: string,
-			scenePublicId: string,
+			gameId: number,
+			sceneId: number,
 			dto: UpdateSceneRequest,
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
 				// ユーザーが所有者か確認
-				const game = await gameRepository.getGameById(gamePublicId);
+				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
 					throw new Error("Game not found");
 				}
@@ -289,19 +296,19 @@ export const createCommand = ({
 				}
 
 				// シーンの情報を取得
-				const scenes = await sceneRepository.getScenes(game.publicId);
+				const scenes = await sceneRepository.getScenes(gameId);
 				if (!scenes) {
 					throw new Error("Scenes not found");
 				}
 
-				const sceneToUpdate = scenes.find((s) => s.publicId === scenePublicId);
+				const sceneToUpdate = scenes.find((s) => s.id === sceneId);
 				if (!sceneToUpdate) {
 					throw new Error("Scene not found");
 				}
 
 				// シーンを更新
 				const updatedScene = await sceneRepository.updateScene({
-					scenePublicId,
+					sceneId,
 					params: { ...dto },
 					tx,
 				});
@@ -312,13 +319,13 @@ export const createCommand = ({
 
 		// シーン削除
 		executeDeleteScene: async (
-			gamePublicId: string,
-			scenePublicId: string,
+			gameId: number,
+			sceneId: number,
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
 				// ユーザーが所有者か確認
-				const game = await gameRepository.getGameById(gamePublicId);
+				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
 					throw new Error("Game not found");
 				}
@@ -327,7 +334,7 @@ export const createCommand = ({
 				}
 
 				await sceneRepository.deleteScene({
-					params: { gamePublicId, scenePublicId },
+					params: { gameId, sceneId },
 					tx,
 				});
 
@@ -337,14 +344,14 @@ export const createCommand = ({
 
 		// イベント作成
 		executeCreateEvent: async (
-			gamePublicId: string,
-			scenePublicId: string,
+			gameId: number,
+			sceneId: number,
 			dto: CreateEventRequest,
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
 				// ユーザーが所有者か確認
-				const game = await gameRepository.getGameById(gamePublicId);
+				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
 					throw new Error("Game not found");
 				}
@@ -354,8 +361,8 @@ export const createCommand = ({
 
 				const event = await eventRepository.createEvent({
 					params: {
-						gamePublicId,
-						scenePublicId,
+						gameId,
+						sceneId,
 						type: dto.type,
 						orderIndex: dto.orderIndex,
 						userId,
@@ -369,15 +376,15 @@ export const createCommand = ({
 
 		// イベント更新
 		executeUpdateEvent: async (
-			gamePublicId: string,
-			scenePublicId: string,
-			eventPublicId: string,
+			gameId: number,
+			sceneId: number,
+			eventId: number,
 			dto: UpdateEventRequest,
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
 				// ユーザーが所有者か確認
-				const game = await gameRepository.getGameById(gamePublicId);
+				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
 					throw new Error("Game not found");
 				}
@@ -386,19 +393,19 @@ export const createCommand = ({
 				}
 
 				// イベントを取得
-				const scenes = await sceneRepository.getScenes(game.publicId);
+				const scenes = await sceneRepository.getScenes(game.id);
 				if (!scenes) {
 					throw new Error("Scenes not found");
 				}
 
-				const scene = scenes.find((s) => s.publicId === scenePublicId);
+				const scene = scenes.find((s) => s.id === sceneId);
 				if (!scene) {
 					throw new Error("Scene not found");
 				}
 
 				const eventMap = await eventRepository.getEvents([scene.id]);
 				const events = eventMap[scene.id] || [];
-				const eventToUpdate = events.find((e) => e.publicId === eventPublicId);
+				const eventToUpdate = events.find((e) => e.id === eventId);
 
 				if (!eventToUpdate) {
 					throw new Error("Event not found");
@@ -411,7 +418,7 @@ export const createCommand = ({
 							...eventToUpdate,
 							...dto,
 						},
-						gamePublicId,
+						gameId,
 					},
 					tx,
 				});
@@ -422,13 +429,13 @@ export const createCommand = ({
 
 		// イベント削除
 		executeDeleteEvent: async (
-			gamePublicId: string,
-			eventPublicId: string,
+			gameId: number,
+			eventId: number,
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
 				// ユーザーが所有者か確認
-				const game = await gameRepository.getGameById(gamePublicId);
+				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
 					throw new Error("Game not found");
 				}
@@ -437,7 +444,7 @@ export const createCommand = ({
 				}
 
 				await eventRepository.deleteEvent({
-					params: { eventPublicId },
+					params: { eventId },
 					tx,
 				});
 
@@ -446,14 +453,14 @@ export const createCommand = ({
 		},
 
 		executeMoveEvent: async (
-			gamePublicId: string,
-			scenePublicId: string,
+			gameId: number,
+			sceneId: number,
 			dto: MoveEventRequest,
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
 				// ユーザーが所有者か確認
-				const game = await gameRepository.getGameById(gamePublicId);
+				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
 					throw new Error("Game not found");
 				}
@@ -462,12 +469,12 @@ export const createCommand = ({
 				}
 
 				// シーンの存在を確認
-				const scenes = await sceneRepository.getScenes(gamePublicId);
+				const scenes = await sceneRepository.getScenes(gameId);
 				if (!scenes) {
 					throw new Error("Scenes not found");
 				}
 
-				const scene = scenes.find((s) => s.publicId === scenePublicId);
+				const scene = scenes.find((s) => s.id === sceneId);
 				if (!scene) {
 					throw new Error("Scene not found");
 				}
@@ -477,7 +484,7 @@ export const createCommand = ({
 					params: {
 						oldIndex: dto.oldIndex,
 						newIndex: dto.newIndex,
-						scenePublicId,
+						sceneId,
 					},
 					tx,
 				});

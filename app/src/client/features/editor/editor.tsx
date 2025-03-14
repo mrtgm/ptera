@@ -1,13 +1,9 @@
 import dummyAssets from "@/client/__mocks__/dummy-assets.json";
 import dummyGame from "@/client/__mocks__/dummy-game.json";
 import { Toaster } from "@/client/components/shadcn/sonner";
-import {
-	type Game,
-	type GameEvent,
-	type Scene,
-	gameSchema,
-} from "@/client/schema";
+import type { Game, GameEvent, GameResources, Scene } from "@/client/schema";
 import { useStore } from "@/client/stores";
+import type { AssetType } from "@/schemas/assets/domain/resoucres";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -48,10 +44,12 @@ export const Editor = () => {
 	const pathparams = useParams();
 
 	const gameId = pathparams.gameId;
-	const selectedSceneId = pathparams.sceneId as string | undefined;
-	const selectedEventId = pathparams.eventId as string | undefined;
+	const selectedSceneId =
+		pathparams.sceneId !== undefined ? Number(pathparams.sceneId) : undefined;
+	const selectedEventId =
+		pathparams.eventId !== undefined ? Number(pathparams.eventId) : undefined;
 
-	const isOpenEnding = selectedEventId === "ending";
+	const isOpenEnding = selectedEventId === 0;
 	const selectedScene = editorSlice.editingGame?.scenes.find(
 		(scene) => scene.id === selectedSceneId,
 	);
@@ -61,15 +59,17 @@ export const Editor = () => {
 
 	useEffect(() => {
 		// TODO: ロード
-		const game = gameSchema.parse(dummyGame);
-		editorSlice.initializeEditor(game, dummyAssets);
+		editorSlice.initializeEditor(
+			dummyGame as Game,
+			dummyAssets as GameResources,
+		);
 	}, [editorSlice.initializeEditor]);
 
-	const handleNavigateToScene = (sceneId: string) => {
+	const handleNavigateToScene = (sceneId: number) => {
 		router.push(`/dashboard/games/${gameId}/edit/scenes/${sceneId}`);
 	};
 
-	const handleNavigateToEvent = (eventId: string) => {
+	const handleNavigateToEvent = (eventId: number) => {
 		router.push(
 			`/dashboard/games/${gameId}/edit/scenes/${selectedSceneId}/events/${eventId}`,
 		);
@@ -81,14 +81,14 @@ export const Editor = () => {
 
 	const handleClickSceneEnding = () => {
 		router.push(
-			`/dashboard/games/${gameId}/edit/scenes/${selectedSceneId}/events/ending`,
+			`/dashboard/games/${gameId}/edit/scenes/${selectedSceneId}/events/0`,
 		);
 	};
 
 	const handleAddScene = (
 		sceneTitle: string,
 		scene: Scene,
-		choiceId?: string | null,
+		choiceId?: number | null,
 	) => {
 		// TODO: 実装
 		toast.success("シーンを追加しました");
@@ -99,7 +99,7 @@ export const Editor = () => {
 		// TODO: 実装
 		console.log("Delete scene clicked");
 		if (!selectedSceneId) return;
-		editorSlice.deleteScene(selectedSceneId as string);
+		editorSlice.deleteScene(selectedSceneId as number);
 		handleNavigateToScenesList();
 		toast.success("シーンを削除しました");
 	};
@@ -141,34 +141,34 @@ export const Editor = () => {
 		toast.success("キャラクターを追加しました");
 	};
 
-	const handleCharacterNameChange = (characterId: string, name: string) => {
+	const handleCharacterNameChange = (characterId: number, name: string) => {
 		// TODO: 実装
 		console.log("Change character name", characterId, name);
 		editorSlice.updateCharacterName(characterId, name);
 		toast.success("キャラクター名を変更しました");
 	};
 
-	const handleUploadCharacterImage = (characterId: string, file: File) => {
+	const handleUploadCharacterImage = (characterId: number, file: File) => {
 		console.log("Upload image", characterId, file);
 		editorSlice.uploadCharacterImage(characterId, file);
 		toast.success("キャラクター画像をアップロードしました");
 	};
 
-	const handleDeleteCharacterImage = (characterId: string, imageId: string) => {
+	const handleDeleteCharacterImage = (characterId: number, imageId: number) => {
 		// TODO: 実装
 		console.log("Delete image", characterId, imageId);
 		editorSlice.deleteCharacterImage(characterId, imageId);
 		toast.success("キャラクター画像を削除しました");
 	};
 
-	const handleDeleteCharacter = (characterId: string) => {
+	const handleDeleteCharacter = (characterId: number) => {
 		// TODO: 実装
 		console.log("Delete character", characterId);
 		editorSlice.deleteCharacter(characterId);
 		toast.success("キャラクターを削除しました");
 	};
 
-	const handleDeleteAsset = (assetId: string, type: AssetDialogKeyType) => {
+	const handleDeleteAsset = (assetId: number, type: AssetDialogKeyType) => {
 		// TODO: 実装
 		console.log("Delete asset", assetId, type);
 		editorSlice.deleteAsset(assetId, type);
@@ -191,7 +191,7 @@ export const Editor = () => {
 	const handleAddEvent = (
 		index: number,
 		item: SidebarItem,
-		sceneId: string,
+		sceneId: number,
 	) => {
 		// TODO: 実装
 		console.log("Add event", index, item, sceneId);
@@ -202,7 +202,7 @@ export const Editor = () => {
 	const handleMoveEvent = (
 		oldIndex: number,
 		newIndex: number,
-		sceneId: string,
+		sceneId: number,
 	) => {
 		// TODO: 実装
 		console.log("Move event", oldIndex, newIndex, sceneId);

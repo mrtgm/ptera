@@ -6,7 +6,7 @@ type SceneCardProps = {
 	index: number;
 	game: Game;
 	sideBarSettings: typeof SideBarSettings;
-	onSceneClick: (sceneId: string) => void;
+	onSceneClick: (sceneId: number) => void;
 };
 
 export const SceneItem = ({
@@ -44,7 +44,7 @@ export const SceneItem = ({
 						<div className="flex-shrink-0 w-6 h-6 flex items-center justify-center font-medium">
 							{index + 1}
 						</div>
-						<h3 className="font-medium text-gray-900">{scene.title}</h3>
+						<h3 className="font-medium text-gray-900">{scene.name}</h3>
 					</div>
 
 					<span
@@ -69,8 +69,8 @@ export const SceneItem = ({
 									}}
 								>
 									{sideBarSettings[event.category]?.items.find(
-										(item) => item.type === event.type,
-									)?.label || event.type}
+										(item) => item.type === event.eventType,
+									)?.label || event.eventType}
 								</span>
 							);
 						})}

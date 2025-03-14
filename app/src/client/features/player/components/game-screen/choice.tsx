@@ -11,7 +11,7 @@ export const Choice = ({
 	manager: EventManager;
 	choices: Stage["choices"];
 	currentEvent: GameEvent | null;
-	onChoiceSelected: (choiceId: string) => void;
+	onChoiceSelected: (choiceId: number) => void;
 }) => {
 	if (!currentEvent) return null;
 

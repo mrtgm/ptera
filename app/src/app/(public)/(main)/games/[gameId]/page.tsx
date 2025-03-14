@@ -1,10 +1,12 @@
 "use client";
 
+import type { Game, GameMetaData } from "@/client/schema";
 import { useEffect, useState } from "react";
-import type { Game, GameMetaData } from "~/client/schema";
 import { useStore } from "~/client/stores";
 
 import GamePlayer from "@/client/features/player/player";
+import type { GameResources } from "@/schemas/assets/domain/resoucres";
+import { type Comment, createComment } from "@/schemas/games/domain/comment";
 // lucide icons
 import {
 	AlertTriangle,
@@ -52,42 +54,76 @@ import { EventManager } from "~/client/features/player/utils/event";
 
 // サンプルゲームデータ
 const sampleGame: GameMetaData = {
-	id: "game-1",
-	title: "青い鳥を探して",
-	author: "user-1",
-	authorName: "user-1",
+	id: 1,
+	userId: 101,
+	name: "青い鳥を探して",
 	description:
-		"幸せを探す少年の旅路を描いた物語。プレイヤーの選択によって異なる結末へと導かれる。\n\n主人公のタロウは、ある日不思議な青い鳥と出会います。青い鳥は彼に「本当の幸せ」を見つける旅に出るよう語りかけます。\n\nこのゲームでは、タロウの選択を通じて様々なエンディングへと導かれます。友情、冒険、愛、そして時には悲しみを通じて「本当の幸せとは何か」を考えさせられる物語です。",
+		"幸せを探す少年の旅路を描いた物語。プレイヤーの選択によって異なる結末へと導かれる。",
+	releaseDate: "2025-02-10T00:00:00.000Z",
 	coverImageUrl:
 		"https://placehold.co/1200x630/3b82f6/ffffff?text=青い鳥を探して",
 	schemaVersion: "1.0",
 	status: "published",
-	createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-	updatedAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
-	playCount: 253,
+	categoryIds: [1, 3],
 	likeCount: 42,
-	authorAvatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-	categories: ["アドベンチャー", "ファンタジー"],
-	releaseDate: Date.now() - 30 * 24 * 60 * 60 * 1000,
+	playCount: 253,
+	createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+	updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+	username: "ゲームクリエイター",
+	avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
 };
 
 // サンプルコメントデータ
-const sampleComments = [
+const sampleComments: Comment[] = [
 	{
-		id: "comment-1",
-		authorName: "ユーザー1",
-		authorId: "user-2",
-		authorAvatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+		id: 1,
+		userId: 102,
+		username: "ユーザー1",
+		gameId: 1,
 		content: "素晴らしいストーリーでした！特に最後の選択が感動的でした。",
-		createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
+		createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+		updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+		avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
 	},
 	{
-		id: "comment-2",
-		authorName: "ユーザー2",
-		authorId: "user-3",
-		authorAvatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mary",
+		id: 2,
+		userId: 103,
+		username: "ユーザー2",
+		gameId: 1,
 		content: "何度もプレイしました。毎回違う結末が見られて面白いです。",
-		createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
+		createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+		updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+		avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mary",
+	},
+	{
+		id: 3,
+		userId: 104,
+		username: "ホラーマスター",
+		gameId: 1,
+		content: "クリエイティブな設定で引き込まれました。続編も期待しています！",
+		createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+		updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+		avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+	},
+	{
+		id: 4,
+		userId: 105,
+		username: "SFファン",
+		gameId: 3,
+		content: "タイムトラベルの概念が絶妙に表現されていて素晴らしかったです。",
+		createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+		updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+		avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emma",
+	},
+	{
+		id: 5,
+		userId: 106,
+		username: "森の物語",
+		gameId: 3,
+		content: "複雑なストーリー展開が魅力的です。何度もプレイしたくなりました。",
+		createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+		updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+		avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Forest",
 	},
 ];
 
@@ -96,16 +132,7 @@ const eventManager = new EventManager();
 export default function GameDetailPage() {
 	const { id } = useParams();
 	const [game, setGame] = useState<GameMetaData | null>(null);
-	const [comments, setComments] = useState<
-		{
-			id: string;
-			authorId: string;
-			authorName: string;
-			authorAvatarUrl: string;
-			content: string;
-			createdAt: number;
-		}[]
-	>([]);
+	const [comments, setComments] = useState<Comment[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [activeTab, setActiveTab] = useState("about");
@@ -203,7 +230,7 @@ export default function GameDetailPage() {
 	const handleShare = () => {
 		if (navigator.share) {
 			navigator.share({
-				title: game?.title || "ゲームを共有",
+				title: game?.name || "ゲームを共有",
 				text: game?.description || "",
 				url: window.location.href,
 			});
@@ -226,14 +253,11 @@ export default function GameDetailPage() {
 
 		// 実際の実装ではAPIを呼び出す
 		setTimeout(() => {
-			const newComment = {
-				id: `comment-${Date.now()}`,
-				authorName: currentUser?.name || "ユーザー",
-				authorId: currentUser?.id || "unknown",
-				authorAvatarUrl: currentUser?.avatarUrl ?? "",
-				content: commentText,
-				createdAt: Date.now(),
-			};
+			const newComment = createComment({
+				game: game as Game,
+				commentText,
+				currentUser,
+			});
 
 			setComments([newComment, ...comments]);
 			setCommentText("");
@@ -295,11 +319,12 @@ export default function GameDetailPage() {
 					</Link>
 				</Button>
 
-				<h1 className="text-3xl font-bold">{game.title}</h1>
+				<h1 className="text-3xl font-bold">{game.name}</h1>
 
 				<div className="flex flex-wrap gap-2 mt-4">
-					{game.categories?.map((genre) => (
+					{game.categoryIds?.map((genre) => (
 						<Badge key={genre} variant="secondary">
+							{/* TODO: ジャンル名を取得 */}
 							{genre}
 						</Badge>
 					))}
@@ -309,17 +334,18 @@ export default function GameDetailPage() {
 			{/* 作者情報 */}
 			<div className="flex items-center mb-6">
 				<Avatar className="h-8 w-8 mr-2">
-					<AvatarImage src={game.authorAvatarUrl} alt={game.authorName} />
+					{/* TODO */}
+					<AvatarImage src={game.avatarUrl} alt={game.username} />
 					<AvatarFallback className="text-xs">
-						{getInitials(game.authorName)}
+						{getInitials(game.username)}
 					</AvatarFallback>
 				</Avatar>
 				<div>
 					<Link
-						href={`/users/${game.authorName}`}
+						href={`/users/${game.userId}`}
 						className="text-sm font-medium hover:underline"
 					>
-						{game.authorName}
+						{game.username}
 					</Link>
 				</div>
 			</div>
@@ -330,7 +356,7 @@ export default function GameDetailPage() {
 					<CardContent className="p-0 aspect-video relative">
 						<GamePlayer
 							game={dummyGame as Game}
-							resources={dummyAssets}
+							resources={dummyAssets as GameResources}
 							eventManager={eventManager}
 						/>
 					</CardContent>
@@ -516,21 +542,23 @@ export default function GameDetailPage() {
 									<div className="flex items-center mb-2">
 										<Avatar className="h-6 w-6 mr-2">
 											<AvatarImage
-												src={comment.authorAvatarUrl}
-												alt={comment.authorName}
+												src={comment.avatarUrl}
+												alt={comment.username}
 											/>
 											<AvatarFallback className="text-xs">
-												{getInitials(comment.authorName)}
+												{getInitials(comment.username)}
 											</AvatarFallback>
 										</Avatar>
 										<Link
-											href={`/users/${comment.authorId}`}
+											href={`/users/${comment.userId}`}
 											className="text-sm font-medium hover:underline"
 										>
-											{comment.authorName}
+											{comment.username}
 										</Link>
 										<span className="text-xs text-muted-foreground ml-2">
-											{formatRelativeTime(comment.createdAt)}
+											{formatRelativeTime(
+												new Date(comment.createdAt).getTime(),
+											)}
 										</span>
 									</div>
 									<p className="text-sm">{comment.content}</p>

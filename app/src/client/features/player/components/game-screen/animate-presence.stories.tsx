@@ -15,7 +15,7 @@ export function Debug() {
 		setItems((prev) => prev.slice(0, -1));
 	};
 	const handleCancelRequest = () => {
-		eventManager.addCancelRequest("test");
+		eventManager.addCancelRequest(0);
 	};
 	const handleSwap = () => {
 		setItems((prev) => {
@@ -75,7 +75,7 @@ export function Debug() {
 			</div>
 			<div className="relative w-[200px] h-[200px] bg-gray-200 pt-4">
 				<AnimatePresence
-					eventId="test"
+					eventId={0}
 					manager={eventManager}
 					config={{
 						enter: {

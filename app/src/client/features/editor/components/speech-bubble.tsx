@@ -10,7 +10,7 @@ export const SpeechBubble = ({
 	children,
 	onClick,
 }: {
-	id?: string;
+	id?: number;
 	hex: string;
 	title: string;
 	selected?: boolean;

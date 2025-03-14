@@ -1,7 +1,7 @@
 "use client";
 
+import type { GameMetaData } from "@/client/schema";
 import { useEffect, useState } from "react";
-import type { GameMetaData } from "~/client/schema";
 
 import { Alert, AlertDescription } from "~/client/components/shadcn/alert";
 // shadcn components
@@ -30,98 +30,60 @@ import GameCard from "~/client/features/dashboard/components/game-card";
 // サンプルデータ - 実際の実装では API から取得します
 const sampleGames: GameMetaData[] = [
 	{
-		id: "game-1",
-		title: "青い鳥を探して",
-		author: "user-1",
+		id: 1,
+		userId: 101,
+		name: "青い鳥を探して",
 		description:
 			"幸せを探す少年の旅路を描いた物語。プレイヤーの選択によって異なる結末へと導かれる。",
+		releaseDate: "2025-02-10T00:00:00.000Z",
 		coverImageUrl:
-			"https://placehold.co/400x225/3b82f6/ffffff?text=青い鳥を探して",
+			"https://placehold.co/1200x630/3b82f6/ffffff?text=青い鳥を探して",
 		schemaVersion: "1.0",
 		status: "published",
-		createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-		updatedAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
-		playCount: 253,
+		categoryIds: [1, 3],
 		likeCount: 42,
-		authorAvatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+		playCount: 253,
+		createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+		updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+		username: "ゲームクリエイター",
+		avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
 	},
 	{
-		id: "game-2",
-		title: "迷宮の魔術師",
-		author: "user-2",
-		description:
-			"古代の迷宮に閉じ込められた魔術師となり、謎を解いて脱出を目指す。複数のエンディングと隠しルートがある。",
-		coverImageUrl:
-			"https://placehold.co/400x225/a855f7/ffffff?text=迷宮の魔術師",
-		schemaVersion: "1.0",
-		status: "published",
-		createdAt: Date.now() - 60 * 24 * 60 * 60 * 1000,
-		updatedAt: Date.now() - 15 * 24 * 60 * 60 * 1000,
-		playCount: 189,
-		likeCount: 28,
-		authorAvatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-	},
-	{
-		id: "game-3",
-		title: "時の砂時計",
-		author: "user-3",
+		id: 3,
+		userId: 103,
+		name: "時の砂時計",
 		description:
 			"タイムトラベルをテーマにした選択型アドベンチャー。過去と未来を行き来しながら謎を解き明かす。",
-		coverImageUrl: "https://placehold.co/400x225/f59e0b/ffffff?text=時の砂時計",
+		releaseDate: "2025-02-05T00:00:00.000Z",
+		coverImageUrl:
+			"https://placehold.co/1200x630/f59e0b/ffffff?text=時の砂時計",
 		schemaVersion: "1.0",
 		status: "published",
-		createdAt: Date.now() - 90 * 24 * 60 * 60 * 1000,
-		updatedAt: Date.now() - 20 * 24 * 60 * 60 * 1000,
-		playCount: 312,
+		categoryIds: [2, 5],
 		likeCount: 67,
-		authorAvatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mary",
+		playCount: 312,
+		createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+		updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+		username: "ストーリーテラー",
+		avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mary",
 	},
 	{
-		id: "game-4",
-		title: "海底都市アトランティス",
-		author: "user-1",
-		description:
-			"失われた伝説の都市アトランティスを探索する冒険ゲーム。水中での謎解きや選択肢によって物語が分岐する。",
-		coverImageUrl:
-			"https://placehold.co/400x225/10b981/ffffff?text=アトランティス",
-		schemaVersion: "1.0",
-		status: "published",
-		createdAt: Date.now() - 45 * 24 * 60 * 60 * 1000,
-		updatedAt: Date.now() - 10 * 24 * 60 * 60 * 1000,
-		playCount: 175,
-		likeCount: 33,
-		authorAvatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-	},
-	{
-		id: "game-5",
-		title: "幽霊屋敷の秘密",
-		author: "user-4",
-		description:
-			"古い洋館を探索するホラーアドベンチャー。様々な選択肢によって生存ルートが変化する。",
-		coverImageUrl:
-			"https://placehold.co/400x225/64748b/ffffff?text=幽霊屋敷の秘密",
-		schemaVersion: "1.0",
-		status: "published",
-		createdAt: Date.now() - 75 * 24 * 60 * 60 * 1000,
-		updatedAt: Date.now() - 12 * 24 * 60 * 60 * 1000,
-		playCount: 221,
-		likeCount: 42,
-		authorAvatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
-	},
-	{
-		id: "game-6",
-		title: "星間飛行",
-		author: "user-5",
+		id: 6,
+		userId: 105,
+		name: "星間飛行",
 		description:
 			"宇宙船のクルーとなり、未知の惑星を探索する宇宙冒険。各キャラクターとの関係性によってストーリーが変化。",
-		coverImageUrl: "https://placehold.co/400x225/06b6d4/ffffff?text=星間飛行",
+		releaseDate: "2025-01-28T00:00:00.000Z",
+		coverImageUrl: "https://placehold.co/1200x630/06b6d4/ffffff?text=星間飛行",
 		schemaVersion: "1.0",
 		status: "published",
-		createdAt: Date.now() - 85 * 24 * 60 * 60 * 1000,
-		updatedAt: Date.now() - 18 * 24 * 60 * 60 * 1000,
-		playCount: 287,
+		categoryIds: [4, 6],
 		likeCount: 56,
-		authorAvatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emma",
+		playCount: 287,
+		createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+		updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+		username: "SFファン",
+		avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emma",
 	},
 ];
 
@@ -180,9 +142,8 @@ export default function GamesListPage() {
 			const query = searchQuery.toLowerCase();
 			result = result.filter(
 				(game) =>
-					game.title.toLowerCase().includes(query) ||
-					game.description.toLowerCase().includes(query) ||
-					game.author?.toLowerCase().includes(query),
+					game.name.toLowerCase().includes(query) ||
+					game.username?.toLowerCase().includes(query),
 			);
 		}
 
@@ -193,7 +154,8 @@ export default function GamesListPage() {
 			// 最近更新されたゲーム（30日以内）
 			const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
 			result = result.filter(
-				(game) => (game.updatedAt || game.createdAt) > thirtyDaysAgo,
+				(game) =>
+					new Date(game.updatedAt || game.createdAt).getTime() > thirtyDaysAgo,
 			);
 		}
 
@@ -212,14 +174,18 @@ export default function GamesListPage() {
 			const keywords = genreMap[selectedGenre] || [];
 			if (keywords.length > 0) {
 				result = result.filter((game) =>
-					keywords.some((keyword) => game.title.includes(keyword)),
+					keywords.some((keyword) => game.name.includes(keyword)),
 				);
 			}
 		}
 
 		// ソート
 		if (sortBy === "newest") {
-			result.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+			result.sort((a, b) => {
+				const dateA = new Date(b.updatedAt || b.createdAt).getTime();
+				const dateB = new Date(a.updatedAt || a.createdAt).getTime();
+				return dateA - dateB;
+			});
 		} else if (sortBy === "popular") {
 			result.sort((a, b) => (b.playCount || 0) - (a.playCount || 0));
 		} else if (sortBy === "likes") {

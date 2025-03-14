@@ -26,22 +26,18 @@ import { BaseRepository, type Transaction } from "./base";
 import { EventRepository } from "./event";
 
 export class SceneRepository extends BaseRepository {
-	async getSceneByPublicId(
-		scenePublicId: string,
-		tx?: Transaction,
-	): Promise<Scene> {
+	async getSceneById(sceneId: number, tx?: Transaction): Promise<Scene> {
 		const sceneData = await (tx ?? this.db)
 			.select()
 			.from(scene)
-			.where(eq(scene.publicId, scenePublicId))
+			.where(eq(scene.id, sceneId))
 			.limit(1)
 			.execute();
 
 		if (sceneData.length === 0) {
-			throw new SceneNotFoundError(scenePublicId);
+			throw new SceneNotFoundError(sceneId);
 		}
 
-		const sceneId = sceneData[0].id;
 		const choiceSceneData = await (tx ?? this.db)
 			.select()
 			.from(choiceScene)
@@ -68,7 +64,6 @@ export class SceneRepository extends BaseRepository {
 				sceneType: "choice",
 				choices: choices.map((c) => ({
 					id: c.id,
-					publicId: c.publicId,
 					text: c.text,
 					nextSceneId: c.nextSceneId,
 				})),
@@ -92,9 +87,7 @@ export class SceneRepository extends BaseRepository {
 		};
 	}
 
-	async getScenes(gamePublicId: string): Promise<Scene[] | null> {
-		const gameId = await this.getGameIdFromPublicId(gamePublicId);
-
+	async getScenes(gameId: number): Promise<Scene[] | null> {
 		const scenes = await this.db
 			.select()
 			.from(scene)
@@ -105,7 +98,7 @@ export class SceneRepository extends BaseRepository {
 			.execute();
 
 		if (scenes.length === 0) {
-			throw new SceneNotFoundError(gameId.toString());
+			throw new SceneNotFoundError(gameId);
 		}
 
 		const sceneDatas: Scene[] = scenes.map(
@@ -143,7 +136,6 @@ export class SceneRepository extends BaseRepository {
 				? await this.db
 						.select({
 							id: choice.id,
-							publicId: choice.publicId,
 							text: choice.text,
 							nextSceneId: choice.nextSceneId,
 							choiceSceneId: choice.choiceSceneId,
@@ -160,7 +152,6 @@ export class SceneRepository extends BaseRepository {
 					.filter((c) => c.sceneId === sceneData.id)
 					.map((c) => ({
 						id: c.id,
-						publicId: c.publicId,
 						text: c.text,
 						nextSceneId: c.nextSceneId,
 					}));
@@ -170,18 +161,16 @@ export class SceneRepository extends BaseRepository {
 	}
 
 	async createScene({
-		params: { name, fromScene, gamePublicId, userId },
+		params: { name, fromScene, gameId, userId },
 		tx,
 	}: {
-		params: CreateSceneRequest & { gamePublicId: string; userId: number };
+		params: CreateSceneRequest & { gameId: number; userId: number };
 		tx?: Transaction;
 	}): Promise<Scene> {
 		return await this.executeTransaction(async (txLocal) => {
 			const sceneData = createEndScene({
 				name,
 			});
-
-			const gameId = await this.getGameIdFromPublicId(gamePublicId, txLocal);
 
 			const createdScene = await txLocal
 				.insert(scene)
@@ -194,8 +183,8 @@ export class SceneRepository extends BaseRepository {
 			const eventRepository = new EventRepository();
 			const event = await eventRepository.createEvent({
 				params: {
-					gamePublicId,
-					scenePublicId: createdScene[0].publicId,
+					gameId,
+					sceneId: createdScene[0].id,
 					type: "textRender",
 					orderIndex: "a0", //TODO: 関数に
 					userId,
@@ -249,7 +238,6 @@ export class SceneRepository extends BaseRepository {
 				...sceneData,
 				id: createdScene[0].id,
 				gameId,
-				publicId: createdScene[0].publicId,
 				createdAt: createdScene[0].createdAt,
 				updatedAt: createdScene[0].updatedAt,
 				events: [event],
@@ -258,11 +246,11 @@ export class SceneRepository extends BaseRepository {
 	}
 
 	async updateScene({
-		scenePublicId,
+		sceneId,
 		params: { name, sceneType, nextSceneId, choices },
 		tx,
 	}: {
-		scenePublicId: string;
+		sceneId: number;
 		params: UpdateSceneRequest;
 		tx?: Transaction;
 	}): Promise<Scene> {
@@ -273,10 +261,8 @@ export class SceneRepository extends BaseRepository {
 					name,
 					updatedAt: sql.raw("NOW()"),
 				})
-				.where(eq(scene.publicId, scenePublicId))
+				.where(eq(scene.id, sceneId))
 				.returning();
-
-			const sceneId = sceneData[0].id;
 
 			// 関連するすべての派生タイプのレコードを削除
 			const choiceSceneRecord = await txLocal
@@ -343,31 +329,28 @@ export class SceneRepository extends BaseRepository {
 				}
 			}
 
-			return this.getSceneByPublicId(scenePublicId, txLocal);
+			return this.getSceneById(sceneId, txLocal);
 		}, tx);
 	}
 
 	async deleteScene({
-		params: { scenePublicId, gamePublicId },
+		params: { sceneId, gameId },
 		tx,
 	}: {
-		params: { gamePublicId: string; scenePublicId: string };
+		params: { gameId: number; sceneId: number };
 		tx?: Transaction;
 	}): Promise<void> {
 		return await this.executeTransaction(async (txLocal) => {
 			const sceneData = await txLocal
 				.select()
 				.from(scene)
-				.where(eq(scene.publicId, scenePublicId))
+				.where(eq(scene.id, sceneId))
 				.limit(1)
 				.execute();
 
 			if (sceneData.length === 0) {
-				throw new SceneNotFoundError(scenePublicId);
+				throw new SceneNotFoundError(sceneId);
 			}
-
-			const sceneId = sceneData[0].id;
-			const gameId = await this.getGameIdFromPublicId(gamePublicId, txLocal);
 
 			// 初期シーンかどうか確認
 			const initialScene = await txLocal
@@ -383,7 +366,7 @@ export class SceneRepository extends BaseRepository {
 				.execute();
 
 			if (initialScene.length > 0) {
-				throw new InitialSceneCannotBeDeletedError(gamePublicId);
+				throw new InitialSceneCannotBeDeletedError(gameId);
 			}
 
 			// 依存関係の削除

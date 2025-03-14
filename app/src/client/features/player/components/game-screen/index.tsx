@@ -34,7 +34,7 @@ export const GameScreen = ({
 	style,
 }: {
 	onTapScreen: (e: React.MouseEvent) => void;
-	onChoiceSelected: (choiceId: string) => void;
+	onChoiceSelected: (choiceId: number) => void;
 	onChangeAutoMode: (isAutoMode: boolean) => void;
 	onChangeMute: (isMute: boolean) => void;
 	stage: Stage;
@@ -87,19 +87,19 @@ export const GameScreen = ({
 				manager={manager}
 				isPreviewMode={isPreviewMode}
 			/>
-			<SoundPlayer resourceCache={resourceCache.bgms} sound={stage.bgm} />
+			<SoundPlayer resourceCache={resourceCache.bgm} sound={stage.bgm} />
 			<SoundPlayer
-				resourceCache={resourceCache.soundEffects}
+				resourceCache={resourceCache.soundEffect}
 				sound={stage.soundEffect}
 			/>
 			<Background
 				manager={manager}
 				background={stage.background}
 				currentEvent={currentEvent}
-				resourceCache={resourceCache.backgroundImages}
+				resourceCache={resourceCache.backgroundImage}
 			/>
 			<CharacterList
-				resourceCache={resourceCache.characters}
+				resourceCache={resourceCache.character}
 				characters={stage.characters}
 				currentEvent={currentEvent}
 				manager={manager}
@@ -108,7 +108,7 @@ export const GameScreen = ({
 				manager={manager}
 				cg={stage.cg}
 				currentEvent={currentEvent}
-				resourceCache={resourceCache.cgImages}
+				resourceCache={resourceCache.cgImage}
 			/>
 			<FadeOutEffect
 				manager={manager}

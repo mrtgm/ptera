@@ -17,6 +17,7 @@ import {
 	TabsList,
 	TabsTrigger,
 } from "@/client/components/shadcn/tabs";
+import { randomIntId } from "@/server/shared/utils/id";
 import { Graph } from "../../graph";
 import { ChoiceSceneContent } from "./choice-scene-content";
 import { EndSceneContent } from "./end-scene-content";
@@ -27,11 +28,11 @@ interface EndingEditorProps {
 	selectedScene: Scene;
 	game: Game | null;
 	onSaveEnding: (endingScene: Scene) => void;
-	onNavigateToScene: (sceneId: string) => void;
+	onNavigateToScene: (sceneId: number) => void;
 	onAddScene: (
 		sceneTitle: string,
 		fromScene: Scene,
-		choiceId?: string | null,
+		choiceId?: number | null,
 	) => Scene | null;
 }
 
@@ -46,7 +47,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 	const [localGame, setLocalGame] = useState<Game | null>(game);
 	const [hasChanges, setHasChanges] = useState(false);
 	const [isNewSceneDialogOpen, setIsNewSceneDialogOpen] = useState(false);
-	const activeChoiceId = useRef<string | null>(null);
+	const activeChoiceId = useRef<number | null>(null);
 
 	const currentScene = localGame?.scenes.find(
 		(scene) => scene.id === selectedScene.id,
@@ -126,7 +127,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 					choices: [
 						...scene.choices,
 						{
-							id: crypto.randomUUID(),
+							id: randomIntId(),
 							text: "",
 							nextSceneId: initialScene.id,
 						},
@@ -142,7 +143,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 		setHasChanges(true);
 	};
 
-	const handleRemoveChoice = (choiceId: string) => {
+	const handleRemoveChoice = (choiceId: number) => {
 		setLocalGame((prevGame) => {
 			if (!prevGame) return prevGame;
 
@@ -164,7 +165,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 		setHasChanges(true);
 	};
 
-	const handleChoiceTextChange = (choiceId: string, text: string) => {
+	const handleChoiceTextChange = (choiceId: number, text: string) => {
 		setLocalGame((prevGame) => {
 			if (!prevGame) return prevGame;
 
@@ -189,8 +190,8 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 	};
 
 	const handleChoiceNextSceneChange = (
-		choiceId: string,
-		nextSceneId: string,
+		choiceId: number,
+		nextSceneId: number,
 	) => {
 		setLocalGame((prevGame) => {
 			if (!prevGame) return prevGame;
@@ -215,7 +216,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 		setHasChanges(true);
 	};
 
-	const handleNextSceneChange = (nextSceneId: string) => {
+	const handleNextSceneChange = (nextSceneId: number) => {
 		setLocalGame((prevGame) => {
 			if (!prevGame) return prevGame;
 
@@ -237,7 +238,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 		setHasChanges(true);
 	};
 
-	const handleOpenNewSceneDialog = (choiceId: string | null = null) => {
+	const handleOpenNewSceneDialog = (choiceId: number | null = null) => {
 		activeChoiceId.current = choiceId;
 		setIsNewSceneDialogOpen(true);
 	};
@@ -308,7 +309,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 		}
 		if (isChoiceScene(currentScene)) {
 			const validChoices = currentScene.choices.filter(
-				(choice) => choice.text.trim() !== "" && choice.nextSceneId !== "",
+				(choice) => choice.text.trim() !== "" && choice.nextSceneId !== 0,
 			);
 			if (validChoices.length === 0) {
 				alert("少なくとも1つの有効な選択肢が必要です");
@@ -337,7 +338,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 					<div className="sticky top-0 z-10 bg-white border-b p-2 flex justify-between items-start">
 						<div>
 							<h2 className="text-xl font-bold">シーン終了設定</h2>
-							<p className="text-sm text-gray-500">{currentScene.title}</p>
+							<p className="text-sm text-gray-500">{currentScene.name}</p>
 						</div>
 						<div className="flex items-center gap-2">
 							<Button variant="outline" size="sm" onClick={handleCancel}>

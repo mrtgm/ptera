@@ -113,11 +113,10 @@ export class StatisticsRepository extends BaseRepository {
 	}
 
 	async playGame(
-		gamePublicId: string,
+		gameId: number,
 		userId: number | null | undefined,
 		guestId: string | null | undefined,
 	): Promise<CountResponse> {
-		const gameId = await this.getGameIdFromPublicId(gamePublicId);
 		await this.db
 			.insert(gamePlay)
 			.values({
@@ -138,8 +137,7 @@ export class StatisticsRepository extends BaseRepository {
 		};
 	}
 
-	async likeGame(gamePublicId: string, userId: number): Promise<CountResponse> {
-		const gameId = await this.getGameIdFromPublicId(gamePublicId);
+	async likeGame(gameId: number, userId: number): Promise<CountResponse> {
 		await this.db
 			.insert(like)
 			.values({
@@ -159,11 +157,7 @@ export class StatisticsRepository extends BaseRepository {
 		};
 	}
 
-	async unlikeGame(
-		gamePublicId: string,
-		userId: number,
-	): Promise<CountResponse> {
-		const gameId = await this.getGameIdFromPublicId(gamePublicId);
+	async unlikeGame(gameId: number, userId: number): Promise<CountResponse> {
 		await this.db
 			.delete(like)
 			.where(and(eq(like.gameId, gameId), eq(like.userId, userId)));

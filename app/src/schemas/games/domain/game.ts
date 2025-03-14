@@ -15,7 +15,6 @@ export const gameStatusSchema = z.union([
 export const gameSchema = z.object({
 	id: z.number(),
 	userId: z.number(),
-	publicId: z.string(),
 	name: z.string().min(1).max(100),
 	description: z.string().nullable(),
 	releaseDate: z.string().nullable(),
@@ -51,7 +50,6 @@ export const createGame = ({
 }): Game => {
 	const initial: Game = {
 		id: randomIntId(),
-		publicId: randomUUID(),
 		userId,
 		name,
 		description: description ?? null,

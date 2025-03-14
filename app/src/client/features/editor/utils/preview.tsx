@@ -9,7 +9,7 @@ import { sortByFractionalIndex } from "@/client/utils/sort";
 import type { Edge, Node } from "@xyflow/react";
 
 type PositionMap = {
-	[key: string]: {
+	[key: number]: {
 		position: { x: number; y: number };
 	};
 };
@@ -23,14 +23,14 @@ export const getAllNodesPosition = ({
 	const result: PositionMap = {};
 
 	// 各深さでのノードを追跡
-	const nodesByDepth: { [depth: number]: string[] } = {};
+	const nodesByDepth: { [depth: number]: number[] } = {};
 
-	const visited = new Set<string>();
+	const visited = new Set<number>();
 
 	for (const scene of game.scenes) {
 		if (visited.has(scene.id)) continue;
 		visited.add(scene.id);
-		const queue: { id: string; depth: number }[] = [{ id: scene.id, depth: 0 }];
+		const queue: { id: number; depth: number }[] = [{ id: scene.id, depth: 0 }];
 
 		while (queue.length > 0) {
 			const now = queue.shift();
@@ -99,7 +99,7 @@ export const getAllNodesPosition = ({
 
 	// 選択肢がある場合、親ノードを子ノードの中央に近づける
 	for (const sceneId in result) {
-		const scene = game.scenes.find((s) => s.id === sceneId);
+		const scene = game.scenes.find((s) => s.id === Number(sceneId));
 		if (!scene || scene.sceneType !== "choice" || scene.choices.length <= 1)
 			continue;
 
@@ -139,16 +139,18 @@ export const transfromToNodes = (
 		.map((scene) => scene.id);
 
 	return Object.entries(map).map(([sceneId, { position }]) => {
-		const scene = game.scenes.find((s) => s.id === sceneId);
-		const label = scene?.title ?? sceneId;
+		const numberedId = Number(sceneId);
+
+		const scene = game.scenes.find((s) => s.id === numberedId);
+		const label = scene?.name ?? sceneId;
 		return {
 			id: sceneId,
 			type: "custom",
 			position,
 			data: {
 				label,
-				isStart: sceneId === startId,
-				isEnd: endIds.includes(sceneId),
+				isStart: numberedId === startId,
+				isEnd: endIds.includes(numberedId),
 			},
 		} as Node;
 	});
@@ -162,7 +164,7 @@ export const getAllEdges = ({
 	if (!game) return [];
 
 	const result: Edge[] = [] as Edge[];
-	const visited = new Set<string>();
+	const visited = new Set<number>();
 
 	const BASE_EDGE_STYLE = {
 		stroke: "#000000",
@@ -171,9 +173,9 @@ export const getAllEdges = ({
 
 	const dfs = (
 		game: Game,
-		sceneId: string | undefined,
+		sceneId: number | undefined,
 		result: Edge[],
-		visited: Set<string>,
+		visited: Set<number>,
 	) => {
 		const newSceneId = sceneId ?? game.scenes[0].id;
 		const scene = game.scenes.find((s) => s.id === newSceneId);
@@ -186,8 +188,8 @@ export const getAllEdges = ({
 			for (const choice of scene.choices) {
 				result.push({
 					id: `${newSceneId}-${choice.nextSceneId}-${choice.id}`,
-					source: newSceneId,
-					target: choice.nextSceneId,
+					source: newSceneId.toString(),
+					target: choice.nextSceneId.toString(),
 					label: choice.text,
 					style: BASE_EDGE_STYLE,
 				});
@@ -200,8 +202,8 @@ export const getAllEdges = ({
 		if (scene.sceneType === "goto") {
 			result.push({
 				id: `${newSceneId}-${scene.nextSceneId}-goto`,
-				source: newSceneId,
-				target: scene.nextSceneId,
+				source: newSceneId.toString(),
+				target: scene.nextSceneId.toString(),
 				style: BASE_EDGE_STYLE,
 			});
 
@@ -224,18 +226,18 @@ export const findAllPaths = ({
 	targetSceneId,
 }: {
 	game: Game;
-	sceneId?: string;
-	targetSceneId: string;
+	sceneId?: number;
+	targetSceneId: number;
 }): Scene[] => {
 	const result: Scene[] = [];
-	const visited = new Set<string>();
+	const visited = new Set<number>();
 
 	const dfs = (
 		game: Game,
-		sceneId: string | undefined,
-		targetSceneId: string,
+		sceneId: number | undefined,
+		targetSceneId: number,
 		result: Scene[],
-		visited: Set<string>,
+		visited: Set<number>,
 	): boolean => {
 		const newSceneId = sceneId ?? game.scenes[0].id;
 		const scene = game.scenes.find((s) => s.id === newSceneId);
@@ -286,11 +288,11 @@ export const buildCurrentStageFromScenes = ({
 	scenes: Scene[];
 	currentStage: Stage;
 	resources: GameResources;
-	eventId?: string;
+	eventId?: number;
 }): Stage => {
 	const events = scenes.flatMap((scene) =>
 		scene.events.sort((a, b) => {
-			return sortByFractionalIndex(a.order, b.order);
+			return sortByFractionalIndex(a.orderIndex, b.orderIndex);
 		}),
 	);
 
@@ -317,9 +319,9 @@ export const buildCurrentStageFromScenes = ({
 	});
 
 	// もしイベントの最後が effect, soundEffect, characterEffect（one-shot なイベント）でない場合 nullにする
-	if (events.at(-1)?.type !== "effect") newStage.effect = null;
-	if (events.at(-1)?.type !== "soundEffect") newStage.soundEffect = null;
-	if (events.at(-1)?.type !== "characterEffect") {
+	if (events.at(-1)?.eventType !== "effect") newStage.effect = null;
+	if (events.at(-1)?.eventType !== "soundEffect") newStage.soundEffect = null;
+	if (events.at(-1)?.eventType !== "characterEffect") {
 		newStage.characters.items = newStage.characters.items.map((c) => ({
 			...c,
 			effect: null,
@@ -334,7 +336,7 @@ export const handleEvent = (
 	stage: Stage,
 	resources: GameResources | null,
 ): Stage => {
-	switch (event.type) {
+	switch (event.eventType) {
 		case "appearMessageWindow": {
 			return {
 				...stage,
@@ -343,7 +345,7 @@ export const handleEvent = (
 		}
 		case "hideMessageWindow":
 			return { ...stage, dialog: { ...stage.dialog, isVisible: false } };
-		case "text":
+		case "textRender":
 			return {
 				...stage,
 				dialog: {
@@ -469,6 +471,8 @@ export const handleEvent = (
 
 export const getFirstEvent = (events: GameEvent[]): GameEvent | null => {
 	return (
-		events.sort((a, b) => sortByFractionalIndex(a.order, b.order))[0] || null
+		events.sort((a, b) =>
+			sortByFractionalIndex(a.orderIndex, b.orderIndex),
+		)[0] || null
 	);
 };

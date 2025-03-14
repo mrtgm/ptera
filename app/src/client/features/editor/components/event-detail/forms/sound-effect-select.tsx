@@ -30,11 +30,11 @@ export const SoundEffectSelect = ({
 					<FormItem>
 						<FormLabel>{label}</FormLabel>
 
-						{field.value && resources.soundEffects[field.value] ? (
+						{field.value && resources.soundEffect[field.value] ? (
 							<>
 								<div className="flex items-center gap-2 mb-2 w-full">
 									<audio
-										src={resources.soundEffects[field.value].url}
+										src={resources.soundEffect[field.value].url}
 										controls
 										className="w-full"
 									>
@@ -42,7 +42,7 @@ export const SoundEffectSelect = ({
 									</audio>
 								</div>
 								<p className="text-sm text-gray-500 mb-2 mr-auto">
-									{resources.soundEffects[field.value].filename}
+									{resources.soundEffect[field.value].name}
 								</p>
 							</>
 						) : (
@@ -56,8 +56,8 @@ export const SoundEffectSelect = ({
 								size="sm"
 								onClick={() => {
 									modalSlice.openModal("asset.select", {
-										target: "soundEffects",
-										callback: (soundEffectId: string) => {
+										target: "soundEffect",
+										callback: (soundEffectId: number) => {
 											form.setValue("soundEffectId", soundEffectId, {
 												shouldDirty: true,
 											});

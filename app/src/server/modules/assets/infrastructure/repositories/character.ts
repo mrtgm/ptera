@@ -51,13 +51,13 @@ export class CharacterRepository extends BaseRepository {
 		tx,
 	}: {
 		params: {
-			characterId: string;
+			characterId: number;
 			name: string | null | undefined;
 		};
 		tx?: Transaction;
 	}): Promise<Character> {
 		return await this.executeTransaction(async (txLocal) => {
-			const characterToUpdate = await this.getCharacterByPublicId(
+			const characterToUpdate = await this.getCharacterById(
 				params.characterId,
 				txLocal,
 			);
@@ -92,12 +92,12 @@ export class CharacterRepository extends BaseRepository {
 		tx,
 	}: {
 		params: {
-			characterId: string;
+			characterId: number;
 		};
 		tx?: Transaction;
 	}): Promise<{ success: boolean }> {
 		return await this.executeTransaction(async (txLocal) => {
-			const characterToDelete = await this.getCharacterByPublicId(
+			const characterToDelete = await this.getCharacterById(
 				params.characterId,
 				txLocal,
 			);
@@ -132,13 +132,13 @@ export class CharacterRepository extends BaseRepository {
 		tx,
 	}: {
 		params: {
-			characterId: string;
-			assetId: string;
+			characterId: number;
+			assetId: number;
 		};
 		tx?: Transaction;
 	}): Promise<{ success: boolean }> {
 		return await this.executeTransaction(async (txLocal) => {
-			const characterToUpdate = await this.getCharacterByPublicId(
+			const characterToUpdate = await this.getCharacterById(
 				params.characterId,
 				txLocal,
 			);
@@ -147,7 +147,7 @@ export class CharacterRepository extends BaseRepository {
 			}
 
 			const assetRepository = new AssetRepository();
-			const assetToLink = await assetRepository.getAssetByPublicId(
+			const assetToLink = await assetRepository.getAssetById(
 				params.assetId,
 				txLocal,
 			);
@@ -188,13 +188,13 @@ export class CharacterRepository extends BaseRepository {
 		tx,
 	}: {
 		params: {
-			characterId: string;
-			assetId: string;
+			characterId: number;
+			assetId: number;
 		};
 		tx?: Transaction;
 	}): Promise<{ success: boolean }> {
 		return await this.executeTransaction(async (txLocal) => {
-			const characterToUpdate = await this.getCharacterByPublicId(
+			const characterToUpdate = await this.getCharacterById(
 				params.characterId,
 				txLocal,
 			);
@@ -203,7 +203,7 @@ export class CharacterRepository extends BaseRepository {
 			}
 
 			const assetRepository = new AssetRepository();
-			const assetToUnlink = await assetRepository.getAssetByPublicId(
+			const assetToUnlink = await assetRepository.getAssetById(
 				params.assetId,
 				txLocal,
 			);
@@ -226,15 +226,15 @@ export class CharacterRepository extends BaseRepository {
 		}, tx);
 	}
 
-	async getCharacterByPublicId(
-		characterId: string,
+	async getCharacterById(
+		characterId: number,
 		tx?: Transaction,
 	): Promise<Character | null> {
 		const dbToUse = tx || this.db;
 		const characterData = await dbToUse
 			.select()
 			.from(character)
-			.where(eq(character.publicId, characterId))
+			.where(eq(character.id, characterId))
 			.limit(1)
 			.execute();
 
@@ -244,14 +244,11 @@ export class CharacterRepository extends BaseRepository {
 	}
 
 	async getCharacterDetails(
-		characterId: string,
+		characterId: number,
 		tx?: Transaction,
 	): Promise<Character> {
 		return await this.executeTransaction(async (txLocal) => {
-			const characterData = await this.getCharacterByPublicId(
-				characterId,
-				txLocal,
-			);
+			const characterData = await this.getCharacterById(characterId, txLocal);
 
 			if (!characterData) {
 				throw new CharacterNotFoundError(characterId);
@@ -270,7 +267,6 @@ export class CharacterRepository extends BaseRepository {
 						(acc, cur) => {
 							acc[cur.asset.id] = {
 								id: cur.asset.id,
-								publicId: cur.asset.publicId,
 								name: cur.asset.name,
 								assetType: "characterImage",
 								url: cur.asset.url,

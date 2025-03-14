@@ -4,16 +4,17 @@ import type {
 	GameResources,
 	MediaAsset,
 } from "@/client/schema";
+import type { GameEventType } from "@/schemas/games/domain/event";
 import { getEventTitle } from "../constants";
 
 export const ResourceValidator = {
-	isCharacterInUse: (characterId: string, game: Game | null) => {
+	isCharacterInUse: (characterId: number, game: Game | null) => {
 		if (!game) return { inUse: false, usages: [] };
 
 		const usages: Array<{
-			sceneId: string;
+			sceneId: number;
 			sceneName: string;
-			eventId: string;
+			eventId: number;
 			eventType: string;
 		}> = [];
 
@@ -23,9 +24,9 @@ export const ResourceValidator = {
 				if (ResourceValidator.isEventUsingCharacter(event, characterId)) {
 					usages.push({
 						sceneId: scene.id,
-						sceneName: scene.title,
+						sceneName: scene.name,
 						eventId: event.id,
-						eventType: getEventTitle(event.type),
+						eventType: getEventTitle(event.eventType),
 					});
 				}
 			}
@@ -37,27 +38,27 @@ export const ResourceValidator = {
 		};
 	},
 
-	isEventUsingCharacter: (event: GameEvent, characterId: string): boolean => {
-		switch (event.type) {
+	isEventUsingCharacter: (event: GameEvent, characterId: number): boolean => {
+		switch (event.eventType) {
 			case "appearCharacter":
 			case "hideCharacter":
 			case "moveCharacter":
 			case "characterEffect":
 				return event.characterId === characterId;
-			case "text":
+			case "textRender":
 				return false;
 			default:
 				return false;
 		}
 	},
 
-	isImageInUse: (characterId: string, imageId: string, game: Game | null) => {
+	isImageInUse: (characterId: number, imageId: number, game: Game | null) => {
 		if (!game) return { inUse: false, usages: [] };
 
 		const usages: Array<{
-			sceneId: string;
+			sceneId: number;
 			sceneName: string;
-			eventId: string;
+			eventId: number;
 			eventType: string;
 		}> = [];
 
@@ -67,9 +68,9 @@ export const ResourceValidator = {
 				if (ResourceValidator.isEventUsingImage(event, characterId, imageId)) {
 					usages.push({
 						sceneId: scene.id,
-						sceneName: scene.title,
+						sceneName: scene.name,
 						eventId: event.id,
-						eventType: getEventTitle(event.type),
+						eventType: getEventTitle(event.eventType),
 					});
 				}
 			}
@@ -83,11 +84,11 @@ export const ResourceValidator = {
 
 	isEventUsingImage: (
 		event: GameEvent,
-		characterId: string,
-		imageId: string,
+		characterId: number,
+		imageId: number,
 	): boolean => {
 		// appearCharacterイベントの場合のみキャラクター画像を使用
-		if (event.type === "appearCharacter") {
+		if (event.eventType === "appearCharacter") {
 			return (
 				event.characterId === characterId && event.characterImageId === imageId
 			);
@@ -97,15 +98,15 @@ export const ResourceValidator = {
 
 	isAssetInUse: (
 		type: keyof Omit<GameResources, "characters">,
-		id: string,
+		id: number,
 		game: Game | null,
 	) => {
 		if (!game) return { inUse: false, usages: [] };
 
 		const usages: Array<{
-			sceneId: string;
+			sceneId: number;
 			sceneName: string;
-			eventId: string;
+			eventId: number;
 			eventType: string;
 		}> = [];
 
@@ -114,9 +115,9 @@ export const ResourceValidator = {
 				if (ResourceValidator.isEventUsingAsset(event, type, id)) {
 					usages.push({
 						sceneId: scene.id,
-						sceneName: scene.title,
+						sceneName: scene.name,
 						eventId: event.id,
-						eventType: getEventTitle(event.type),
+						eventType: getEventTitle(event.eventType),
 					});
 				}
 			}
@@ -131,24 +132,24 @@ export const ResourceValidator = {
 	isEventUsingAsset: (
 		event: GameEvent,
 		type: keyof Omit<GameResources, "characters">,
-		id: string,
+		id: number,
 	) => {
-		if (type === "backgroundImages" && event.type === "changeBackground") {
+		if (type === "backgroundImage" && event.eventType === "changeBackground") {
 			return event.backgroundId === id;
 		}
-		if (type === "soundEffects" && event.type === "soundEffect") {
+		if (type === "soundEffect" && event.eventType === "soundEffect") {
 			return event.soundEffectId === id;
 		}
-		if (type === "bgms" && event.type === "bgmStart") {
+		if (type === "bgm" && event.eventType === "bgmStart") {
 			return event.bgmId === id;
 		}
-		if (type === "cgImages" && event.type === "appearCG") {
+		if (type === "cgImage" && event.eventType === "appearCG") {
 			return event.cgImageId === id;
 		}
 		return false;
 	},
 
-	canDeleteCharacter: (characterId: string, game: Game | null) => {
+	canDeleteCharacter: (characterId: number, game: Game | null) => {
 		const { inUse, usages } = ResourceValidator.isCharacterInUse(
 			characterId,
 			game,
@@ -165,7 +166,7 @@ export const ResourceValidator = {
 
 	canDeleteAsset: (
 		type: keyof Omit<GameResources, "characters">,
-		id: string,
+		id: number,
 		game: Game | null,
 	) => {
 		const { inUse, usages } = ResourceValidator.isAssetInUse(type, id, game);
@@ -180,8 +181,8 @@ export const ResourceValidator = {
 	},
 
 	canDeleteImage: (
-		characterId: string,
-		imageId: string,
+		characterId: number,
+		imageId: number,
 		game: Game | null,
 		resources: GameResources | null,
 	) => {
@@ -193,8 +194,8 @@ export const ResourceValidator = {
 
 		// キャラクターの画像が1枚しかない場合は削除不可
 		const isLastImage =
-			resources?.characters[characterId] &&
-			Object.keys(resources.characters[characterId].images).length <= 1;
+			resources?.character[characterId] &&
+			Object.keys(resources.character[characterId].images).length <= 1;
 
 		return {
 			canDelete: !inUse && !isLastImage,

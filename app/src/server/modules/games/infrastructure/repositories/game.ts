@@ -16,12 +16,11 @@ import { BaseRepository, type Transaction } from "./base";
 import { StatisticsRepository } from "./statistic";
 
 export class GameRepository extends BaseRepository {
-	async getGameById(gamePublicId: string, tx?: Transaction): Promise<Game> {
+	async getGameById(gameId: number, tx?: Transaction): Promise<Game> {
 		return await this.executeTransaction(async (txLocal) => {
 			const gameData = await txLocal
 				.select({
 					id: game.id,
-					publicId: game.publicId,
 					name: game.name,
 					userId: game.userId,
 					description: game.description,
@@ -32,12 +31,12 @@ export class GameRepository extends BaseRepository {
 					updatedAt: game.updatedAt,
 				})
 				.from(game)
-				.where(eq(game.publicId, gamePublicId))
+				.where(eq(game.id, gameId))
 				.limit(1)
 				.execute();
 
 			if (gameData.length === 0) {
-				throw new GameNotFoundError(gamePublicId);
+				throw new GameNotFoundError(gameId);
 			}
 
 			const categoryIds = (
@@ -102,7 +101,6 @@ export class GameRepository extends BaseRepository {
 			return {
 				...gameData,
 				id: res.id,
-				publicId: res.publicId,
 				createdAt: res.createdAt,
 				updatedAt: res.updatedAt,
 			};
@@ -110,47 +108,40 @@ export class GameRepository extends BaseRepository {
 	}
 
 	async updateGameStatus({
-		params,
+		params: { gameId, status },
 		tx,
 	}: {
-		params: { gamePublicId: string; status: Game["status"] };
+		params: { gameId: number; status: Game["status"] };
 		tx?: Transaction;
 	}): Promise<Game> {
 		return await this.executeTransaction(async (txLocal) => {
-			const gameId = await this.getGameIdFromPublicId(
-				params.gamePublicId,
-				txLocal,
-			);
-
 			await txLocal
 				.update(game)
 				.set({
-					status: params.status,
-					releaseDate: params.status === "published" ? sql.raw("NOW()") : null,
+					status: status,
+					releaseDate: status === "published" ? sql.raw("NOW()") : null,
 					updatedAt: sql.raw("NOW()"),
 				})
 				.where(eq(game.id, gameId));
 
-			const updatedGame = await this.getGameById(params.gamePublicId, txLocal);
+			const updatedGame = await this.getGameById(gameId, txLocal);
 			if (!updatedGame) {
-				throw new GameNotFoundError(params.gamePublicId);
+				throw new GameNotFoundError(gameId);
 			}
 			return updatedGame;
 		}, tx);
 	}
 
 	async updateGame({
-		gamePublicId,
+		gameId,
 		params,
 		tx,
 	}: {
-		gamePublicId: string;
+		gameId: number;
 		params: UpdateGameRequest;
 		tx?: Transaction;
 	}): Promise<Game> {
 		return await this.executeTransaction(async (txLocal) => {
-			const gameId = await this.getGameIdFromPublicId(gamePublicId, txLocal);
-
 			await txLocal
 				.update(game)
 				.set({
@@ -175,26 +166,22 @@ export class GameRepository extends BaseRepository {
 				}
 			}
 
-			const updatedGame = await this.getGameById(gamePublicId, txLocal);
+			const updatedGame = await this.getGameById(gameId, txLocal);
 			if (!updatedGame) {
-				throw new GameNotFoundError(gamePublicId);
+				throw new GameNotFoundError(gameId);
 			}
 			return updatedGame;
 		}, tx);
 	}
 
 	async deleteGame({
-		params,
+		params: { gameId },
 		tx,
 	}: {
-		params: { gamePublicId: string };
+		params: { gameId: number };
 		tx?: Transaction;
 	}): Promise<void> {
 		return await this.executeTransaction(async (txLocal) => {
-			const gameId = await this.getGameIdFromPublicId(
-				params.gamePublicId,
-				txLocal,
-			);
 			await txLocal.delete(game).where(eq(game.id, gameId));
 		}, tx);
 	}
@@ -203,7 +190,6 @@ export class GameRepository extends BaseRepository {
 		const items = await this.db
 			.select({
 				id: game.id,
-				publicId: game.publicId,
 				name: game.name,
 				userId: game.userId,
 				description: game.description,
@@ -269,7 +255,6 @@ export class GameRepository extends BaseRepository {
 				coverImageUrl: game.coverImageUrl,
 				releaseDate: game.releaseDate,
 				userId: game.userId,
-				publicId: game.publicId,
 				updatedAt: game.updatedAt,
 				createdAt: game.createdAt,
 			})

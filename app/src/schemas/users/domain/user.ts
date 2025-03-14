@@ -15,7 +15,6 @@ export type UserProfile = z.infer<typeof userProfileSchema>;
 export const userSchema = z
 	.object({
 		id: z.number(),
-		publicId: z.string(),
 		jwtSub: z.string(),
 		isDeleted: z.boolean(),
 	})

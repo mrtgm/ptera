@@ -11,7 +11,7 @@ export const Background = ({
 	manager: EventManager;
 	background: Stage["background"] | null;
 	currentEvent: GameEvent | null;
-	resourceCache: ResourceCache["backgroundImages"];
+	resourceCache: ResourceCache["backgroundImage"];
 }) => {
 	if (!background || !currentEvent) return null;
 

@@ -1,7 +1,7 @@
 "use client";
 
+import type { UserProfile } from "@/client/schema";
 import { useEffect, useState } from "react";
-import type { UserProfile } from "~/client/schema";
 
 import { Alert, AlertDescription } from "~/client/components/shadcn/alert";
 import {
@@ -27,7 +27,7 @@ import { AlertTriangle, Camera, LogOut } from "lucide-react";
 
 const currentUser = {
 	name: "John Doe",
-	email: "example@example.com",
+	bio: "Hello, I'm John Doe",
 	avatarUrl: "https://i.pravatar.cc/300",
 };
 
@@ -46,7 +46,7 @@ export default function SettingsPage() {
 	// ローカル状態
 	const [profileData, setProfileData] = useState<Partial<UserProfile>>({
 		name: "",
-		email: "",
+		bio: "",
 	});
 
 	const [isSubmittingProfile, setIsSubmittingProfile] = useState(false);
@@ -59,7 +59,7 @@ export default function SettingsPage() {
 		if (currentUser) {
 			setProfileData({
 				name: currentUser.name,
-				email: currentUser.email,
+				bio: currentUser.bio,
 			});
 		}
 	}, []);
@@ -173,7 +173,7 @@ export default function SettingsPage() {
 								<Textarea
 									id="bio"
 									name="bio"
-									value={profileData.bio}
+									value={profileData.bio || ""}
 									onChange={handleProfileInputChange}
 									placeholder="自分自身について簡単に説明"
 									rows={4}

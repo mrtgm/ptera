@@ -1,37 +1,36 @@
-import type { AssetFormType } from "@/client/features/editor/components/event-detail/index.jsx";
-import type { GameEvent, GameResources } from "@/client/schema.js";
+import type { GameEvent, GameResources } from "@/client/schema";
 import type { StateCreator } from "zustand";
-import type { State } from "./index.js";
+import type { State } from "./";
 
 export interface AssetSelectParams {
-	target: keyof Omit<GameResources, "characters">;
-	callback: (assetId: string) => void;
+	target: keyof Omit<GameResources, "character">;
+	callback: (assetId: number) => void;
 }
 
 export interface AssetManageParams {
-	target: keyof Omit<GameResources, "characters">;
+	target: keyof Omit<GameResources, "character">;
 }
 
 export interface CharacterSelectParams {
-	callback: (characterId: string) => void;
+	callback: (characterId: number) => void;
 }
 
 export interface CharacterImageSelectParams {
-	callback: (characterId: string, assetId: string) => void;
+	callback: (characterId: number, assetId: number) => void;
 }
 
 export interface AdjustSizeParams {
-	target: "characters";
-	assetId: string;
-	characterId: string;
+	target: "character";
+	assetId: number;
+	characterId: number;
 	position: [number, number];
 	scale: number;
 	callback: (position: [number, number], scale: number) => void;
 }
 
 export interface PreviewParams {
-	currentSceneId: string;
-	currentEventId: string;
+	currentSceneId: number;
+	currentEventId: number;
 	formValues: Partial<GameEvent>;
 }
 

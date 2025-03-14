@@ -47,17 +47,14 @@ export class AssetRepository extends BaseRepository {
 		tx,
 	}: {
 		params: {
-			assetId: string;
+			assetId: number;
 			name?: string;
 			metadata?: Record<string, unknown>;
 		};
 		tx?: Transaction;
 	}): Promise<MediaAsset> {
 		return await this.executeTransaction(async (txLocal) => {
-			const assetToUpdate = await this.getAssetByPublicId(
-				params.assetId,
-				txLocal,
-			);
+			const assetToUpdate = await this.getAssetById(params.assetId, txLocal);
 			if (!assetToUpdate) {
 				throw new AssetNotFoundError(params.assetId);
 			}
@@ -93,15 +90,12 @@ export class AssetRepository extends BaseRepository {
 		tx,
 	}: {
 		params: {
-			assetId: string;
+			assetId: number;
 		};
 		tx?: Transaction;
 	}): Promise<{ success: boolean }> {
 		return await this.executeTransaction(async (txLocal) => {
-			const assetToDelete = await this.getAssetByPublicId(
-				params.assetId,
-				txLocal,
-			);
+			const assetToDelete = await this.getAssetById(params.assetId, txLocal);
 			if (!assetToDelete) {
 				throw new AssetNotFoundError(params.assetId);
 			}
@@ -127,24 +121,6 @@ export class AssetRepository extends BaseRepository {
 		}, tx);
 	}
 
-	async getAssetByPublicId(
-		assetId: string,
-		tx?: Transaction,
-	): Promise<MediaAsset | null> {
-		const dbToUse = tx || this.db;
-		const assetData = await dbToUse
-			.select()
-			.from(asset)
-			.where(eq(asset.publicId, assetId))
-			.limit(1)
-			.execute();
-
-		if (assetData.length === 0) {
-			throw new AssetNotFoundError(assetId);
-		}
-		return assetData[0] as MediaAsset;
-	}
-
 	async getAssetById(id: number, tx?: Transaction): Promise<MediaAsset> {
 		const dbToUse = tx || this.db;
 		const assetData = await dbToUse
@@ -155,7 +131,7 @@ export class AssetRepository extends BaseRepository {
 			.execute();
 
 		if (assetData.length === 0) {
-			throw new AssetNotFoundError(String(id));
+			throw new AssetNotFoundError(id);
 		}
 
 		return assetData[0] as MediaAsset;

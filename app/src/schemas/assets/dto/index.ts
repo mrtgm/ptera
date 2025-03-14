@@ -45,7 +45,7 @@ export type CharacterResponse = z.infer<typeof characterResponseSchema>;
 
 // キャラクターとアセットの関連付け
 export const assetCharacterLinkSchema = z.object({
-	assetId: z.string(),
+	assetId: z.number(),
 });
 
 export type AssetCharacterLinkRequest = z.infer<

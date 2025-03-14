@@ -13,8 +13,8 @@ import { memo, useCallback, useEffect, useState } from "react";
 
 import "@xyflow/react/dist/style.css";
 
+import type { Game } from "@/client/schema";
 import { useParams } from "next/navigation";
-import type { GameResponseDto } from "~/schemas/games/dto";
 import {
 	getAllEdges,
 	getAllNodesPosition,
@@ -92,8 +92,8 @@ export const Graph = ({
 	game,
 	onNavigateToScene,
 }: {
-	game: GameResponseDto | null;
-	onNavigateToScene: (sceneId: string) => void;
+	game: Game | null;
+	onNavigateToScene: (sceneId: number) => void;
 }) => {
 	const { sceneId } = useParams();
 	const [nodes, setNodes, onNodesChange] = useNodesState(
@@ -104,7 +104,7 @@ export const Graph = ({
 
 	const onNodeClick = useCallback(
 		(event: React.MouseEvent, node: Node) => {
-			onNavigateToScene(node.id);
+			onNavigateToScene(Number(node.id));
 		},
 		[onNavigateToScene],
 	);

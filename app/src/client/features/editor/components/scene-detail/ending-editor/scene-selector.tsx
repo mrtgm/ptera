@@ -18,11 +18,11 @@ import { useState } from "react";
 
 interface SceneSelectorProps {
 	game: Game | null;
-	currentSceneId: string;
-	selectedSceneId: string;
-	onSelect: (sceneId: string) => void;
+	currentSceneId: number;
+	selectedSceneId: number;
+	onSelect: (sceneId: number) => void;
 	onCreateNew: () => void;
-	onNavigate?: (sceneId: string) => void;
+	onNavigate?: (sceneId: number) => void;
 }
 
 export const SceneSelector: React.FC<SceneSelectorProps> = ({
@@ -35,10 +35,8 @@ export const SceneSelector: React.FC<SceneSelectorProps> = ({
 }) => {
 	const [commandValue, setCommandValue] = useState("");
 
-	const getSelectedSceneTitle = (sceneId: string) => {
-		return (
-			game?.scenes.find((scene) => scene.id === sceneId)?.title || "未選択"
-		);
+	const getSelectedSceneTitle = (sceneId: number) => {
+		return game?.scenes.find((scene) => scene.id === sceneId)?.name || "未選択";
 	};
 
 	return (
@@ -64,8 +62,10 @@ export const SceneSelector: React.FC<SceneSelectorProps> = ({
 				>
 					<Command
 						filter={(value, search) => {
-							const scene = game?.scenes.find((scene) => scene.id === value);
-							if (scene?.title.includes(search)) return 1;
+							const scene = game?.scenes.find(
+								(scene) => scene.id.toString() === value,
+							);
+							if (scene?.name.includes(search)) return 1;
 							return 0;
 						}}
 						className="h-64"
@@ -84,10 +84,10 @@ export const SceneSelector: React.FC<SceneSelectorProps> = ({
 								.map((scene) => (
 									<CommandItem
 										key={scene.id}
-										value={scene.id}
+										value={scene.id.toString()}
 										onSelect={() => onSelect(scene.id)}
 									>
-										{scene.title}
+										{scene.name}
 									</CommandItem>
 								))}
 						</CommandList>

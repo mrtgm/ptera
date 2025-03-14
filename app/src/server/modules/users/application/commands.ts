@@ -16,13 +16,13 @@ export const createUserCommand = ({
 }) => {
 	return {
 		executeUpdateProfile: async (
-			userPublicId: string,
+			userId: number,
 			params: UpdateProfileRequest,
 			currentUserId: number,
 		): Promise<UserResponse> => {
-			const user = await userRepository.getByPublicId(userPublicId);
+			const user = await userRepository.getById(userId);
 			if (!user) {
-				throw new UserNotFoundError(userPublicId);
+				throw new UserNotFoundError(userId);
 			}
 
 			if (user.id !== currentUserId) {
@@ -38,7 +38,7 @@ export const createUserCommand = ({
 
 			const updatedUser = await userRepository.getById(user.id);
 			if (!updatedUser) {
-				throw new UserNotFoundError(userPublicId);
+				throw new UserNotFoundError(userId);
 			}
 
 			return updatedUser;

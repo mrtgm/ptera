@@ -1,7 +1,7 @@
 "use client";
 
+import type { GameMetaData, UserProfile } from "@/client/schema";
 import { useEffect, useState } from "react";
-import type { GameMetaData, UserProfile } from "~/client/schema";
 import { useStore } from "~/client/stores";
 
 import { Alert, AlertDescription } from "~/client/components/shadcn/alert";
@@ -10,85 +10,81 @@ import {
 	AvatarFallback,
 	AvatarImage,
 } from "~/client/components/shadcn/avatar";
-import { Badge } from "~/client/components/shadcn/badge";
 // shadcn components
 import { Button } from "~/client/components/shadcn/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "~/client/components/shadcn/card";
-import { Separator } from "~/client/components/shadcn/separator";
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from "~/client/components/shadcn/tabs";
+import { Card, CardContent } from "~/client/components/shadcn/card";
 
 // lucide icons
-import {
-	AlertTriangle,
-	Calendar,
-	Clock,
-	Eye,
-	Gamepad2,
-	Heart,
-	Mail,
-	MessageSquare,
-	ThumbsUp,
-} from "lucide-react";
+import { AlertTriangle, Eye, Gamepad2, Mail, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import GameCard from "~/client/features/dashboard/components/game-card";
-import { formatDate } from "~/client/utils/date";
 
 const sampleUserProfile: UserProfile = {
-	id: "user-1",
+	id: 0,
 	name: "ゲームクリエイター",
-	email: "creator@example.com",
+	jwtSub: "user-1",
 	bio: "ゲームクリエイターです。よろしくお願いします。",
 	avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-	createdAt: Date.now().toLocaleString(),
-	updatedAt: Date.now().toLocaleString(),
 };
 
 // Dummy game data
 const sampleGames: GameMetaData[] = [
 	{
-		id: "game-1",
-		title: "青い鳥を探して",
-		author: "user-1",
-		authorAvatarUrl: "https://placehold.co/32x32/3b82f6/ffffff?text=U",
-
+		id: 1,
+		userId: 101,
+		name: "青い鳥を探して",
 		description:
 			"幸せを探す少年の旅路を描いた物語。プレイヤーの選択によって異なる結末へと導かれる。",
+		releaseDate: "2025-02-10T00:00:00.000Z",
 		coverImageUrl:
-			"https://placehold.co/400x225/3b82f6/ffffff?text=青い鳥を探して",
+			"https://placehold.co/1200x630/3b82f6/ffffff?text=青い鳥を探して",
 		schemaVersion: "1.0",
 		status: "published",
-		createdAt: 1708444800000,
-		updatedAt: 1709913600000,
-		playCount: 253,
+		categoryIds: [1, 3],
 		likeCount: 42,
+		playCount: 253,
+		createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+		updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+		username: "ゲームクリエイター",
+		avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
 	},
 	{
-		id: "game-2",
-		title: "迷宮の魔術師",
-		author: "user-1",
+		id: 3,
+		userId: 103,
+		name: "時の砂時計",
 		description:
-			"古代の迷宮に閉じ込められた魔術師となり、謎を解いて脱出を目指す。複数のエンディングと隠しルートがある。",
+			"タイムトラベルをテーマにした選択型アドベンチャー。過去と未来を行き来しながら謎を解き明かす。",
+		releaseDate: "2025-02-05T00:00:00.000Z",
 		coverImageUrl:
-			"https://placehold.co/400x225/a855f7/ffffff?text=迷宮の魔術師",
+			"https://placehold.co/1200x630/f59e0b/ffffff?text=時の砂時計",
 		schemaVersion: "1.0",
 		status: "published",
-		createdAt: 1706025600000,
-		updatedAt: 1708704000000,
-		playCount: 189,
-		likeCount: 28,
+		categoryIds: [2, 5],
+		likeCount: 67,
+		playCount: 312,
+		createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+		updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+		username: "ストーリーテラー",
+		avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mary",
+	},
+	{
+		id: 6,
+		userId: 105,
+		name: "星間飛行",
+		description:
+			"宇宙船のクルーとなり、未知の惑星を探索する宇宙冒険。各キャラクターとの関係性によってストーリーが変化。",
+		releaseDate: "2025-01-28T00:00:00.000Z",
+		coverImageUrl: "https://placehold.co/1200x630/06b6d4/ffffff?text=星間飛行",
+		schemaVersion: "1.0",
+		status: "published",
+		categoryIds: [4, 6],
+		likeCount: 56,
+		playCount: 287,
+		createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+		updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+		username: "SFファン",
+		avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emma",
 	},
 ];
 

@@ -31,17 +31,17 @@ export const CGSelect = ({
 					<FormItem>
 						<FormLabel>{label}</FormLabel>
 
-						{field.value && resources.cgImages[field.value] ? (
+						{field.value && resources.cgImage[field.value] ? (
 							<>
 								<div className="w-full max-w-[200px] h-auto bg-cover bg-center bg-no-repeat rounded-md mb-4">
 									<img
-										src={resources.cgImages[field.value].url}
+										src={resources.cgImage[field.value].url}
 										alt="CG"
 										className="w-full h-auto rounded-md"
 									/>
 								</div>
 								<p className="text-sm text-gray-500 mb-2">
-									{resources.cgImages[field.value].filename}
+									{resources.cgImage[field.value].name}
 								</p>
 							</>
 						) : (
@@ -54,8 +54,8 @@ export const CGSelect = ({
 							size="sm"
 							onClick={() => {
 								modalSlice.openModal("asset.select", {
-									target: "cgImages",
-									callback: (cgImageId: string) => {
+									target: "cgImage",
+									callback: (cgImageId: number) => {
 										form.setValue(FORM_NAME, cgImageId);
 									},
 								});

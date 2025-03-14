@@ -9,7 +9,6 @@ import type { GameResources } from "../../assets/domain/resoucres";
 
 export const textRenderEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("textRender"),
 	category: z.literal("message"),
 	orderIndex: z.string(),
@@ -21,7 +20,6 @@ export type TextRenderEvent = z.infer<typeof textRenderEventSchema>;
 
 export const appearMessageWindowEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("appearMessageWindow"),
 	category: z.literal("message"),
 	orderIndex: z.string(),
@@ -34,7 +32,6 @@ export type AppearMessageWindowEvent = z.infer<
 
 export const hideMessageWindowEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("hideMessageWindow"),
 	category: z.literal("message"),
 	orderIndex: z.string(),
@@ -47,14 +44,13 @@ export type HideMessageWindowEvent = z.infer<
 
 export const appearCharacterEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("appearCharacter"),
 	category: z.literal("character"),
 	orderIndex: z.string(),
 	characterId: z.number(),
 	characterImageId: z.number(),
 	position: z.tuple([z.number(), z.number()]),
-	scale: z.string(),
+	scale: z.number(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -62,7 +58,6 @@ export type AppearCharacterEvent = z.infer<typeof appearCharacterEventSchema>;
 
 export const hideCharacterEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("hideCharacter"),
 	category: z.literal("character"),
 	orderIndex: z.string(),
@@ -74,7 +69,6 @@ export type HideCharacterEvent = z.infer<typeof hideCharacterEventSchema>;
 
 export const hideAllCharactersEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("hideAllCharacters"),
 	category: z.literal("character"),
 	orderIndex: z.string(),
@@ -87,20 +81,18 @@ export type HideAllCharactersEvent = z.infer<
 
 export const moveCharacterEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("moveCharacter"),
 	category: z.literal("character"),
 	orderIndex: z.string(),
 	characterId: z.number(),
 	position: z.tuple([z.number(), z.number()]),
-	scale: z.string(),
+	scale: z.number(),
 });
 
 export type MoveCharacterEvent = z.infer<typeof moveCharacterEventSchema>;
 
 export const bgmStartEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("bgmStart"),
 	category: z.literal("media"),
 	orderIndex: z.string(),
@@ -114,7 +106,6 @@ export type BGMStartEvent = z.infer<typeof bgmStartEventSchema>;
 
 export const bgmStopEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("bgmStop"),
 	category: z.literal("media"),
 	orderIndex: z.string(),
@@ -125,7 +116,6 @@ export type BGMStopEvent = z.infer<typeof bgmStopEventSchema>;
 
 export const soundEffectEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("soundEffect"),
 	category: z.literal("media"),
 	orderIndex: z.string(),
@@ -139,7 +129,6 @@ export type SoundEffectEvent = z.infer<typeof soundEffectEventSchema>;
 
 export const changeBackgroundEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("changeBackground"),
 	category: z.literal("background"),
 	orderIndex: z.string(),
@@ -152,7 +141,6 @@ export type ChangeBackgroundEvent = z.infer<typeof changeBackgroundEventSchema>;
 export const effectType = ["fadeIn", "fadeOut", "shake"] as const;
 export const effectEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("effect"),
 	category: z.literal("effect"),
 	orderIndex: z.string(),
@@ -174,7 +162,6 @@ export const characterEffectType = [
 
 export const characterEffectEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("characterEffect"),
 	category: z.literal("character"),
 	orderIndex: z.string(),
@@ -187,13 +174,12 @@ export type CharacterEffectEvent = z.infer<typeof characterEffectEventSchema>;
 
 export const appearCGEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("appearCG"),
 	category: z.literal("cg"),
 	orderIndex: z.string(),
 	cgImageId: z.number(),
 	position: z.tuple([z.number(), z.number()]),
-	scale: z.string(),
+	scale: z.number(),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -201,7 +187,6 @@ export type AppearCGEvent = z.infer<typeof appearCGEventSchema>;
 
 export const hideCGEventSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	eventType: z.literal("hideCG"),
 	category: z.literal("cg"),
 	orderIndex: z.string(),
@@ -315,102 +300,87 @@ export const getDefaultValueForType = (
 	switch (type) {
 		case "textRender":
 			return {
-				publicId: randomUUID(),
 				text: "テキストを入力してください",
 				characterName: "",
 			};
 		case "appearMessageWindow":
 			return {
-				publicId: randomUUID(),
 				transitionDuration: 1000,
 			};
 		case "hideMessageWindow":
 			return {
-				publicId: randomUUID(),
 				transitionDuration: 1000,
 			};
 		case "appearCharacter": {
 			//TODO: 使用履歴を見て最後に選択したキャラクターを選択する
-			const characterId = Number(Object.keys(resources.characters)[0]);
+			const characterId = Number(Object.keys(resources.character)[0]);
 			const characterImageId = Object.values(
-				resources.characters[characterId].images,
+				resources.character[characterId].images,
 			)[0].id;
 			return {
-				publicId: randomUUID(),
 				characterId,
 				characterImageId,
 				transitionDuration: 1000,
-				scale: "1",
+				scale: 1,
 				position: [0, 0],
 			};
 		}
 		case "hideCharacter":
 			return {
-				publicId: randomUUID(),
-				characterId: Number(Object.keys(resources.characters)[0]),
+				characterId: Number(Object.keys(resources.character)[0]),
 				transitionDuration: 1000,
 			};
 		case "hideAllCharacters":
 			return {
-				publicId: randomUUID(),
 				transitionDuration: 1000,
 			};
 		case "moveCharacter":
 			return {
-				publicId: randomUUID(),
-				characterId: Number(Object.keys(resources.characters)[0]),
+				characterId: Number(Object.keys(resources.character)[0]),
 				position: [0, 0],
 				transitionDuration: 1000,
 			};
 		case "characterEffect":
 			return {
-				publicId: randomUUID(),
-				characterId: Number(Object.values(resources.characters)[0].id),
+				characterId: Number(Object.values(resources.character)[0].id),
 				effectType: "shake",
 				transitionDuration: 1000,
 			};
 		case "bgmStart":
 			return {
-				publicId: randomUUID(),
-				bgmId: Object.values(resources.bgms)[0].id,
+				bgmId: Object.values(resources.bgm)[0].id,
 				volume: 1,
 				loop: true,
 				transitionDuration: 1000,
 			};
 		case "bgmStop":
 			return {
-				publicId: randomUUID(),
 				transitionDuration: 1000,
 			};
 		case "soundEffect":
 			return {
-				publicId: randomUUID(),
-				soundEffectId: Object.values(resources.soundEffects)[0].id,
+				soundEffectId: Object.values(resources.soundEffect)[0].id,
 				volume: 1,
 				loop: false,
 				transitionDuration: 1000,
 			};
 		case "changeBackground":
 			return {
-				publicId: randomUUID(),
-				backgroundId: Object.values(resources.backgroundImages)[0].id,
+				backgroundId: Object.values(resources.backgroundImage)[0].id,
 				transitionDuration: 1000,
 			};
 		case "effect":
 			return {
-				publicId: randomUUID(),
 				effectType: "shake",
 				transitionDuration: 1000,
 			};
 		case "appearCG":
 			return {
-				publicId: randomUUID(),
-				cgImageId: Object.values(resources.cgImages)[0].id,
+				cgImageId: Object.values(resources.cgImage)[0].id,
 				transitionDuration: 1000,
 			};
 		case "hideCG":
 			return {
-				publicId: randomUUID(),
 				transitionDuration: 1000,
 			};
 		default:

@@ -27,8 +27,8 @@ export const ProjectSettings = ({
 }) => {
 	const form = useForm<ProjectSettingsFormData>({
 		defaultValues: {
-			gameTitle: game?.title || "",
-			authorName: game?.author || "",
+			gameTitle: game?.name || "",
+			authorName: game?.username || "",
 			description: game?.description || "",
 		},
 	});
@@ -40,8 +40,8 @@ export const ProjectSettings = ({
 	useEffect(() => {
 		if (game) {
 			form.reset({
-				gameTitle: game.title || "",
-				authorName: game.author || "",
+				gameTitle: game.name || "",
+				authorName: game.username || "",
 				description: game.description || "",
 			});
 		}

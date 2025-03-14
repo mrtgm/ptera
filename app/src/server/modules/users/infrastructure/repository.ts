@@ -3,11 +3,11 @@ import { user, userProfile } from "@/server/shared/infrastructure/db/schema";
 import { eq, inArray } from "drizzle-orm";
 import { UserNotFoundError } from "../../../../schemas/users/domain/error";
 import type { User } from "../../../../schemas/users/domain/user";
+import type { Transaction } from "../../games/infrastructure/repositories/base";
 
 export interface UserRepository {
-	getById(id: number): Promise<User | null>;
+	getById(id: number, tx?: Transaction): Promise<User | null>;
 	getUsersByIds(userIds: number[]): Promise<Record<number, User>>;
-	getByPublicId(publicId: string): Promise<User | null>;
 	getByJwtSub(jwtSub: string): Promise<User | null>;
 
 	updateUserProfile(
@@ -25,7 +25,6 @@ export const userRepository: UserRepository = {
 		return await db.transaction(async (tx) => {
 			const newUser = await tx.insert(user).values({ jwtSub }).returning({
 				id: user.id,
-				publicId: user.publicId,
 				jwtSub: user.jwtSub,
 			});
 			if (!newUser[0]) {
@@ -37,7 +36,6 @@ export const userRepository: UserRepository = {
 			});
 			return {
 				id: newUser[0].id,
-				publicId: newUser[0].publicId,
 				jwtSub: newUser[0].jwtSub,
 				name,
 				avatarUrl: "",
@@ -47,11 +45,10 @@ export const userRepository: UserRepository = {
 		});
 	},
 
-	getById: async (id: number) => {
-		return db
+	getById: async (id: number, tx?: Transaction) => {
+		return (tx || db)
 			.select({
 				id: user.id,
-				publicId: user.publicId,
 				jwtSub: user.jwtSub,
 				name: userProfile.name,
 				bio: userProfile.bio,
@@ -71,35 +68,10 @@ export const userRepository: UserRepository = {
 			});
 	},
 
-	getByPublicId: async (publicId: string) => {
-		return db
-			.select({
-				id: user.id,
-				publicId: user.publicId,
-				name: userProfile.name,
-				jwtSub: user.jwtSub,
-				bio: userProfile.bio,
-				avatarUrl: userProfile.avatarUrl,
-				isDeleted: user.isDeleted,
-			})
-			.from(user)
-			.innerJoin(userProfile, eq(user.id, userProfile.userId))
-			.where(eq(user.publicId, publicId))
-			.limit(1)
-			.execute()
-			.then((rows) => {
-				if (rows.length === 0) {
-					return null;
-				}
-				return rows[0];
-			});
-	},
-
 	getByJwtSub: async (jwtSub: string) => {
 		return db
 			.select({
 				id: user.id,
-				publicId: user.publicId,
 				jwtSub: user.jwtSub,
 				name: userProfile.name,
 				bio: userProfile.bio,
@@ -123,7 +95,6 @@ export const userRepository: UserRepository = {
 		const usersQuery = await db
 			.select({
 				id: user.id,
-				publicId: user.publicId,
 				name: userProfile.name,
 				avatarUrl: userProfile.avatarUrl,
 				bio: userProfile.bio,
@@ -140,7 +111,6 @@ export const userRepository: UserRepository = {
 				acc[u.id] = {
 					id: u.id,
 					jwtSub: u.jwtSub,
-					publicId: u.publicId,
 					name: u.name || "",
 					avatarUrl: u.avatarUrl,
 					bio: u.bio || "",
@@ -167,7 +137,7 @@ export const userRepository: UserRepository = {
 				.execute();
 
 			if (existingUser.length === 0) {
-				throw new UserNotFoundError("");
+				throw new UserNotFoundError(id);
 			}
 
 			// 更新するフィールドを準備

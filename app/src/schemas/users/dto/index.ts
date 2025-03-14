@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const userResponseSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	jwtSub: z.string(),
 	name: z.string(),
 	bio: z.string().optional().nullable(),

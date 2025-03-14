@@ -1,9 +1,8 @@
-import type {
-	EventProperties,
-	GameEvent,
-	GameResources,
-} from "@/client/schema";
-import { generateKeyBetween } from "fractional-indexing";
+import type { GameEvent } from "@/client/schema";
+import {
+	type GameEventType,
+	getEventCategory,
+} from "@/schemas/games/domain/event";
 import {
 	EyeOff,
 	FileImage,
@@ -44,7 +43,7 @@ export type SidebarItemParameter = {
 
 export type SidebarItem = {
 	id: string;
-	type: GameEvent["type"];
+	type: GameEventType;
 	icon: ReactElement;
 	label: string;
 	parameters: SidebarItemParameter[];
@@ -64,7 +63,7 @@ export const SideBarSettings: Record<
 		items: [
 			{
 				id: "text",
-				type: "text", // matches EventType
+				type: "textRender", // matches EventType
 				icon: <Pen />,
 				label: "テキスト",
 				parameters: [
@@ -333,26 +332,12 @@ export const SideBarSettings: Record<
 	},
 } as const;
 
-export const createEventFromSidebarItem = (
-	item: (typeof SideBarSettings)[keyof typeof SideBarSettings]["items"][number],
-	resources: GameResources,
-) => {
-	const event = {
-		id: crypto.randomUUID(),
-		type: item.type,
-		category: getEventCategory(item.type),
-		order: generateKeyBetween(null, null),
-		...getDefaultValueForType(item.type, resources),
-	} as GameEvent;
-	return event;
+export const FILE_VALIDATION_SETTING: ValidationOptions = {
+	allowedExtensions: ["jpg", "jpeg", "png", "gif", "mp3"],
+	maxFileSize: 1024 * 1024 * 5, // 5MB
 };
 
-export const getColorFromType = (type: GameEvent["type"]): string => {
-	const category = getEventCategory(type);
-	return SideBarSettings[category].hex;
-};
-
-export const getEventTitle = (type: GameEvent["type"]): string => {
+export const getEventTitle = (type: GameEventType): string => {
 	const title = Object.entries(SideBarSettings)
 		.flatMap(([_, value]) => {
 			return value.items.map((item) => {
@@ -370,134 +355,7 @@ export const getEventTitle = (type: GameEvent["type"]): string => {
 	return title[0] as string;
 };
 
-export const getEventCategory = (
-	type: GameEvent["type"],
-): GameEvent["category"] => {
-	switch (type) {
-		case "text":
-		case "appearMessageWindow":
-		case "hideMessageWindow":
-			return "message";
-		case "appearCharacter":
-		case "hideCharacter":
-		case "hideAllCharacters":
-		case "moveCharacter":
-		case "characterEffect":
-			return "character";
-		case "bgmStart":
-		case "bgmStop":
-		case "soundEffect":
-			return "media";
-		case "changeBackground":
-			return "background";
-		case "effect":
-			return "effect";
-		case "appearCG":
-		case "hideCG":
-			return "cg";
-		default:
-			return "message";
-	}
-};
-
-export const getDefaultValueForType = (
-	type: GameEvent["type"],
-	resources: GameResources,
-): EventProperties[GameEvent["type"]] => {
-	const defaults = {} as EventProperties[GameEvent["type"]];
-
-	switch (type) {
-		case "text":
-			return {
-				text: "テキストを入力してください",
-				characterName: "",
-			};
-		case "appearMessageWindow":
-			return {
-				transitionDuration: 1000,
-			};
-		case "hideMessageWindow":
-			return {
-				transitionDuration: 1000,
-			};
-		case "appearCharacter": {
-			//TODO: 使用履歴を見て最後に選択したキャラクターを選択する
-			const characterId = Object.keys(resources.characters)[0];
-			const characterImageId = Object.values(
-				resources.characters[characterId].images,
-			)[0].id;
-			return {
-				characterId,
-				characterImageId,
-				transitionDuration: 1000,
-				scale: 1,
-				position: [0, 0],
-			};
-		}
-		case "hideCharacter":
-			return {
-				characterId: Object.keys(resources.characters)[0],
-				transitionDuration: 1000,
-			};
-		case "hideAllCharacters":
-			return {
-				transitionDuration: 1000,
-			};
-		case "moveCharacter":
-			return {
-				characterId: Object.keys(resources.characters)[0],
-				position: [0, 0],
-				transitionDuration: 1000,
-			};
-		case "characterEffect":
-			return {
-				characterId: Object.keys(resources.characters)[0],
-				effectType: "shake",
-				transitionDuration: 1000,
-			};
-		case "bgmStart":
-			return {
-				bgmId: Object.keys(resources.bgms)[0],
-				volume: 1,
-				loop: true,
-				transitionDuration: 1000,
-			};
-		case "bgmStop":
-			return {
-				transitionDuration: 1000,
-			};
-		case "soundEffect":
-			return {
-				soundEffectId: Object.keys(resources.soundEffects)[0],
-				volume: 1,
-				loop: false,
-				transitionDuration: 1000,
-			};
-		case "changeBackground":
-			return {
-				backgroundId: Object.keys(resources.backgroundImages)[0],
-				transitionDuration: 1000,
-			};
-		case "effect":
-			return {
-				effectType: "shake",
-				transitionDuration: 1000,
-			};
-		case "appearCG":
-			return {
-				cgImageId: Object.keys(resources.cgImages)[0],
-				transitionDuration: 1000,
-			};
-		case "hideCG":
-			return {
-				transitionDuration: 1000,
-			};
-		default:
-			return defaults;
-	}
-};
-
-export const FILE_VALIDATION_SETTING: ValidationOptions = {
-	allowedExtensions: ["jpg", "jpeg", "png", "gif", "mp3"],
-	maxFileSize: 1024 * 1024 * 5, // 5MB
+export const getColorFromType = (type: GameEvent["eventType"]): string => {
+	const category = getEventCategory(type);
+	return SideBarSettings[category].hex;
 };

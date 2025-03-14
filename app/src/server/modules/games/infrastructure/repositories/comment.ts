@@ -1,3 +1,4 @@
+import type { GetCommentsRequest } from "@/schemas/games/dto";
 import { UserNotFoundError } from "@/schemas/users/domain/error";
 import { userRepository } from "@/server/modules/users/infrastructure/repository";
 import {
@@ -8,19 +9,16 @@ import {
 import { count, eq } from "drizzle-orm";
 import type { Comment } from "../../../../../schemas/games/domain/comment";
 import { CommentNotFoundError } from "../../../../../schemas/games/domain/error";
-import type { GetCommentsRequest } from "../../api/validator";
 import { BaseRepository, type Transaction } from "./base";
 
 export class CommentRepository extends BaseRepository {
-	async getCommentByPublicId(publicId: string): Promise<Comment | null> {
+	async getCommentById(commentId: number): Promise<Comment | null> {
 		const commentData = await this.db
 			.select({
 				id: comment.id,
-				publicId: comment.publicId,
 				content: comment.content,
 				userId: comment.userId,
 				gameId: comment.gameId,
-				userPublicId: user.publicId,
 				username: userProfile.name,
 				avatarUrl: userProfile.avatarUrl,
 				createdAt: comment.createdAt,
@@ -29,31 +27,27 @@ export class CommentRepository extends BaseRepository {
 			.from(comment)
 			.innerJoin(user, eq(comment.userId, user.id))
 			.innerJoin(userProfile, eq(user.id, userProfile.userId))
-			.where(eq(comment.publicId, publicId))
+			.where(eq(comment.id, commentId))
 			.limit(1)
 			.execute();
 
 		if (commentData.length === 0) {
-			throw new CommentNotFoundError(publicId);
+			throw new CommentNotFoundError(commentId);
 		}
 
 		return commentData[0];
 	}
 
 	async getComments(
-		publicId: string,
+		gameId: number,
 		filter: GetCommentsRequest,
 	): Promise<{ items: Comment[]; total: number }> {
-		const gameId = await this.getGameIdFromPublicId(publicId);
-
 		const commentsQuery = this.db
 			.select({
 				id: comment.id,
-				publicId: comment.publicId,
 				content: comment.content,
 				userId: comment.userId,
 				gameId: comment.gameId,
-				userPublicId: user.publicId,
 				username: userProfile.name,
 				avatarUrl: userProfile.avatarUrl,
 				createdAt: comment.createdAt,
@@ -80,26 +74,21 @@ export class CommentRepository extends BaseRepository {
 	}
 
 	async createComment({
-		params,
+		params: { gameId, userId, content },
 		tx,
 	}: {
 		params: {
-			gamePublicId: string;
-			userPublicId: string;
+			gameId: number;
+			userId: number;
 			content: string;
 		};
 		tx: Transaction;
 	}): Promise<Comment> {
 		return await this.executeTransaction(async (txLocal) => {
-			const gameId = await this.getGameIdFromPublicId(
-				params.gamePublicId,
-				txLocal,
-			);
-
-			const user = await userRepository.getByPublicId(params.userPublicId);
+			const user = await userRepository.getById(userId, txLocal);
 
 			if (!user) {
-				throw new UserNotFoundError(params.userPublicId);
+				throw new UserNotFoundError(userId);
 			}
 
 			const commentData = await this.db
@@ -107,14 +96,14 @@ export class CommentRepository extends BaseRepository {
 				.values({
 					userId: user.id,
 					gameId,
-					content: params.content,
+					content: content,
 				})
 				.returning()
 				.execute();
 
 			return {
 				...commentData[0],
-				userPublicId: user.publicId,
+				userId: user.id,
 				username: user.name,
 				avatarUrl: user.avatarUrl,
 			};
@@ -122,25 +111,24 @@ export class CommentRepository extends BaseRepository {
 	}
 
 	async deleteComment({
-		params: { commentPublicId },
+		params: { commentId },
 		tx,
 	}: {
-		params: { commentPublicId: string };
+		params: { commentId: number };
 		tx?: Transaction;
 	}): Promise<void> {
 		return await this.executeTransaction(async (txLocal) => {
 			const commentData = await txLocal
 				.select()
 				.from(comment)
-				.where(eq(comment.publicId, commentPublicId))
+				.where(eq(comment.id, commentId))
 				.limit(1)
 				.execute();
 
 			if (commentData.length === 0) {
-				throw new CommentNotFoundError(commentPublicId);
+				throw new CommentNotFoundError(commentId);
 			}
 
-			const commentId = commentData[0].id;
 			await txLocal.delete(comment).where(eq(comment.id, commentId)).execute();
 
 			return;

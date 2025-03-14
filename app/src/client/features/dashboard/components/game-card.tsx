@@ -56,9 +56,9 @@ interface GameCardProps {
 	game: GameMetaData;
 	showAuthor?: boolean;
 	showEdit?: boolean;
-	onDelete?: (id: string) => void;
+	onDelete?: (id: number) => void;
 	onPublishToggle?: (
-		id: string,
+		id: number,
 		status: "published" | "draft" | "archived",
 	) => void;
 }
@@ -76,7 +76,7 @@ export default function GameCard({
 				{game.coverImageUrl ? (
 					<img
 						src={game.coverImageUrl}
-						alt={game.title}
+						alt={game.name}
 						className="w-full h-full object-cover"
 					/>
 				) : (
@@ -159,7 +159,7 @@ export default function GameCard({
 
 			<CardHeader className="pb-2">
 				<div className="flex justify-between items-center">
-					<CardTitle className="text-xl truncate">{game.title}</CardTitle>
+					<CardTitle className="text-xl truncate">{game.name}</CardTitle>
 					{showEdit && (
 						<Badge
 							variant={game.status === "published" ? "default" : "secondary"}
@@ -174,19 +174,19 @@ export default function GameCard({
 			</CardHeader>
 
 			<CardContent className="pb-2 pt-0 flex-grow">
-				{showAuthor && game.author && (
+				{showAuthor && (
 					<div className="flex items-center">
 						<Avatar className="h-6 w-6 mr-2">
-							<AvatarImage src={game.authorAvatarUrl} alt={game.author} />
+							<AvatarImage src={game.avatarUrl} alt={game.username} />
 							<AvatarFallback className="text-xs">
-								{getInitials(game.author)}
+								{getInitials(game.username)}
 							</AvatarFallback>
 						</Avatar>
 						<Link
-							href={`/users/${game.author}`}
+							href={`/users/${game.userId}`}
 							className="text-sm hover:underline"
 						>
-							{game.author}
+							{game.username}
 						</Link>
 					</div>
 				)}

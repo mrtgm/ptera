@@ -40,7 +40,7 @@ export const AnimatePresence = ({
 	config,
 }: {
 	manager: EventManager;
-	eventId: string | undefined;
+	eventId: number | undefined;
 	children: ReactNode;
 	config?: CustomPresenceConfig;
 }) => {
@@ -189,7 +189,7 @@ export const AnimatePresence = ({
 
 		const transitionCfg: TransitionConfig = {
 			...transitionBase, // duration, easing, onComplete などの設定を継承
-			eventId: eventId ?? "",
+			eventId: eventId ?? 0,
 			targets: [
 				{
 					element: el,

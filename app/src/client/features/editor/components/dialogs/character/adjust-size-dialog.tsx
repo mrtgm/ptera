@@ -89,9 +89,9 @@ export const AdjustSizeDialog = ({
 	}, [isDragging]);
 
 	const assetResource =
-		params.target === "characters"
-			? resources.characters[params.characterId].images[params.assetId]
-			: resources.backgroundImages[params.assetId];
+		params.target === "character"
+			? resources.character[params.characterId].images[params.assetId]
+			: resources.backgroundImage[params.assetId];
 
 	if (!assetResource) return null;
 

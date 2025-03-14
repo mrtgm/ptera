@@ -13,6 +13,7 @@ import { createCommand } from "../application/commands";
 import { createQuery } from "../application/queries";
 import { CommentRepository } from "../infrastructure/repositories/comment";
 import {
+	CategoryRepository,
 	EventRepository,
 	GameRepository,
 	SceneRepository,
@@ -29,6 +30,7 @@ const eventRepository = new EventRepository();
 const resourceRepository = new ResourceRepository();
 const statisticsRepository = new StatisticsRepository();
 const commentRepository = new CommentRepository();
+const categoryRepository = new CategoryRepository();
 
 const queries = createQuery({
 	gameRepository,
@@ -46,6 +48,7 @@ const commands = createCommand({
 	eventRepository,
 	statisticsRepository,
 	commentRepository,
+	categoryRepository,
 });
 
 const setGuestId = (c: Context) => {
@@ -72,14 +75,14 @@ gameRoutes.use("*", async (c, next) => {
 });
 
 gameRoutes.openapi(gameRouteCongfigs.getGame, async (c) => {
-	const publicId = c.req.valid("param").gameId;
-	const result = await queries.executeGetGame(publicId);
+	const gameId = c.req.valid("param").gameId;
+	const result = await queries.executeGetGame(gameId);
 	return successWithDataResponse(c, result);
 });
 
 gameRoutes.openapi(gameRouteCongfigs.getAsset, async (c) => {
-	const publicId = c.req.valid("param").gameId;
-	const result = await queries.executeGetAsset(publicId);
+	const gameId = c.req.valid("param").gameId;
+	const result = await queries.executeGetAsset(gameId);
 	return successWithDataResponse(c, result);
 });
 
@@ -100,33 +103,29 @@ gameRoutes.openapi(gameRouteCongfigs.createGame, async (c) => {
 });
 
 gameRoutes.openapi(gameRouteCongfigs.updateGame, async (c) => {
-	const publicId = c.req.valid("param").gameId;
+	const gameId = c.req.valid("param").gameId;
 	const dto = c.req.valid("json");
 	const userId = c.get("user")?.id;
 	if (!userId) {
 		return errorResponse(c, 401, "unauthorized", "error");
 	}
-	const result = await commands.executeUpdateGame(publicId, dto, userId);
+	const result = await commands.executeUpdateGame(gameId, dto, userId);
 	return successWithDataResponse(c, result);
 });
 
 gameRoutes.openapi(gameRouteCongfigs.updateGameStatus, async (c) => {
-	const publicId = c.req.valid("param").gameId;
+	const gameId = c.req.valid("param").gameId;
 	const status = c.req.valid("json").status;
 	const userId = c.get("user")?.id;
 	if (!userId) {
 		return errorResponse(c, 401, "unauthorized", "error");
 	}
-	const result = await commands.executeUpdateGameStatus(
-		publicId,
-		status,
-		userId,
-	);
+	const result = await commands.executeUpdateGameStatus(gameId, status, userId);
 	return successWithDataResponse(c, result);
 });
 
 gameRoutes.openapi(gameRouteCongfigs.playGame, async (c) => {
-	const publicId = c.req.valid("param").gameId;
+	const gameId = c.req.valid("param").gameId;
 	const userId = c.get("user")?.id;
 	let guestId = null;
 
@@ -135,55 +134,55 @@ gameRoutes.openapi(gameRouteCongfigs.playGame, async (c) => {
 		if (!guestId) guestId = setGuestId(c);
 	}
 
-	const count = await commands.executePlayGame(publicId, userId, guestId);
+	const count = await commands.executePlayGame(gameId, userId, guestId);
 	return successWithDataResponse(c, count);
 });
 
 gameRoutes.openapi(gameRouteCongfigs.deleteGame, async (c) => {
-	const publicId = c.req.valid("param").gameId;
+	const gameId = c.req.valid("param").gameId;
 	const userId = c.get("user")?.id;
 	if (!userId) {
 		return errorResponse(c, 401, "unauthorized", "error");
 	}
-	await commands.executeDeleteGame(publicId, userId);
+	await commands.executeDeleteGame(gameId, userId);
 	return successWithoutDataResponse(c);
 });
 
 gameRoutes.openapi(gameRouteCongfigs.likeGame, async (c) => {
-	const publicId = c.req.valid("param").gameId;
+	const gameId = c.req.valid("param").gameId;
 	const userId = c.get("user")?.id;
 	if (!userId) {
 		return errorResponse(c, 401, "unauthorized", "error");
 	}
-	const count = await commands.executeLikeGame(publicId, userId);
+	const count = await commands.executeLikeGame(gameId, userId);
 	return successWithDataResponse(c, count);
 });
 
 gameRoutes.openapi(gameRouteCongfigs.unlikeGame, async (c) => {
-	const publicId = c.req.valid("param").gameId;
+	const gameId = c.req.valid("param").gameId;
 	const userId = c.get("user")?.id;
 	if (!userId) {
 		return errorResponse(c, 401, "unauthorized", "error");
 	}
-	const count = await commands.executeUnlikeGame(publicId, userId);
+	const count = await commands.executeUnlikeGame(gameId, userId);
 	return successWithDataResponse(c, count);
 });
 
 gameRoutes.openapi(gameRouteCongfigs.getComments, async (c) => {
-	const publicId = c.req.valid("param").gameId;
+	const gameId = c.req.valid("param").gameId;
 	const query = c.req.valid("query");
-	const result = await queries.executeGetComments(publicId, query);
+	const result = await queries.executeGetComments(gameId, query);
 	return successWithPaginationResponse(c, result);
 });
 
 gameRoutes.openapi(gameRouteCongfigs.createComment, async (c) => {
-	const publicId = c.req.valid("param").gameId;
+	const gameId = c.req.valid("param").gameId;
 	const dto = c.req.valid("json");
 	const userId = c.get("user")?.id;
 	if (!userId) {
 		return errorResponse(c, 401, "unauthorized", "error");
 	}
-	const result = await commands.executeCreateComment(publicId, dto, userId);
+	const result = await commands.executeCreateComment(gameId, dto, userId);
 	return successWithDataResponse(c, result);
 });
 
@@ -198,13 +197,13 @@ gameRoutes.openapi(gameRouteCongfigs.deleteComment, async (c) => {
 });
 
 gameRoutes.openapi(gameRouteCongfigs.createScene, async (c) => {
-	const publicId = c.req.valid("param").gameId;
+	const gameId = c.req.valid("param").gameId;
 	const dto = c.req.valid("json");
 	const userId = c.get("user")?.id;
 	if (!userId) {
 		return errorResponse(c, 401, "unauthorized", "error");
 	}
-	const result = await commands.executeCreateScene(publicId, dto, userId);
+	const result = await commands.executeCreateScene(gameId, dto, userId);
 	return successWithDataResponse(c, result);
 });
 

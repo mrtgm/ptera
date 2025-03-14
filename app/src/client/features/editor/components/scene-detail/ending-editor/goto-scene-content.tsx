@@ -12,9 +12,9 @@ import { SceneSelector } from "./scene-selector";
 interface GotoSceneContentProps {
 	scene: GotoScene;
 	game: Game | null;
-	currentSceneId: string;
-	onNextSceneChange: (nextSceneId: string) => void;
-	onNavigateToScene: (sceneId: string) => void;
+	currentSceneId: number;
+	onNextSceneChange: (nextSceneId: number) => void;
+	onNavigateToScene: (sceneId: number) => void;
 	onOpenNewSceneDialog: () => void;
 }
 

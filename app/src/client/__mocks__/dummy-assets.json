@@ -1,123 +1,108 @@
 {
-	"cgImages": {
-		"sakura": {
-			"id": "sakura",
-			"filename": "sakura.jpeg",
-			"url": "/presets/cgs/sakura.jpeg",
-			"metadata": {
-				"size": 2048000
-			}
-		}
-	},
-	"characters": {
-		"longhair-woman": {
-			"id": "longhair-woman",
-			"name": "謎のおねーさん",
-			"images": {
-				"longhair-woman-smile": {
-					"id": "longhair-woman-smile",
-					"filename": "smile.png",
-					"url": "/presets/characters/longhair-woman/smile.png",
-					"metadata": {
-						"size": 1024000
-					}
-				},
-				"longhair-woman-happy": {
-					"id": "longhair-woman-happy",
-					"filename": "happy.png",
-					"url": "/presets/characters/longhair-woman/happy.png",
-					"metadata": {
-						"size": 1024000
-					}
-				},
-				"longhair-woman-sad": {
-					"id": "longhair-woman-sad",
-					"filename": "sad.png",
-					"url": "/presets/characters/longhair-woman/sad.png",
-					"metadata": {
-						"size": 1024000
-					}
-				}
-			}
-		},
-		"mysterious-girl": {
-			"id": "mysterious-girl",
+	"character": {
+		"301": {
+			"id": 301,
 			"name": "謎の少女",
 			"images": {
-				"mysterious-girl-smile": {
-					"id": "mysterious-girl-smile",
-					"filename": "mysterious-girl-smile.png",
+				"401": {
+					"id": 401,
+					"assetType": "characterImage",
+					"name": "笑顔",
 					"url": "/presets/characters/mysterious-girl/smile.png",
-					"metadata": {
-						"size": 1024000
-					}
+					"metadata": { "size": 1024000 }
 				},
-				"mysterious-girl-happy": {
-					"id": "mysterious-girl-happy",
-					"filename": "mysterious-girl-happy.png",
+				"402": {
+					"id": 402,
+					"assetType": "characterImage",
+					"name": "嬉しい",
 					"url": "/presets/characters/mysterious-girl/happy.png",
-					"metadata": {
-						"size": 1024000
-					}
+					"metadata": { "size": 1024000 }
 				},
-				"mysterious-girl-sad": {
-					"id": "mysterious-girl-sad",
-					"filename": "mysterious-girl-sad.png",
+				"403": {
+					"id": 403,
+					"assetType": "characterImage",
+					"name": "悲しい",
 					"url": "/presets/characters/mysterious-girl/sad.png",
-					"metadata": {
-						"size": 1024000
-					}
+					"metadata": { "size": 1024000 }
+				}
+			}
+		},
+		"302": {
+			"id": 302,
+			"name": "謎のおねーさん",
+			"images": {
+				"404": {
+					"id": 404,
+					"assetType": "characterImage",
+					"name": "笑顔",
+					"url": "/presets/characters/longhair-woman/smile.png",
+					"metadata": { "size": 1024000 }
+				},
+				"405": {
+					"id": 405,
+					"assetType": "characterImage",
+					"name": "嬉しい",
+					"url": "/presets/characters/longhair-woman/happy.png",
+					"metadata": { "size": 1024000 }
+				},
+				"406": {
+					"id": 406,
+					"assetType": "characterImage",
+					"name": "悲しい",
+					"url": "/presets/characters/longhair-woman/sad.png",
+					"metadata": { "size": 1024000 }
 				}
 			}
 		}
 	},
-	"backgroundImages": {
-		"park-day": {
-			"id": "park-day",
-			"filename": "park-day.jpg",
+	"backgroundImage": {
+		"201": {
+			"id": 201,
+			"assetType": "backgroundImage",
+			"name": "公園（昼）",
 			"url": "/presets/backgrounds/park-day.jpeg",
-			"metadata": {
-				"size": 2048000
-			}
+			"metadata": { "size": 2048000 }
 		},
-		"school": {
-			"id": "school",
-			"filename": "school.png",
+		"202": {
+			"id": 202,
+			"assetType": "backgroundImage",
+			"name": "学校",
 			"url": "/presets/backgrounds/school.png",
-			"metadata": {
-				"size": 2048000
-			}
+			"metadata": { "size": 2048000 }
 		}
 	},
-	"soundEffects": {
-		"footsteps": {
-			"id": "footsteps",
-			"filename": "footsteps.mp3",
+	"soundEffect": {
+		"203": {
+			"id": 203,
+			"assetType": "soundEffect",
+			"name": "足音",
 			"url": "/presets/sounds/footsteps.m4a",
-			"metadata": {
-				"duration": 2.5,
-				"size": 102400
-			}
+			"metadata": { "duration": 2.5, "size": 102400 }
 		}
 	},
-	"bgms": {
-		"peaceful-day": {
-			"id": "peaceful-day",
-			"filename": "peaceful-day.mp3",
+	"bgm": {
+		"204": {
+			"id": 204,
+			"assetType": "bgm",
+			"name": "穏やかな一日",
 			"url": "/presets/bgms/peaceful-day.mp3",
-			"metadata": {
-				"duration": 180.0,
-				"size": 4096000
-			}
+			"metadata": { "duration": 180, "size": 4096000 }
 		},
-		"jazzy": {
-			"id": "jazzy",
-			"filename": "jazzy.mp3",
+		"205": {
+			"id": 205,
+			"assetType": "bgm",
+			"name": "ジャズ",
 			"url": "/presets/bgms/jazzy.mp3",
-			"metadata": {
-				"duration": 180.0,
-				"size": 4096000
-			}
+			"metadata": { "duration": 180, "size": 4096000 }
+		}
+	},
+	"cgImage": {
+		"206": {
+			"id": 206,
+			"assetType": "cgImage",
+			"name": "桜",
+			"url": "/presets/cgs/sakura.jpeg",
+			"metadata": { "size": 2048000 }
 		}
 	}
 }

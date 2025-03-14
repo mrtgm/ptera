@@ -5,6 +5,7 @@ import {
 	type GameResources,
 	gameResourcesSchema,
 } from "~/schemas/assets/domain/resoucres";
+import { categorySchema } from "../domain/category";
 import { type Comment, commentSchema } from "../domain/comment";
 import {
 	type GameEvent,
@@ -126,7 +127,7 @@ export type CountResponse = z.infer<typeof countResponseSchema>;
 
 export const gameListResponseSchema = gameSchema.merge(
 	z.object({
-		userPublicId: z.string(),
+		userId: z.number(),
 		username: z.string(),
 		avatarUrl: z.string().optional().nullable(),
 	}),
@@ -139,7 +140,7 @@ export const mapDomainToGameListResponse = (
 	return game.map((v) => {
 		return gameListResponseSchema.parse({
 			...v,
-			userPublicId: users[v.userId].publicId,
+			userId: users[v.userId].id,
 			username: users[v.userId].name,
 			avatarUrl: users[v.userId].avatarUrl,
 		});
@@ -154,7 +155,7 @@ export const mapDomainToGameResponse = (game: Game): Game => {
 
 export const gameDetailResponseSchema = gameWithSceneSchema.merge(
 	z.object({
-		userPublicId: z.string(),
+		userId: z.number(),
 		username: z.string(),
 		avatarUrl: z.string().optional().nullable(),
 	}),
@@ -166,7 +167,7 @@ export const mapDomainToGameDetailResponse = (
 	console.log(gameWithScene);
 	return gameDetailResponseSchema.parse({
 		...gameWithScene,
-		userPublicId: user.publicId,
+		userId: user.id,
 		username: user.name,
 		avatarUrl: user.avatarUrl,
 	});
@@ -190,7 +191,6 @@ export const mapDomainToSceneResponse = (scene: Scene): SceneResponse => {
 export const eventResponseSchema = z
 	.object({
 		id: z.number(),
-		publicId: z.string(),
 		eventType: z.string(),
 		category: z.string(),
 		orderIndex: z.string(),
@@ -211,3 +211,6 @@ export const mapDomainToCommentResponse = (
 ): CommentResponse => {
 	return commentResponseSchema.parse(comment);
 };
+
+export const categoryResponseSchema = categorySchema;
+export type CategoryResponse = z.infer<typeof categoryResponseSchema>;

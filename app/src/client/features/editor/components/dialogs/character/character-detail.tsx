@@ -8,7 +8,7 @@ import { DialogFooter } from "@/client/components/shadcn/dialog";
 import { Input } from "@/client/components/shadcn/input";
 import { Label } from "@/client/components/shadcn/label";
 import { FILE_VALIDATION_SETTING } from "@/client/features/editor/constants";
-import type { Game, GameResources } from "@/client/schema";
+import type { CharacterImage, Game, GameResources } from "@/client/schema";
 import { useStore } from "@/client/stores";
 import { cn } from "@/client/utils/cn";
 import { AlertTriangle, ArrowLeft, X } from "lucide-react";
@@ -21,15 +21,15 @@ import { useDeleteConfirmationDialog } from "../delete-confirmation-dialog";
 interface CharacterDetailProps {
 	game: Game;
 	resources: GameResources;
-	selectedCharacterId: string;
-	selectedImage: string | null;
+	selectedCharacterId: number;
+	selectedImage: number | null;
 	onBackToList: () => void;
-	onImageSelect: (imageId: string) => void;
-	onCharacterNameChange?: (characterId: string, name: string) => void;
-	onDeleteCharacter: (characterId: string) => void;
+	onImageSelect: (imageId: number | null) => void;
+	onCharacterNameChange?: (characterId: number, name: string) => void;
+	onDeleteCharacter: (characterId: number) => void;
 	onFilesSelected: (files: FileList | File[]) => void;
 	onConfirmSelection?: () => void;
-	onDeleteImage: (characterId: string, imageId: string) => void;
+	onDeleteImage: (characterId: number, imageId: number) => void;
 	selectionMode?: boolean;
 }
 
@@ -47,18 +47,18 @@ export const CharacterDetail = ({
 	onDeleteImage,
 	selectionMode = false,
 }: CharacterDetailProps) => {
-	const character = resources.characters[selectedCharacterId];
+	const character = resources.character[selectedCharacterId];
 	const [newCharacterName, setNewCharacterName] = useState<string>(
 		character?.name || "",
 	);
-	const [imageToDelete, setImageToDelete] = useState<string | null>(null);
+	const [imageToDelete, setImageToDelete] = useState<number | null>(null);
 
 	const [validationError, setValidationError] = useState<{
 		message: string;
 		usages: Array<{
-			sceneId: string;
+			sceneId: number;
 			sceneName: string;
-			eventId: string;
+			eventId: number;
 			eventType: string;
 		}>;
 	} | null>(null);
@@ -86,7 +86,7 @@ export const CharacterDetail = ({
 		);
 	}
 
-	const handleDeleteImageClick = (e: React.MouseEvent, imageId: string) => {
+	const handleDeleteImageClick = (e: React.MouseEvent, imageId: number) => {
 		e.stopPropagation();
 
 		// 画像が使用されているか検証
@@ -115,7 +115,7 @@ export const CharacterDetail = ({
 			onDeleteImage(selectedCharacterId, imageToDelete);
 			// 削除する画像が選択中だった場合、選択を解除
 			if (selectedImage === imageToDelete) {
-				onImageSelect("");
+				onImageSelect(null);
 			}
 		}
 		setDeleteCharacterImageDialogOpen(false);
@@ -152,7 +152,7 @@ export const CharacterDetail = ({
 		setValidationError(null);
 	};
 
-	const handleSceneNavigate = (sceneId: string, eventId: string) => {
+	const handleSceneNavigate = (sceneId: number, eventId: number) => {
 		modalSlice.closeModal();
 		router.push(`/editor/${sceneId}/${eventId}`);
 	};
@@ -237,38 +237,41 @@ export const CharacterDetail = ({
 			)}
 
 			<div className="flex-1 overflow-y-auto grid grid-cols-4 gap-4 pb-4">
-				{Object.entries(character.images || {}).map(([imageId, image]) => (
-					<div
-						key={imageId}
-						className={cn(
-							"border rounded-md p-2 cursor-pointer hover:border-blue-500 h-fit relative group",
-							selectedImage === imageId && "border-blue-500 bg-blue-50",
-						)}
-						onClick={() => onImageSelect(imageId)}
-						onKeyDown={(e) => e.key === "Enter" && onImageSelect(imageId)}
-						aria-selected={selectedImage === imageId}
-					>
-						<div className="aspect-square bg-gray-100 mb-2 overflow-hidden rounded">
-							<img
-								src={image.url}
-								alt={image.filename}
-								className="w-full h-full object-cover"
-							/>
-						</div>
-						<div className="text-xs text-gray-500 truncate">
-							{image.filename}
-						</div>
-						{/* 削除ボタン - ホバー時に表示 */}
-						<button
-							className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
-							onClick={(e) => handleDeleteImageClick(e, imageId)}
-							aria-label={`画像「${image.filename}」を削除`}
-							type="button"
+				{Object.entries(
+					character.images || ({} as Record<string, CharacterImage>),
+				).map(([imageId, image]) => {
+					const imageIdNum = Number(imageId);
+					return (
+						<div
+							key={imageId}
+							className={cn(
+								"border rounded-md p-2 cursor-pointer hover:border-blue-500 h-fit relative group",
+								selectedImage === imageIdNum && "border-blue-500 bg-blue-50",
+							)}
+							onClick={() => onImageSelect(imageIdNum)}
+							onKeyDown={(e) => e.key === "Enter" && onImageSelect(imageIdNum)}
+							aria-selected={selectedImage === imageIdNum}
 						>
-							<X size={16} />
-						</button>
-					</div>
-				))}
+							<div className="aspect-square bg-gray-100 mb-2 overflow-hidden rounded">
+								<img
+									src={image.url}
+									alt={image.name}
+									className="w-full h-full object-cover"
+								/>
+							</div>
+							<div className="text-xs text-gray-500 truncate">{image.name}</div>
+							{/* 削除ボタン - ホバー時に表示 */}
+							<button
+								className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+								onClick={(e) => handleDeleteImageClick(e, imageIdNum)}
+								aria-label={`画像「${image.name}」を削除`}
+								type="button"
+							>
+								<X size={16} />
+							</button>
+						</div>
+					);
+				})}
 			</div>
 			<AssetUpload
 				onFilesSelected={onFilesSelected}
@@ -294,7 +297,7 @@ export const CharacterDetail = ({
 						<div className="w-32 h-32 overflow-hidden rounded border">
 							<img
 								src={character.images[imageToDelete].url}
-								alt={character.images[imageToDelete].filename}
+								alt={character.images[imageToDelete].name}
 								className="w-full h-full object-cover"
 							/>
 						</div>

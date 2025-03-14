@@ -3,7 +3,6 @@ erDiagram
     User {
         string id PK
         string jwtSub "UNIQUE"
-        uuid publicId "UNIQUE"
         date updatedAt
         date createdAt
     }
@@ -24,7 +23,6 @@ erDiagram
 
     Asset {
         string id PK
-        uuid publicId "UNIQUE"
         string ownerId FK "NULL"
         %% nullの場合はパブリック
         boolean isPublic
@@ -44,7 +42,6 @@ erDiagram
 
     Character {
         string id PK
-        uuid publicId "UNIQUE"
         string ownerId FK "NULL"
         %% null の場合はパブリック
         boolean isPublic
@@ -93,7 +90,6 @@ erDiagram
 
     Game {
         string id PK
-        uuid publicId "UNIQUE"
         string userId FK
         %% 作成者 User.id
         string name
@@ -109,7 +105,6 @@ erDiagram
     %% プレイ履歴
     GamePlay {
         string id PK
-        uuid publicId "UNIQUE"
         string gameId FK
         string userId FK "NULL"
         date playedAt
@@ -136,7 +131,6 @@ erDiagram
 
     Comment {
         string id PK
-        uuid publicId "UNIQUE"
         string gameId FK
         string userId FK
         string content
@@ -150,7 +144,6 @@ erDiagram
 
     Like {
         string id PK
-        uuid publicId "UNIQUE"
         string gameId FK
         string userId FK
         date updatedAt
@@ -163,7 +156,6 @@ erDiagram
 
     GameCategory {
         string id PK
-        uuid publicId "UNIQUE"
         string name
         date updatedAt
         date createdAt
@@ -183,7 +175,6 @@ erDiagram
 
     Scene {
         string id PK
-        uuid publicId "UNIQUE"
         string gameId FK
         string title
         date updatedAt
@@ -199,7 +190,6 @@ erDiagram
     ChoiceScene {
         string id PK
         %% = Scene.id
-        uuid publicId "UNIQUE"
         string sceneId FK
         %% ex. ChoiceScene特有のカラム
         date updatedAt
@@ -210,7 +200,6 @@ erDiagram
 
     GotoScene {
         string id PK
-        uuid publicId "UNIQUE"
         string sceneId FK
         string nextSceneId
         date updatedAt
@@ -222,7 +211,6 @@ erDiagram
     EndScene {
         string id PK
         %% = Scene.id
-        string publicId "UNIQUE"
         string sceneId FK
         %% EndScene固有のカラムがあれば
         date updatedAt
@@ -234,7 +222,6 @@ erDiagram
 
     Choice {
         string id PK
-        string publicId "UNIQUE"
         string choiceSceneId FK
         string text
         string nextSceneId
@@ -248,7 +235,6 @@ erDiagram
     Event {
         string id PK
         string sceneId FK
-        string publicId "UNIQUE"
         enum type
         %% (ChangeBackground, AppearCharacter, etc.)
 		orderIndex string
@@ -263,7 +249,6 @@ erDiagram
     %% イベントカテゴリ (EventCategory) と イベントは多対多
     EventCategory {
         string id PK
-        string publicId "UNIQUE"
         string name
         date updatedAt
         date createdAt

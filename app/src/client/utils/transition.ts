@@ -20,7 +20,7 @@ type TransitionTarget = {
 export type TransitionConfig = {
 	targets: TransitionTarget[];
 	duration?: number;
-	eventId: string;
+	eventId: number;
 	easing?: EasingType;
 	onComplete?: (elements: HTMLElement[]) => void;
 };
@@ -190,7 +190,7 @@ export class Transition {
 
 export const fadeIn = (
 	manager: EventManager,
-	eventId: string,
+	eventId: number,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
@@ -218,7 +218,7 @@ export const fadeIn = (
 
 export const fadeOut = (
 	manager: EventManager,
-	eventId: string,
+	eventId: number,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
@@ -246,7 +246,7 @@ export const fadeOut = (
 
 export const crossFade = (
 	manager: EventManager,
-	eventId: string,
+	eventId: number,
 	duration: number,
 	elementOut: HTMLElement,
 	elementIn: HTMLElement,
@@ -287,7 +287,7 @@ export const crossFade = (
 
 export const shake = (
 	manager: EventManager,
-	eventId: string,
+	eventId: number,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
@@ -324,7 +324,7 @@ export const shake = (
 
 export const flash = (
 	manager: EventManager,
-	eventId: string,
+	eventId: number,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
@@ -353,7 +353,7 @@ export const flash = (
 
 export const wobble = (
 	manager: EventManager,
-	eventId: string,
+	eventId: number,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
@@ -383,7 +383,7 @@ export const wobble = (
 
 export const bounce = (
 	manager: EventManager,
-	eventId: string,
+	eventId: number,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
@@ -413,7 +413,7 @@ export const bounce = (
 
 export const sway = (
 	manager: EventManager,
-	eventId: string,
+	eventId: number,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
@@ -443,7 +443,7 @@ export const sway = (
 
 export const blackOn = (
 	manager: EventManager,
-	eventId: string,
+	eventId: number,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {
@@ -475,7 +475,7 @@ export const blackOn = (
 
 export const blackOff = (
 	manager: EventManager,
-	eventId: string,
+	eventId: number,
 	duration: number,
 	element: HTMLElement,
 ): Promise<void> => {

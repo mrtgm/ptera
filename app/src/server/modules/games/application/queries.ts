@@ -56,11 +56,11 @@ export const createQuery = ({
 			};
 		},
 
-		executeGetAsset: async (publicId: string) => {
-			const game = await gameRepository.getGameById(publicId);
+		executeGetAsset: async (gameId: number) => {
+			const game = await gameRepository.getGameById(gameId);
 
 			if (!game) {
-				throw new GameNotFoundError(publicId);
+				throw new GameNotFoundError(gameId);
 			}
 
 			// TODO: ゲームに紐づくリソースのみ取得するエンドポイントを分ける
@@ -68,28 +68,28 @@ export const createQuery = ({
 			return mapDomainToResourceResponse(resources);
 		},
 
-		executeGetGame: async (publicId: string): Promise<GameDetailResponse> => {
-			const game = await gameRepository.getGameById(publicId);
+		executeGetGame: async (gameId: number): Promise<GameDetailResponse> => {
+			const game = await gameRepository.getGameById(gameId);
 
 			if (!game) {
-				throw new GameNotFoundError(publicId);
+				throw new GameNotFoundError(gameId);
 			}
 
 			const initialSceneIdMap = await statisticsRepository.getGameInitialScenes(
 				[game.id],
 			);
 
-			const scenes = await sceneRepository.getScenes(publicId);
+			const scenes = await sceneRepository.getScenes(gameId);
 			const user = await userRepository.getById(game.userId);
 
 			if (initialSceneIdMap === null) {
-				throw new InitialSceneNotFoundError(publicId);
+				throw new InitialSceneNotFoundError(gameId);
 			}
 			if (!scenes) {
-				throw new ScenesNotFoundError(publicId);
+				throw new ScenesNotFoundError(gameId);
 			}
 			if (!user) {
-				throw new UserNotFoundError("User not found");
+				throw new UserNotFoundError(game.userId);
 			}
 
 			const eventMap = await eventRepository.getEvents(scenes.map((v) => v.id));
@@ -108,15 +108,15 @@ export const createQuery = ({
 		},
 
 		executeGetComments: async (
-			gamePublicId: string,
+			gameId: number,
 			params: GetCommentsRequest,
 		): Promise<{ items: CommentResponse[]; total: number }> => {
-			const game = await gameRepository.getGameById(gamePublicId);
+			const game = await gameRepository.getGameById(gameId);
 			if (!game) {
-				throw new GameNotFoundError(gamePublicId);
+				throw new GameNotFoundError(gameId);
 			}
 			const { items, total } = await commentRepository.getComments(
-				gamePublicId,
+				gameId,
 				params,
 			);
 

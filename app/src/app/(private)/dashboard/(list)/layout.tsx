@@ -61,7 +61,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 												{userSlice?.currentUser?.name || "Game Creator"}
 											</p>
 											<p className="text-xs text-muted-foreground truncate">
-												{userSlice?.currentUser?.email || ""}
+												{userSlice?.currentUser?.bio || ""}
 											</p>
 										</div>
 									</div>

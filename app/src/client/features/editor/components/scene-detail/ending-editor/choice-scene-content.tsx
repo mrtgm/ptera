@@ -15,25 +15,25 @@ import { SceneSelector } from "./scene-selector";
 interface ChoiceSceneContentProps {
 	scene: ChoiceScene;
 	game: Game | null;
-	currentSceneId: string;
+	currentSceneId: number;
 	onAddChoice: () => void;
-	onRemoveChoice: (choiceId: string) => void;
-	onChoiceTextChange: (choiceId: string, text: string) => void;
-	onChoiceNextSceneChange: (choiceId: string, nextSceneId: string) => void;
-	onNavigateToScene: (sceneId: string) => void;
-	onCreateNewSceneForChoice: (choiceId: string) => void;
+	onRemoveChoice: (choiceId: number) => void;
+	onChoiceTextChange: (choiceId: number, text: string) => void;
+	onChoiceNextSceneChange: (choiceId: number, nextSceneId: number) => void;
+	onNavigateToScene: (sceneId: number) => void;
+	onCreateNewSceneForChoice: (choiceId: number) => void;
 }
 
 interface ChoiceItemProps {
 	choice: Choice;
 	index: number;
 	game: Game | null;
-	currentSceneId: string;
-	onTextChange: (choiceId: string, text: string) => void;
-	onNextSceneChange: (choiceId: string, nextSceneId: string) => void;
-	onRemove: (choiceId: string) => void;
-	onNavigateToScene: (sceneId: string) => void;
-	onCreateNewScene: (choiceId: string) => void;
+	currentSceneId: number;
+	onTextChange: (choiceId: number, text: string) => void;
+	onNextSceneChange: (choiceId: number, nextSceneId: number) => void;
+	onRemove: (choiceId: number) => void;
+	onNavigateToScene: (sceneId: number) => void;
+	onCreateNewScene: (choiceId: number) => void;
 }
 
 const ChoiceItem: React.FC<ChoiceItemProps> = ({

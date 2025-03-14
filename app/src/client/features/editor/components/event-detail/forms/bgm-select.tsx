@@ -31,11 +31,11 @@ export const BGMSelect = ({
 					<FormItem className="flex flex-col items-end">
 						<FormLabel className="mr-auto">{label}</FormLabel>
 
-						{field.value && resources.bgms[field.value] ? (
+						{field.value && resources.bgm[field.value] ? (
 							<>
 								<div className="flex items-center gap-2 mb-2 w-full">
 									<audio
-										src={resources.bgms[field.value].url}
+										src={resources.bgm[field.value].url}
 										controls
 										className="w-full"
 									>
@@ -43,7 +43,7 @@ export const BGMSelect = ({
 									</audio>
 								</div>
 								<p className="text-sm text-gray-500 mb-2 mr-auto">
-									{resources.bgms[field.value].filename}
+									{resources.bgm[field.value].name}
 								</p>
 							</>
 						) : (
@@ -56,8 +56,8 @@ export const BGMSelect = ({
 							size="sm"
 							onClick={() => {
 								modalSlice.openModal("asset.select", {
-									target: "bgms",
-									callback: (bgmId: string) => {
+									target: "bgm",
+									callback: (bgmId: number) => {
 										form.setValue(FORM_NAME, bgmId, { shouldDirty: true });
 									},
 								});

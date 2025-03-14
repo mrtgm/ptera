@@ -29,7 +29,7 @@ import { AssetUpload } from "../asset-upload";
 import { useDeleteConfirmationDialog } from "../delete-confirmation-dialog";
 import { AssetCard } from "./asset-card";
 
-type resources = Omit<GameResources, "characters">;
+type resources = Omit<GameResources, "character">;
 export type AssetDialogKeyType = keyof resources;
 
 export const AssetDialogContainer = ({
@@ -41,9 +41,9 @@ export const AssetDialogContainer = ({
 }: {
 	game: Game | null;
 	resources: GameResources | null;
-	onDeleteAsset: (assetId: string, type: AssetDialogKeyType) => void;
+	onDeleteAsset: (assetId: number, type: AssetDialogKeyType) => void;
 	onUploadAsset: (file: File, type: AssetDialogKeyType) => void;
-	onNavigateToScene: (sceneId: string) => void;
+	onNavigateToScene: (sceneId: number) => void;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
 
@@ -90,9 +90,9 @@ const AssetDialog = ({
 	type: "asset.manage" | "asset.select";
 	resources: GameResources;
 	game: Game;
-	onDeleteAsset: (assetId: string, type: AssetDialogKeyType) => void;
+	onDeleteAsset: (assetId: number, type: AssetDialogKeyType) => void;
 	onUploadAsset: (file: File, type: AssetDialogKeyType) => void;
-	onNavigateToScene: (sceneId: string) => void;
+	onNavigateToScene: (sceneId: number) => void;
 	params: AssetManageParams | AssetSelectParams;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
@@ -103,14 +103,14 @@ const AssetDialog = ({
 	const initialTab = params.target;
 
 	const [activeTab, setActiveTab] = useState<AssetDialogKeyType>(initialTab);
-	const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
-	const [assetToDelete, setAssetToDelete] = useState<string | null>(null);
+	const [selectedAsset, setSelectedAsset] = useState<number | null>(null);
+	const [assetToDelete, setAssetToDelete] = useState<number | null>(null);
 	const [validationError, setValidationError] = useState<{
 		message: string;
 		usages: Array<{
-			sceneId: string;
+			sceneId: number;
 			sceneName: string;
-			eventId: string;
+			eventId: number;
 			eventType: string;
 		}>;
 	} | null>(null);
@@ -133,13 +133,13 @@ const AssetDialog = ({
 		}
 	};
 
-	const handleAssetSelect = (assetId: string) => {
+	const handleAssetSelect = (assetId: number) => {
 		if (isSelectionMode) {
 			setSelectedAsset(assetId);
 		}
 	};
 
-	const handleDeleteAssetClick = (e: React.MouseEvent, assetId: string) => {
+	const handleDeleteAssetClick = (e: React.MouseEvent, assetId: number) => {
 		e.stopPropagation();
 
 		// アセットが使用されているかチェック
@@ -186,7 +186,7 @@ const AssetDialog = ({
 		setValidationError(null);
 	};
 
-	const handleSceneNavigate = (sceneId: string, eventId: string) => {
+	const handleSceneNavigate = (sceneId: number, eventId: number) => {
 		modalSlice.closeModal();
 		onNavigateToScene(sceneId);
 	};
@@ -198,19 +198,19 @@ const AssetDialog = ({
 			icon: ReactElement;
 		}
 	> = {
-		backgroundImages: {
+		backgroundImage: {
 			label: "背景",
 			icon: <Film size={16} />,
 		},
-		cgImages: {
+		cgImage: {
 			label: "CG",
 			icon: <Image size={16} />,
 		},
-		bgms: {
+		bgm: {
 			label: "BGM",
 			icon: <Music size={16} />,
 		},
-		soundEffects: {
+		soundEffect: {
 			label: "効果音",
 			icon: <Volume2 size={16} />,
 		},
@@ -218,11 +218,11 @@ const AssetDialog = ({
 
 	const getPreviewType = (type: AssetDialogKeyType) => {
 		switch (type) {
-			case "backgroundImages":
-			case "cgImages":
+			case "backgroundImage":
+			case "cgImage":
 				return "image";
-			case "bgms":
-			case "soundEffects":
+			case "bgm":
+			case "soundEffect":
 				return "audio";
 			default:
 				return "placeholder";
@@ -307,7 +307,7 @@ const AssetDialog = ({
 										onDelete={handleDeleteAssetClick}
 										previewType={getPreviewType(activeTab)}
 										previewUrl={asset.url}
-										filename={asset.filename}
+										filename={asset.name}
 										placeholderContent={
 											AssetModalSideBarSettings[activeTab].icon
 										}
@@ -318,7 +318,7 @@ const AssetDialog = ({
 							<AssetUpload
 								onFilesSelected={handleFiles}
 								assetType={
-									activeTab === "backgroundImages" || activeTab === "cgImages"
+									activeTab === "backgroundImage" || activeTab === "cgImage"
 										? "image"
 										: "audio"
 								}
@@ -360,7 +360,7 @@ const AssetDialog = ({
 						<div className="w-32 h-32 overflow-hidden rounded border">
 							<img
 								src={selectedAssetForDelete.url}
-								alt={selectedAssetForDelete.filename}
+								alt={selectedAssetForDelete.name}
 								className="w-full h-full object-cover"
 							/>
 						</div>

@@ -24,10 +24,14 @@ export const Header = () => {
 		selectedEventId ?? //選択中のイベントがある
 		editorSlice.editingGame.scenes
 			.find((scene) => scene.id === previewSceneId)
-			?.events.sort((a, b) => sortByFractionalIndex(a.order, b.order))[0]?.id ?? //選択中のシーンの最初のイベントがある
+			?.events.sort((a, b) =>
+				sortByFractionalIndex(a.orderIndex, b.orderIndex),
+			)[0]?.id ?? //選択中のシーンの最初のイベントがある
 		editorSlice.editingGame.scenes
 			.find((scene) => scene.id === editorSlice.editingGame?.initialSceneId)
-			?.events.sort((a, b) => sortByFractionalIndex(a.order, b.order))[0]?.id ?? //初期シーンの最初のイベントがある
+			?.events.sort((a, b) =>
+				sortByFractionalIndex(a.orderIndex, b.orderIndex),
+			)[0]?.id ?? //初期シーンの最初のイベントがある
 		null;
 
 	return (
@@ -49,8 +53,8 @@ export const Header = () => {
 							variant="ghost"
 							onClick={() => {
 								modalSlice.openModal("preview", {
-									currentSceneId: previewSceneId as string,
-									currentEventId: previewEventId as string,
+									currentSceneId: Number(previewSceneId),
+									currentEventId: Number(previewEventId),
 									formValues: {},
 								});
 							}}
@@ -63,7 +67,7 @@ export const Header = () => {
 						onClick={() => {
 							console.log("fired?");
 							modalSlice.openModal("asset.manage", {
-								target: "backgroundImages",
+								target: "backgroundImage",
 							});
 						}}
 					>

@@ -25,7 +25,7 @@ export const EventItem = ({
 	event: GameEvent;
 	resources: GameResources;
 	selectedEvent: GameEvent | undefined | null;
-	onClickEvent: (eventId: string) => void;
+	onClickEvent: (eventId: number) => void;
 }) => {
 	const {
 		attributes,
@@ -51,10 +51,10 @@ export const EventItem = ({
 	const categoryColor = SideBarSettings[event.category]?.hex || "#6366F1";
 	const title =
 		SideBarSettings[event.category]?.items.find(
-			(item) => item.type === event.type,
-		)?.label || event.type;
+			(item) => item.type === event.eventType,
+		)?.label || event.eventType;
 	const icon = SideBarSettings[event.category]?.items.find(
-		(item) => item.type === event.type,
+		(item) => item.type === event.eventType,
 	)?.icon || <Pen />;
 
 	const style: React.CSSProperties = {
@@ -84,15 +84,15 @@ export const EventItem = ({
 };
 
 const renderEventContent = (event: GameEvent, resources: GameResources) => {
-	if (event.type === "text") {
+	if (event.eventType === "textRender") {
 		return `${event.characterName ? `${event.characterName}:` : ""}${(event as TextRenderEvent).text}`;
 	}
 
 	if (
-		event.type === "appearCharacter" ||
-		event.type === "moveCharacter" ||
-		event.type === "characterEffect" ||
-		event.type === "hideCharacter"
+		event.eventType === "appearCharacter" ||
+		event.eventType === "moveCharacter" ||
+		event.eventType === "characterEffect" ||
+		event.eventType === "hideCharacter"
 	) {
 		const characterEvent = event as
 			| AppearCharacterEvent
@@ -100,7 +100,7 @@ const renderEventContent = (event: GameEvent, resources: GameResources) => {
 			| HideCharacterEvent
 			| CharacterEffectEvent;
 
-		const characterData = resources.characters[characterEvent.characterId];
+		const characterData = resources.character[characterEvent.characterId];
 		const imageUrl = findFirstObjectValue(characterData.images)?.url;
 
 		return (
@@ -115,7 +115,7 @@ const renderEventContent = (event: GameEvent, resources: GameResources) => {
 		);
 	}
 
-	if (event.type === "appearCG") {
+	if (event.eventType === "appearCG") {
 		return <div>{(event as AppearCGEvent).cgImageId}</div>;
 	}
 

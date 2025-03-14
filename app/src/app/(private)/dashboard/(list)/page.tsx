@@ -1,7 +1,7 @@
 "use client";
 
+import type { GameMetaData } from "@/client/schema";
 import { useEffect, useState } from "react";
-import type { GameMetaData } from "~/client/schema";
 import { useStore } from "~/client/stores";
 
 import { Button } from "~/client/components/shadcn/button";
@@ -18,6 +18,7 @@ import {
 	TabsTrigger,
 } from "~/client/components/shadcn/tabs";
 
+import { createGame as createDomainGame } from "@/schemas/games/domain/game";
 // lucide icons
 import { Gamepad2, Plus } from "lucide-react";
 import CreateGameDialog from "~/client/features/dashboard/components/create-game-dialog";
@@ -26,64 +27,23 @@ import GameCard from "~/client/features/dashboard/components/game-card";
 // Dummy game data
 const dummyGames: GameMetaData[] = [
 	{
-		id: "game-1",
-		title: "青い鳥を探して",
-		author: "user-1",
-		authorAvatarUrl: "https://placehold.co/32x32/3b82f6/ffffff?text=U",
-
+		id: 0,
+		name: "青い鳥を探して",
+		userId: 0,
+		username: "user-0",
+		avatarUrl: "https://placehold.co/32x32/3b82f6/ffffff?text=U",
 		description:
 			"幸せを探す少年の旅路を描いた物語。プレイヤーの選択によって異なる結末へと導かれる。",
 		coverImageUrl:
 			"https://placehold.co/400x225/3b82f6/ffffff?text=青い鳥を探して",
+		releaseDate: "170844480000",
 		schemaVersion: "1.0",
 		status: "published",
-		createdAt: 1708444800000,
-		updatedAt: 1709913600000,
+		createdAt: "1708444800000",
+		updatedAt: "1709913600000",
 		playCount: 253,
 		likeCount: 42,
-	},
-	{
-		id: "game-2",
-		title: "迷宮の魔術師",
-		author: "user-1",
-		description:
-			"古代の迷宮に閉じ込められた魔術師となり、謎を解いて脱出を目指す。複数のエンディングと隠しルートがある。",
-		coverImageUrl:
-			"https://placehold.co/400x225/a855f7/ffffff?text=迷宮の魔術師",
-		schemaVersion: "1.0",
-		status: "published",
-		createdAt: 1706025600000,
-		updatedAt: 1708704000000,
-		playCount: 189,
-		likeCount: 28,
-	},
-	{
-		id: "game-3",
-		title: "星の王子様",
-		author: "user-1",
-		description:
-			"未完成の作品です。小惑星から来た不思議な少年との出会いを描く物語。",
-		schemaVersion: "1.0",
-		status: "draft",
-		createdAt: 1709568000000,
-		updatedAt: 1710432000000,
-		playCount: 0,
-		likeCount: 0,
-	},
-	{
-		id: "game-4",
-		title: "海底都市アトランティス",
-		author: "user-1",
-		description:
-			"失われた伝説の都市アトランティスを探索する冒険ゲーム。水中での謎解きや選択肢によって物語が分岐する。",
-		coverImageUrl:
-			"https://placehold.co/400x225/10b981/ffffff?text=アトランティス",
-		schemaVersion: "1.0",
-		status: "draft",
-		createdAt: 1709395200000,
-		updatedAt: 1710777600000,
-		playCount: 0,
-		likeCount: 0,
+		categoryIds: [0, 1],
 	},
 ];
 
@@ -92,9 +52,9 @@ export default function GamesPage() {
 	// const currentUser = useStore((state) => state.currentUser);
 
 	const [currentUser, setCurrentUser] = useState({
-		id: "user-1",
+		id: 0,
 		name: "ゲームクリエイター",
-		email: "example@exmaple.com",
+		bio: "ゲームクリエイターです。",
 		avatarUrl: "https://i.pravatar.cc/300",
 	});
 
@@ -108,29 +68,29 @@ export default function GamesPage() {
 		setUserGames(dummyGames);
 	}, []);
 
-	const createGame = async (title: string, description: string) => {
-		const newGame: GameMetaData = {
-			id: `game-${Date.now()}`,
-			title,
-			author: currentUser?.id || "unknown",
+	const createGame = async (name: string, description: string) => {
+		const newGame = createDomainGame({
+			userId: currentUser.id,
+			name,
 			description,
-			schemaVersion: "1.0",
-			status: "draft",
-			createdAt: Date.now(),
-			updatedAt: Date.now(),
-			playCount: 0,
-			likeCount: 0,
-		};
+		});
 
-		setUserGames((prev) => [...prev, newGame]);
+		setUserGames((prev) => [
+			...prev,
+			{
+				...newGame,
+				username: currentUser.name,
+				avatarUrl: currentUser.avatarUrl,
+			},
+		]);
 		return newGame.id;
 	};
 
-	const deleteGame = async (gameId: string) => {
+	const deleteGame = async (gameId: number) => {
 		setUserGames((prev) => prev.filter((game) => game.id !== gameId));
 	};
 
-	const publishGame = async (gameId: string, shouldPublish: boolean) => {
+	const publishGame = async (gameId: number, shouldPublish: boolean) => {
 		setUserGames((prev) =>
 			prev.map((game) =>
 				game.id === gameId
@@ -138,7 +98,7 @@ export default function GamesPage() {
 							...game,
 							status: shouldPublish ? "published" : "draft",
 							isPublic: shouldPublish,
-							updatedAt: Date.now(),
+							updatedAt: Date.now().toString(),
 						}
 					: game,
 			),
@@ -146,7 +106,7 @@ export default function GamesPage() {
 	};
 
 	const handlePublishToggle = async (
-		gameId: string,
+		gameId: number,
 		currentStatus: "draft" | "published" | "archived",
 	) => {
 		//TODO:実装

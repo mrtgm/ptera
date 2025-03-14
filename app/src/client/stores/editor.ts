@@ -1,23 +1,27 @@
-import type { SceneSettingsFormData } from "@/client/features/editor/components/scene-detail/scene-settings.jsx";
-import type { ProjectSettingsFormData } from "@/client/features/editor/components/scene-list/project-settings.jsx";
-import {
-	type SidebarItem,
-	createEventFromSidebarItem,
-} from "@/client/features/editor/constants";
+import type { SceneSettingsFormData } from "@/client/features/editor/components/scene-detail/scene-settings";
+import type { ProjectSettingsFormData } from "@/client/features/editor/components/scene-list/project-settings";
+import type { SidebarItem } from "@/client/features/editor/constants";
 import { isChoiceScene, isEndScene, isGotoScene } from "@/client/schema";
 import type {
 	Character,
 	Game,
 	GameEvent,
 	GameResources,
-	GotoScene,
 	MediaAsset,
 	Scene,
-} from "@/client/schema.js";
+} from "@/client/schema";
 import { generateKeyBetween } from "fractional-indexing";
 import type { StateCreator } from "zustand";
 
-import type { State } from "./index.js";
+import {
+	type AssetType,
+	createAsset,
+	createCharacter,
+} from "@/schemas/assets/domain/resoucres";
+import { createEvent } from "@/schemas/games/domain/event";
+import { createEndScene } from "@/schemas/games/domain/scene";
+import type { AssetDialogKeyType } from "../features/editor/components/dialogs";
+import type { State } from "./";
 
 export interface EditorState {
 	editingGame: Game | null;
@@ -27,41 +31,41 @@ export interface EditorState {
 	initializeEditor: (game: Game, resources: GameResources) => void;
 
 	createGame: (title: string, description: string) => Promise<string>; // Returns gameId
-	deleteGame: (gameId: string) => Promise<boolean>;
-	publishGame: (gameId: string, isPublic: boolean) => Promise<boolean>;
+	deleteGame: (gameId: number) => Promise<boolean>;
+	publishGame: (gameId: number, isPublic: boolean) => Promise<boolean>;
 
 	addScene: (
 		sceneTitle: string,
 		fromScene?: Scene,
-		choiceId?: string | null,
+		choiceId?: number | null,
 	) => Scene | null;
-	deleteScene: (sceneId: string) => void;
+	deleteScene: (sceneId: number) => void;
 	saveSceneSettings: (data: SceneSettingsFormData) => void;
 	saveEnding: (endingScene: Scene) => void;
 
 	addEvent: (
 		index: number,
 		item: SidebarItem,
-		selectedSceneId: string,
+		selectedSceneId: number,
 	) => GameEvent | null;
 	moveEvent: (
 		oldIndex: number,
 		newIndex: number,
-		selectedSceneId: string,
+		selectedSceneId: number,
 	) => void;
-	deleteEvent: (eventId: string, selectedSceneId: string) => void;
-	saveEvent: (event: GameEvent, selectedSceneId: string) => void;
+	deleteEvent: (eventId: number, selectedSceneId: number) => void;
+	saveEvent: (event: GameEvent, selectedSceneId: number) => void;
 
 	saveProjectSettings: (data: ProjectSettingsFormData) => void;
 
 	addCharacter: (name: string) => void;
-	updateCharacterName: (characterId: string, name: string) => void;
-	deleteCharacter: (characterId: string) => void;
-	uploadCharacterImage: (characterId: string, file: File) => void;
-	deleteCharacterImage: (characterId: string, imageId: string) => void;
+	updateCharacterName: (characterId: number, name: string) => void;
+	deleteCharacter: (characterId: number) => void;
+	uploadCharacterImage: (characterId: number, file: File) => void;
+	deleteCharacterImage: (characterId: number, imageId: number) => void;
 
-	deleteAsset: (assetId: string, type: keyof GameResources) => void;
-	uploadAsset: (file: File, type: keyof GameResources) => void;
+	deleteAsset: (assetId: number, type: AssetDialogKeyType) => void;
+	uploadAsset: (file: File, type: AssetDialogKeyType) => void;
 
 	markAsDirty: () => void;
 	markAsClean: () => void;
@@ -87,24 +91,17 @@ export const createEditorSlice: StateCreator<
 
 	// シーン追加
 	addScene: (sceneTitle, fromScene, choiceId) => {
-		const { editingGame, markAsDirty } = get();
-		if (!editingGame) return null;
+		const { editingGame, editingResources, markAsDirty } = get();
+		if (!editingGame || !editingResources) return null;
 
-		const newSceneId = crypto.randomUUID();
-		const newScene: Scene = {
-			id: newSceneId,
-			title: sceneTitle,
-			sceneType: "end",
-			events: [
-				{
-					id: crypto.randomUUID(),
-					type: "text",
-					category: "message",
-					order: generateKeyBetween(null, null),
-					text: "新しいシーン",
-				},
-			],
-		};
+		const newScene: Scene = createEndScene({ name: sceneTitle });
+		newScene.events = [
+			createEvent(
+				"textRender",
+				generateKeyBetween(null, null),
+				editingResources,
+			),
+		];
 
 		let updatedScene = fromScene;
 		let updatedScenes = [...editingGame.scenes];
@@ -117,7 +114,7 @@ export const createEditorSlice: StateCreator<
 						if (choice.id === choiceId) {
 							return {
 								...choice,
-								nextSceneId: newSceneId,
+								nextSceneId: newScene.id,
 							};
 						}
 						return choice;
@@ -126,14 +123,14 @@ export const createEditorSlice: StateCreator<
 			} else if (isGotoScene(fromScene)) {
 				updatedScene = {
 					...fromScene,
-					nextSceneId: newSceneId,
+					nextSceneId: newScene.id,
 				};
 			} else if (isEndScene(fromScene)) {
 				updatedScene = {
 					...fromScene,
 					sceneType: "goto",
-					nextSceneId: newSceneId,
-				} as GotoScene;
+					nextSceneId: newScene.id,
+				};
 			}
 
 			updatedScenes = updatedScenes.map((s) =>
@@ -222,7 +219,7 @@ export const createEditorSlice: StateCreator<
 		const { editingGame, editingResources, markAsDirty } = get();
 		if (!editingGame || !editingResources) return null;
 
-		const newEvent = createEventFromSidebarItem(item, editingResources);
+		const newEvent = createEvent(item.type, "a0", editingResources);
 
 		const updatedScenes = editingGame.scenes.map((scene) => {
 			if (scene.id === selectedSceneId) {
@@ -231,9 +228,9 @@ export const createEditorSlice: StateCreator<
 
 				newEvents[index] = {
 					...newEvents[index],
-					order: generateKeyBetween(
-						newEvents[index - 1]?.order ?? null,
-						newEvents[index + 1]?.order ?? null,
+					orderIndex: generateKeyBetween(
+						newEvents[index - 1]?.orderIndex ?? null,
+						newEvents[index + 1]?.orderIndex ?? null,
 					),
 				};
 
@@ -266,9 +263,9 @@ export const createEditorSlice: StateCreator<
 
 				newEvents[newIndex] = {
 					...newEvents[newIndex],
-					order: generateKeyBetween(
-						newEvents[newIndex - 1]?.order ?? null,
-						newEvents[newIndex + 1]?.order ?? null,
+					orderIndex: generateKeyBetween(
+						newEvents[newIndex - 1]?.orderIndex ?? null,
+						newEvents[newIndex + 1]?.orderIndex ?? null,
 					),
 				};
 
@@ -341,7 +338,7 @@ export const createEditorSlice: StateCreator<
 		set({
 			editingGame: {
 				...editingGame,
-				scenes: updatedScenes,
+				scenes: updatedScenes as Scene[],
 			},
 		});
 
@@ -353,17 +350,13 @@ export const createEditorSlice: StateCreator<
 		const { editingResources, markAsDirty } = get();
 		if (!editingResources) return;
 
-		const newCharacter: Character = {
-			id: crypto.randomUUID(),
-			name,
-			images: {},
-		};
+		const newCharacter = createCharacter(name);
 
 		set({
 			editingResources: {
 				...editingResources,
-				characters: {
-					...editingResources.characters,
+				character: {
+					...editingResources.character,
 					[newCharacter.id]: newCharacter,
 				},
 			},
@@ -380,10 +373,10 @@ export const createEditorSlice: StateCreator<
 		set({
 			editingResources: {
 				...editingResources,
-				characters: {
-					...editingResources.characters,
+				character: {
+					...editingResources.character,
 					[characterId]: {
-						...editingResources.characters[characterId],
+						...editingResources.character[characterId],
 						name,
 					},
 				},
@@ -397,32 +390,27 @@ export const createEditorSlice: StateCreator<
 		const { editingResources, markAsDirty } = get();
 		if (!editingResources) return;
 
-		const character = editingResources.characters[characterId];
+		const character = editingResources.character[characterId];
 		if (!character) return;
 
-		const newImageId = crypto.randomUUID();
-		const newImage: MediaAsset = {
-			id: newImageId,
-			filename: file.name,
-			url: URL.createObjectURL(file),
-			metadata: {
-				mimeType: file.type,
-				size: file.size,
-			},
-		};
+		const newImage = createAsset(
+			"characterImage",
+			file.name,
+			URL.createObjectURL(file),
+		);
 
 		set({
 			editingResources: {
 				...editingResources,
-				characters: {
-					...editingResources.characters,
+				character: {
+					...editingResources.character,
 					[characterId]: {
 						...character,
 						images: {
 							...character.images,
 							[newImage.id]: newImage,
 						},
-					},
+					} as Character,
 				},
 			},
 		});
@@ -434,12 +422,12 @@ export const createEditorSlice: StateCreator<
 		if (!editingResources) return;
 
 		const { [characterId]: _, ...remainingCharacters } =
-			editingResources.characters;
+			editingResources.character;
 
 		set({
 			editingResources: {
 				...editingResources,
-				characters: remainingCharacters,
+				character: remainingCharacters,
 			},
 		});
 
@@ -451,7 +439,7 @@ export const createEditorSlice: StateCreator<
 		const { editingResources, markAsDirty } = get();
 		if (!editingResources) return;
 
-		const character = editingResources.characters[characterId];
+		const character = editingResources.character[characterId];
 		if (!character) return;
 
 		const { [imageId]: _, ...remainingImages } = character.images;
@@ -459,8 +447,8 @@ export const createEditorSlice: StateCreator<
 		set({
 			editingResources: {
 				...editingResources,
-				characters: {
-					...editingResources.characters,
+				character: {
+					...editingResources.character,
 					[characterId]: {
 						...character,
 						images: remainingImages,
@@ -495,15 +483,11 @@ export const createEditorSlice: StateCreator<
 		const { editingResources, markAsDirty } = get();
 		if (!editingResources) return;
 
-		const newAsset: MediaAsset = {
-			id: crypto.randomUUID(),
-			filename: file.name,
-			url: URL.createObjectURL(file),
-			metadata: {
-				mimeType: file.type,
-				size: file.size,
-			},
-		};
+		const newAsset: MediaAsset = createAsset(
+			type,
+			file.name,
+			URL.createObjectURL(file),
+		);
 
 		set({
 			editingResources: {
@@ -540,48 +524,19 @@ export const createEditorSlice: StateCreator<
 		set({ isDirty: false });
 	},
 
-	createGame: async (title, description) => {
-		console.log("Creating game", title, description);
+	createGame: async (name, description) => {
+		const { editingGame, editingResources } = get();
 
-		const INITIAL_GAME: Game = {
-			id: crypto.randomUUID(),
-			title,
-			description,
-			author: "anonymous",
-			initialSceneId: "opening",
-			coverImageUrl: undefined,
-			schemaVersion: "0.1",
-			status: "draft",
-			createdAt: Date.now(),
-			updatedAt: Date.now(),
-			playCount: 0,
-			likeCount: 0,
-			scenes: [
-				{
-					id: "opening",
-					title: "オープニング",
-					sceneType: "end",
-					events: [
-						{
-							id: "opening-event",
-							type: "text",
-							category: "message",
-							order: "a0",
-							text: "これはオープニングです。",
-						},
-					],
-				},
-			],
-		};
+		// ゲーム作成
 
 		set({
-			editingGame: INITIAL_GAME,
+			editingGame: editingGame,
 			editingResources: {
-				characters: {},
-				backgroundImages: {},
-				cgImages: {},
-				soundEffects: {},
-				bgms: {},
+				character: {},
+				backgroundImage: {},
+				cgImage: {},
+				soundEffect: {},
+				bgm: {},
 			},
 			isDirty: false,
 		});

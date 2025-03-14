@@ -1,6 +1,5 @@
-import { ENV } from "@/configs/env.js";
 import { sql } from "drizzle-orm";
-import { db } from "./index.js";
+import { db } from "./";
 
 export const clear = async () => {
 	await db.execute(sql`

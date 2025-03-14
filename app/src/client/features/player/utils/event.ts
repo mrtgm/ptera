@@ -10,15 +10,15 @@ import type {
  */
 export class EventManager {
 	private isAutoMode = false;
-	cancelTransitionRequests: Set<string> = new Set();
-	private animationFrameIds: Map<string, number> = new Map();
+	cancelTransitionRequests: Set<number> = new Set();
+	private animationFrameIds: Map<number, number> = new Map();
 	private disposed = false;
 
 	setAutoMode(isAutoMode: boolean) {
 		this.isAutoMode = isAutoMode;
 	}
 
-	addCancelRequest(eventId: string) {
+	addCancelRequest(eventId: number) {
 		if (this.disposed) return;
 
 		if (this.cancelTransitionRequests.size > 10) {
@@ -28,7 +28,7 @@ export class EventManager {
 		this.cancelTransitionRequests.add(eventId);
 	}
 
-	removeCancelRequest(eventId: string) {
+	removeCancelRequest(eventId: number) {
 		if (this.disposed) return;
 		this.cancelTransitionRequests.delete(eventId);
 	}
@@ -39,9 +39,8 @@ export class EventManager {
 		this.cancelTransitionRequests.clear();
 	}
 
-	checkIfEventIsCanceled(eventId: string): boolean {
+	checkIfEventIsCanceled(eventId: number): boolean {
 		if (this.disposed) return false;
-		console.log(this.cancelTransitionRequests);
 
 		return this.cancelTransitionRequests.has(eventId);
 	}
@@ -57,7 +56,7 @@ export class EventManager {
 		this.tapResolve = undefined;
 	};
 
-	private async waitForTap(eventId: string): Promise<void> {
+	private async waitForTap(eventId: number): Promise<void> {
 		return new Promise<void>((resolve) => {
 			const check = () => {
 				if (this.disposed) {
@@ -82,7 +81,7 @@ export class EventManager {
 		});
 	}
 
-	async waitCancelable(ms: number, eventId: string): Promise<void> {
+	async waitCancelable(ms: number, eventId: number): Promise<void> {
 		if (this.disposed) return;
 
 		const startTime = performance.now();
@@ -119,7 +118,7 @@ export class EventManager {
 
 	async animateText(
 		text: string,
-		eventId: string,
+		eventId: number,
 		onUpdate: (text: string) => void,
 		speed = 50,
 	): Promise<void> {
@@ -185,8 +184,8 @@ export class EventManager {
 
 		let updatedStage = { ...currentStage };
 
-		switch (event.type) {
-			case "text": {
+		switch (event.eventType) {
+			case "textRender": {
 				// ダイアログを表示
 				updatedStage = {
 					...updatedStage,
@@ -507,7 +506,7 @@ export class EventManager {
 			}
 
 			default:
-				console.warn(`未知のイベントタイプ: ${(event as GameEvent).type}`);
+				console.warn(`未知のイベントタイプ: ${(event as GameEvent).eventType}`);
 		}
 
 		return updatedStage;

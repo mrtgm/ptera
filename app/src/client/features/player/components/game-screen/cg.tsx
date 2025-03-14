@@ -11,7 +11,7 @@ export const CG = ({
 	manager: EventManager;
 	cg: Stage["cg"];
 	currentEvent: GameEvent | null;
-	resourceCache: ResourceCache["cgImages"];
+	resourceCache: ResourceCache["cgImage"];
 }) => {
 	if (!currentEvent) return null;
 

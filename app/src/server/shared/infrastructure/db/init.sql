@@ -3,7 +3,6 @@ CREATE TABLE "user" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     is_deleted BOOLEAN NOT NULL DEFAULT false, -- MVPでは削除機能は実装しない
     jwt_sub VARCHAR(255) NOT NULL UNIQUE, -- CognitoのユーザーID (sub)
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -23,7 +22,6 @@ CREATE INDEX idx_user_profile_user_id ON "user_profile"(user_id);
 -- アセット関連テーブル
 CREATE TABLE "asset" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     owner_id INT,
     is_public BOOLEAN NOT NULL DEFAULT false,
     asset_type VARCHAR(50) NOT NULL,
@@ -41,7 +39,6 @@ CREATE INDEX idx_asset_owner_id ON "asset"(owner_id);
 -- キャラクター関連テーブル
 CREATE TABLE "character" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     owner_id INT,
     is_public BOOLEAN NOT NULL DEFAULT false,
     name VARCHAR(255) NOT NULL,
@@ -66,7 +63,6 @@ CREATE INDEX idx_character_asset_asset_id ON "character_asset"(asset_id);
 -- ゲーム関連テーブル
 CREATE TABLE "scene" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     game_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -76,7 +72,6 @@ CREATE INDEX idx_scene_game_id ON "scene"(game_id);
 
 CREATE TABLE "game" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     user_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -120,7 +115,6 @@ ALTER TABLE "scene" ADD CONSTRAINT fk_scene_game
 -- シーン派生テーブル
 CREATE TABLE "choice_scene" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     scene_id INT NOT NULL UNIQUE,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -129,7 +123,6 @@ CREATE TABLE "choice_scene" (
 
 CREATE TABLE "goto_scene" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     scene_id INT NOT NULL UNIQUE,
     next_scene_id INT NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -142,7 +135,6 @@ CREATE INDEX idx_goto_scene_scene_id ON "goto_scene"(scene_id);
 
 CREATE TABLE "end_scene" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     scene_id INT NOT NULL UNIQUE,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -152,7 +144,6 @@ CREATE INDEX idx_end_scene_scene_id ON "end_scene"(scene_id);
 
 CREATE TABLE "choice" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     choice_scene_id INT NOT NULL,
     "text" TEXT NOT NULL,
     next_scene_id INT NOT NULL,
@@ -185,7 +176,7 @@ CREATE TABLE "character_game" (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_character_game_character FOREIGN KEY (character_id) REFERENCES "character"(id) ON DELETE CASCADE,
-    CONSTRAINT fk_character_game_game FOREIGN KEY (game_id) REFERENCES "game"(id) ON DELETE CASCADE
+    CONSTRAINT fk_character_game_game FOREIGN KEY (game_id) REFERENCES "game"(id) ON DELETE CASCADE,
     CONSTRAINT uq_character_game UNIQUE (character_id, game_id)
 );
 CREATE INDEX idx_character_game_character_id ON "character_game"(character_id);
@@ -194,7 +185,6 @@ CREATE INDEX idx_character_game_game_id ON "character_game"(game_id);
 -- コメント・いいね
 CREATE TABLE "comment" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     game_id INT NOT NULL,
     user_id INT NOT NULL,
     content TEXT NOT NULL,
@@ -208,7 +198,6 @@ CREATE INDEX idx_comment_user_id ON "comment"(user_id);
 
 CREATE TABLE "like" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     game_id INT NOT NULL,
     user_id INT NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -223,7 +212,6 @@ CREATE INDEX idx_like_user_id ON "like"(user_id);
 -- カテゴリ
 CREATE TABLE "game_category" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     "name" VARCHAR(255) NOT NULL UNIQUE,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -246,7 +234,6 @@ CREATE INDEX idx_game_category_relation_category_id ON "game_category_relation"(
 CREATE TABLE "event" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     scene_id INT NOT NULL,
-    public_id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     event_type VARCHAR(50) NOT NULL,
     category VARCHAR(50) NOT NULL,
     order_index VARCHAR(255) NOT NULL,

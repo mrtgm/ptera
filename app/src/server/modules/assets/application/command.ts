@@ -45,7 +45,6 @@ export const createAssetCharacterCommands = ({
 
 			return {
 				id: asset.id,
-				publicId: asset.publicId,
 				assetType: asset.assetType,
 				name: asset.name,
 				url: asset.url,
@@ -55,7 +54,7 @@ export const createAssetCharacterCommands = ({
 
 		// アセット更新
 		executeUpdateAsset: async (
-			assetId: string,
+			assetId: number,
 			params: UpdateAssetRequest,
 			userId: number,
 		): Promise<AssetResponse> => {
@@ -70,7 +69,6 @@ export const createAssetCharacterCommands = ({
 
 			return {
 				id: asset.id,
-				publicId: asset.publicId,
 				assetType: asset.assetType,
 				name: asset.name,
 				url: asset.url,
@@ -78,8 +76,8 @@ export const createAssetCharacterCommands = ({
 			};
 		},
 
-		executeDeleteAsset: async (assetId: string, userId: number) => {
-			const asset = await assetRepository.getAssetByPublicId(assetId);
+		executeDeleteAsset: async (assetId: number, userId: number) => {
+			const asset = await assetRepository.getAssetById(assetId);
 			if (!asset) {
 				throw new Error("Asset not found");
 			}
@@ -111,7 +109,7 @@ export const createAssetCharacterCommands = ({
 
 		// キャラクター更新
 		executeUpdateCharacter: async (
-			characterId: string,
+			characterId: number,
 			params: UpdateCharacterRequest,
 			userId: number,
 		) => {
@@ -126,7 +124,7 @@ export const createAssetCharacterCommands = ({
 		},
 
 		// キャラクター削除
-		executeDeleteCharacter: async (characterId: string, userId: number) => {
+		executeDeleteCharacter: async (characterId: number, userId: number) => {
 			await characterRepository.deleteCharacter({
 				params: { characterId },
 			});
@@ -136,7 +134,7 @@ export const createAssetCharacterCommands = ({
 
 		// キャラクターにアセットを関連付け
 		executeLinkAssetToCharacter: async (
-			characterId: string,
+			characterId: number,
 			params: AssetCharacterLinkRequest,
 			userId: number,
 		) => {
@@ -152,8 +150,8 @@ export const createAssetCharacterCommands = ({
 
 		// キャラクターからアセットの関連付けを解除
 		executeUnlinkAssetFromCharacter: async (
-			characterId: string,
-			assetId: string,
+			characterId: number,
+			assetId: number,
 			userId: number,
 		) => {
 			await characterRepository.unlinkAssetFromCharacter({

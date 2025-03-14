@@ -32,7 +32,7 @@ export const SceneDetail = ({
 	resources: GameResources | null;
 	onNavigateToScenesList: () => void;
 	onDeleteScene: () => void;
-	onClickEvent: (eventId: string) => void;
+	onClickEvent: (eventId: number) => void;
 	onClickSceneEnding: () => void;
 }) => {
 	const { setNodeRef } = useDroppable({
@@ -72,7 +72,7 @@ export const SceneDetail = ({
 							シーン一覧
 						</BreadcrumbItem>
 						<BreadcrumbSeparator />
-						<BreadcrumbItem>{selectedScene?.title}</BreadcrumbItem>
+						<BreadcrumbItem>{selectedScene?.name}</BreadcrumbItem>
 					</BreadcrumbList>
 				</Breadcrumb>
 

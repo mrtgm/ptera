@@ -14,14 +14,14 @@ export const useTimelineDrag = ({
 	onAddEvent,
 	onMoveEvent,
 }: {
-	selectedSceneId: string | undefined;
+	selectedSceneId: number | undefined;
 	sceneEvents: GameEvent[] | undefined;
-	onAddEvent: (index: number, item: SidebarItem, sceneId: string) => void;
-	onMoveEvent: (oldIndex: number, newIndex: number, sceneId: string) => void;
+	onAddEvent: (index: number, item: SidebarItem, sceneId: number) => void;
+	onMoveEvent: (oldIndex: number, newIndex: number, sceneId: number) => void;
 }) => {
 	const [activeSidebarItem, setActiveSidebarItem] =
 		useState<SidebarItem | null>(null);
-	const [activeEventId, setActiveEventId] = useState<string | null>(null);
+	const [activeEventId, setActiveEventId] = useState<number | null>(null);
 
 	// ドラッグの感度設定
 	const sensors = useSensors(
@@ -39,7 +39,7 @@ export const useTimelineDrag = ({
 			setActiveSidebarItem(item);
 		} else {
 			// タイムライン上の既存イベントのドラッグの場合
-			const eventId = event.active.id as string;
+			const eventId = event.active.id as number;
 			setActiveEventId(eventId);
 		}
 	};

@@ -17,7 +17,7 @@ const Character = forwardRef<
 	{
 		key: string;
 		character: Stage["characters"]["items"][0];
-		resourceCache: ResourceCache["characters"];
+		resourceCache: ResourceCache["character"];
 		currentEvent: GameEvent;
 		manager: EventManager;
 	}
@@ -62,7 +62,7 @@ const Character = forwardRef<
 	return (
 		<div
 			ref={ref}
-			id={id}
+			id={`${id}`}
 			key={key}
 			className="object-contain absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 w-full select-none"
 			style={{
@@ -91,7 +91,7 @@ export const CharacterList = ({
 }: {
 	characters: Stage["characters"];
 	currentEvent: GameEvent | null;
-	resourceCache: ResourceCache["characters"];
+	resourceCache: ResourceCache["character"];
 	manager: EventManager;
 }) => {
 	if (!currentEvent) return null;
@@ -118,7 +118,7 @@ export const CharacterList = ({
 			>
 				{characters.items.map((character) => (
 					<Character
-						key={character.imageId}
+						key={`${character.id}`}
 						character={character}
 						resourceCache={resourceCache}
 						currentEvent={currentEvent}

@@ -1,13 +1,13 @@
 export class AssetNotFoundError extends Error {
-	constructor(publicId: string) {
-		super(`Asset not found: ${publicId}`);
+	constructor(id: number) {
+		super(`Asset not found: ${id}`);
 		this.name = "AssetNotFoundError";
 	}
 }
 
 export class CharacterNotFoundError extends Error {
-	constructor(publicId: string) {
-		super(`Character not found: ${publicId}`);
+	constructor(id: number) {
+		super(`Character not found: ${id}`);
 		this.name = "CharacterNotFoundError";
 	}
 }

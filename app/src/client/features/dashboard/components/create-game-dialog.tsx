@@ -24,7 +24,7 @@ import { Plus } from "lucide-react";
 interface CreateGameDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onCreate: (title: string, description: string) => Promise<string | undefined>;
+	onCreate: (title: string, description: string) => Promise<number | undefined>;
 }
 
 export default function CreateGameDialog({

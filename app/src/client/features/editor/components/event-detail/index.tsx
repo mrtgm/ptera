@@ -64,8 +64,8 @@ type EventDetailProps = {
 	onSaveEvent: (updatedEvent: GameEvent) => void;
 };
 
-const schemaMap: Record<GameEvent["type"], z.ZodType> = {
-	text: textRenderEventSchema,
+const schemaMap: Record<GameEvent["eventType"], z.ZodType> = {
+	textRender: textRenderEventSchema,
 	moveCharacter: moveCharacterEventSchema,
 	appearCharacter: appearCharacterEventSchema,
 	hideCharacter: hideCharacterEventSchema,
@@ -103,7 +103,7 @@ export const EventDetail = ({
 
 	const ref = useRef<HTMLDivElement>(null);
 
-	const formSchema = schemaMap[selectedEvent.type];
+	const formSchema = schemaMap[selectedEvent.eventType];
 
 	const form = useForm({
 		mode: "onBlur",
@@ -165,7 +165,7 @@ export const EventDetail = ({
 			<Card className="w-full">
 				<CardHeader className="flex flex-row justify-between items-center">
 					<CardTitle className="text-md">
-						{getEventTitle(selectedEvent.type)}
+						{getEventTitle(selectedEvent.eventType)}
 					</CardTitle>
 					<div className="flex gap-2 flex-wrap">
 						<Button
@@ -228,7 +228,7 @@ const renderEventFormFields = (
 	const category = event.category;
 	const settings = SideBarSettings[category];
 	const fields = settings?.items.find(
-		(item) => item.type === event.type,
+		(item) => item.type === event.eventType,
 	)?.parameters;
 
 	if (!fields) {

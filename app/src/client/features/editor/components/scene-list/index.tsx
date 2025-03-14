@@ -10,7 +10,7 @@ import { SceneItem } from "./scene-item";
 type ScenesListProps = {
 	game: Game | null;
 	sideBarSettings: typeof SideBarSettings;
-	onSceneClick: (sceneId: string) => void;
+	onSceneClick: (sceneId: number) => void;
 };
 
 export const ScenesList = ({

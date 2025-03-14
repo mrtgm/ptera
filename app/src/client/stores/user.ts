@@ -1,7 +1,7 @@
-import type { GameMetaData, UserProfile } from "@/client/schema.js";
+import type { GameMetaData, UserProfile } from "@/client/schema";
 import type { StateCreator } from "zustand";
-import type { State } from "./index.js";
-import { useStore } from "./index.js";
+import { useStore } from "./";
+import type { State } from "./";
 
 interface GameSaveData {
 	currentSceneId: string;

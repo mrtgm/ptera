@@ -213,7 +213,7 @@ export const createError = (
 		path: ctx.req.path,
 		method: ctx.req.method,
 		entityType,
-		user: user?.publicId.toString(),
+		user: user?.id.toString(),
 		eventData,
 	};
 

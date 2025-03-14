@@ -31,12 +31,12 @@ export const CharacterImageSelect = ({
 						<FormLabel>{label}</FormLabel>
 
 						{field.value &&
-						resources.characters[form.getValues().characterId] ? (
+						resources.character[form.getValues().characterId] ? (
 							<>
 								<div className="w-full max-w-[200px] h-auto bg-cover bg-center bg-no-repeat rounded-md mb-4">
 									<img
 										src={
-											resources.characters[form.getValues().characterId].images[
+											resources.character[form.getValues().characterId].images[
 												field.value
 											].url
 										}
@@ -44,7 +44,7 @@ export const CharacterImageSelect = ({
 									/>
 								</div>
 								<p className="text-sm text-gray-500 mb-2">
-									{resources.characters[form.getValues().characterId].name}
+									{resources.character[form.getValues().characterId].name}
 								</p>
 							</>
 						) : (
@@ -56,7 +56,7 @@ export const CharacterImageSelect = ({
 								size="sm"
 								onClick={() => {
 									modalSlice.openModal("character.image-select", {
-										callback: (characterId: string, assetId: string) => {
+										callback: (characterId: number, assetId: number) => {
 											form.setValue("characterId", characterId, {
 												shouldDirty: true,
 											});
@@ -74,7 +74,7 @@ export const CharacterImageSelect = ({
 								size="sm"
 								onClick={() => {
 									modalSlice.openModal("adjustSize", {
-										target: "characters",
+										target: "character",
 										characterId: form.getValues().characterId,
 										assetId: field.value,
 										position: form.getValues().position,

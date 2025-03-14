@@ -6,7 +6,7 @@ export const SoundPlayer = ({
 	resourceCache,
 }: {
 	sound: Stage["bgm"] | Stage["soundEffect"] | null;
-	resourceCache: ResourceCache["bgms"] | ResourceCache["soundEffects"];
+	resourceCache: ResourceCache["bgm"] | ResourceCache["soundEffect"];
 }) => {
 	useEffect(() => {
 		if (!sound) return;

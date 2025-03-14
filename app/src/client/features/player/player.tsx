@@ -174,7 +174,7 @@ export const GamePlayer = ({
 		}
 	};
 
-	const handleChoiceSelected = (choiceId: string) => {
+	const handleChoiceSelected = (choiceId: number) => {
 		if (!currentScene || !isChoiceScene(currentScene)) return;
 
 		const choice = currentScene.choices.find((c) => c.id === choiceId);

@@ -15,7 +15,6 @@ export type AssetType = z.infer<typeof assetTypeSchema>;
 
 export const mediaAssetSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	assetType: assetTypeSchema,
 	name: z.string().max(255),
 	url: z.string(),
@@ -53,9 +52,8 @@ export type BGM = z.infer<typeof bgmSchema>;
 ------------------------------------------------------ */
 export const characterSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	name: z.string().min(1).max(100),
-	images: z.record(z.string(), characterImageSchema),
+	images: z.record(z.number(), characterImageSchema),
 });
 export type Character = z.infer<typeof characterSchema>;
 
@@ -63,17 +61,29 @@ export type Character = z.infer<typeof characterSchema>;
     GameResources Entities
 ------------------------------------------------------ */
 export const gameResourcesSchema = z.object({
-	characters: z.record(z.string(), characterSchema),
-	backgroundImages: z.record(z.string(), backgroundImageSchema),
-	soundEffects: z.record(z.string(), soundEffectSchema),
-	bgms: z.record(z.string(), bgmSchema),
-	cgImages: z.record(z.string(), cgImageSchema),
+	character: z.record(z.number(), characterSchema),
+	backgroundImage: z.record(z.number(), backgroundImageSchema),
+	soundEffect: z.record(z.number(), soundEffectSchema),
+	bgm: z.record(z.number(), bgmSchema),
+	cgImage: z.record(z.number(), cgImageSchema),
 });
 export type GameResources = z.infer<typeof gameResourcesSchema>;
 
-const createCharacter = (name: string): Character => ({
+export const createCharacter = (name: string): Character => ({
 	id: randomIntId(),
-	publicId: randomUUID(),
 	name,
 	images: {},
+});
+
+export const createAsset = (
+	assetType: AssetType,
+	name: string,
+	url: string,
+	metadata?: Record<string, Record<string, unknown>>,
+): MediaAsset => ({
+	id: randomIntId(),
+	assetType,
+	name,
+	url,
+	metadata,
 });

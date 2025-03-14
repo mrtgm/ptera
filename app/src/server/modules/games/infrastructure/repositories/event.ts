@@ -87,7 +87,7 @@ export class EventRepository extends BaseRepository {
 			},
 			{} as Record<
 				number,
-				Omit<GameEvent, "publicId" | "eventType" | "category" | "orderIndex">
+				Omit<GameEvent, "eventType" | "category" | "orderIndex">
 			>,
 		);
 
@@ -102,7 +102,6 @@ export class EventRepository extends BaseRepository {
 			const gameEvent = {
 				...eventDetail,
 				id: event.id,
-				publicId: event.publicId,
 				eventType: event.eventType as GameEvent["eventType"],
 				category: event.category,
 				orderIndex: event.orderIndex,
@@ -119,12 +118,12 @@ export class EventRepository extends BaseRepository {
 	}
 
 	async createEvent({
-		params: { gamePublicId, scenePublicId, type, orderIndex, userId },
+		params: { gameId, sceneId, type, orderIndex, userId },
 		tx,
 	}: {
 		params: {
-			gamePublicId: string;
-			scenePublicId: string;
+			gameId: number;
+			sceneId: number;
 			type: GameEvent["eventType"];
 			userId: number;
 			orderIndex?: string | null;
@@ -135,17 +134,15 @@ export class EventRepository extends BaseRepository {
 			const resourceRepository = new ResourceRepository();
 			const resource = await resourceRepository.getResource(userId);
 
-			const gameId = await this.getGameIdFromPublicId(gamePublicId, txLocal);
-
 			const sceneData = await txLocal
 				.select()
 				.from(scene)
-				.where(eq(scene.publicId, scenePublicId))
+				.where(eq(scene.id, sceneId))
 				.limit(1)
 				.execute();
 
 			if (sceneData.length === 0) {
-				throw new SceneNotFoundError(scenePublicId);
+				throw new SceneNotFoundError(sceneId);
 			}
 
 			const eventData = createEvent(type, orderIndex, resource);
@@ -167,7 +164,6 @@ export class EventRepository extends BaseRepository {
 			return {
 				...eventData,
 				id: createdEventBase[0].id,
-				publicId: createdEventBase[0].publicId,
 			};
 		}, tx);
 	}
@@ -196,7 +192,7 @@ export class EventRepository extends BaseRepository {
 				eventId,
 				characterId: eventData.characterId,
 				characterImageId: eventData.characterImageId,
-				scale: eventData.scale,
+				scale: eventData.scale.toString(),
 				position: eventData.position,
 				transitionDuration: eventData.transitionDuration,
 			});
@@ -302,15 +298,13 @@ export class EventRepository extends BaseRepository {
 	}
 
 	async updateEvent({
-		params: { eventData, gamePublicId },
+		params: { eventData, gameId },
 		tx,
 	}: {
-		params: { eventData: GameEvent; gamePublicId: string };
+		params: { eventData: GameEvent; gameId: number };
 		tx?: Transaction;
 	}): Promise<GameEvent> {
 		return await this.executeTransaction(async (txLocal) => {
-			const gameId = await this.getGameIdFromPublicId(gamePublicId, txLocal);
-
 			const found = await txLocal
 				.select()
 				.from(event)
@@ -319,7 +313,7 @@ export class EventRepository extends BaseRepository {
 				.execute();
 
 			if (found.length === 0) {
-				throw new EventNotFoundError(eventData.publicId);
+				throw new EventNotFoundError(gameId);
 			}
 
 			await txLocal
@@ -361,7 +355,7 @@ export class EventRepository extends BaseRepository {
 					.set({
 						characterId: eventData.characterId,
 						characterImageId: eventData.characterImageId,
-						scale: eventData.scale,
+						scale: eventData.scale.toString(),
 						position: eventData.position,
 						transitionDuration: eventData.transitionDuration,
 						updatedAt: sql.raw("NOW()"),
@@ -477,10 +471,10 @@ export class EventRepository extends BaseRepository {
 	}
 
 	async deleteEvent({
-		params: { eventPublicId },
+		params: { eventId },
 		tx,
 	}: {
-		params: { eventPublicId: string };
+		params: { eventId: number };
 		tx?: Transaction;
 	}): Promise<void> {
 		return await this.executeTransaction(async (txLocal) => {
@@ -491,15 +485,14 @@ export class EventRepository extends BaseRepository {
 					eventType: event.eventType,
 				})
 				.from(event)
-				.where(eq(event.publicId, eventPublicId))
+				.where(eq(event.id, eventId))
 				.limit(1)
 				.execute();
 
 			if (eventData.length === 0) {
-				throw new EventNotFoundError(eventPublicId);
+				throw new EventNotFoundError(eventId);
 			}
 
-			const eventId = eventData[0].id;
 			const sceneId = eventData[0].sceneId;
 
 			const eventCount = await txLocal
@@ -509,7 +502,7 @@ export class EventRepository extends BaseRepository {
 				.execute();
 
 			if (eventCount[0].count <= 1) {
-				throw new LastEventCannotBeDeletedError(eventPublicId);
+				throw new LastEventCannotBeDeletedError(eventId);
 			}
 
 			const eventType = eventData[0].eventType;
@@ -519,10 +512,10 @@ export class EventRepository extends BaseRepository {
 	}
 
 	async moveEvent({
-		params: { oldIndex, newIndex, scenePublicId },
+		params: { oldIndex, newIndex, sceneId },
 		tx,
 	}: {
-		params: { oldIndex: number; newIndex: number; scenePublicId: string };
+		params: { oldIndex: number; newIndex: number; sceneId: number };
 		tx?: Transaction;
 	}): Promise<boolean> {
 		return await this.executeTransaction(async (txLocal) => {
@@ -533,18 +526,18 @@ export class EventRepository extends BaseRepository {
 				})
 				.from(event)
 				.innerJoin(scene, eq(event.sceneId, scene.id))
-				.where(eq(scene.publicId, scenePublicId))
+				.where(eq(scene.id, sceneId))
 				.orderBy(event.orderIndex)
 				.execute();
 
 			if (events.length === 0) {
-				throw new EventsNotFoundError(scenePublicId);
+				throw new EventsNotFoundError(sceneId);
 			}
 
 			// 移動するイベント
 			const movedEvent = events[oldIndex];
 			if (!movedEvent) {
-				throw new EventNotFoundError(`Event with index ${oldIndex} not found`);
+				throw new EventNotFoundError(oldIndex);
 			}
 
 			// 新しい順序インデックスを生成

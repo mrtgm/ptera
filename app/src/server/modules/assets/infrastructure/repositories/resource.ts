@@ -20,7 +20,6 @@ export class ResourceRepository extends BaseRepository {
 		const characters = await this.db
 			.select({
 				id: character.id,
-				publicId: character.publicId,
 				name: character.name,
 			})
 			.from(character)
@@ -31,7 +30,6 @@ export class ResourceRepository extends BaseRepository {
 			.select({
 				characterId: characterAsset.characterId,
 				assetId: characterAsset.assetId,
-				publicId: asset.publicId,
 				name: asset.name,
 				url: asset.url,
 				metadata: asset.metadata,
@@ -53,7 +51,6 @@ export class ResourceRepository extends BaseRepository {
 				}
 				acc[cur.characterId][cur.assetId] = {
 					id: cur.assetId,
-					publicId: cur.publicId,
 					name: cur.name,
 					assetType: "characterImage",
 					url: cur.url,
@@ -80,7 +77,6 @@ export class ResourceRepository extends BaseRepository {
 		const usedAssets = await this.db
 			.select({
 				id: asset.id,
-				publicId: asset.publicId,
 				type: asset.assetType,
 				name: asset.name,
 				url: asset.url,
@@ -130,11 +126,11 @@ export class ResourceRepository extends BaseRepository {
 		);
 
 		return {
-			characters: charactersMap,
-			bgms: bgmsMap,
-			soundEffects: soundEffectsMap,
-			backgroundImages: backgroundImagesMap,
-			cgImages: cgImagesMap,
+			character: charactersMap,
+			bgm: bgmsMap,
+			soundEffect: soundEffectsMap,
+			backgroundImage: backgroundImagesMap,
+			cgImage: cgImagesMap,
 		};
 	}
 }

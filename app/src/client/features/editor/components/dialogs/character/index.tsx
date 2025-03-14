@@ -28,10 +28,10 @@ export const CharacterDialogContainer = ({
 	game: Game | null;
 	resources: GameResources | null;
 	onAddCharacter: (name: string) => void;
-	onDeleteCharacter: (characterId: string) => void;
-	onUploadImage: (characterId: string, file: File) => void;
-	onDeleteImage: (characterId: string, imageId: string) => void;
-	onCharacterNameChange: (characterId: string, name: string) => void;
+	onDeleteCharacter: (characterId: number) => void;
+	onUploadImage: (characterId: number, file: File) => void;
+	onDeleteImage: (characterId: number, imageId: number) => void;
+	onCharacterNameChange: (characterId: number, name: string) => void;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
 
@@ -86,17 +86,17 @@ const CharacterDialog = ({
 	resources: GameResources;
 	params: CharacterSelectParams | CharacterImageSelectParams;
 	onAddCharacter: (name: string) => void;
-	onDeleteCharacter: (characterId: string) => void;
-	onDeleteImage: (characterId: string, imageId: string) => void;
-	onUploadImage: (characterId: string, file: File) => void;
-	onCharacterNameChange: (characterId: string, name: string) => void;
+	onDeleteCharacter: (characterId: number) => void;
+	onDeleteImage: (characterId: number, imageId: number) => void;
+	onUploadImage: (characterId: number, file: File) => void;
+	onCharacterNameChange: (characterId: number, name: string) => void;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
 
-	const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(
+	const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
 		null,
 	);
-	const [selectedImage, setSelectedImage] = useState<string | null>(null);
+	const [selectedImage, setSelectedImage] = useState<number | null>(null);
 	const [showAddCharacterDialog, setShowAddCharacterDialog] =
 		useState<boolean>(false);
 	const [currentView, setCurrentView] = useState<"characters" | "images">(
@@ -124,14 +124,14 @@ const CharacterDialog = ({
 	const isCharacterSelectionMode = mode === "character.select";
 	const isImageSelectionMode = mode === "character.image-select";
 
-	const handleCharacterSelect = (characterId: string) => {
+	const handleCharacterSelect = (characterId: number) => {
 		setSelectedCharacterId(characterId);
 		if (isImageSelectionMode || isManageMode) {
 			setCurrentView("images");
 		}
 	};
 
-	const handleImageSelect = (imageId: string) => {
+	const handleImageSelect = (imageId: number | null) => {
 		setSelectedImage(imageId);
 	};
 
@@ -163,7 +163,7 @@ const CharacterDialog = ({
 		setSelectedImage(null);
 	};
 
-	const handleDeleteCharacter = (characterId: string) => {
+	const handleDeleteCharacter = (characterId: number) => {
 		// TODO: Delete character
 		console.log(`Deleting character: ${characterId}`);
 		onDeleteCharacter(characterId);
@@ -175,7 +175,7 @@ const CharacterDialog = ({
 	let dialogDescription = "キャラクターと画像の管理を行います";
 
 	if (currentView === "images" && selectedCharacterId) {
-		dialogTitle = `${resources.characters[selectedCharacterId]?.name || ""}の画像一覧`;
+		dialogTitle = `${resources.character[selectedCharacterId]?.name || ""}の画像一覧`;
 	}
 
 	if (isCharacterSelectionMode) {

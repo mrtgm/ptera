@@ -23,12 +23,12 @@ export const createDashboardQuery = ({
 			const user = await userRepository.getById(currentUserId);
 
 			if (!user) {
-				throw new UserNotFoundError("");
+				throw new UserNotFoundError(currentUserId);
 			}
 
 			return games.map((game) => ({
 				...game,
-				userPublicId: user.publicId,
+				userId: user.id,
 				username: user.name,
 				userAvatarUrl: user.avatarUrl,
 			}));
