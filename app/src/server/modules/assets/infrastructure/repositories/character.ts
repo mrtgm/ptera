@@ -5,12 +5,14 @@ import {
 	characterGame,
 } from "@/server/shared/infrastructure/db/schema";
 import { and, eq, sql } from "drizzle-orm";
-import { AssetNotFoundError, CharacterNotFoundError } from "../../domain/error";
+import {
+	AssetNotFoundError,
+	CharacterNotFoundError,
+} from "~/schemas/assets/domain/error";
 import type {
 	Character,
 	CharacterImage,
-	MediaAsset,
-} from "../../domain/resoucres";
+} from "~/schemas/assets/domain/resoucres";
 import { AssetRepository } from "./asset";
 import { BaseRepository, type Transaction } from "./base";
 

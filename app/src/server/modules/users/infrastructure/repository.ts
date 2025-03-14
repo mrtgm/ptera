@@ -1,8 +1,8 @@
 import { db } from "@/server/shared/infrastructure/db";
 import { user, userProfile } from "@/server/shared/infrastructure/db/schema";
 import { eq, inArray } from "drizzle-orm";
-import type { User } from "../domain/entities";
-import { UserNotFoundError } from "../domain/error";
+import { UserNotFoundError } from "../../../../schemas/users/domain/error";
+import type { User } from "../../../../schemas/users/domain/user";
 
 export interface UserRepository {
 	getById(id: number): Promise<User | null>;
@@ -168,6 +168,23 @@ export const userRepository: UserRepository = {
 
 			if (existingUser.length === 0) {
 				throw new UserNotFoundError("");
+			}
+
+			// 更新するフィールドを準備
+			const updateFields: Record<string, unknown> = {};
+			if (name) {
+				updateFields.name = name;
+			}
+			if (bio !== undefined) {
+				updateFields.bio = bio;
+			}
+			if (avatarUrl !== undefined) {
+				updateFields.avatarUrl = avatarUrl;
+			}
+
+			// 更新
+			if (Object.keys(updateFields).length === 0) {
+				return;
 			}
 
 			await tx

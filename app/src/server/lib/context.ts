@@ -1,6 +1,6 @@
 import { getContext } from "hono/context-storage";
 
-import type { User } from "@/server/modules/users/domain/entities";
+import type { User } from "@/schemas/users/domain/user";
 import type { HttpBindings } from "@hono/node-server";
 
 export type Env = {

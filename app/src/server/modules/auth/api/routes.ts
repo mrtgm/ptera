@@ -1,8 +1,12 @@
 import { ENV } from "@/configs/env";
 import { isPublicAccess } from "@/server/core/middleware/auth";
 import { createRouteConfig } from "@/server/lib/doc";
-import { errorResponses } from "@/server/shared/schema/response";
+import {
+	errorResponses,
+	successWithDataSchema,
+} from "@/server/shared/schema/response";
 import { googleAuth } from "@hono/oauth-providers/google";
+import { userResponseSchema } from "../../../../schemas/users/dto";
 
 export const authRouteConfigs = {
 	logout: createRouteConfig({
@@ -34,6 +38,25 @@ export const authRouteConfigs = {
 		responses: {
 			302: {
 				description: "Redirect to original URL or top page on success",
+			},
+			...errorResponses,
+		},
+	}),
+
+	me: createRouteConfig({
+		method: "get",
+		path: "/me",
+		guard: [isPublicAccess],
+		tags: ["auth"],
+		summary: "ログインユーザー情報を取得します。",
+		responses: {
+			200: {
+				description: "User information",
+				content: {
+					"application/json": {
+						schema: successWithDataSchema(userResponseSchema),
+					},
+				},
 			},
 			...errorResponses,
 		},

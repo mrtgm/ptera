@@ -4,8 +4,8 @@ import {
 	errorResponses,
 	successWithDataSchema,
 } from "@/server/shared/schema/response";
-import { gameResourcesSchema } from "../../assets/domain/resoucres";
-import { gameResponseDtoSchema } from "../../games/application/dto";
+import { gameResourcesSchema } from "~/schemas/assets/domain/resoucres";
+import { gameResponseSchema } from "~/schemas/games/dto";
 
 export const dashboardRouteConfigs = {
 	getMyGames: createRouteConfig({
@@ -19,7 +19,7 @@ export const dashboardRouteConfigs = {
 				description: "My Games",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(gameResponseDtoSchema.array()),
+						schema: successWithDataSchema(gameResponseSchema.array()),
 					},
 				},
 			},

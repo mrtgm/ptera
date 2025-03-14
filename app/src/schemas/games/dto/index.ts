@@ -1,10 +1,10 @@
-import type { User } from "@/server/modules/users/domain/entities";
+import type { User } from "@/schemas/users/domain/user";
 import { paginationRequestSchema } from "@/server/shared/schema/request";
 import { z } from "zod";
 import {
 	type GameResources,
 	gameResourcesSchema,
-} from "../../assets/domain/resoucres";
+} from "~/schemas/assets/domain/resoucres";
 import { type Comment, commentSchema } from "../domain/comment";
 import {
 	type GameEvent,
@@ -17,33 +17,35 @@ import {
 	gameSchema,
 	gameWithSceneSchema,
 } from "../domain/game";
-import type { Scene } from "../domain/scene";
+import { type Scene, sceneSchema } from "../domain/scene";
 
 // *------------------------------------------------------
-//      Request DTOs
+//      Request Schemas
 // ------------------------------------------------------ */
 
-export const createGameDtoSchema = gameSchema.pick({
+export const createGameRequestSchema = gameSchema.pick({
 	name: true,
 	description: true,
 });
-export type CreateGameDto = z.infer<typeof createGameDtoSchema>;
+export type CreateGameRequest = z.infer<typeof createGameRequestSchema>;
 
-export const updateGameDtoSchema = z.object({
+export const updateGameRequestSchema = z.object({
 	name: z.string().optional().nullable(),
 	description: z.string().optional().nullable(),
 	coverImageUrl: z.string().optional().nullable(),
 	categoryIds: z.array(z.number()).optional().nullable(),
 });
 
-export type UpdateGameDto = z.infer<typeof updateGameDtoSchema>;
+export type UpdateGameRequest = z.infer<typeof updateGameRequestSchema>;
 
-export const updateGameStatusDtoSchema = z.object({
+export const updateGameStatusRequestSchema = z.object({
 	status: z.enum(["draft", "published", "archived"]),
 });
-export type UpdateGameStatusDto = z.infer<typeof updateGameStatusDtoSchema>;
+export type UpdateGameStatusRequest = z.infer<
+	typeof updateGameStatusRequestSchema
+>;
 
-export const getGamesRequstSchema = paginationRequestSchema.merge(
+export const getGamesRequestSchema = paginationRequestSchema.merge(
 	z.object({
 		sort: z
 			.enum(["createdAt", "likeCount", "playCount"])
@@ -52,7 +54,7 @@ export const getGamesRequstSchema = paginationRequestSchema.merge(
 		categoryId: z.union([z.number(), z.string().transform(Number)]).optional(),
 	}),
 );
-export type GetGamesRequest = z.infer<typeof getGamesRequstSchema>;
+export type GetGamesRequest = z.infer<typeof getGamesRequestSchema>;
 
 export const getCommentsRequestSchema = paginationRequestSchema.omit({
 	sort: true,
@@ -114,28 +116,28 @@ export const moveEventRequestSchema = z.object({
 export type MoveEventRequest = z.infer<typeof moveEventRequestSchema>;
 
 // *------------------------------------------------------
-//      Response DTOs
+//      Response Schemas
 // ------------------------------------------------------ */
 
-export const countResponseDtoSchema = z.object({
+export const countResponseSchema = z.object({
 	count: z.number(),
 });
-export type CountResponseDto = z.infer<typeof countResponseDtoSchema>;
+export type CountResponse = z.infer<typeof countResponseSchema>;
 
-export const gameListResponseDtoSchema = gameSchema.merge(
+export const gameListResponseSchema = gameSchema.merge(
 	z.object({
 		userPublicId: z.string(),
 		username: z.string(),
 		avatarUrl: z.string().optional().nullable(),
 	}),
 );
-export type GameListResponseDto = z.infer<typeof gameListResponseDtoSchema>;
-export const mapDomainToListResponseDto = (
+export type GameListResponse = z.infer<typeof gameListResponseSchema>;
+export const mapDomainToGameListResponse = (
 	game: Game[],
 	users: Record<string, User>,
-): GameListResponseDto[] => {
+): GameListResponse[] => {
 	return game.map((v) => {
-		return gameListResponseDtoSchema.parse({
+		return gameListResponseSchema.parse({
 			...v,
 			userPublicId: users[v.userId].publicId,
 			username: users[v.userId].name,
@@ -144,66 +146,48 @@ export const mapDomainToListResponseDto = (
 	});
 };
 
-export const gameResponseDtoSchema = gameSchema;
-export type GameResponseDto = z.infer<typeof gameResponseDtoSchema>;
-export const mapDomainToResponseDto = (game: Game): Game => {
-	return gameResponseDtoSchema.parse(game);
+export const gameResponseSchema = gameSchema;
+export type GameResponse = z.infer<typeof gameResponseSchema>;
+export const mapDomainToGameResponse = (game: Game): Game => {
+	return gameResponseSchema.parse(game);
 };
 
-export const gameDetailResponseDtoSchema = gameWithSceneSchema.merge(
+export const gameDetailResponseSchema = gameWithSceneSchema.merge(
 	z.object({
 		userPublicId: z.string(),
 		username: z.string(),
 		avatarUrl: z.string().optional().nullable(),
 	}),
 );
-export const mapDomainToDetailResponseDto = (
+export const mapDomainToGameDetailResponse = (
 	gameWithScene: GameWithScene,
 	user: User,
-): GameDetailResponseDto => {
+): GameDetailResponse => {
 	console.log(gameWithScene);
-	return gameDetailResponseDtoSchema.parse({
+	return gameDetailResponseSchema.parse({
 		...gameWithScene,
 		userPublicId: user.publicId,
 		username: user.name,
 		avatarUrl: user.avatarUrl,
 	});
 };
-export type GameDetailResponseDto = z.infer<typeof gameDetailResponseDtoSchema>;
+export type GameDetailResponse = z.infer<typeof gameDetailResponseSchema>;
 
-export const resourseResponseDtoSchema = gameResourcesSchema;
-export type ResourceResponseDto = z.infer<typeof resourseResponseDtoSchema>;
-export const mapDomainToResourceResponseDto = (resources: GameResources) => {
-	return resourseResponseDtoSchema.parse(resources);
+export const resourceResponseSchema = gameResourcesSchema;
+export type ResourceResponse = z.infer<typeof resourceResponseSchema>;
+export const mapDomainToResourceResponse = (resources: GameResources) => {
+	return resourceResponseSchema.parse(resources);
 };
 
-export const sceneResponseDtoSchema = z.object({
-	id: z.number(),
-	publicId: z.string(),
-	name: z.string(),
-	gameId: z.number(),
-	sceneType: z.enum(["choice", "goto", "end"]),
-	nextSceneId: z.number().optional(),
-	choices: z
-		.array(
-			z.object({
-				text: z.string(),
-				nextSceneId: z.number().optional(),
-			}),
-		)
-		.optional(),
-	events: z.array(z.any()).optional(),
-	createdAt: z.string(),
-	updatedAt: z.string(),
-});
+export const sceneResponseSchema = sceneSchema;
 
-export type SceneResponseDto = z.infer<typeof sceneResponseDtoSchema>;
+export type SceneResponse = z.infer<typeof sceneResponseSchema>;
 
-export const mapDomainToSceneResponseDto = (scene: Scene): SceneResponseDto => {
-	return sceneResponseDtoSchema.parse(scene);
+export const mapDomainToSceneResponse = (scene: Scene): SceneResponse => {
+	return sceneResponseSchema.parse(scene);
 };
 
-export const eventResponseDtoSchema = z
+export const eventResponseSchema = z
 	.object({
 		id: z.number(),
 		publicId: z.string(),
@@ -211,21 +195,19 @@ export const eventResponseDtoSchema = z
 		category: z.string(),
 		orderIndex: z.string(),
 	})
-	.passthrough(); // パススルーで汎用的に使用
+	.passthrough(); // Use passthrough for generic usage
 
-export type EventResponseDto = z.infer<typeof eventResponseDtoSchema>;
+export type EventResponse = z.infer<typeof eventResponseSchema>;
 
-export const mapDomainToEventResponseDto = (
-	event: GameEvent,
-): EventResponseDto => {
-	return eventResponseDtoSchema.parse(event);
+export const mapDomainToEventResponse = (event: GameEvent): EventResponse => {
+	return eventResponseSchema.parse(event);
 };
 
-export const commentResponseDtoSchema = commentSchema;
-export type CommentResponseDto = z.infer<typeof commentResponseDtoSchema>;
+export const commentResponseSchema = commentSchema;
+export type CommentResponse = z.infer<typeof commentResponseSchema>;
 
-export const mapDomainToCommentResponseDto = (
+export const mapDomainToCommentResponse = (
 	comment: Comment,
-): CommentResponseDto => {
-	return commentResponseDtoSchema.parse(comment);
+): CommentResponse => {
+	return commentResponseSchema.parse(comment);
 };

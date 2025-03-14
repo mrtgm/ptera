@@ -1,8 +1,3 @@
-import type { FileUploadService } from "../infrastructure/file-upload";
-import type {
-	AssetRepository,
-	CharacterRepository,
-} from "../infrastructure/repository";
 import type {
 	AssetCharacterLinkRequest,
 	AssetResponse,
@@ -10,7 +5,12 @@ import type {
 	CreateCharacterRequest,
 	UpdateAssetRequest,
 	UpdateCharacterRequest,
-} from "./dto";
+} from "@/schemas/assets/dto";
+import type { FileUploadService } from "../infrastructure/file-upload";
+import type {
+	AssetRepository,
+	CharacterRepository,
+} from "../infrastructure/repository";
 
 export const createAssetCharacterCommands = ({
 	assetRepository,

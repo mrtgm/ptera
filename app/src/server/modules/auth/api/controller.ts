@@ -5,7 +5,10 @@ import {
 } from "@/server/core/middleware/auth";
 import { log } from "@/server/core/middleware/logger";
 import { honoWithHook } from "@/server/lib/hono";
-import { errorResponse } from "@/server/shared/schema/response";
+import {
+	errorResponse,
+	successWithDataResponse,
+} from "@/server/shared/schema/response";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { sign } from "hono/jwt";
 import { userRepository } from "../../users/infrastructure/repository";
@@ -17,6 +20,16 @@ function isValidPagePath(path: string): boolean {
 	const pathRegex = /^\/[a-zA-Z0-9\-_\/]*$/;
 	return pathRegex.test(path);
 }
+
+authRoutes.openapi(authRouteConfigs.me, async (c) => {
+	const user = c.get("user");
+	if (!user) {
+		return errorResponse(c, 401, "unauthorized", "error", undefined, {
+			message: "not authenticated",
+		});
+	}
+	return successWithDataResponse(c, user);
+});
 
 authRoutes.openapi(authRouteConfigs.logout, async (c) => {
 	deleteCookie(c, AUTH_TOKEN_COOKIE_NAME);

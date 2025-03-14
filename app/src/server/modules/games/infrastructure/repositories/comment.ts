@@ -1,4 +1,4 @@
-import { UserNotFoundError } from "@/server/modules/users/domain/error";
+import { UserNotFoundError } from "@/schemas/users/domain/error";
 import { userRepository } from "@/server/modules/users/infrastructure/repository";
 import {
 	comment,
@@ -6,9 +6,9 @@ import {
 	userProfile,
 } from "@/server/shared/infrastructure/db/schema";
 import { count, eq } from "drizzle-orm";
+import type { Comment } from "../../../../../schemas/games/domain/comment";
+import { CommentNotFoundError } from "../../../../../schemas/games/domain/error";
 import type { GetCommentsRequest } from "../../api/validator";
-import type { Comment } from "../../domain/comment";
-import { CommentNotFoundError } from "../../domain/error";
 import { BaseRepository, type Transaction } from "./base";
 
 export class CommentRepository extends BaseRepository {

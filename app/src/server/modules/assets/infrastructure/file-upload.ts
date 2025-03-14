@@ -1,4 +1,4 @@
-import { FileUploadError } from "../domain/error";
+import { FileUploadError } from "../../../../schemas/assets/domain/error";
 
 export class FileUploadService {
 	// ファイルをアップロードしてURLを返す

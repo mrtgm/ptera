@@ -7,26 +7,26 @@ import {
 	successWithoutDataSchema,
 } from "@/server/shared/schema/response";
 import {
-	commentResponseDtoSchema,
-	countResponseDtoSchema,
+	commentResponseSchema,
+	countResponseSchema,
 	createCommentRequestSchema,
 	createEventRequestSchema,
-	createGameDtoSchema,
+	createGameRequestSchema,
 	createSceneRequestSchema,
-	eventResponseDtoSchema,
-	gameDetailResponseDtoSchema,
-	gameListResponseDtoSchema,
-	gameResponseDtoSchema,
+	eventResponseSchema,
+	gameDetailResponseSchema,
+	gameListResponseSchema,
+	gameResponseSchema,
 	getCommentsRequestSchema,
-	getGamesRequstSchema,
+	getGamesRequestSchema,
 	moveEventRequestSchema,
-	resourseResponseDtoSchema,
-	sceneResponseDtoSchema,
+	resourceResponseSchema,
+	sceneResponseSchema,
 	updateEventRequestSchema,
-	updateGameDtoSchema,
-	updateGameStatusDtoSchema,
+	updateGameRequestSchema,
+	updateGameStatusRequestSchema,
 	updateSceneRequestSchema,
-} from "../application/dto";
+} from "~/schemas/games/dto";
 import {
 	commentParamSchema,
 	eventParamSchema,
@@ -49,7 +49,7 @@ export const gameRouteCongfigs = {
 				description: "Game",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(gameDetailResponseDtoSchema),
+						schema: successWithDataSchema(gameDetailResponseSchema),
 					},
 				},
 			},
@@ -64,14 +64,14 @@ export const gameRouteCongfigs = {
 		tags: ["games"],
 		summary: "ゲーム一覧を取得します。",
 		request: {
-			query: getGamesRequstSchema,
+			query: getGamesRequestSchema,
 		},
 		responses: {
 			200: {
 				description: "Games",
 				content: {
 					"application/json": {
-						schema: successWithPaginationSchema(gameListResponseDtoSchema),
+						schema: successWithPaginationSchema(gameListResponseSchema),
 					},
 				},
 			},
@@ -89,7 +89,7 @@ export const gameRouteCongfigs = {
 			body: {
 				content: {
 					"application/json": {
-						schema: createGameDtoSchema,
+						schema: createGameRequestSchema,
 					},
 				},
 			},
@@ -99,7 +99,7 @@ export const gameRouteCongfigs = {
 				description: "Game",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(gameResponseDtoSchema),
+						schema: successWithDataSchema(gameResponseSchema),
 					},
 				},
 			},
@@ -121,7 +121,7 @@ export const gameRouteCongfigs = {
 				description: "Game",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(resourseResponseDtoSchema),
+						schema: successWithDataSchema(resourceResponseSchema),
 					},
 				},
 			},
@@ -140,7 +140,7 @@ export const gameRouteCongfigs = {
 			body: {
 				content: {
 					"application/json": {
-						schema: updateGameDtoSchema,
+						schema: updateGameRequestSchema,
 					},
 				},
 			},
@@ -150,7 +150,7 @@ export const gameRouteCongfigs = {
 				description: "Updated Game",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(gameResponseDtoSchema),
+						schema: successWithDataSchema(gameResponseSchema),
 					},
 				},
 			},
@@ -169,7 +169,7 @@ export const gameRouteCongfigs = {
 			body: {
 				content: {
 					"application/json": {
-						schema: updateGameStatusDtoSchema,
+						schema: updateGameStatusRequestSchema,
 					},
 				},
 			},
@@ -179,7 +179,7 @@ export const gameRouteCongfigs = {
 				description: "Updated Game",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(gameResponseDtoSchema),
+						schema: successWithDataSchema(gameResponseSchema),
 					},
 				},
 			},
@@ -237,7 +237,7 @@ export const gameRouteCongfigs = {
 				description: "Success",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(countResponseDtoSchema),
+						schema: successWithDataSchema(countResponseSchema),
 					},
 				},
 			},
@@ -266,7 +266,7 @@ export const gameRouteCongfigs = {
 				description: "Success",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(countResponseDtoSchema),
+						schema: successWithDataSchema(countResponseSchema),
 					},
 				},
 			},
@@ -295,7 +295,7 @@ export const gameRouteCongfigs = {
 				description: "Success",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(countResponseDtoSchema),
+						schema: successWithDataSchema(countResponseSchema),
 					},
 				},
 			},
@@ -318,7 +318,7 @@ export const gameRouteCongfigs = {
 				description: "Comments",
 				content: {
 					"application/json": {
-						schema: successWithPaginationSchema(commentResponseDtoSchema),
+						schema: successWithPaginationSchema(commentResponseSchema),
 					},
 				},
 			},
@@ -347,7 +347,7 @@ export const gameRouteCongfigs = {
 				description: "Created Comment",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(commentResponseDtoSchema),
+						schema: successWithDataSchema(commentResponseSchema),
 					},
 				},
 			},
@@ -405,7 +405,7 @@ export const gameRouteCongfigs = {
 				description: "Created Scene",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(sceneResponseDtoSchema),
+						schema: successWithDataSchema(sceneResponseSchema),
 					},
 				},
 			},
@@ -434,7 +434,7 @@ export const gameRouteCongfigs = {
 				description: "Updated Scene",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(sceneResponseDtoSchema),
+						schema: successWithDataSchema(sceneResponseSchema),
 					},
 				},
 			},
@@ -492,7 +492,7 @@ export const gameRouteCongfigs = {
 				description: "Created Event",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(eventResponseDtoSchema),
+						schema: successWithDataSchema(eventResponseSchema),
 					},
 				},
 			},
@@ -550,7 +550,7 @@ export const gameRouteCongfigs = {
 				description: "Updated Event",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(eventResponseDtoSchema),
+						schema: successWithDataSchema(eventResponseSchema),
 					},
 				},
 			},

@@ -1,7 +1,13 @@
 import { db } from "@/server/shared/infrastructure/db";
-import { UserNotFoundError, UserUnauthorizedError } from "../domain/error";
+import {
+	UserNotFoundError,
+	UserUnauthorizedError,
+} from "../../../../schemas/users/domain/error";
+import type {
+	UpdateProfileRequest,
+	UserResponse,
+} from "../../../../schemas/users/dto";
 import type { UserRepository } from "../infrastructure/repository";
-import type { UpdateProfileRequest, UserResponse } from "./dto";
 
 export const createUserCommand = ({
 	userRepository,

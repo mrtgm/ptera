@@ -22,14 +22,18 @@ import * as changeCase from "change-case";
 import { count, eq, inArray, sql } from "drizzle-orm";
 import { generateKeyBetween } from "fractional-indexing";
 import { omit } from "remeda";
-import { ResourceRepository } from "../../../assets/infrastructure/repositories/resource";
 import {
 	EventNotFoundError,
 	EventsNotFoundError,
 	LastEventCannotBeDeletedError,
 	SceneNotFoundError,
-} from "../../domain/error";
-import { type GameEvent, createEvent, sortEvent } from "../../domain/event";
+} from "../../../../../schemas/games/domain/error";
+import {
+	type GameEvent,
+	createEvent,
+	sortEvent,
+} from "../../../../../schemas/games/domain/event";
+import { ResourceRepository } from "../../../assets/infrastructure/repositories/resource";
 import { domainToPersitence } from "../mapper";
 import { BaseRepository, type Transaction } from "./base";
 import { getEventAssetId } from "./utils";

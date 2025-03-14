@@ -5,8 +5,8 @@ import {
 	characterAsset,
 } from "@/server/shared/infrastructure/db/schema";
 import { eq, sql } from "drizzle-orm";
-import { AssetNotFoundError } from "../../domain/error";
-import type { MediaAsset } from "../../domain/resoucres";
+import { AssetNotFoundError } from "~/schemas/assets/domain/error";
+import type { MediaAsset } from "~/schemas/assets/domain/resoucres";
 import { BaseRepository, type Transaction } from "./base";
 
 export class AssetRepository extends BaseRepository {

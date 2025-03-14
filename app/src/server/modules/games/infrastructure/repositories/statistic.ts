@@ -7,7 +7,7 @@ import {
 	scene,
 } from "@/server/shared/infrastructure/db/schema";
 import { and, count, eq, inArray } from "drizzle-orm";
-import type { CountResponseDto } from "../../application/dto";
+import type { CountResponse } from "~/schemas/games/dto";
 import { BaseRepository } from "./base";
 
 export class StatisticsRepository extends BaseRepository {
@@ -116,7 +116,7 @@ export class StatisticsRepository extends BaseRepository {
 		gamePublicId: string,
 		userId: number | null | undefined,
 		guestId: string | null | undefined,
-	): Promise<CountResponseDto> {
+	): Promise<CountResponse> {
 		const gameId = await this.getGameIdFromPublicId(gamePublicId);
 		await this.db
 			.insert(gamePlay)
@@ -138,10 +138,7 @@ export class StatisticsRepository extends BaseRepository {
 		};
 	}
 
-	async likeGame(
-		gamePublicId: string,
-		userId: number,
-	): Promise<CountResponseDto> {
+	async likeGame(gamePublicId: string, userId: number): Promise<CountResponse> {
 		const gameId = await this.getGameIdFromPublicId(gamePublicId);
 		await this.db
 			.insert(like)
@@ -165,7 +162,7 @@ export class StatisticsRepository extends BaseRepository {
 	async unlikeGame(
 		gamePublicId: string,
 		userId: number,
-	): Promise<CountResponseDto> {
+	): Promise<CountResponse> {
 		const gameId = await this.getGameIdFromPublicId(gamePublicId);
 		await this.db
 			.delete(like)

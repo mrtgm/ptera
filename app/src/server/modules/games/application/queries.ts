@@ -1,30 +1,30 @@
 import type { UserRepository } from "@/server/modules/users/infrastructure/repository";
-import { HTTPException } from "hono/http-exception";
-import { UserNotFoundError } from "../../users/domain/error";
-import type { GetCommentsRequest, GetGamesRequest } from "../api/validator";
 import {
 	GameNotFoundError,
 	InitialSceneNotFoundError,
 	ScenesNotFoundError,
-} from "../domain/error";
-import type { GameWithScene } from "../domain/game";
+} from "~/schemas/games/domain/error";
+import type { GameWithScene } from "~/schemas/games/domain/game";
+import {
+	type CommentResponse,
+	type GameDetailResponse,
+	type GameListResponse,
+	type GetCommentsRequest,
+	type GetGamesRequest,
+	mapDomainToCommentResponse,
+	mapDomainToGameDetailResponse,
+	mapDomainToGameListResponse,
+	mapDomainToResourceResponse,
+} from "~/schemas/games/dto";
+import { UserNotFoundError } from "../../../../schemas/users/domain/error";
+import type { ResourceRepository } from "../../assets/infrastructure/repositories/resource";
 import type { CommentRepository } from "../infrastructure/repositories/comment";
 import type {
 	EventRepository,
 	GameRepository,
-	ResourceRepository,
 	SceneRepository,
 	StatisticsRepository,
 } from "../infrastructure/repository";
-import {
-	type CommentResponseDto,
-	type GameDetailResponseDto,
-	type GameListResponseDto,
-	mapDomainToCommentResponseDto,
-	mapDomainToDetailResponseDto,
-	mapDomainToListResponseDto,
-	mapDomainToResourceResponseDto,
-} from "./dto";
 
 export const createQuery = ({
 	gameRepository,
@@ -46,12 +46,12 @@ export const createQuery = ({
 	return {
 		executeSearch: async (
 			params: GetGamesRequest,
-		): Promise<{ items: GameListResponseDto[]; total: number }> => {
+		): Promise<{ items: GameListResponse[]; total: number }> => {
 			const { items, total } = await gameRepository.getGames(params);
 			const userIds = items.map((v) => v.userId);
 			const users = await userRepository.getUsersByIds(userIds);
 			return {
-				items: mapDomainToListResponseDto(items, users),
+				items: mapDomainToGameListResponse(items, users),
 				total,
 			};
 		},
@@ -63,13 +63,12 @@ export const createQuery = ({
 				throw new GameNotFoundError(publicId);
 			}
 
-			const resources = await resourceRepository.getResource(publicId);
-			return mapDomainToResourceResponseDto(resources);
+			// TODO: ゲームに紐づくリソースのみ取得するエンドポイントを分ける
+			const resources = await resourceRepository.getResource(game.userId);
+			return mapDomainToResourceResponse(resources);
 		},
 
-		executeGetGame: async (
-			publicId: string,
-		): Promise<GameDetailResponseDto> => {
+		executeGetGame: async (publicId: string): Promise<GameDetailResponse> => {
 			const game = await gameRepository.getGameById(publicId);
 
 			if (!game) {
@@ -105,13 +104,13 @@ export const createQuery = ({
 				scenes,
 			};
 
-			return mapDomainToDetailResponseDto(gameWithScene, user);
+			return mapDomainToGameDetailResponse(gameWithScene, user);
 		},
 
 		executeGetComments: async (
 			gamePublicId: string,
 			params: GetCommentsRequest,
-		): Promise<{ items: CommentResponseDto[]; total: number }> => {
+		): Promise<{ items: CommentResponse[]; total: number }> => {
 			const game = await gameRepository.getGameById(gamePublicId);
 			if (!game) {
 				throw new GameNotFoundError(gamePublicId);
@@ -122,7 +121,7 @@ export const createQuery = ({
 			);
 
 			const mappedItems = items.map((v) => {
-				return mapDomainToCommentResponseDto(v);
+				return mapDomainToCommentResponse(v);
 			});
 
 			return {

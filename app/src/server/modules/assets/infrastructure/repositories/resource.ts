@@ -1,10 +1,4 @@
-import {
-	asset,
-	character,
-	characterAsset,
-} from "@/server/shared/infrastructure/db/schema";
 import { eq, inArray, or } from "drizzle-orm";
-import { BaseRepository } from "../../../games/infrastructure/repositories/base";
 import type {
 	BGM,
 	BackgroundImage,
@@ -13,7 +7,13 @@ import type {
 	CharacterImage,
 	GameResources,
 	SoundEffect,
-} from "../../domain/resoucres";
+} from "~/schemas/assets/domain/resoucres";
+import {
+	asset,
+	character,
+	characterAsset,
+} from "~/server/shared/infrastructure/db/schema";
+import { BaseRepository } from "../../../games/infrastructure/repositories/base";
 
 export class ResourceRepository extends BaseRepository {
 	async getResource(userId: number): Promise<GameResources> {

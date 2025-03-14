@@ -1,7 +1,10 @@
 import type { ErrorHandler } from "hono";
 import { HTTPException } from "hono/http-exception";
+import {
+	UserNotFoundError,
+	UserUnauthorizedError,
+} from "../../../../schemas/users/domain/error";
 import { errorResponse } from "../../../shared/schema/response";
-import { UserNotFoundError, UserUnauthorizedError } from "../domain/error";
 
 export const errorHandler: ErrorHandler = (err, c) => {
 	console.error(err);

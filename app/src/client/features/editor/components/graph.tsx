@@ -13,8 +13,8 @@ import { memo, useCallback, useEffect, useState } from "react";
 
 import "@xyflow/react/dist/style.css";
 
-import type { Game } from "@/client/schema";
 import { useParams } from "next/navigation";
+import type { GameResponseDto } from "~/schemas/games/dto";
 import {
 	getAllEdges,
 	getAllNodesPosition,
@@ -92,7 +92,7 @@ export const Graph = ({
 	game,
 	onNavigateToScene,
 }: {
-	game: Game | null;
+	game: GameResponseDto | null;
 	onNavigateToScene: (sceneId: string) => void;
 }) => {
 	const { sceneId } = useParams();

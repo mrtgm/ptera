@@ -15,7 +15,7 @@ import {
 	createCharacterSchema,
 	updateAssetSchema,
 	updateCharacterSchema,
-} from "../application/dto";
+} from "../../../../schemas/assets/dto";
 import {
 	assetCharacterLinkParamSchema,
 	assetParamSchema,

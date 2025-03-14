@@ -1,6 +1,6 @@
-import { UserNotFoundError } from "../domain/error";
+import { UserNotFoundError } from "../../../../schemas/users/domain/error";
+import type { UserResponse } from "../../../../schemas/users/dto";
 import type { UserRepository } from "../infrastructure/repository";
-import type { UserResponse } from "./dto";
 
 export const createUserQuery = ({
 	userRepository,

@@ -8,10 +8,9 @@ import {
 	user,
 } from "@/server/shared/infrastructure/db/schema";
 import { and, count, eq, ilike, sql } from "drizzle-orm";
-import type { GetGamesRequest } from "../../application/dto";
-import type { UpdateGameDto } from "../../application/dto";
-import { GameNotFoundError } from "../../domain/error";
-import { type Game, createGame } from "../../domain/game";
+import { GameNotFoundError } from "~/schemas/games/domain/error";
+import { type Game, createGame } from "~/schemas/games/domain/game";
+import type { GetGamesRequest, UpdateGameRequest } from "~/schemas/games/dto";
 import { domainToPersitence } from "../mapper";
 import { BaseRepository, type Transaction } from "./base";
 import { StatisticsRepository } from "./statistic";
@@ -146,7 +145,7 @@ export class GameRepository extends BaseRepository {
 		tx,
 	}: {
 		gamePublicId: string;
-		params: UpdateGameDto;
+		params: UpdateGameRequest;
 		tx?: Transaction;
 	}): Promise<Game> {
 		return await this.executeTransaction(async (txLocal) => {

@@ -8,17 +8,20 @@ import {
 	scene,
 } from "@/server/shared/infrastructure/db/schema";
 import { and, eq, inArray, sql } from "drizzle-orm";
+import {
+	InitialSceneCannotBeDeletedError,
+	SceneNotFoundError,
+} from "~/schemas/games/domain/error";
+import {
+	type Choice,
+	type Scene,
+	createEndScene,
+} from "~/schemas/games/domain/scene";
 import type {
 	CreateEventRequest,
 	CreateSceneRequest,
 	UpdateSceneRequest,
-} from "../../application/dto";
-import {
-	InitialSceneCannotBeDeletedError,
-	SceneNotFoundError,
-} from "../../domain/error";
-import { createEvent } from "../../domain/event";
-import { type Choice, type Scene, createEndScene } from "../../domain/scene";
+} from "~/schemas/games/dto";
 import { BaseRepository, type Transaction } from "./base";
 import { EventRepository } from "./event";
 

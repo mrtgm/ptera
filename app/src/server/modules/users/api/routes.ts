@@ -7,7 +7,7 @@ import {
 import {
 	updateProfileRequestSchema,
 	userResponseSchema,
-} from "../application/dto";
+} from "../../../../schemas/users/dto";
 import { userParamsSchema } from "./validator";
 
 export const userRouteConfigs = {

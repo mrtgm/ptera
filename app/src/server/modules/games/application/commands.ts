@@ -2,11 +2,29 @@ import { db } from "@/server/shared/infrastructure/db";
 import {
 	UserNotFoundError,
 	UserUnauthorizedError,
-} from "../../users/domain/error";
+} from "../../../../schemas/users/domain/error";
 import { userRepository } from "../../users/infrastructure/repository";
 
-import { CommentNotFoundError, GameNotFoundError } from "../domain/error";
-import type { Game } from "../domain/game";
+import {
+	CommentNotFoundError,
+	GameNotFoundError,
+} from "~/schemas/games/domain/error";
+import type { Game } from "~/schemas/games/domain/game";
+import {
+	type CreateCommentRequest,
+	type CreateEventRequest,
+	type CreateGameRequest,
+	type CreateSceneRequest,
+	type MoveEventRequest,
+	type UpdateEventRequest,
+	type UpdateGameRequest,
+	type UpdateSceneRequest,
+	mapDomainToCommentResponse,
+	mapDomainToEventResponse,
+	mapDomainToGameDetailResponse,
+	mapDomainToGameResponse,
+	mapDomainToSceneResponse,
+} from "~/schemas/games/dto";
 import type { CommentRepository } from "../infrastructure/repositories/comment";
 import type {
 	EventRepository,
@@ -14,21 +32,6 @@ import type {
 	SceneRepository,
 	StatisticsRepository,
 } from "../infrastructure/repository";
-import {
-	type CreateCommentRequest,
-	type CreateEventRequest,
-	type CreateGameDto,
-	type CreateSceneRequest,
-	type MoveEventRequest,
-	type UpdateEventRequest,
-	type UpdateGameDto,
-	type UpdateSceneRequest,
-	mapDomainToCommentResponseDto,
-	mapDomainToDetailResponseDto,
-	mapDomainToEventResponseDto,
-	mapDomainToResponseDto,
-	mapDomainToSceneResponseDto,
-} from "./dto";
 
 export const createCommand = ({
 	gameRepository,
@@ -57,7 +60,7 @@ export const createCommand = ({
 			return count;
 		},
 
-		executeCreateGame: async (dto: CreateGameDto, userId: number) => {
+		executeCreateGame: async (dto: CreateGameRequest, userId: number) => {
 			return await db.transaction(async (tx) => {
 				const game = await gameRepository.createGame({
 					params: {
@@ -103,7 +106,7 @@ export const createCommand = ({
 					throw new Error("User not found");
 				}
 
-				return mapDomainToDetailResponseDto(
+				return mapDomainToGameDetailResponse(
 					{
 						...game,
 						initialSceneId: scene.id,
@@ -134,13 +137,13 @@ export const createCommand = ({
 					tx,
 				});
 
-				return mapDomainToResponseDto(updatedGame);
+				return mapDomainToGameResponse(updatedGame);
 			});
 		},
 
 		executeUpdateGame: async (
 			gamePublicId: string,
-			dto: UpdateGameDto,
+			dto: UpdateGameRequest,
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
@@ -159,7 +162,7 @@ export const createCommand = ({
 					tx,
 				});
 
-				return mapDomainToResponseDto(updatedGame);
+				return mapDomainToGameResponse(updatedGame);
 			});
 		},
 
@@ -216,7 +219,7 @@ export const createCommand = ({
 					tx,
 				});
 
-				return mapDomainToCommentResponseDto(comment);
+				return mapDomainToCommentResponse(comment);
 			});
 		},
 
@@ -265,7 +268,7 @@ export const createCommand = ({
 					tx,
 				});
 
-				return mapDomainToSceneResponseDto(scene);
+				return mapDomainToSceneResponse(scene);
 			});
 		},
 
@@ -303,7 +306,7 @@ export const createCommand = ({
 					tx,
 				});
 
-				return mapDomainToSceneResponseDto(updatedScene);
+				return mapDomainToSceneResponse(updatedScene);
 			});
 		},
 
@@ -360,7 +363,7 @@ export const createCommand = ({
 					tx,
 				});
 
-				return mapDomainToEventResponseDto(event);
+				return mapDomainToEventResponse(event);
 			});
 		},
 
@@ -413,7 +416,7 @@ export const createCommand = ({
 					tx,
 				});
 
-				return mapDomainToEventResponseDto(updatedEvent);
+				return mapDomainToEventResponse(updatedEvent);
 			});
 		},
 

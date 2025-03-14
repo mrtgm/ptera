@@ -1,4 +1,4 @@
-import type { GameEvent } from "../../domain/event";
+import type { GameEvent } from "../../../../../schemas/games/domain/event";
 
 export function getEventAssetId(eventData: GameEvent): number | null {
 	if (eventData.eventType === "bgmStart") {

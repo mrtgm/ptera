@@ -3,7 +3,7 @@ import * as schema from "@/server/shared/infrastructure/db/schema";
 import { type ExtractTablesWithRelations, eq } from "drizzle-orm";
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
-import { GameNotFoundError } from "../../domain/error";
+import { GameNotFoundError } from "../../../../../schemas/games/domain/error";
 
 export type Transaction = PgTransaction<
 	PostgresJsQueryResultHKT,

@@ -1,3 +1,4 @@
+import type { CreateAssetRequest } from "@/schemas/assets/dto";
 import { honoWithHook } from "../../../lib/hono";
 import {
 	errorResponse,
@@ -5,7 +6,6 @@ import {
 	successWithoutDataResponse,
 } from "../../../shared/schema/response";
 import { createAssetCharacterCommands } from "../application/command";
-import type { CreateAssetRequest } from "../application/dto";
 import { FileUploadService } from "../infrastructure/file-upload";
 import {
 	AssetRepository,

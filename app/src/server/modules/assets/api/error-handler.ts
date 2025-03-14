@@ -1,12 +1,12 @@
 import type { ErrorHandler } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { errorResponse } from "../../../shared/schema/response";
-import { UserUnauthorizedError } from "../../users/domain/error";
 import {
 	AssetNotFoundError,
 	CharacterNotFoundError,
 	FileUploadError,
-} from "../domain/error";
+} from "../../../../schemas/assets/domain/error";
+import { UserUnauthorizedError } from "../../../../schemas/users/domain/error";
+import { errorResponse } from "../../../shared/schema/response";
 
 export const errorHandler: ErrorHandler = (err, c) => {
 	console.error(err);
