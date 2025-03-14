@@ -1,11 +1,12 @@
 {
-	"name": "my-project",
+	"name": "ptera",
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
 		"dev": "next dev --turbopack -p 3000",
 		"build": "next build",
 		"start": "next start",
+		"compile": "tsup ./src/server/core/server.ts --dts --format esm",
 		"db:migrate": "./src/server/shared/infrastructure/db/migrate.sh",
 		"db:clear": "bun ./src/server/shared/infrastructure/db/clear.ts",
 		"db:reset": "bun ./src/server/shared/infrastructure/db/reset.ts",
@@ -51,6 +52,7 @@
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cmdk": "1.0.0",
+		"date-fns": "^4.1.0",
 		"dotenv": "^16.4.7",
 		"drizzle-kit": "^0.30.5",
 		"drizzle-orm": "^0.40.0",
@@ -76,6 +78,7 @@
 		"std-env": "^3.8.1",
 		"tailwind-merge": "^3.0.2",
 		"tailwindcss-animate": "^1.0.7",
+		"tsup": "^8.4.0",
 		"vitest": "^3.0.8",
 		"zod": "^3.24.2",
 		"zustand": "^4.5.5"
@@ -88,5 +91,10 @@
 		"@types/react-dom": "^19",
 		"tailwindcss": "^4",
 		"typescript": "^5.8.2"
+	},
+	"exports": {
+		"./server-types": {
+			"types": "./dist/server.d.mts"
+		}
 	}
 }

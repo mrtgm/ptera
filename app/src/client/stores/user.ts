@@ -1,83 +1,127 @@
-import type { GameMetaData, UserProfile } from "@/client/schema";
+import type { UserProfile } from "@/client/schema";
 import type { StateCreator } from "zustand";
-import { useStore } from "./";
+import { api } from "../api";
 import type { State } from "./";
-
-interface GameSaveData {
-	currentSceneId: string;
-	currentEventId: string;
-	playHistory: string[]; // 訪れたシーンのID履歴
-	timestamp: number;
-}
+import { performUpdate } from "./util";
 
 export interface UserState {
+	isInitialized: boolean;
 	isAuthenticated: boolean;
-	authToken: string | null;
+	likedGamesId: number[];
 	currentUser: UserProfile | null;
 
-	userGames: GameMetaData[]; // IDs of games created by the user
-	saveData: Record<string, GameSaveData>;
-
-	login: (email: string, password: string) => Promise<boolean>;
-	register: (
-		email: string,
-		password: string,
-		nickname: string,
-	) => Promise<boolean>;
+	login: (provider: string) => void;
 	logout: () => void;
-	updateProfile: (profile: Partial<UserProfile>) => Promise<void>;
-
-	savePath: (gameId: string, sceneId: string, eventId: string) => void;
-	resetGameProgress: (gameId: string) => void;
+	fetchCurrentUser: () => void;
+	updateProfile: (profile: UserProfile) => Promise<void>;
 }
 
-// Create the user slice
 export const createUserSlice: StateCreator<
 	State,
 	[["zustand/devtools", never], ["zustand/immer", never]],
 	[],
 	UserState
 > = (set, get) => ({
+	isInitialized: false,
 	isAuthenticated: false,
-	authToken: null,
+	likedGamesId: [],
 	currentUser: null,
-	userGames: [],
 	saveData: {},
 
-	// Auth actions
-	login: async (email, password) => {
-		//TODO: implement login
+	login: (provider: string) => {
+		window.location.href = `/api/v1/auth/${provider}`;
+	},
+
+	logout: async () => {
+		await api.auth.logout();
+		set({
+			isAuthenticated: false,
+			currentUser: null,
+		});
 		return false;
 	},
 
-	register: async (email, password, nickname) => {
-		//TODO: implement register
-		return false;
-	},
+	likeGame: async (gameId: number) => {
+		const { likedGamesId } = get();
 
-	logout: () => {
-		//TODO: implement logout
-		return false;
-	},
-
-	updateProfile: async (profile) => {
-		//TODO: implement updateProfile
-	},
-
-	savePath: (gameId, sceneId, eventId) => {
-		set((state) => {
-			state.saveData[gameId] = {
-				currentSceneId: sceneId,
-				currentEventId: eventId,
-				playHistory: [...(state.saveData[gameId]?.playHistory || []), sceneId],
-				timestamp: Date.now(),
-			};
+		if (likedGamesId.includes(gameId)) {
+			return;
+		}
+		await performUpdate({
+			api: () => api.games.like(gameId),
+			optimisticUpdate: () => {
+				set({ likedGamesId: [...likedGamesId, gameId] });
+			},
+			rollback: () => {
+				set({ likedGamesId });
+			},
 		});
 	},
 
-	resetGameProgress: (gameId) => {
-		set((state) => {
-			delete state.saveData[gameId];
+	unlikeGame: async (gameId: number) => {
+		const { likedGamesId } = get();
+		if (!likedGamesId.includes(gameId)) {
+			return;
+		}
+		const updatedLikedGamesId = likedGamesId.filter((id) => id !== gameId);
+
+		await performUpdate({
+			api: () => api.games.unlike(gameId),
+			optimisticUpdate: () => {
+				set({ likedGamesId: updatedLikedGamesId });
+			},
+			rollback: () => {
+				set({ likedGamesId });
+			},
+		});
+	},
+
+	fetchCurrentUser: async () => {
+		try {
+			const [userData, likedGamesId] = await Promise.all([
+				api.auth.me(),
+				api.auth.likedGames(),
+			]);
+
+			if (!userData) {
+				return false;
+			}
+
+			set({
+				isAuthenticated: true,
+				currentUser: userData,
+				likedGamesId: likedGamesId || [],
+			});
+
+			console.log("User authenticated:", userData);
+			return true;
+		} catch (error) {
+			console.error("Authentication error:", error);
+			return false;
+		} finally {
+			set({ isInitialized: true });
+		}
+	},
+
+	updateProfile: async (profile) => {
+		const { currentUser } = get();
+
+		if (!currentUser) {
+			return;
+		}
+
+		await performUpdate({
+			api: () => api.users.updateProfile(currentUser.id, profile),
+			optimisticUpdate: () => {
+				set({
+					currentUser: { ...currentUser, ...profile },
+				});
+			},
+			rollback: () => {
+				set({
+					currentUser,
+				});
+			},
 		});
 	},
 });

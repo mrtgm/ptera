@@ -1,9 +1,10 @@
 import { ENV } from "@/configs/env";
-import { isPublicAccess } from "@/server/core/middleware/auth";
+import { isAuthenticated, isPublicAccess } from "@/server/core/middleware/auth";
 import { createRouteConfig } from "@/server/lib/doc";
 import {
 	errorResponses,
 	successWithDataSchema,
+	successWithoutDataSchema,
 } from "@/server/shared/schema/response";
 import { googleAuth } from "@hono/oauth-providers/google";
 import { userResponseSchema } from "../../../../schemas/users/dto";
@@ -16,8 +17,13 @@ export const authRouteConfigs = {
 		tags: ["auth"],
 		summary: "ログアウトします。",
 		responses: {
-			302: {
-				description: "Redirect to top page",
+			200: {
+				description: "Logout success",
+				content: {
+					"application/json": {
+						schema: successWithoutDataSchema,
+					},
+				},
 			},
 			...errorResponses,
 		},
@@ -46,7 +52,7 @@ export const authRouteConfigs = {
 	me: createRouteConfig({
 		method: "get",
 		path: "/me",
-		guard: [isPublicAccess],
+		guard: [isAuthenticated],
 		tags: ["auth"],
 		summary: "ログインユーザー情報を取得します。",
 		responses: {
@@ -54,7 +60,7 @@ export const authRouteConfigs = {
 				description: "User information",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(userResponseSchema),
+						schema: successWithDataSchema(userResponseSchema.nullable()),
 					},
 				},
 			},

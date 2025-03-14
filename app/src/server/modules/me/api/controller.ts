@@ -10,8 +10,6 @@ import { createDashboardQuery } from "../application/queries";
 import { errorHandler } from "./error-handler";
 import { dashboardRouteConfigs } from "./routes";
 
-const dashboardRoutes = honoWithHook();
-
 const gameRepository = new GameRepository();
 const resourceRepository = new ResourceRepository();
 
@@ -21,29 +19,40 @@ const dashboardQuery = createDashboardQuery({
 	resourceRepository,
 });
 
-dashboardRoutes.openapi(dashboardRouteConfigs.getMyGames, async (c) => {
-	const currentUserId = c.get("user")?.id;
+const dashboardRoutes = honoWithHook()
+	.openapi(dashboardRouteConfigs.getMyLikedGames, async (c) => {
+		const currentUserId = c.get("user")?.id;
 
-	if (!currentUserId) {
-		return errorResponse(c, 401, "unauthorized", "warn", "user", {
-			userId: "required",
-		});
-	}
+		if (!currentUserId) {
+			return errorResponse(c, 401, "unauthorized", "warn", "user", {
+				userId: "required",
+			});
+		}
+		const result = await dashboardQuery.executeGetMyLikedGames(currentUserId);
+		return successWithDataResponse(c, result);
+	})
+	.openapi(dashboardRouteConfigs.getMyGames, async (c) => {
+		const currentUserId = c.get("user")?.id;
 
-	const result = await dashboardQuery.executeGetMyGames(currentUserId);
-	return successWithDataResponse(c, result);
-});
+		if (!currentUserId) {
+			return errorResponse(c, 401, "unauthorized", "warn", "user", {
+				userId: "required",
+			});
+		}
 
-dashboardRoutes.openapi(dashboardRouteConfigs.getMyResources, async (c) => {
-	const currentUserId = c.get("user")?.id;
+		const result = await dashboardQuery.executeGetMyGames(currentUserId);
+		return successWithDataResponse(c, result);
+	})
+	.openapi(dashboardRouteConfigs.getMyResources, async (c) => {
+		const currentUserId = c.get("user")?.id;
 
-	if (!currentUserId) {
-		return errorResponse(c, 401, "unauthorized", "error");
-	}
+		if (!currentUserId) {
+			return errorResponse(c, 401, "unauthorized", "error");
+		}
 
-	const result = await dashboardQuery.executeGetMyResources(currentUserId);
-	return successWithDataResponse(c, result);
-});
+		const result = await dashboardQuery.executeGetMyResources(currentUserId);
+		return successWithDataResponse(c, result);
+	});
 
 dashboardRoutes.onError(errorHandler);
 

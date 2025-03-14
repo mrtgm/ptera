@@ -4,21 +4,18 @@ import type { GameMetaData, UserProfile } from "@/client/schema";
 import { useEffect, useState } from "react";
 import { useStore } from "~/client/stores";
 
+import { AlertTriangle, Eye, Gamepad2, Mail, ThumbsUp } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Alert, AlertDescription } from "~/client/components/shadcn/alert";
 import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
 } from "~/client/components/shadcn/avatar";
-// shadcn components
 import { Button } from "~/client/components/shadcn/button";
 import { Card, CardContent } from "~/client/components/shadcn/card";
-
-// lucide icons
-import { AlertTriangle, Eye, Gamepad2, Mail, ThumbsUp } from "lucide-react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import GameCard from "~/client/features/dashboard/components/game-card";
+import { GameCard } from "~/client/features/dashboard/components/game-card";
 
 const sampleUserProfile: UserProfile = {
 	id: 0,

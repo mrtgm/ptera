@@ -2,7 +2,6 @@ import type { GameListResponse } from "~/schemas/games/dto";
 import type { GameResources } from "../../../../schemas/assets/domain/resoucres";
 import { UserNotFoundError } from "../../../../schemas/users/domain/error";
 import type { ResourceRepository } from "../../assets/infrastructure/repositories/resource";
-import type { AssetRepository } from "../../assets/infrastructure/repository";
 import type { GameRepository } from "../../games/infrastructure/repository";
 import type { UserRepository } from "../../users/infrastructure/repository";
 
@@ -39,6 +38,18 @@ export const createDashboardQuery = ({
 		): Promise<GameResources> => {
 			const assets = await resourceRepository.getResource(currentUserId);
 			return assets;
+		},
+
+		executeGetMyLikedGames: async (
+			currentUserId: number,
+		): Promise<number[]> => {
+			const games = await gameRepository.getLikedGamesByUserId(currentUserId);
+			const user = await userRepository.getById(currentUserId);
+
+			if (!user) {
+				throw new UserNotFoundError(currentUserId);
+			}
+			return games;
 		},
 	};
 };

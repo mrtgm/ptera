@@ -4,6 +4,7 @@ import {
 	errorResponses,
 	successWithDataSchema,
 } from "@/server/shared/schema/response";
+import { z } from "zod";
 import { gameResourcesSchema } from "~/schemas/assets/domain/resoucres";
 import { gameResponseSchema } from "~/schemas/games/dto";
 
@@ -20,6 +21,25 @@ export const dashboardRouteConfigs = {
 				content: {
 					"application/json": {
 						schema: successWithDataSchema(gameResponseSchema.array()),
+					},
+				},
+			},
+			...errorResponses,
+		},
+	}),
+
+	getMyLikedGames: createRouteConfig({
+		method: "get",
+		path: "/liked",
+		guard: [isAuthenticated],
+		tags: ["dashboard"],
+		summary: "自分がいいねしたゲーム一覧を取得します。",
+		responses: {
+			200: {
+				description: "My Liked Games",
+				content: {
+					"application/json": {
+						schema: successWithDataSchema(z.number().array()),
 					},
 				},
 			},

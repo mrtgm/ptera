@@ -42,13 +42,12 @@ export const gameRouteCongfigs = {
 		guard: [isPublicAccess],
 		tags: ["games"],
 		summary: "ゲームカテゴリ一覧を取得します。",
-		request: {},
 		responses: {
 			200: {
 				description: "Categories",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(categoryResponseSchema),
+						schema: successWithDataSchema(categoryResponseSchema.array()),
 					},
 				},
 			},
@@ -332,14 +331,13 @@ export const gameRouteCongfigs = {
 		summary: "ゲームのコメント一覧を取得します。",
 		request: {
 			params: gameParamSchema,
-			query: getCommentsRequestSchema,
 		},
 		responses: {
 			200: {
 				description: "Comments",
 				content: {
 					"application/json": {
-						schema: successWithPaginationSchema(commentResponseSchema),
+						schema: successWithDataSchema(commentResponseSchema.array()),
 					},
 				},
 			},

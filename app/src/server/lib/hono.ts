@@ -1,6 +1,8 @@
-import { OpenAPIHono } from "@hono/zod-openapi";
-import { ZodError } from "zod";
 import type { Env } from "@/server/lib/context";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { hc } from "hono/client";
+import { ZodError } from "zod";
+import type { AppType } from "../core/server";
 import { errorResponse } from "../shared/schema/response";
 
 export const honoWithHook = () =>

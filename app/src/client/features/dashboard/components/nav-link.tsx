@@ -1,5 +1,3 @@
-"use client";
-
 import { Gamepad2, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

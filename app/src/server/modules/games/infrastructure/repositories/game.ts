@@ -80,6 +80,16 @@ export class GameRepository extends BaseRepository {
 		}, tx);
 	}
 
+	async getLikedGamesByUserId(userId: number): Promise<number[]> {
+		return await this.db
+			.select({
+				gameId: like.gameId,
+			})
+			.from(like)
+			.where(eq(like.userId, userId))
+			.execute()
+			.then((v) => v.map((v) => v.gameId));
+	}
 	async createGame({
 		params: { name, description, userId },
 		tx,

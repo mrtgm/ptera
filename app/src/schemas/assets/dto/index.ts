@@ -12,7 +12,7 @@ export const createAssetSchema = mediaAssetSchema
 		metadata: true,
 	})
 	.extend({
-		file: z.any(),
+		file: z.instanceof(File),
 	});
 
 export type CreateAssetRequest = z.infer<typeof createAssetSchema>;

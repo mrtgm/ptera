@@ -11,6 +11,7 @@ import {
 	type GameListResponse,
 	type GetCommentsRequest,
 	type GetGamesRequest,
+	mapDomainToCategoryResponse,
 	mapDomainToCommentResponse,
 	mapDomainToGameDetailResponse,
 	mapDomainToGameListResponse,
@@ -20,6 +21,7 @@ import { UserNotFoundError } from "../../../../schemas/users/domain/error";
 import type { ResourceRepository } from "../../assets/infrastructure/repositories/resource";
 import type { CommentRepository } from "../infrastructure/repositories/comment";
 import type {
+	CategoryRepository,
 	EventRepository,
 	GameRepository,
 	SceneRepository,
@@ -34,6 +36,7 @@ export const createQuery = ({
 	resourceRepository,
 	statisticsRepository,
 	commentRepository,
+	categoryRepository,
 }: {
 	gameRepository: GameRepository;
 	statisticsRepository: StatisticsRepository;
@@ -42,6 +45,7 @@ export const createQuery = ({
 	resourceRepository: ResourceRepository;
 	userRepository: UserRepository;
 	commentRepository: CommentRepository;
+	categoryRepository: CategoryRepository;
 }) => {
 	return {
 		executeSearch: async (
@@ -107,27 +111,23 @@ export const createQuery = ({
 			return mapDomainToGameDetailResponse(gameWithScene, user);
 		},
 
-		executeGetComments: async (
-			gameId: number,
-			params: GetCommentsRequest,
-		): Promise<{ items: CommentResponse[]; total: number }> => {
+		executeGetComments: async (gameId: number): Promise<CommentResponse[]> => {
 			const game = await gameRepository.getGameById(gameId);
 			if (!game) {
 				throw new GameNotFoundError(gameId);
 			}
-			const { items, total } = await commentRepository.getComments(
-				gameId,
-				params,
-			);
+			const comments = await commentRepository.getComments(gameId);
 
-			const mappedItems = items.map((v) => {
+			const mappedItems = comments.map((v) => {
 				return mapDomainToCommentResponse(v);
 			});
 
-			return {
-				items: mappedItems,
-				total,
-			};
+			return mappedItems;
+		},
+
+		executeGetCategories: async () => {
+			const res = await categoryRepository.getCategories();
+			return res.map((v) => mapDomainToCategoryResponse(v));
 		},
 	};
 };

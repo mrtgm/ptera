@@ -52,7 +52,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-interface GameCardProps {
+export const GameCard = ({
+	game,
+	showAuthor = true,
+	showEdit = false,
+	onDelete,
+	onPublishToggle,
+}: {
 	game: GameMetaData;
 	showAuthor?: boolean;
 	showEdit?: boolean;
@@ -61,15 +67,7 @@ interface GameCardProps {
 		id: number,
 		status: "published" | "draft" | "archived",
 	) => void;
-}
-
-export default function GameCard({
-	game,
-	showAuthor = true,
-	showEdit = false,
-	onDelete,
-	onPublishToggle,
-}: GameCardProps) {
+}) => {
 	return (
 		<Card className="overflow-hidden flex flex-col h-full relative">
 			<div className="h-40 bg-gradient-to-r from-primary/20 to-secondary/20 relative">
@@ -217,4 +215,4 @@ export default function GameCard({
 			)}
 		</Card>
 	);
-}
+};

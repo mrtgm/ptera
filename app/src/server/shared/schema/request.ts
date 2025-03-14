@@ -1,21 +1,19 @@
 import { z } from "zod";
 
-const offsetRefine = (value: string | undefined) => Number(value) >= 0;
-const limitRefine = (value: string | undefined) =>
+const offsetRefine = (value: number | undefined) => Number(value) >= 0;
+const limitRefine = (value: number | undefined) =>
 	Number(value) > 0 && Number(value) <= 1000;
 
 export const paginationRequestSchema = z.object({
-	q: z.string().optional(), // キーワード
-	sort: z.enum(["createdAt"]).default("createdAt").optional(), // ソート対象
-	order: z.enum(["asc", "desc"]).default("asc").optional(), // ソート順
+	q: z.string().optional(), // 検索クエリ
+	sort: z.enum(["createdAt"]).default("createdAt").optional(),
+	order: z.enum(["asc", "desc"]).default("asc").optional(),
 	offset: z
-		.string()
-		.default("0")
-		.optional()
+		.union([z.number().optional(), z.string().transform(Number).optional()])
+		.default(0)
 		.refine(offsetRefine, "offset は0以上である必要があります"),
 	limit: z
-		.string()
-		.default("20")
-		.optional()
+		.union([z.number().optional(), z.string().transform(Number).optional()])
+		.default(20)
 		.refine(limitRefine, "limit は1以上1000以下である必要があります"),
 });

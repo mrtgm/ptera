@@ -22,7 +22,7 @@ import { createGame as createDomainGame } from "@/schemas/games/domain/game";
 // lucide icons
 import { Gamepad2, Plus } from "lucide-react";
 import CreateGameDialog from "~/client/features/dashboard/components/create-game-dialog";
-import GameCard from "~/client/features/dashboard/components/game-card";
+import { GameCard } from "~/client/features/dashboard/components/game-card";
 
 // Dummy game data
 const dummyGames: GameMetaData[] = [

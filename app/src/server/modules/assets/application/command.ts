@@ -24,12 +24,11 @@ export const createAssetCharacterCommands = ({
 	return {
 		// アセットアップロード
 		executeUploadAsset: async (
-			file: File,
 			params: CreateAssetRequest,
 			userId: number,
 		): Promise<AssetResponse> => {
 			const fileUrl = await fileUploadService.uploadFile(
-				file,
+				params.file,
 				params.assetType,
 			);
 

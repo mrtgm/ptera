@@ -286,7 +286,6 @@ export const createCommand = ({
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
-				// ユーザーが所有者か確認
 				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
 					throw new Error("Game not found");
@@ -295,7 +294,6 @@ export const createCommand = ({
 					throw new UserUnauthorizedError();
 				}
 
-				// シーンの情報を取得
 				const scenes = await sceneRepository.getScenes(gameId);
 				if (!scenes) {
 					throw new Error("Scenes not found");
@@ -306,7 +304,6 @@ export const createCommand = ({
 					throw new Error("Scene not found");
 				}
 
-				// シーンを更新
 				const updatedScene = await sceneRepository.updateScene({
 					sceneId,
 					params: { ...dto },
@@ -317,14 +314,12 @@ export const createCommand = ({
 			});
 		},
 
-		// シーン削除
 		executeDeleteScene: async (
 			gameId: number,
 			sceneId: number,
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
-				// ユーザーが所有者か確認
 				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
 					throw new Error("Game not found");
@@ -342,7 +337,6 @@ export const createCommand = ({
 			});
 		},
 
-		// イベント作成
 		executeCreateEvent: async (
 			gameId: number,
 			sceneId: number,
@@ -350,7 +344,6 @@ export const createCommand = ({
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
-				// ユーザーが所有者か確認
 				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
 					throw new Error("Game not found");
@@ -374,7 +367,6 @@ export const createCommand = ({
 			});
 		},
 
-		// イベント更新
 		executeUpdateEvent: async (
 			gameId: number,
 			sceneId: number,
@@ -383,7 +375,6 @@ export const createCommand = ({
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
-				// ユーザーが所有者か確認
 				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
 					throw new Error("Game not found");
@@ -392,7 +383,6 @@ export const createCommand = ({
 					throw new UserUnauthorizedError();
 				}
 
-				// イベントを取得
 				const scenes = await sceneRepository.getScenes(game.id);
 				if (!scenes) {
 					throw new Error("Scenes not found");
@@ -411,7 +401,6 @@ export const createCommand = ({
 					throw new Error("Event not found");
 				}
 
-				// イベントを更新
 				const updatedEvent = await eventRepository.updateEvent({
 					params: {
 						eventData: {
@@ -427,14 +416,12 @@ export const createCommand = ({
 			});
 		},
 
-		// イベント削除
 		executeDeleteEvent: async (
 			gameId: number,
 			eventId: number,
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
-				// ユーザーが所有者か確認
 				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
 					throw new Error("Game not found");
@@ -459,7 +446,6 @@ export const createCommand = ({
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
-				// ユーザーが所有者か確認
 				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
 					throw new Error("Game not found");
@@ -468,7 +454,6 @@ export const createCommand = ({
 					throw new UserUnauthorizedError();
 				}
 
-				// シーンの存在を確認
 				const scenes = await sceneRepository.getScenes(gameId);
 				if (!scenes) {
 					throw new Error("Scenes not found");
@@ -479,7 +464,6 @@ export const createCommand = ({
 					throw new Error("Scene not found");
 				}
 
-				// イベントの順序を変更
 				const result = await eventRepository.moveEvent({
 					params: {
 						oldIndex: dto.oldIndex,

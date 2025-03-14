@@ -8,7 +8,7 @@ import { createMiddleware } from "hono/factory";
 import { verify } from "hono/jwt";
 import { log } from "./logger";
 
-export const AUTH_TOKEN_COOKIE_NAME = "auth-token";
+export const AUTH_TOKEN_COOKIE_NAME = "ptera-auth";
 export const AUTH_TOKEN_LIFETIME = 60 * 60 * 24 * 7; // 1週間
 
 const getRedirectUrl = (url: string | null): string => {
@@ -65,6 +65,7 @@ export const isAuthenticated = createMiddleware<Env>(async (c, next) => {
 	}
 
 	c.set("user", user);
+
 	await next();
 });
 

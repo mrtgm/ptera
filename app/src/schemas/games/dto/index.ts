@@ -5,7 +5,7 @@ import {
 	type GameResources,
 	gameResourcesSchema,
 } from "~/schemas/assets/domain/resoucres";
-import { categorySchema } from "../domain/category";
+import { type Category, categorySchema } from "../domain/category";
 import { type Comment, commentSchema } from "../domain/comment";
 import {
 	type GameEvent,
@@ -55,6 +55,7 @@ export const getGamesRequestSchema = paginationRequestSchema.merge(
 		categoryId: z.union([z.number(), z.string().transform(Number)]).optional(),
 	}),
 );
+
 export type GetGamesRequest = z.infer<typeof getGamesRequestSchema>;
 
 export const getCommentsRequestSchema = paginationRequestSchema.omit({
@@ -195,7 +196,7 @@ export const eventResponseSchema = z
 		category: z.string(),
 		orderIndex: z.string(),
 	})
-	.passthrough(); // Use passthrough for generic usage
+	.passthrough();
 
 export type EventResponse = z.infer<typeof eventResponseSchema>;
 
@@ -214,3 +215,9 @@ export const mapDomainToCommentResponse = (
 
 export const categoryResponseSchema = categorySchema;
 export type CategoryResponse = z.infer<typeof categoryResponseSchema>;
+
+export const mapDomainToCategoryResponse = (
+	category: Category,
+): CategoryResponse => {
+	return categoryResponseSchema.parse(category);
+};

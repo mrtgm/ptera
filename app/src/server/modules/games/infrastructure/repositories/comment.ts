@@ -38,11 +38,8 @@ export class CommentRepository extends BaseRepository {
 		return commentData[0];
 	}
 
-	async getComments(
-		gameId: number,
-		filter: GetCommentsRequest,
-	): Promise<{ items: Comment[]; total: number }> {
-		const commentsQuery = this.db
+	async getComments(gameId: number): Promise<Comment[]> {
+		const comments = await this.db
 			.select({
 				id: comment.id,
 				content: comment.content,
@@ -56,21 +53,10 @@ export class CommentRepository extends BaseRepository {
 			.from(comment)
 			.innerJoin(user, eq(comment.userId, user.id))
 			.innerJoin(userProfile, eq(user.id, userProfile.userId))
-			.where(eq(comment.gameId, gameId));
-
-		const [{ count: total }] = await this.db
-			.select({ count: count() })
-			.from(commentsQuery.as("comments_count"));
-
-		const items = await commentsQuery
-			.limit(Number(filter.limit || 20))
-			.offset(Number(filter.offset || 0))
+			.where(eq(comment.gameId, gameId))
 			.execute();
 
-		return {
-			items,
-			total: Number(total),
-		};
+		return comments;
 	}
 
 	async createComment({
