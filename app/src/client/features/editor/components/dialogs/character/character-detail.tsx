@@ -8,9 +8,10 @@ import { DialogFooter } from "@/client/components/shadcn/dialog";
 import { Input } from "@/client/components/shadcn/input";
 import { Label } from "@/client/components/shadcn/label";
 import { FILE_VALIDATION_SETTING } from "@/client/features/editor/constants";
-import type { CharacterImage, Game, GameResources } from "@/client/schema";
 import { useStore } from "@/client/stores";
 import { cn } from "@/client/utils/cn";
+import type { MediaAsset } from "@/schemas/assets/domain/resoucres";
+import type { GameDetailResponse, ResourceResponse } from "@/schemas/games/dto";
 import { AlertTriangle, ArrowLeft, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -19,8 +20,8 @@ import { AssetUpload } from "../asset-upload";
 import { useDeleteConfirmationDialog } from "../delete-confirmation-dialog";
 
 interface CharacterDetailProps {
-	game: Game;
-	resources: GameResources;
+	game: GameDetailResponse;
+	resources: ResourceResponse;
 	selectedCharacterId: number;
 	selectedImage: number | null;
 	onBackToList: () => void;
@@ -238,7 +239,7 @@ export const CharacterDetail = ({
 
 			<div className="flex-1 overflow-y-auto grid grid-cols-4 gap-4 pb-4">
 				{Object.entries(
-					character.images || ({} as Record<string, CharacterImage>),
+					character.images || ({} as Record<string, MediaAsset>),
 				).map(([imageId, image]) => {
 					const imageIdNum = Number(imageId);
 					return (
@@ -292,7 +293,7 @@ export const CharacterDetail = ({
 				alertDescription="この操作は元に戻せません。画像は完全に削除されます。"
 				confirmDelete={confirmDeleteImage}
 			>
-				{imageToDelete && character.images[imageToDelete] && (
+				{imageToDelete && character.images?.[imageToDelete] && (
 					<div className="flex justify-center">
 						<div className="w-32 h-32 overflow-hidden rounded border">
 							<img

@@ -28,10 +28,12 @@ export const successWithPaginationSchema = <T extends z.ZodTypeAny>(
 		}),
 	});
 
-type SuccessWithoutData = z.infer<typeof successWithoutDataSchema>;
-type SuccessWithData<T> = z.infer<ReturnType<typeof successWithDataSchema>>;
-type SuccessWithPagination<T> = z.infer<
-	ReturnType<typeof successWithPaginationSchema>
+export type SuccessWithoutData = z.infer<typeof successWithoutDataSchema>;
+export type SuccessWithDataFromSchema<T extends z.ZodTypeAny> = z.infer<
+	ReturnType<typeof successWithDataSchema<T>>
+>;
+export type SuccessWithPagination<T extends z.ZodTypeAny> = z.infer<
+	ReturnType<typeof successWithPaginationSchema<T>>
 >;
 
 export const successWithoutDataResponse = (ctx: Context<Env>, status = 200) => {
@@ -72,7 +74,7 @@ export const errorSchema = z.object({
 	type: z.string(),
 	status: z.number(),
 	severity: z.string(),
-	entityType: entityTypeSchema.optional(),
+	entityType: z.string().optional(),
 	requestId: z.string().optional(), // 一意なリクエスト ID
 	path: z.string().optional(),
 	method: z.string().optional(),

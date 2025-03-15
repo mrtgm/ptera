@@ -1,3 +1,7 @@
+import {
+	gameListResponseSchema,
+	gameResponseSchema,
+} from "@/schemas/games/dto";
 import { isAuthenticated, isPublicAccess } from "@/server/core/middleware/auth";
 import { createRouteConfig } from "@/server/lib/doc";
 import {
@@ -26,6 +30,28 @@ export const userRouteConfigs = {
 				content: {
 					"application/json": {
 						schema: successWithDataSchema(userResponseSchema),
+					},
+				},
+			},
+			...errorResponses,
+		},
+	}),
+
+	getUserGames: createRouteConfig({
+		method: "get",
+		path: "/{userId}/games",
+		guard: [isPublicAccess],
+		tags: ["users"],
+		summary: "ユーザーが作成したゲーム一覧を取得します。",
+		request: {
+			params: userParamsSchema,
+		},
+		responses: {
+			200: {
+				description: "User Games",
+				content: {
+					"application/json": {
+						schema: successWithDataSchema(gameListResponseSchema.array()),
 					},
 				},
 			},

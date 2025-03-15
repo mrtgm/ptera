@@ -1,6 +1,6 @@
 import { Card } from "@/client/components/shadcn/card";
 import { Separator } from "@/client/components/shadcn/separator";
-import type { Scene } from "@/client/schema";
+import type { SceneResponse } from "@/schemas/games/dto";
 import { useDraggable } from "@dnd-kit/core";
 import type { LucideProps } from "lucide-react";
 import { cloneElement } from "react";
@@ -15,7 +15,7 @@ export const Sidebar = ({
 	sideBarSettings,
 	onSaveSettings,
 }: {
-	selectedScene: Scene | undefined | null;
+	selectedScene: SceneResponse | undefined | null;
 	sideBarSettings: typeof SideBarSettings;
 	onSaveSettings: (data: SceneSettingsFormData) => void;
 }) => {

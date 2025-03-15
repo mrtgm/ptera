@@ -2,16 +2,17 @@ import { Button } from "@/client/components/shadcn/button";
 import { GameDetail } from "@/client/features/game/components/game-detail";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, use } from "react";
 
 export default function GameDetailPage({
 	params,
 }: {
-	params: {
+	params: Promise<{
 		gameId: string;
-	};
+	}>;
 }) {
-	const gameId = Number.parseInt(params.gameId, 10);
+	const p = use(params);
+	const gameId = Number.parseInt(p.gameId, 10);
 
 	return (
 		<div className="container max-w-5xl mx-auto py-8 px-4">

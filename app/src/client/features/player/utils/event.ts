@@ -1,9 +1,5 @@
-import type {
-	GameEvent,
-	GameState,
-	MessageHistory,
-	Stage,
-} from "@/client/schema";
+import type { GameState, MessageHistory, Stage } from "@/client/schema";
+import type { GameEvent } from "@/schemas/games/domain/event";
 
 /**
  * キャンセル可能なイベント処理マネージャー

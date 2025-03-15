@@ -1,34 +1,40 @@
 import type { SceneSettingsFormData } from "@/client/features/editor/components/scene-detail/scene-settings";
-import type { ProjectSettingsFormData } from "@/client/features/editor/components/scene-list/project-settings";
 import type { SidebarItem } from "@/client/features/editor/constants";
 import { isChoiceScene, isEndScene, isGotoScene } from "@/client/schema";
-import type {
-	Character,
-	Game,
-	GameEvent,
-	GameResources,
-	MediaAsset,
-	Scene,
-} from "@/client/schema";
+
 import { generateKeyBetween } from "fractional-indexing";
 import type { StateCreator } from "zustand";
 
 import {
 	type AssetType,
+	type MediaAsset,
 	createAsset,
 	createCharacter,
 } from "@/schemas/assets/domain/resoucres";
+import type { CharacterResponse } from "@/schemas/assets/dto";
 import { createEvent } from "@/schemas/games/domain/event";
 import { createEndScene } from "@/schemas/games/domain/scene";
+import type {
+	EventResponse,
+	GameDetailResponse,
+	ResourceResponse,
+	SceneResponse,
+	UpdateGameRequest,
+} from "@/schemas/games/dto";
+import { api } from "../api";
 import type { AssetDialogKeyType } from "../features/editor/components/dialogs";
+import { performUpdate } from "../utils/optimistic-update";
 import type { State } from "./";
 
 export interface EditorState {
-	editingGame: Game | null;
-	editingResources: GameResources | null;
+	editingGame: GameDetailResponse | null;
+	editingResources: ResourceResponse | null;
 	isDirty: boolean;
 
-	initializeEditor: (game: Game, resources: GameResources) => void;
+	initializeEditor: (
+		game: GameDetailResponse,
+		resources: ResourceResponse,
+	) => void;
 
 	createGame: (title: string, description: string) => Promise<string>; // Returns gameId
 	deleteGame: (gameId: number) => Promise<boolean>;
@@ -36,27 +42,27 @@ export interface EditorState {
 
 	addScene: (
 		sceneTitle: string,
-		fromScene?: Scene,
+		fromScene?: SceneResponse,
 		choiceId?: number | null,
-	) => Scene | null;
+	) => SceneResponse | null;
 	deleteScene: (sceneId: number) => void;
 	saveSceneSettings: (data: SceneSettingsFormData) => void;
-	saveEnding: (endingScene: Scene) => void;
+	saveEnding: (endingScene: SceneResponse) => void;
 
 	addEvent: (
 		index: number,
 		item: SidebarItem,
 		selectedSceneId: number,
-	) => GameEvent | null;
+	) => EventResponse | null;
 	moveEvent: (
 		oldIndex: number,
 		newIndex: number,
 		selectedSceneId: number,
 	) => void;
 	deleteEvent: (eventId: number, selectedSceneId: number) => void;
-	saveEvent: (event: GameEvent, selectedSceneId: number) => void;
+	saveEvent: (event: EventResponse, selectedSceneId: number) => void;
 
-	saveProjectSettings: (data: ProjectSettingsFormData) => void;
+	saveProjectSettings: (data: UpdateGameRequest) => void;
 
 	addCharacter: (name: string) => void;
 	updateCharacterName: (characterId: number, name: string) => void;
@@ -94,7 +100,7 @@ export const createEditorSlice: StateCreator<
 		const { editingGame, editingResources, markAsDirty } = get();
 		if (!editingGame || !editingResources) return null;
 
-		const newScene: Scene = createEndScene({ name: sceneTitle });
+		const newScene: SceneResponse = createEndScene({ name: sceneTitle });
 		newScene.events = [
 			createEvent(
 				"textRender",
@@ -189,7 +195,7 @@ export const createEditorSlice: StateCreator<
 			editingGame: {
 				...editingGame,
 				scenes: filteredScenes,
-			} as Game,
+			} as GameDetailResponse,
 		});
 
 		markAsDirty();
@@ -338,7 +344,7 @@ export const createEditorSlice: StateCreator<
 		set({
 			editingGame: {
 				...editingGame,
-				scenes: updatedScenes as Scene[],
+				scenes: updatedScenes as SceneResponse[],
 			},
 		});
 
@@ -410,7 +416,7 @@ export const createEditorSlice: StateCreator<
 							...character.images,
 							[newImage.id]: newImage,
 						},
-					} as Character,
+					} as CharacterResponse,
 				},
 			},
 		});
@@ -442,7 +448,13 @@ export const createEditorSlice: StateCreator<
 		const character = editingResources.character[characterId];
 		if (!character) return;
 
-		const { [imageId]: _, ...remainingImages } = character.images;
+		const imageKey = imageId.toString();
+		const removedImage = character.images?.[imageKey];
+		const remainingImages = Object.fromEntries(
+			Object.entries(character.images || {}).filter(
+				([key]) => key !== imageKey,
+			),
+		);
 
 		set({
 			editingResources: {
@@ -504,15 +516,27 @@ export const createEditorSlice: StateCreator<
 	// シーン設定保存
 	saveSceneSettings: (data) => {
 		console.log("Scene settings saved", data);
-		get().markAsDirty();
 		// TODO: 実装
 	},
 
 	// プロジェクト設定保存
-	saveProjectSettings: (data) => {
-		console.log("Project settings saved", data);
-		get().markAsDirty();
-		// TODO: 実装
+	saveProjectSettings: async (data) => {
+		const { editingGame } = get();
+		if (!editingGame) return;
+
+		await performUpdate({
+			api: () => api.games.update(editingGame.id, data),
+			onSuccess: (updatedGame) => {
+				if (updatedGame) {
+					set({
+						editingGame: {
+							...editingGame,
+							...updatedGame,
+						},
+					});
+				}
+			},
+		});
 	},
 
 	// 変更フラグ設定

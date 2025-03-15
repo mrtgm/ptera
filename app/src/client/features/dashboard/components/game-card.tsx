@@ -1,10 +1,3 @@
-import type { GameMetaData } from "@/client/schema";
-
-import {
-	Avatar,
-	AvatarFallback,
-	AvatarImage,
-} from "@/client/components/shadcn/avatar";
 import { Button } from "@/client/components/shadcn/button";
 import {
 	Card,
@@ -36,9 +29,10 @@ import {
 	DropdownMenuTrigger,
 } from "@/client/components/shadcn/dropdown-menu";
 
+import { Avatar } from "@/client/components/avatar";
 import { Badge } from "@/client/components/shadcn/badge";
 import { formatDate } from "@/client/utils/date";
-import { getInitials } from "@/client/utils/string";
+import type { GameListResponse } from "@/schemas/games/dto";
 import {
 	Clock,
 	Edit,
@@ -59,7 +53,7 @@ export const GameCard = ({
 	onDelete,
 	onPublishToggle,
 }: {
-	game: GameMetaData;
+	game: GameListResponse;
 	showAuthor?: boolean;
 	showEdit?: boolean;
 	onDelete?: (id: number) => void;
@@ -143,7 +137,7 @@ export const GameCard = ({
 										<AlertDialogCancel>キャンセル</AlertDialogCancel>
 										<AlertDialogAction
 											onClick={() => onDelete?.(game.id)}
-											className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+											className="bg-destructive text-white hover:bg-destructive/90"
 										>
 											削除
 										</AlertDialogAction>
@@ -174,12 +168,12 @@ export const GameCard = ({
 			<CardContent className="pb-2 pt-0 flex-grow">
 				{showAuthor && (
 					<div className="flex items-center">
-						<Avatar className="h-6 w-6 mr-2">
-							<AvatarImage src={game.avatarUrl} alt={game.username} />
-							<AvatarFallback className="text-xs">
-								{getInitials(game.username)}
-							</AvatarFallback>
-						</Avatar>
+						<Avatar
+							className="h-6 w-6 mr-2"
+							username={game.username}
+							avatarUrl={game.avatarUrl}
+						/>
+
 						<Link
 							href={`/users/${game.userId}`}
 							className="text-sm hover:underline"

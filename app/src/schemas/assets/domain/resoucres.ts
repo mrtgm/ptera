@@ -53,7 +53,7 @@ export type BGM = z.infer<typeof bgmSchema>;
 export const characterSchema = z.object({
 	id: z.number(),
 	name: z.string().min(1).max(100),
-	images: z.record(z.number(), characterImageSchema),
+	images: z.record(z.string(), characterImageSchema).optional(),
 });
 export type Character = z.infer<typeof characterSchema>;
 
@@ -61,11 +61,11 @@ export type Character = z.infer<typeof characterSchema>;
     GameResources Entities
 ------------------------------------------------------ */
 export const gameResourcesSchema = z.object({
-	character: z.record(z.number(), characterSchema),
-	backgroundImage: z.record(z.number(), backgroundImageSchema),
-	soundEffect: z.record(z.number(), soundEffectSchema),
-	bgm: z.record(z.number(), bgmSchema),
-	cgImage: z.record(z.number(), cgImageSchema),
+	character: z.record(z.string(), characterSchema),
+	backgroundImage: z.record(z.string(), backgroundImageSchema),
+	soundEffect: z.record(z.string(), soundEffectSchema),
+	bgm: z.record(z.string(), bgmSchema),
+	cgImage: z.record(z.string(), cgImageSchema),
 });
 export type GameResources = z.infer<typeof gameResourcesSchema>;
 

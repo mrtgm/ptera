@@ -1,4 +1,5 @@
-import type { GameEvent, ResourceCache, Stage } from "@/client/schema";
+import type { ResourceCache, Stage } from "@/client/schema";
+import type { EventResponse } from "@/schemas/games/dto";
 import type { EventManager } from "../../utils/event";
 import { AnimatePresence } from "./animate-presence";
 
@@ -10,7 +11,7 @@ export const Background = ({
 }: {
 	manager: EventManager;
 	background: Stage["background"] | null;
-	currentEvent: GameEvent | null;
+	currentEvent: EventResponse | null;
 	resourceCache: ResourceCache["backgroundImage"];
 }) => {
 	if (!background || !currentEvent) return null;

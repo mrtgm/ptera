@@ -1,16 +1,12 @@
 "use client";
 
 import { api } from "@/client/api";
+import { Avatar } from "@/client/components/avatar";
 import { useAuthDialog } from "@/client/components/diaogs/auth-dialog";
-import {
-	Avatar,
-	AvatarFallback,
-	AvatarImage,
-} from "@/client/components/shadcn/avatar";
+
 import { Button } from "@/client/components/shadcn/button";
 import { Textarea } from "@/client/components/shadcn/textarea";
 import { useStore } from "@/client/stores";
-import { getInitials } from "@/client/utils/string";
 import type { Comment } from "@/schemas/games/domain/comment";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
@@ -61,10 +57,10 @@ export const GameCommentSection = ({
 			setIsLoading(true);
 			setError(null);
 
-			const response = await api.games.getComments(gameId);
+			const comment = await api.games.getComments(gameId);
 
-			if (response) {
-				setComments(response || []);
+			if (comment) {
+				setComments(comment || []);
 			}
 		} catch (err) {
 			console.error("Failed to fetch comments:", err);
@@ -135,12 +131,11 @@ export const GameCommentSection = ({
 					comments.map((comment) => (
 						<div key={comment.id} className="border rounded-lg p-4">
 							<div className="flex items-center mb-2">
-								<Avatar className="h-6 w-6 mr-2">
-									<AvatarImage src={comment.avatarUrl} alt={comment.username} />
-									<AvatarFallback className="text-xs">
-										{getInitials(comment.username)}
-									</AvatarFallback>
-								</Avatar>
+								<Avatar
+									className="h-6 w-6 mr-2"
+									username={comment.username}
+									avatarUrl={comment.avatarUrl}
+								/>
 								<Link
 									href={`/users/${comment.userId}`}
 									className="text-sm font-medium hover:underline"

@@ -1,11 +1,11 @@
-import type {
-	Game,
-	GameEvent,
-	GameResources,
-	Scene,
-	Stage,
-} from "@/client/schema";
+import type { Stage } from "@/client/schema";
 import { sortByFractionalIndex } from "@/client/utils/sort";
+import type { GameEvent } from "@/schemas/games/domain/event";
+import type {
+	GameDetailResponse,
+	ResourceResponse,
+	SceneResponse,
+} from "@/schemas/games/dto";
 import type { Edge, Node } from "@xyflow/react";
 
 type PositionMap = {
@@ -17,7 +17,7 @@ type PositionMap = {
 export const getAllNodesPosition = ({
 	game,
 }: {
-	game: Game | null;
+	game: GameDetailResponse | null;
 }): PositionMap => {
 	if (!game) return {};
 	const result: PositionMap = {};
@@ -127,7 +127,7 @@ export const getAllNodesPosition = ({
 };
 
 export const transfromToNodes = (
-	game: Game | null,
+	game: GameDetailResponse | null,
 	map: PositionMap,
 ): Node[] => {
 	if (!game) return [];
@@ -159,7 +159,7 @@ export const transfromToNodes = (
 export const getAllEdges = ({
 	game,
 }: {
-	game: Game | null;
+	game: GameDetailResponse | null;
 }): Edge[] => {
 	if (!game) return [];
 
@@ -172,7 +172,7 @@ export const getAllEdges = ({
 	};
 
 	const dfs = (
-		game: Game,
+		game: GameDetailResponse,
 		sceneId: number | undefined,
 		result: Edge[],
 		visited: Set<number>,
@@ -225,18 +225,18 @@ export const findAllPaths = ({
 	sceneId,
 	targetSceneId,
 }: {
-	game: Game;
+	game: GameDetailResponse;
 	sceneId?: number;
 	targetSceneId: number;
-}): Scene[] => {
-	const result: Scene[] = [];
+}): SceneResponse[] => {
+	const result: SceneResponse[] = [];
 	const visited = new Set<number>();
 
 	const dfs = (
-		game: Game,
+		game: GameDetailResponse,
 		sceneId: number | undefined,
 		targetSceneId: number,
-		result: Scene[],
+		result: SceneResponse[],
 		visited: Set<number>,
 	): boolean => {
 		const newSceneId = sceneId ?? game.scenes[0].id;
@@ -285,9 +285,9 @@ export const buildCurrentStageFromScenes = ({
 	resources,
 	eventId,
 }: {
-	scenes: Scene[];
+	scenes: SceneResponse[];
 	currentStage: Stage;
-	resources: GameResources;
+	resources: ResourceResponse | null;
 	eventId?: number;
 }): Stage => {
 	const events = scenes.flatMap((scene) =>
@@ -334,7 +334,7 @@ export const buildCurrentStageFromScenes = ({
 export const handleEvent = (
 	event: GameEvent,
 	stage: Stage,
-	resources: GameResources | null,
+	resources: ResourceResponse | null,
 ): Stage => {
 	switch (event.eventType) {
 		case "appearMessageWindow": {

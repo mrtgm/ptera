@@ -4,8 +4,8 @@ import { api } from "@/client/api";
 import { Card, CardContent } from "@/client/components/shadcn/card";
 import GamePlayer from "@/client/features/player/player";
 import { EventManager } from "@/client/features/player/utils/event";
-import type { Game, GameMetaData } from "@/client/schema";
 import type { GameResources } from "@/schemas/assets/domain/resoucres";
+import type { GameDetailResponse } from "@/schemas/games/dto";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -14,10 +14,12 @@ export const GamePlayerWrapper = ({
 	initialGameData,
 }: {
 	gameId: number;
-	initialGameData?: Game;
+	initialGameData?: GameDetailResponse;
 }) => {
 	const [isGameLoading, setIsGameLoading] = useState(true);
-	const [gameData, setGameData] = useState<Game | undefined>(initialGameData);
+	const [gameData, setGameData] = useState<GameDetailResponse | undefined>(
+		initialGameData,
+	);
 	const [gameResources, setGameResources] = useState<GameResources | null>(
 		null,
 	);
@@ -35,7 +37,7 @@ export const GamePlayerWrapper = ({
 				const assetsResponse = await api.games.getAssets(gameId);
 
 				if (gameResponse && assetsResponse) {
-					setGameData(gameResponse as Game);
+					setGameData(gameResponse as GameDetailResponse);
 					setGameResources(assetsResponse as GameResources);
 
 					await api.games.incrementPlayCount(gameId);

@@ -1,4 +1,5 @@
-import type { GameEvent, Stage } from "@/client/schema";
+import type { Stage } from "@/client/schema";
+import type { EventResponse } from "@/schemas/games/dto";
 import type { EventManager } from "../../utils/event";
 import { AnimatePresence } from "./animate-presence";
 
@@ -9,7 +10,7 @@ export const FadeOutEffect = ({
 }: {
 	manager: EventManager;
 	effect: Stage["effect"];
-	currentEvent: GameEvent | null;
+	currentEvent: EventResponse | null;
 }) => {
 	if (!currentEvent || !effect) return null;
 

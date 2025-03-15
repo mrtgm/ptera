@@ -8,6 +8,7 @@ import { userRepository } from "../../users/infrastructure/repository";
 import {
 	CommentNotFoundError,
 	GameNotFoundError,
+	SceneNotFoundError,
 } from "~/schemas/games/domain/error";
 import type { Game } from "~/schemas/games/domain/game";
 import {
@@ -111,7 +112,7 @@ export const createCommand = ({
 				const user = await userRepository.getById(userId);
 
 				if (!user) {
-					throw new Error("User not found");
+					throw new UserNotFoundError(userId);
 				}
 
 				return mapDomainToGameDetailResponse(
@@ -264,7 +265,7 @@ export const createCommand = ({
 				// ユーザーが所有者か確認
 				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
-					throw new Error("Game not found");
+					throw new GameNotFoundError(gameId);
 				}
 				if (game.userId !== userId) {
 					throw new UserUnauthorizedError();
@@ -288,7 +289,7 @@ export const createCommand = ({
 			return await db.transaction(async (tx) => {
 				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
-					throw new Error("Game not found");
+					throw new GameNotFoundError(gameId);
 				}
 				if (game.userId !== userId) {
 					throw new UserUnauthorizedError();
@@ -296,12 +297,12 @@ export const createCommand = ({
 
 				const scenes = await sceneRepository.getScenes(gameId);
 				if (!scenes) {
-					throw new Error("Scenes not found");
+					throw new SceneNotFoundError(sceneId);
 				}
 
 				const sceneToUpdate = scenes.find((s) => s.id === sceneId);
 				if (!sceneToUpdate) {
-					throw new Error("Scene not found");
+					throw new SceneNotFoundError(sceneId);
 				}
 
 				const updatedScene = await sceneRepository.updateScene({
@@ -322,7 +323,7 @@ export const createCommand = ({
 			return await db.transaction(async (tx) => {
 				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
-					throw new Error("Game not found");
+					throw new GameNotFoundError(gameId);
 				}
 				if (game.userId !== userId) {
 					throw new UserUnauthorizedError();
@@ -346,7 +347,7 @@ export const createCommand = ({
 			return await db.transaction(async (tx) => {
 				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
-					throw new Error("Game not found");
+					throw new GameNotFoundError(gameId);
 				}
 				if (game.userId !== userId) {
 					throw new UserUnauthorizedError();
@@ -377,7 +378,7 @@ export const createCommand = ({
 			return await db.transaction(async (tx) => {
 				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
-					throw new Error("Game not found");
+					throw new GameNotFoundError(gameId);
 				}
 				if (game.userId !== userId) {
 					throw new UserUnauthorizedError();
@@ -385,12 +386,12 @@ export const createCommand = ({
 
 				const scenes = await sceneRepository.getScenes(game.id);
 				if (!scenes) {
-					throw new Error("Scenes not found");
+					throw new SceneNotFoundError(sceneId);
 				}
 
 				const scene = scenes.find((s) => s.id === sceneId);
 				if (!scene) {
-					throw new Error("Scene not found");
+					throw new SceneNotFoundError(sceneId);
 				}
 
 				const eventMap = await eventRepository.getEvents([scene.id]);
@@ -424,7 +425,7 @@ export const createCommand = ({
 			return await db.transaction(async (tx) => {
 				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
-					throw new Error("Game not found");
+					throw new GameNotFoundError(gameId);
 				}
 				if (game.userId !== userId) {
 					throw new UserUnauthorizedError();
@@ -448,7 +449,7 @@ export const createCommand = ({
 			return await db.transaction(async (tx) => {
 				const game = await gameRepository.getGameById(gameId);
 				if (!game) {
-					throw new Error("Game not found");
+					throw new GameNotFoundError(gameId);
 				}
 				if (game.userId !== userId) {
 					throw new UserUnauthorizedError();
@@ -456,12 +457,12 @@ export const createCommand = ({
 
 				const scenes = await sceneRepository.getScenes(gameId);
 				if (!scenes) {
-					throw new Error("Scenes not found");
+					throw new SceneNotFoundError(sceneId);
 				}
 
 				const scene = scenes.find((s) => s.id === sceneId);
 				if (!scene) {
-					throw new Error("Scene not found");
+					throw new SceneNotFoundError(sceneId);
 				}
 
 				const result = await eventRepository.moveEvent({

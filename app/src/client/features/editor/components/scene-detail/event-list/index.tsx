@@ -1,5 +1,10 @@
-import type { Game, GameEvent, GameResources, Scene } from "@/client/schema";
 import { sortByFractionalIndex } from "@/client/utils/sort";
+import type {
+	EventResponse,
+	GameDetailResponse,
+	ResourceResponse,
+	SceneResponse,
+} from "@/schemas/games/dto";
 import { ArrowUp, Pen, Split } from "lucide-react";
 import { SpeechBubble } from "../../speech-bubble";
 import { EventItem } from "./event-item";
@@ -12,10 +17,10 @@ export const EventList = ({
 	onClickEvent,
 	onClickSceneEnding,
 }: {
-	selectedScene: Scene | undefined | null;
-	selectedEvent: GameEvent | undefined | null;
-	game: Game;
-	resources: GameResources;
+	selectedScene: SceneResponse | undefined | null;
+	selectedEvent: EventResponse | undefined | null;
+	game: GameDetailResponse;
+	resources: ResourceResponse;
 	onClickEvent: (eventId: number) => void;
 	onClickSceneEnding: () => void;
 }) => {
@@ -51,8 +56,8 @@ export const EventList = ({
 };
 
 const renderSceneEnding = (
-	selectedScene: Scene,
-	game: Game,
+	selectedScene: SceneResponse,
+	game: GameDetailResponse,
 	onClickSceneEnding: () => void,
 ) => {
 	if (selectedScene?.sceneType === "end") {

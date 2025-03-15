@@ -5,7 +5,12 @@ import {
 	BreadcrumbSeparator,
 } from "@/client/components/shadcn/breadcrumb";
 import { Button } from "@/client/components/shadcn/button";
-import type { Game, GameEvent, GameResources, Scene } from "@/client/schema";
+import type {
+	EventResponse,
+	GameDetailResponse,
+	ResourceResponse,
+	SceneResponse,
+} from "@/schemas/games/dto";
 import { useDroppable } from "@dnd-kit/core";
 import {
 	SortableContext,
@@ -26,10 +31,10 @@ export const SceneDetail = ({
 	onClickEvent,
 	onClickSceneEnding,
 }: {
-	selectedEvent: GameEvent | undefined | null;
-	selectedScene: Scene | undefined | null;
-	game: Game | null;
-	resources: GameResources | null;
+	selectedEvent: EventResponse | undefined | null;
+	selectedScene: SceneResponse | undefined | null;
+	game: GameDetailResponse | null;
+	resources: ResourceResponse | null;
 	onNavigateToScenesList: () => void;
 	onDeleteScene: () => void;
 	onClickEvent: (eventId: number) => void;

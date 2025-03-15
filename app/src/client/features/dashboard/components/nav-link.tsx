@@ -2,7 +2,7 @@ import { Gamepad2, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function NavLinks() {
+export const NavLinks = () => {
 	const pathname = usePathname();
 
 	return (
@@ -38,4 +38,4 @@ export function NavLinks() {
 			</Link>
 		</>
 	);
-}
+};

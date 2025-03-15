@@ -5,12 +5,12 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/client/components/shadcn/dialog";
-import type { Game, GameResources } from "@/client/schema";
 import { useStore } from "@/client/stores";
 import type {
 	CharacterImageSelectParams,
 	CharacterSelectParams,
 } from "@/client/stores/modal";
+import type { GameDetailResponse, ResourceResponse } from "@/schemas/games/dto";
 import { useEffect, useState } from "react";
 import { AddCharacterDialog } from "./add-character-dialog";
 import { CharacterDetail } from "./character-detail";
@@ -25,8 +25,8 @@ export const CharacterDialogContainer = ({
 	onDeleteImage,
 	onCharacterNameChange,
 }: {
-	game: Game | null;
-	resources: GameResources | null;
+	game: GameDetailResponse | null;
+	resources: ResourceResponse | null;
 	onAddCharacter: (name: string) => void;
 	onDeleteCharacter: (characterId: number) => void;
 	onUploadImage: (characterId: number, file: File) => void;
@@ -82,8 +82,8 @@ const CharacterDialog = ({
 	onDeleteImage,
 	onCharacterNameChange,
 }: {
-	game: Game;
-	resources: GameResources;
+	game: GameDetailResponse;
+	resources: ResourceResponse;
 	params: CharacterSelectParams | CharacterImageSelectParams;
 	onAddCharacter: (name: string) => void;
 	onDeleteCharacter: (characterId: number) => void;

@@ -5,8 +5,8 @@ import {
 	FormLabel,
 } from "@/client/components/shadcn/form";
 import { Separator } from "@/client/components/shadcn/separator";
-import type { GameResources } from "@/client/schema";
 import { useStore } from "@/client/stores";
+import type { ResourceResponse } from "@/schemas/games/dto";
 import type { useForm } from "react-hook-form";
 
 export const CharacterImageSelect = ({
@@ -16,7 +16,7 @@ export const CharacterImageSelect = ({
 }: {
 	form: ReturnType<typeof useForm>;
 	label: string;
-	resources: GameResources;
+	resources: ResourceResponse;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
 
@@ -36,9 +36,8 @@ export const CharacterImageSelect = ({
 								<div className="w-full max-w-[200px] h-auto bg-cover bg-center bg-no-repeat rounded-md mb-4">
 									<img
 										src={
-											resources.character[form.getValues().characterId].images[
-												field.value
-											].url
+											resources.character[form.getValues().characterId]
+												.images?.[field.value].url
 										}
 										alt="character"
 									/>

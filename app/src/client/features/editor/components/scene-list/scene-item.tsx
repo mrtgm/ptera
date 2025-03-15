@@ -1,10 +1,10 @@
-import type { Game, Scene } from "@/client/schema";
+import type { GameDetailResponse, SceneResponse } from "@/schemas/games/dto";
 import type { SideBarSettings } from "../../constants";
 
 type SceneCardProps = {
-	scene: Scene;
+	scene: SceneResponse;
 	index: number;
-	game: Game;
+	game: GameDetailResponse;
 	sideBarSettings: typeof SideBarSettings;
 	onSceneClick: (sceneId: number) => void;
 };

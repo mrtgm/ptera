@@ -19,7 +19,9 @@ const dashboardQuery = createDashboardQuery({
 	resourceRepository,
 });
 
-const dashboardRoutes = honoWithHook()
+const dashboardRoutes = honoWithHook();
+
+dashboardRoutes
 	.openapi(dashboardRouteConfigs.getMyLikedGames, async (c) => {
 		const currentUserId = c.get("user")?.id;
 

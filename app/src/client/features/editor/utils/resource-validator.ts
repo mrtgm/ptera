@@ -1,14 +1,9 @@
-import type {
-	Game,
-	GameEvent,
-	GameResources,
-	MediaAsset,
-} from "@/client/schema";
-import type { GameEventType } from "@/schemas/games/domain/event";
+import type { GameEvent, GameEventType } from "@/schemas/games/domain/event";
+import type { GameDetailResponse, ResourceResponse } from "@/schemas/games/dto";
 import { getEventTitle } from "../constants";
 
 export const ResourceValidator = {
-	isCharacterInUse: (characterId: number, game: Game | null) => {
+	isCharacterInUse: (characterId: number, game: GameDetailResponse | null) => {
 		if (!game) return { inUse: false, usages: [] };
 
 		const usages: Array<{
@@ -52,7 +47,11 @@ export const ResourceValidator = {
 		}
 	},
 
-	isImageInUse: (characterId: number, imageId: number, game: Game | null) => {
+	isImageInUse: (
+		characterId: number,
+		imageId: number,
+		game: GameDetailResponse | null,
+	) => {
 		if (!game) return { inUse: false, usages: [] };
 
 		const usages: Array<{
@@ -97,9 +96,9 @@ export const ResourceValidator = {
 	},
 
 	isAssetInUse: (
-		type: keyof Omit<GameResources, "characters">,
+		type: keyof Omit<ResourceResponse, "characters">,
 		id: number,
-		game: Game | null,
+		game: GameDetailResponse | null,
 	) => {
 		if (!game) return { inUse: false, usages: [] };
 
@@ -131,7 +130,7 @@ export const ResourceValidator = {
 
 	isEventUsingAsset: (
 		event: GameEvent,
-		type: keyof Omit<GameResources, "characters">,
+		type: keyof Omit<ResourceResponse, "characters">,
 		id: number,
 	) => {
 		if (type === "backgroundImage" && event.eventType === "changeBackground") {
@@ -149,7 +148,10 @@ export const ResourceValidator = {
 		return false;
 	},
 
-	canDeleteCharacter: (characterId: number, game: Game | null) => {
+	canDeleteCharacter: (
+		characterId: number,
+		game: GameDetailResponse | null,
+	) => {
 		const { inUse, usages } = ResourceValidator.isCharacterInUse(
 			characterId,
 			game,
@@ -165,9 +167,9 @@ export const ResourceValidator = {
 	},
 
 	canDeleteAsset: (
-		type: keyof Omit<GameResources, "characters">,
+		type: keyof Omit<ResourceResponse, "characters">,
 		id: number,
-		game: Game | null,
+		game: GameDetailResponse | null,
 	) => {
 		const { inUse, usages } = ResourceValidator.isAssetInUse(type, id, game);
 
@@ -183,8 +185,8 @@ export const ResourceValidator = {
 	canDeleteImage: (
 		characterId: number,
 		imageId: number,
-		game: Game | null,
-		resources: GameResources | null,
+		game: GameDetailResponse | null,
+		resources: ResourceResponse | null,
 	) => {
 		const { inUse, usages } = ResourceValidator.isImageInUse(
 			characterId,
@@ -195,7 +197,7 @@ export const ResourceValidator = {
 		// キャラクターの画像が1枚しかない場合は削除不可
 		const isLastImage =
 			resources?.character[characterId] &&
-			Object.keys(resources.character[characterId].images).length <= 1;
+			Object.keys(resources.character[characterId].images ?? {}).length <= 1;
 
 		return {
 			canDelete: !inUse && !isLastImage,

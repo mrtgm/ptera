@@ -1,8 +1,8 @@
-import type { GameEvent } from "@/client/schema";
 import {
 	type GameEventType,
 	getEventCategory,
 } from "@/schemas/games/domain/event";
+import type { EventResponse } from "@/schemas/games/dto";
 import {
 	EyeOff,
 	FileImage,
@@ -50,7 +50,7 @@ export type SidebarItem = {
 };
 
 export const SideBarSettings: Record<
-	GameEvent["category"],
+	EventResponse["category"],
 	{
 		hex: string;
 		label: string;
@@ -355,7 +355,7 @@ export const getEventTitle = (type: GameEventType): string => {
 	return title[0] as string;
 };
 
-export const getColorFromType = (type: GameEvent["eventType"]): string => {
+export const getColorFromType = (type: EventResponse["eventType"]): string => {
 	const category = getEventCategory(type);
 	return SideBarSettings[category].hex;
 };

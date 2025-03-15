@@ -14,7 +14,7 @@ import { UserUnauthorizedError } from "../../../../schemas/users/domain/error";
 import { errorResponse } from "../../../shared/schema/response";
 
 export const errorHandler: ErrorHandler = (err, c) => {
-	console.error(err);
+	console.error("error-handler", err);
 
 	if (err instanceof HTTPException) {
 		return err.getResponse();

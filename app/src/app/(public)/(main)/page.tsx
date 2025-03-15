@@ -1,7 +1,7 @@
 import { api } from "@/client/api";
 import { Button } from "@/client/components/shadcn/button";
 import { GameCard } from "@/client/features/dashboard/components/game-card";
-import type { GameMetaData } from "@/client/schema";
+import type { GameListResponse } from "@/schemas/games/dto";
 import { ArrowRight, Clock, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
@@ -66,7 +66,7 @@ export default async function HomePage() {
 						</div>
 					) : (
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-							{newGames.map((game: GameMetaData) => (
+							{newGames.map((game: GameListResponse) => (
 								<GameCard key={game.id} game={game} />
 							))}
 						</div>
@@ -94,7 +94,7 @@ export default async function HomePage() {
 						</div>
 					) : (
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-							{popularGames.map((game: GameMetaData) => (
+							{popularGames.map((game: GameListResponse) => (
 								<GameCard key={game.id} game={game} />
 							))}
 						</div>

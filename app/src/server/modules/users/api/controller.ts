@@ -3,6 +3,7 @@ import {
 	errorResponse,
 	successWithDataResponse,
 } from "../../../shared/schema/response";
+import { GameRepository } from "../../games/infrastructure/repository";
 import { createUserCommand } from "../application/commands";
 import { createUserQuery } from "../application/queries";
 
@@ -10,8 +11,11 @@ import { userRepository } from "../infrastructure/repository";
 import { errorHandler } from "./error-handler";
 import { userRouteConfigs } from "./routes";
 
+const gameRepostiory = new GameRepository();
+
 const userQuery = createUserQuery({
 	userRepository,
+	gameRepostiory,
 });
 
 const userCommand = createUserCommand({
@@ -22,6 +26,11 @@ const userRoutes = honoWithHook()
 	.openapi(userRouteConfigs.getUser, async (c) => {
 		const userId = c.req.valid("param").userId;
 		const result = await userQuery.executeGetUser(userId);
+		return successWithDataResponse(c, result);
+	})
+	.openapi(userRouteConfigs.getUserGames, async (c) => {
+		const userId = c.req.valid("param").userId;
+		const result = await userQuery.executeGetUserGames(userId);
 		return successWithDataResponse(c, result);
 	})
 	.openapi(userRouteConfigs.updateUserProfile, async (c) => {

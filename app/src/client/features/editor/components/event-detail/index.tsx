@@ -7,10 +7,6 @@ import {
 } from "@/client/components/shadcn/card";
 import { Form } from "@/client/components/shadcn/form";
 import {
-	type Game,
-	type GameEvent,
-	type GameResources,
-	type Scene,
 	appearCGEventSchema,
 	appearCharacterEventSchema,
 	appearMessageWindowEventSchema,
@@ -25,7 +21,7 @@ import {
 	moveCharacterEventSchema,
 	soundEffectEventSchema,
 	textRenderEventSchema,
-} from "@/client/schema";
+} from "@/schemas/games/domain/event";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -37,6 +33,12 @@ import {
 } from "../../constants";
 
 import { useStore } from "@/client/stores";
+import type {
+	EventResponse,
+	GameDetailResponse,
+	ResourceResponse,
+	SceneResponse,
+} from "@/schemas/games/dto";
 import { MonitorPlay, Trash } from "lucide-react";
 import { useDeleteConfirmationDialog } from "../dialogs";
 import { UnsavedChangeDialog } from "../dialogs/unsaved-change";
@@ -56,15 +58,15 @@ import {
 } from "./forms";
 
 type EventDetailProps = {
-	selectedScene: Scene;
-	selectedEvent: GameEvent;
-	game: Game | null;
-	resources: GameResources | null;
+	selectedScene: SceneResponse;
+	selectedEvent: EventResponse;
+	game: GameDetailResponse | null;
+	resources: ResourceResponse | null;
 	onDeleteEvent: () => void;
-	onSaveEvent: (updatedEvent: GameEvent) => void;
+	onSaveEvent: (updatedEvent: EventResponse) => void;
 };
 
-const schemaMap: Record<GameEvent["eventType"], z.ZodType> = {
+const schemaMap: Record<EventResponse["eventType"], z.ZodType> = {
 	textRender: textRenderEventSchema,
 	moveCharacter: moveCharacterEventSchema,
 	appearCharacter: appearCharacterEventSchema,
@@ -98,7 +100,7 @@ export const EventDetail = ({
 }: EventDetailProps) => {
 	const [activeTab, setActiveTab] = useState("parameters");
 	const [formValues, setFormValues] =
-		useState<Partial<GameEvent>>(selectedEvent);
+		useState<Partial<EventResponse>>(selectedEvent);
 	const modalSlice = useStore.useSlice.modal();
 
 	const ref = useRef<HTMLDivElement>(null);
@@ -120,11 +122,11 @@ export const EventDetail = ({
 
 	// useUnsavedFormWarning(form.formState);
 
-	const handleSubmit = (data: Partial<GameEvent>) => {
+	const handleSubmit = (data: Partial<EventResponse>) => {
 		const updatedEvent = {
 			...selectedEvent,
 			...data,
-		} as GameEvent;
+		} as EventResponse;
 
 		onSaveEvent(updatedEvent);
 		form.reset(data);
@@ -132,7 +134,7 @@ export const EventDetail = ({
 
 	useEffect(() => {
 		const subscription = form.watch((data) => {
-			setFormValues(data as Partial<GameEvent>);
+			setFormValues(data as Partial<EventResponse>);
 		});
 		return () => subscription.unsubscribe();
 	}, [form]);
@@ -220,10 +222,10 @@ export const EventDetail = ({
 };
 
 const renderEventFormFields = (
-	event: GameEvent,
+	event: EventResponse,
 	form: ReturnType<typeof useForm>,
-	game: Game,
-	resources: GameResources,
+	game: GameDetailResponse,
+	resources: ResourceResponse,
 ) => {
 	const category = event.category;
 	const settings = SideBarSettings[category];
@@ -236,18 +238,14 @@ const renderEventFormFields = (
 	}
 
 	return fields.map((v) => {
-		return (
-			<div key={v.label}>{renderField(v, event, form, game, resources)}</div>
-		);
+		return <div key={v.label}>{renderField(v, form, resources)}</div>;
 	});
 };
 
 const renderField = (
 	field: SidebarItemParameter,
-	event: GameEvent,
 	form: ReturnType<typeof useForm>,
-	game: Game,
-	resources: GameResources,
+	resources: ResourceResponse,
 ) => {
 	switch (field.component) {
 		case "text": {

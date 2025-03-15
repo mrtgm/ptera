@@ -8,13 +8,14 @@ import {
 } from "@/client/components/shadcn/card";
 import { Label } from "@/client/components/shadcn/label";
 import { Textarea } from "@/client/components/shadcn/textarea";
-import type { Choice, ChoiceScene, Game } from "@/client/schema";
+import type { Choice, ChoiceScene } from "@/schemas/games/domain/scene";
+import type { GameDetailResponse } from "@/schemas/games/dto";
 import { Plus, X } from "lucide-react";
 import { SceneSelector } from "./scene-selector";
 
 interface ChoiceSceneContentProps {
 	scene: ChoiceScene;
-	game: Game | null;
+	game: GameDetailResponse | null;
 	currentSceneId: number;
 	onAddChoice: () => void;
 	onRemoveChoice: (choiceId: number) => void;
@@ -27,7 +28,7 @@ interface ChoiceSceneContentProps {
 interface ChoiceItemProps {
 	choice: Choice;
 	index: number;
-	game: Game | null;
+	game: GameDetailResponse | null;
 	currentSceneId: number;
 	onTextChange: (choiceId: number, text: string) => void;
 	onNextSceneChange: (choiceId: number, nextSceneId: number) => void;

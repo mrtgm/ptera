@@ -1,13 +1,8 @@
 import { Alert, AlertDescription } from "@/client/components/shadcn/alert";
-import {
-	Avatar,
-	AvatarFallback,
-	AvatarImage,
-} from "@/client/components/shadcn/avatar";
 import { Badge } from "@/client/components/shadcn/badge";
 
 import { api } from "@/client/api";
-import { getInitials } from "@/client/utils/string";
+import { Avatar } from "@/client/components/avatar";
 import type { Category } from "@/schemas/games/domain/category";
 import { AlertTriangle } from "lucide-react";
 import Link from "next/link";
@@ -42,19 +37,21 @@ export const GameDetail = async ({ gameId }: { gameId: number }) => {
 
 			<div className="flex flex-wrap gap-2 mt-4">
 				{game.categoryIds?.map((categoryId) => (
-					<Badge key={categoryId} variant="secondary">
-						{getCategoryName(categoryId)}
+					<Badge key={categoryId}>
+						<Link href={`/games?categoryId=${categoryId}`}>
+							{getCategoryName(categoryId)}
+						</Link>
 					</Badge>
 				))}
 			</div>
 
 			<div className="flex items-center my-6">
-				<Avatar className="h-8 w-8 mr-2">
-					<AvatarImage src={game.avatarUrl} alt={game.username} />
-					<AvatarFallback className="text-xs">
-						{getInitials(game.username)}
-					</AvatarFallback>
-				</Avatar>
+				<Avatar
+					className="h-8 w-8 mr-2"
+					avatarUrl={game.avatarUrl}
+					username={game.username}
+				/>
+
 				<div>
 					<Link
 						href={`/users/${game.userId}`}

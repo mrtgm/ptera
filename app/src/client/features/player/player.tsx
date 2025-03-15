@@ -1,16 +1,19 @@
 "use client";
 
 import {
-	type Game,
-	type GameEvent,
-	type GameResources,
 	type GameState,
 	type MessageHistory,
-	type Scene,
 	type Stage,
 	isChoiceScene,
 } from "@/client/schema";
 import { resourceManager } from "@/client/utils/preloader";
+import type { GameEvent } from "@/schemas/games/domain/event";
+import type {
+	EventResponse,
+	GameDetailResponse,
+	ResourceResponse,
+	SceneResponse,
+} from "@/schemas/games/dto";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { EndScreen } from "./components/end-screen";
 import { GameScreen } from "./components/game-screen";
@@ -27,10 +30,10 @@ export const GamePlayer = ({
 	isPreviewMode,
 	eventManager,
 }: {
-	game: Game;
-	resources: GameResources;
-	initialScene?: Scene;
-	initialEvent?: GameEvent;
+	game: GameDetailResponse;
+	resources: ResourceResponse;
+	initialScene?: SceneResponse;
+	initialEvent?: EventResponse;
 	initialStage?: Stage;
 	isPreviewMode?: boolean;
 	eventManager: EventManager;
@@ -41,8 +44,8 @@ export const GamePlayer = ({
 	const stageRef = useRef<Stage>(initialStage);
 
 	const [history, setHistory] = useState<MessageHistory[]>([]);
-	const [currentScene, setCurrentScene] = useState<Scene | null>(null);
-	const [currentEvent, setCurrentEvent] = useState<GameEvent | null>(null);
+	const [currentScene, setCurrentScene] = useState<SceneResponse | null>(null);
+	const [currentEvent, setCurrentEvent] = useState<EventResponse | null>(null);
 	const [isResourcesLoaded, setIsResourcesLoaded] = useState(false);
 
 	useEffect(() => {
@@ -103,7 +106,7 @@ export const GamePlayer = ({
 			const processEvent = async () => {
 				try {
 					await eventManager.processGameEvent(
-						currentEvent,
+						currentEvent as GameEvent,
 						stageRef.current,
 						(updatedStage) => {
 							stageRef.current = updatedStage;

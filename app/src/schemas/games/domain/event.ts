@@ -50,7 +50,7 @@ export const appearCharacterEventSchema = z.object({
 	characterId: z.number(),
 	characterImageId: z.number(),
 	position: z.tuple([z.number(), z.number()]),
-	scale: z.number(),
+	scale: z.union([z.number(), z.string().transform(Number)]),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -86,7 +86,7 @@ export const moveCharacterEventSchema = z.object({
 	orderIndex: z.string(),
 	characterId: z.number(),
 	position: z.tuple([z.number(), z.number()]),
-	scale: z.number(),
+	scale: z.union([z.number(), z.string().transform(Number)]),
 });
 
 export type MoveCharacterEvent = z.infer<typeof moveCharacterEventSchema>;
@@ -179,7 +179,7 @@ export const appearCGEventSchema = z.object({
 	orderIndex: z.string(),
 	cgImageId: z.number(),
 	position: z.tuple([z.number(), z.number()]),
-	scale: z.number(),
+	scale: z.union([z.number(), z.string().transform(Number)]),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -314,9 +314,9 @@ export const getDefaultValueForType = (
 		case "appearCharacter": {
 			//TODO: 使用履歴を見て最後に選択したキャラクターを選択する
 			const characterId = Number(Object.keys(resources.character)[0]);
-			const characterImageId = Object.values(
-				resources.character[characterId].images,
-			)[0].id;
+			const characterImageId = resources.character[characterId].images
+				? Object.values(resources.character[characterId].images)[0].id
+				: undefined;
 			return {
 				characterId,
 				characterImageId,

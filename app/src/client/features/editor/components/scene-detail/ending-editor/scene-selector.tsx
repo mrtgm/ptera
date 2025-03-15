@@ -12,12 +12,12 @@ import {
 	PopoverTrigger,
 } from "@/client/components/shadcn/popover";
 import { Separator } from "@/client/components/shadcn/separator";
-import type { Game } from "@/client/schema";
+import type { GameDetailResponse } from "@/schemas/games/dto";
 import { ArrowRight, ChevronDown, Plus } from "lucide-react";
 import { useState } from "react";
 
 interface SceneSelectorProps {
-	game: Game | null;
+	game: GameDetailResponse | null;
 	currentSceneId: number;
 	selectedSceneId: number;
 	onSelect: (sceneId: number) => void;

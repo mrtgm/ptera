@@ -165,13 +165,12 @@ export const mapDomainToGameDetailResponse = (
 	gameWithScene: GameWithScene,
 	user: User,
 ): GameDetailResponse => {
-	console.log(gameWithScene);
-	return gameDetailResponseSchema.parse({
+	return {
 		...gameWithScene,
 		userId: user.id,
 		username: user.name,
 		avatarUrl: user.avatarUrl,
-	});
+	};
 };
 export type GameDetailResponse = z.infer<typeof gameDetailResponseSchema>;
 
@@ -192,7 +191,7 @@ export const mapDomainToSceneResponse = (scene: Scene): SceneResponse => {
 export const eventResponseSchema = z
 	.object({
 		id: z.number(),
-		eventType: z.string(),
+		eventType: gameEventTypeSchema,
 		category: z.string(),
 		orderIndex: z.string(),
 	})

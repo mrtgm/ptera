@@ -18,15 +18,15 @@ const assetRepository = new AssetRepository();
 const characterRepository = new CharacterRepository();
 const fileUploadService = new FileUploadService();
 
-// コマンドの作成
 const commands = createAssetCharacterCommands({
 	assetRepository,
 	characterRepository,
 	fileUploadService,
 });
 
-// アセットアップロード
-const assetRoutes = honoWithHook()
+const assetRoutes = honoWithHook();
+
+assetRoutes
 	.openapi(assetRouteConfigs.uploadAsset, async (c) => {
 		const body = await c.req.parseBody();
 		const file = body.file as File;
@@ -84,14 +84,15 @@ const assetRoutes = honoWithHook()
 
 assetRoutes.onError(errorHandler);
 
-const characterRoutes = honoWithHook()
+const characterRoutes = honoWithHook();
+
+characterRoutes
 	.openapi(characterRouteConfigs.createCharacter, async (c) => {
 		const dto = c.req.valid("json");
 		const userId = c.get("user")?.id;
 		if (!userId) {
 			return errorResponse(c, 401, "unauthorized", "error");
 		}
-
 		const result = await commands.executeCreateCharacter(dto, userId);
 		return successWithDataResponse(c, result);
 	})

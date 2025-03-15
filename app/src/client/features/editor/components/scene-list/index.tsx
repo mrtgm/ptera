@@ -3,12 +3,12 @@ import {
 	BreadcrumbItem,
 	BreadcrumbList,
 } from "@/client/components/shadcn/breadcrumb";
-import type { Game } from "@/client/schema";
+import type { GameDetailResponse } from "@/schemas/games/dto";
 import type { SideBarSettings } from "../../constants";
 import { SceneItem } from "./scene-item";
 
 type ScenesListProps = {
-	game: Game | null;
+	game: GameDetailResponse | null;
 	sideBarSettings: typeof SideBarSettings;
 	onSceneClick: (sceneId: number) => void;
 };

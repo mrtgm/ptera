@@ -11,7 +11,6 @@ interface User {
 	picture?: string | null;
 	createdAt: string;
 	updatedAt: string;
-	[key: string]: any;
 }
 
 export default function Home() {
@@ -21,27 +20,7 @@ export default function Home() {
 		window.location.href = "/api/v1/auth/logout";
 	};
 
-	const createPost = async () => {
-		fetch("http://localhost:3000/api/v1/games", {
-			method: "POST",
-			headers: {
-				accept: "application/json",
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				name: "string",
-				description: "string",
-			}),
-			redirect: "manual",
-		})
-			.then((response) => response.json())
-			.then((data) => {
-				if (!data.success && data.error.type === "unauthorized") {
-					window.location.href = "/login";
-				}
-			})
-			.catch((error) => console.error("Error:", error));
-	};
+	const createPost = async () => {};
 
 	return (
 		<main className="min-h-screen p-8">
@@ -61,6 +40,7 @@ export default function Home() {
 					<button
 						onClick={handleLogout}
 						className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded inline-block ml-4"
+						type="button"
 					>
 						ログアウト
 					</button>
@@ -68,6 +48,7 @@ export default function Home() {
 					<button
 						onClick={createPost}
 						className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-block ml-4"
+						type="button"
 					>
 						POST
 					</button>

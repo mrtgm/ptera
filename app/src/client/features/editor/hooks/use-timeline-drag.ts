@@ -1,5 +1,5 @@
 import type { SidebarItem } from "@/client/features/editor/constants";
-import type { GameEvent } from "@/client/schema";
+import type { EventResponse } from "@/schemas/games/dto";
 import type {
 	DragEndEvent,
 	DragStartEvent,
@@ -15,7 +15,7 @@ export const useTimelineDrag = ({
 	onMoveEvent,
 }: {
 	selectedSceneId: number | undefined;
-	sceneEvents: GameEvent[] | undefined;
+	sceneEvents: EventResponse[] | undefined;
 	onAddEvent: (index: number, item: SidebarItem, sceneId: number) => void;
 	onMoveEvent: (oldIndex: number, newIndex: number, sceneId: number) => void;
 }) => {
@@ -46,7 +46,7 @@ export const useTimelineDrag = ({
 
 	const calculateInsertionIndex = (
 		overId: UniqueIdentifier,
-		events: GameEvent[] | undefined,
+		events: EventResponse[] | undefined,
 	) => {
 		if (!events) return 0;
 		if (!overId) return events.length;

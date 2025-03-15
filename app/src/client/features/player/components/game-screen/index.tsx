@@ -1,11 +1,11 @@
 import type {
-	GameEvent,
 	GameState,
 	MessageHistory,
 	ResourceCache,
 	Stage,
 } from "@/client/schema";
 import { shake } from "@/client/utils/transition";
+import type { EventResponse } from "@/schemas/games/dto";
 import { useEffect, useRef, useState } from "react";
 import type { EventManager } from "../../utils/event";
 import { Background } from "./background";
@@ -42,7 +42,7 @@ export const GameScreen = ({
 	state: GameState;
 	manager: EventManager;
 	resourceCache: ResourceCache;
-	currentEvent: GameEvent | null;
+	currentEvent: EventResponse | null;
 	isPreviewMode?: boolean;
 	className?: string;
 	style?: React.CSSProperties;

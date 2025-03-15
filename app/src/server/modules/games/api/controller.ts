@@ -62,7 +62,9 @@ const setGuestId = (c: Context) => {
 	return newGuestId;
 };
 
-const gameRoutes = honoWithHook()
+const gameRoutes = honoWithHook();
+
+gameRoutes
 	.openapi(gameRouteCongfigs.getCategories, async (c) => {
 		const result = await queries.executeGetCategories();
 		return successWithDataResponse(c, result);
@@ -263,6 +265,7 @@ const gameRoutes = honoWithHook()
 		await commands.executeDeleteEvent(gameId, eventId, userId);
 		return successWithoutDataResponse(c);
 	});
+
 gameRoutes.onError(errorHandler);
 
 // 未ログインユーザ向け Cookie

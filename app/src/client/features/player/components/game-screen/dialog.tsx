@@ -1,4 +1,5 @@
-import type { GameEvent, GameState, Stage } from "@/client/schema";
+import type { GameState, Stage } from "@/client/schema";
+import type { EventResponse } from "@/schemas/games/dto";
 import type { EventManager } from "../../utils/event";
 import { AnimatePresence } from "./animate-presence";
 
@@ -11,7 +12,7 @@ export const Dialog = ({
 	manager: EventManager;
 	state: GameState;
 	dialog: Stage["dialog"];
-	currentEvent: GameEvent | null;
+	currentEvent: EventResponse | null;
 }) => {
 	if (!currentEvent) return null;
 

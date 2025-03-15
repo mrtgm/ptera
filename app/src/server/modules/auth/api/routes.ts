@@ -60,7 +60,7 @@ export const authRouteConfigs = {
 				description: "User information",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(userResponseSchema.nullable()),
+						schema: successWithDataSchema(userResponseSchema),
 					},
 				},
 			},

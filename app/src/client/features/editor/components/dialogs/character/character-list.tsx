@@ -1,10 +1,10 @@
 import { Button } from "@/client/components/shadcn/button";
-import type { GameResources } from "@/client/schema";
 import { cn } from "@/client/utils/cn";
+import type { ResourceResponse } from "@/schemas/games/dto";
 import { UserCircle, UserPlus } from "lucide-react";
 
 interface CharacterListProps {
-	resources: GameResources;
+	resources: ResourceResponse;
 	selectedCharacterId: number | null;
 	onCharacterSelect: (characterId: number) => void;
 	onAddCharacterClick: () => void;
@@ -24,7 +24,8 @@ export const CharacterList = ({
 		<div className="h-[500px] flex flex-col">
 			<div className="flex-1 overflow-y-auto grid grid-cols-3 gap-4 pb-4">
 				{Object.values(resources.character).map((character) => {
-					const previewImage = Object.values(character.images)[0]?.url || null;
+					const previewImage =
+						Object.values(character.images ?? {})[0]?.url || null;
 
 					return (
 						<div
@@ -53,7 +54,7 @@ export const CharacterList = ({
 							</div>
 							<div className="text-center font-medium">{character.name}</div>
 							<div className="text-xs text-gray-500 text-center">
-								{Object.keys(character.images).length}枚の画像
+								{Object.keys(character.images ?? {}).length}枚の画像
 							</div>
 						</div>
 					);

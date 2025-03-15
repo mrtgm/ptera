@@ -34,7 +34,18 @@ const corsOptions: Parameters<typeof cors>[0] = {
 };
 app.use("*", cors(corsOptions));
 
-app.use("*", csrf({ origin: `https://${ENV.DOMAIN_NAME}` }));
+app.use("*", async (c, next) => {
+	try {
+		if (isDevelopment) {
+			await next();
+		} else {
+			await csrf({ origin: `https://${ENV.DOMAIN_NAME}` })(c, next);
+		}
+	} catch (error) {
+		console.error("[CSRF-ERROR]", error);
+		throw error;
+	}
+});
 
 // GET の場合は圧縮
 if (!isDevelopment) {
@@ -60,10 +71,7 @@ app.use(
 
 app.use("*", logger());
 
-app.get("/api", (c) => c.text("Hello Hono!おめでとうございます！"));
 app.get("/api/health", (c) => {
-	console.log(c.get("token"));
-
 	return c.json({ status: "ok" });
 });
 
@@ -82,7 +90,7 @@ app.notFound((c) =>
 );
 
 app.onError((err, ctx) =>
-	errorResponse(ctx, 500, "internalServerError", "error", undefined, {}, err),
+	errorResponse(ctx, 500, "internalServerError", "error", undefined, { err }),
 );
 
 export { nestedRoutes };

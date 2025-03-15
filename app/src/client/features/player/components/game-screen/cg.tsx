@@ -1,4 +1,5 @@
-import type { GameEvent, ResourceCache, Stage } from "@/client/schema";
+import type { ResourceCache, Stage } from "@/client/schema";
+import type { EventResponse } from "@/schemas/games/dto";
 import type { EventManager } from "../../utils/event";
 import { AnimatePresence } from "./animate-presence";
 
@@ -10,7 +11,7 @@ export const CG = ({
 }: {
 	manager: EventManager;
 	cg: Stage["cg"];
-	currentEvent: GameEvent | null;
+	currentEvent: EventResponse | null;
 	resourceCache: ResourceCache["cgImage"];
 }) => {
 	if (!currentEvent) return null;

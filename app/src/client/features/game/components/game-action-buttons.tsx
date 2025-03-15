@@ -13,7 +13,7 @@ import {
 import { useStore } from "@/client/stores";
 import { Flag, Heart, MessageSquare, RotateCcw, Share2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const GameActionButtons = ({
 	gameId,
@@ -93,6 +93,12 @@ export const GameActionButtons = ({
 		// TODO: 報告機能を実装
 		alert("この機能は現在開発中です");
 	};
+
+	useEffect(() => {
+		if (userSlice.isInitialized) {
+			setIsLiked(userSlice.likedGamesId.includes(gameId));
+		}
+	}, [userSlice.isInitialized, userSlice.likedGamesId, gameId]);
 
 	return (
 		<div className="flex flex-wrap gap-2 mb-6">

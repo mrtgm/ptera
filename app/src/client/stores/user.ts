@@ -1,19 +1,19 @@
-import type { UserProfile } from "@/client/schema";
+import type { UserResponse } from "@/schemas/users/dto";
 import type { StateCreator } from "zustand";
 import { api } from "../api";
+import { performUpdate } from "../utils/optimistic-update";
 import type { State } from "./";
-import { performUpdate } from "./util";
 
 export interface UserState {
 	isInitialized: boolean;
 	isAuthenticated: boolean;
 	likedGamesId: number[];
-	currentUser: UserProfile | null;
+	currentUser: UserResponse | null;
 
 	login: (provider: string) => void;
 	logout: () => void;
 	fetchCurrentUser: () => void;
-	updateProfile: (profile: UserProfile) => Promise<void>;
+	updateProfile: (profile: UserResponse) => Promise<void>;
 }
 
 export const createUserSlice: StateCreator<

@@ -10,6 +10,14 @@ const commonModulesList = [
 		name: "auth",
 		description: "認証関連のAPI",
 	},
+	{ name: "games", description: "ゲーム関連のAPI" },
+	{ name: "users", description: "ユーザー管理のAPI" },
+	{ name: "characters", description: "キャラクターのAPI" },
+	{ name: "assets", description: "アセット管理のAPI" },
+	{
+		name: "dashboard",
+		description: "ダッシュボード/ユーザープロフィールのAPI",
+	},
 ];
 
 export const docs = (app: OpenAPIHono<Env>) => {
@@ -23,7 +31,7 @@ export const docs = (app: OpenAPIHono<Env>) => {
 
 	// OpenAPI
 	app.doc31("/api/openapi.json", {
-		servers: [{ url: "/" }],
+		servers: [{ url: "/api/v1" }],
 		info: {
 			title: "Ptera API",
 			version: ENV.API_VERSION,

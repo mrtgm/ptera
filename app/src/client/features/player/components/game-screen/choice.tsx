@@ -1,4 +1,5 @@
-import type { GameEvent, Stage } from "@/client/schema";
+import type { Stage } from "@/client/schema";
+import type { EventResponse } from "@/schemas/games/dto";
 import type { EventManager } from "../../utils/event";
 import { AnimatePresence } from "./animate-presence";
 
@@ -10,7 +11,7 @@ export const Choice = ({
 }: {
 	manager: EventManager;
 	choices: Stage["choices"];
-	currentEvent: GameEvent | null;
+	currentEvent: EventResponse | null;
 	onChoiceSelected: (choiceId: number) => void;
 }) => {
 	if (!currentEvent) return null;

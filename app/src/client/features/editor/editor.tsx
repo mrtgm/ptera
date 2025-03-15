@@ -1,10 +1,18 @@
-import dummyAssets from "@/client/__mocks__/dummy-assets.json";
-import dummyGame from "@/client/__mocks__/dummy-game.json";
+"use client";
+
 import { Toaster } from "@/client/components/shadcn/sonner";
-import type { Game, GameEvent, GameResources, Scene } from "@/client/schema";
 import { useStore } from "@/client/stores";
 import type { AssetType } from "@/schemas/assets/domain/resoucres";
+import type {
+	CategoryResponse,
+	EventResponse,
+	GameDetailResponse,
+	ResourceResponse,
+	SceneResponse,
+	UpdateGameRequest,
+} from "@/schemas/games/dto";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
+import { Loader2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -24,10 +32,7 @@ import { SceneDetail } from "./components/scene-detail";
 import { EndingEditor } from "./components/scene-detail/ending-editor";
 import type { SceneSettingsFormData } from "./components/scene-detail/scene-settings";
 import { ScenesList } from "./components/scene-list";
-import {
-	ProjectSettings,
-	type ProjectSettingsFormData,
-} from "./components/scene-list/project-settings";
+import { ProjectSettings } from "./components/scene-list/project-settings";
 import { Sidebar, SidebarItemCore } from "./components/sidebar";
 import {
 	SideBarSettings,
@@ -36,7 +41,15 @@ import {
 } from "./constants";
 import { useTimelineDrag } from "./hooks/use-timeline-drag";
 
-export const Editor = () => {
+export const Editor = ({
+	game,
+	categories,
+	resources,
+}: {
+	game: GameDetailResponse | null;
+	categories: CategoryResponse[];
+	resources: ResourceResponse | null;
+}) => {
 	const editorSlice = useStore.useSlice.editor();
 	const modalSlice = useStore.useSlice.modal();
 
@@ -50,20 +63,20 @@ export const Editor = () => {
 		pathparams.eventId !== undefined ? Number(pathparams.eventId) : undefined;
 
 	const isOpenEnding = selectedEventId === 0;
-	const selectedScene = editorSlice.editingGame?.scenes.find(
+	const selectedScene = editorSlice.editingGame?.scenes?.find(
 		(scene) => scene.id === selectedSceneId,
 	);
-	const selectedEvent = selectedScene?.events.find(
+	const selectedEvent = selectedScene?.events?.find(
 		(event) => event.id === selectedEventId,
 	);
 
 	useEffect(() => {
 		// TODO: ロード
 		editorSlice.initializeEditor(
-			dummyGame as Game,
-			dummyAssets as GameResources,
+			game as GameDetailResponse,
+			resources as ResourceResponse,
 		);
-	}, [editorSlice.initializeEditor]);
+	}, [editorSlice.initializeEditor, game, resources]);
 
 	const handleNavigateToScene = (sceneId: number) => {
 		router.push(`/dashboard/games/${gameId}/edit/scenes/${sceneId}`);
@@ -87,7 +100,7 @@ export const Editor = () => {
 
 	const handleAddScene = (
 		sceneTitle: string,
-		scene: Scene,
+		scene: SceneResponse,
 		choiceId?: number | null,
 	) => {
 		// TODO: 実装
@@ -104,10 +117,9 @@ export const Editor = () => {
 		toast.success("シーンを削除しました");
 	};
 
-	const handleSaveProjectSettings = (data: ProjectSettingsFormData) => {
-		// TODO: 実装
+	const handleSaveProjectSettings = async (data: UpdateGameRequest) => {
 		console.log("Save settings", data);
-		editorSlice.saveProjectSettings(data);
+		await editorSlice.saveProjectSettings(data);
 		toast.success("プロジェクト設定を保存しました");
 	};
 
@@ -127,7 +139,7 @@ export const Editor = () => {
 		toast.success("イベントを削除しました");
 	};
 
-	const handleSaveEvent = (event: GameEvent) => {
+	const handleSaveEvent = (event: EventResponse) => {
 		// TODO: 実装
 		console.log("Save event clicked");
 		if (!selectedSceneId) return;
@@ -181,7 +193,9 @@ export const Editor = () => {
 		toast.success("アセットをアップロードしました");
 	};
 
-	const handleSaveEnding = (endingScene: Game["scenes"][number]) => {
+	const handleSaveEnding = (
+		endingScene: GameDetailResponse["scenes"][number],
+	) => {
 		// TODO: 実装
 		console.log("Save ending", endingScene);
 		editorSlice.saveEnding(endingScene);
@@ -222,6 +236,14 @@ export const Editor = () => {
 		onAddEvent: handleAddEvent,
 		onMoveEvent: handleMoveEvent,
 	});
+
+	if (!editorSlice.editingGame || !editorSlice.editingResources) {
+		return (
+			<div className="w-full h-full flex items-center justify-center">
+				<Loader2 size={64} />
+			</div>
+		);
+	}
 
 	return (
 		<div className="w-full h-full flex flex-col overflow-hidden">
@@ -315,10 +337,11 @@ export const Editor = () => {
 				{/*　未選択時 */}
 				{selectedSceneId === undefined && (
 					<>
-						<div className="col-span-3 border-r-[1px] border-gray-200">
+						<div className="col-span-3 border-r-[1px] border-gray-200 overflow-y-scroll">
 							<div className="p-4">
 								<ProjectSettings
 									game={editorSlice.editingGame}
+									categories={categories}
 									onSaveSettings={handleSaveProjectSettings}
 								/>
 							</div>

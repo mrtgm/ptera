@@ -1,12 +1,4 @@
-import {
-	type ChoiceScene,
-	type EndScene,
-	type Game,
-	type GotoScene,
-	type Scene,
-	isChoiceScene,
-	isGotoScene,
-} from "@/client/schema";
+import { isChoiceScene, isGotoScene } from "@/client/schema";
 import type React from "react";
 import { useRef, useState } from "react";
 
@@ -17,6 +9,12 @@ import {
 	TabsList,
 	TabsTrigger,
 } from "@/client/components/shadcn/tabs";
+import type {
+	ChoiceScene,
+	EndScene,
+	GotoScene,
+} from "@/schemas/games/domain/scene";
+import type { GameDetailResponse, SceneResponse } from "@/schemas/games/dto";
 import { randomIntId } from "@/server/shared/utils/id";
 import { Graph } from "../../graph";
 import { ChoiceSceneContent } from "./choice-scene-content";
@@ -25,15 +23,15 @@ import { GotoSceneContent } from "./goto-scene-content";
 import { NewSceneDialog } from "./new-scene-dialog";
 
 interface EndingEditorProps {
-	selectedScene: Scene;
-	game: Game | null;
-	onSaveEnding: (endingScene: Scene) => void;
+	selectedScene: SceneResponse;
+	game: GameDetailResponse | null;
+	onSaveEnding: (endingScene: SceneResponse) => void;
 	onNavigateToScene: (sceneId: number) => void;
 	onAddScene: (
 		sceneTitle: string,
-		fromScene: Scene,
+		fromScene: SceneResponse,
 		choiceId?: number | null,
-	) => Scene | null;
+	) => SceneResponse | null;
 }
 
 export const EndingEditor: React.FC<EndingEditorProps> = ({
@@ -44,7 +42,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 	onAddScene,
 }) => {
 	// ゲーム全体をローカルステートとして保持する
-	const [localGame, setLocalGame] = useState<Game | null>(game);
+	const [localGame, setLocalGame] = useState<GameDetailResponse | null>(game);
 	const [hasChanges, setHasChanges] = useState(false);
 	const [isNewSceneDialogOpen, setIsNewSceneDialogOpen] = useState(false);
 	const activeChoiceId = useRef<number | null>(null);

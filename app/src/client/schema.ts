@@ -1,66 +1,11 @@
-import type { Howl } from "howler";
-
 import type { AssetResponse, CharacterResponse } from "@/schemas/assets/dto";
-
-import type {
-	GameDetailResponse,
-	GameListResponse,
-	ResourceResponse,
-	SceneResponse,
-} from "@/schemas/games/dto";
-
-import type { UserResponse } from "@/schemas/users/dto";
-
 import type {
 	ChoiceScene,
 	EndScene,
 	GotoScene,
+	Scene,
 } from "@/schemas/games/domain/scene";
-
-export {
-	type GameEvent,
-	type GameEventType,
-	type AppearCGEvent,
-	type AppearCharacterEvent,
-	type CharacterEffectEvent,
-	type HideCharacterEvent,
-	type MoveCharacterEvent,
-	type TextRenderEvent,
-	effectType,
-	characterEffectType,
-	appearCGEventSchema,
-	appearCharacterEventSchema,
-	appearMessageWindowEventSchema,
-	bgmStartEventSchema,
-	bgmStopEventSchema,
-	changeBackgroundEventSchema,
-	characterEffectEventSchema,
-	effectEventSchema,
-	hideAllCharactersEventSchema,
-	hideCharacterEventSchema,
-	hideMessageWindowEventSchema,
-	moveCharacterEventSchema,
-	soundEffectEventSchema,
-	textRenderEventSchema,
-} from "@/schemas/games/domain/event";
-
-export type MediaAsset = AssetResponse;
-export type Character = CharacterResponse;
-
-export type CharacterImage = MediaAsset;
-export type BackgroundImage = MediaAsset;
-export type CGImage = MediaAsset;
-export type SoundEffect = MediaAsset;
-export type BGM = MediaAsset;
-
-export type Game = GameDetailResponse;
-export type GameMetaData = GameListResponse;
-export type Scene = SceneResponse;
-export type GameResources = ResourceResponse;
-
-export type UserProfile = UserResponse;
-
-export type { GotoScene, ChoiceScene, EndScene };
+import type { Howl } from "howler";
 
 export const isGotoScene = (
 	scene: Scene,
@@ -85,6 +30,10 @@ export type Choice = {
 	text: string;
 	nextSceneId: number;
 };
+
+// --------------------------------------------------
+//	以下は、ゲームエンジンのための型定義
+// --------------------------------------------------
 
 export type Stage = {
 	cg: {
@@ -149,16 +98,16 @@ export type GameState = "loading" | "beforeStart" | "playing" | "idle" | "end";
 
 export type ResourceCache = {
 	character: {
-		[id: number]: Character & {
-			images: { [id: number]: { cache: HTMLImageElement } };
+		[id: string]: CharacterResponse & {
+			images: { [id: string]: { cache: HTMLImageElement } };
 		};
 	};
 	backgroundImage: {
-		[id: number]: BackgroundImage & { cache: HTMLImageElement };
+		[id: string]: AssetResponse & { cache: HTMLImageElement };
 	};
 	cgImage: {
-		[id: number]: CGImage & { cache: HTMLImageElement };
+		[id: string]: AssetResponse & { cache: HTMLImageElement };
 	};
-	soundEffect: { [id: number]: SoundEffect & { cache: Howl } };
-	bgm: { [id: number]: BGM & { cache: Howl } };
+	soundEffect: { [id: string]: AssetResponse & { cache: Howl } };
+	bgm: { [id: string]: AssetResponse & { cache: Howl } };
 };

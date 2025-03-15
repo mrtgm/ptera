@@ -119,7 +119,7 @@ export const gameRouteCongfigs = {
 				description: "Game",
 				content: {
 					"application/json": {
-						schema: successWithDataSchema(gameResponseSchema),
+						schema: successWithDataSchema(gameDetailResponseSchema),
 					},
 				},
 			},
@@ -244,13 +244,6 @@ export const gameRouteCongfigs = {
 		summary: "ゲームのプレイ回数を増やします。",
 		request: {
 			params: gameParamSchema,
-			body: {
-				content: {
-					"application/json": {
-						schema: {},
-					},
-				},
-			},
 		},
 		responses: {
 			200: {

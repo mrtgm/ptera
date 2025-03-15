@@ -1,12 +1,6 @@
-import type {
-	BGM,
-	BackgroundImage,
-	CGImage,
-	Character,
-	GameResources,
-	ResourceCache,
-	SoundEffect,
-} from "@/client/schema";
+import type { ResourceCache } from "@/client/schema";
+import type { AssetResponse, CharacterResponse } from "@/schemas/assets/dto";
+import type { ResourceResponse } from "@/schemas/games/dto";
 import { Howl, type HowlOptions } from "howler";
 
 export class ResourceManager {
@@ -62,9 +56,11 @@ export class ResourceManager {
 		});
 	}
 
-	async loadCharacter(character: Character): Promise<void> {
+	async loadCharacter(character: CharacterResponse): Promise<void> {
 		const characterImages = character.images;
 		const loadPromises: Promise<void>[] = [];
+
+		if (!characterImages) return;
 
 		for (const [id, image] of Object.entries(characterImages)) {
 			const loadPromise = this.loadImage(image.url).then((img) => {
@@ -72,7 +68,7 @@ export class ResourceManager {
 					...character,
 					images: {
 						...this.cache.character[character.id]?.images,
-						[Number(id)]: {
+						[id]: {
 							...image,
 							cache: img,
 						},
@@ -85,7 +81,7 @@ export class ResourceManager {
 		await Promise.all(loadPromises);
 	}
 
-	async loadBackgroundImage(image: BackgroundImage): Promise<void> {
+	async loadBackgroundImage(image: AssetResponse): Promise<void> {
 		const img = await this.loadImage(image.url);
 		this.cache.backgroundImage[image.id] = {
 			...image,
@@ -93,7 +89,7 @@ export class ResourceManager {
 		};
 	}
 
-	async loadCGImage(image: CGImage): Promise<void> {
+	async loadCGImage(image: AssetResponse): Promise<void> {
 		const img = await this.loadImage(image.url);
 		this.cache.cgImage[image.id] = {
 			...image,
@@ -101,7 +97,7 @@ export class ResourceManager {
 		};
 	}
 
-	async loadSoundEffect(soundEffect: SoundEffect): Promise<void> {
+	async loadSoundEffect(soundEffect: AssetResponse): Promise<void> {
 		const sound = await this.loadSound(soundEffect.url, { loop: false });
 		this.cache.soundEffect[soundEffect.id] = {
 			...soundEffect,
@@ -109,7 +105,7 @@ export class ResourceManager {
 		};
 	}
 
-	async loadBGM(bgm: BGM): Promise<void> {
+	async loadBGM(bgm: AssetResponse): Promise<void> {
 		const sound = await this.loadSound(bgm.url, { loop: true });
 		this.cache.bgm[bgm.id] = {
 			...bgm,
@@ -117,7 +113,7 @@ export class ResourceManager {
 		};
 	}
 
-	async loadResources(resources: GameResources): Promise<void> {
+	async loadResources(resources: ResourceResponse): Promise<void> {
 		const loadPromises: Promise<void>[] = [
 			...Object.values(resources.character).map((character) =>
 				this.loadCharacter(character),

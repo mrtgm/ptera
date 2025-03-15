@@ -8,7 +8,7 @@ import {
 	FormMessage,
 } from "@/client/components/shadcn/form";
 import { Input } from "@/client/components/shadcn/input";
-import type { Scene } from "@/client/schema";
+import type { SceneResponse } from "@/schemas/games/dto";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
@@ -20,7 +20,7 @@ export const SceneSettings = ({
 	scene,
 	onSaveSettings,
 }: {
-	scene: Scene | null;
+	scene: SceneResponse | null;
 	onSaveSettings: (data: SceneSettingsFormData) => void;
 }) => {
 	const form = useForm<SceneSettingsFormData>({

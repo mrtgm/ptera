@@ -1,10 +1,12 @@
 import { z } from "zod";
 
-export const assetParamSchema = z.object({ assetId: z.number() });
+export const assetParamSchema = z.object({
+	assetId: z.union([z.number(), z.string().transform(Number)]),
+});
 export const characterParamSchema = z.object({
-	characterId: z.number(),
+	characterId: z.union([z.number(), z.string().transform(Number)]),
 });
 export const assetCharacterLinkParamSchema = z.object({
-	characterId: z.number(),
-	assetId: z.number(),
+	characterId: z.union([z.number(), z.string().transform(Number)]),
+	assetId: z.union([z.number(), z.string().transform(Number)]),
 });

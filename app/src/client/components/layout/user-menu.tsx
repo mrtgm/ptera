@@ -1,10 +1,5 @@
 "use client";
 
-import {
-	Avatar,
-	AvatarFallback,
-	AvatarImage,
-} from "@/client/components/shadcn/avatar";
 import { Button } from "@/client/components/shadcn/button";
 import {
 	DropdownMenu,
@@ -16,6 +11,7 @@ import {
 import { useStore } from "@/client/stores";
 import { ChevronDown, Gamepad2, LogOut, Settings, User } from "lucide-react";
 import Link from "next/link";
+import { Avatar } from "../avatar";
 
 export function UserMenu() {
 	const userSlice = useStore.useSlice.user();
@@ -25,29 +21,18 @@ export function UserMenu() {
 		window.location.href = "/";
 	};
 
-	const getInitials = (name = "") => {
-		return name
-			.split(" ")
-			.map((part) => part.charAt(0))
-			.join("")
-			.toUpperCase();
-	};
+	if (!userSlice.currentUser) {
+		return null;
+	}
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button variant="ghost" className="p-1">
-					<Avatar className="h-8 w-8">
-						<AvatarImage
-							src={userSlice.currentUser?.avatarUrl}
-							alt={userSlice.currentUser?.name}
-						/>
-						<AvatarFallback>
-							{userSlice.currentUser?.name
-								? getInitials(userSlice.currentUser.name)
-								: "GC"}
-						</AvatarFallback>
-					</Avatar>
+					<Avatar
+						username={userSlice.currentUser.name}
+						avatarUrl={userSlice.currentUser.avatarUrl}
+					/>
 					<ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
 				</Button>
 			</DropdownMenuTrigger>

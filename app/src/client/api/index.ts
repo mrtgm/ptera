@@ -1,354 +1,354 @@
 import { ENV } from "@/configs/env";
+
 import type {
 	AssetCharacterLinkRequest,
+	AssetResponse,
+	CharacterResponse,
 	CreateAssetRequest,
 	CreateCharacterRequest,
 	UpdateAssetRequest,
 	UpdateCharacterRequest,
 } from "@/schemas/assets/dto";
 import type {
+	CategoryResponse,
+	CommentResponse,
 	CreateCommentRequest,
 	CreateEventRequest,
 	CreateGameRequest,
 	CreateSceneRequest,
+	EventResponse,
+	GameDetailResponse,
+	GameListResponse,
 	GetCommentsRequest,
 	GetGamesRequest,
 	MoveEventRequest,
+	ResourceResponse,
+	SceneResponse,
 	UpdateEventRequest,
 	UpdateGameRequest,
 	UpdateGameStatusRequest,
 	UpdateSceneRequest,
 } from "@/schemas/games/dto";
-import type { UpdateProfileRequest } from "@/schemas/users/dto";
-import { type ClientResponse, hc } from "hono/client";
-import type { AppType } from "ptera/server-types";
+import type { UpdateProfileRequest, UserResponse } from "@/schemas/users/dto";
 
-const client = hc<AppType>(
+import { PteraApiClient } from "./generated";
+
+const BASE_URL =
 	process.env.NODE_ENV === "production"
-		? `https://${ENV.DOMAIN_NAME}/api/v1`
-		: "http://localhost:3000/api/v1",
-);
-type ApiResponse<T = unknown> = {
-	success?: boolean;
-	data?: T;
-	error?: {
-		message: string;
-		type: string;
-		status: number;
-	};
-};
+		? `https://${ENV.DOMAIN_NAME}/`
+		: "http://localhost:3000/";
 
-async function callApi<T>(
-	apiCall: () => Promise<ClientResponse<ApiResponse<T>>>,
-	errorHandler?: (error: unknown) => void,
-): Promise<T | null> {
-	try {
-		const response = await apiCall();
-		const res = (await response.json()) as ApiResponse<T>;
-
-		if ("error" in res) {
-			console.error("API Error:", res.error);
-			if (errorHandler) errorHandler(res.error);
-			return null;
-		}
-
-		return (res.data !== undefined ? res.data : res.success) as T;
-	} catch (error) {
-		console.error("API call failed:", error);
-		if (errorHandler) errorHandler(error);
-		return null;
-	}
-}
+const apiClient = new PteraApiClient({
+	BASE: BASE_URL,
+	WITH_CREDENTIALS: true,
+	CREDENTIALS: "include",
+	HEADERS: {
+		"Content-Type": "application/json",
+	},
+});
 
 export const api = {
 	// 認証関連
 	auth: {
 		// ログアウト
-		logout: () => callApi<boolean>(() => client.auth.logout.$get()),
-
+		logout: async () => {
+			await apiClient.auth.getApiV1AuthLogout();
+			return true;
+		},
 		// ログインユーザー情報取得
-		me: () => callApi(() => client.auth.me.$get()),
-		likedGames: () => callApi(() => client.me.liked.$get()),
+		me: async () => {
+			const { data } = await apiClient.auth.getApiV1AuthMe();
+			return data as UserResponse;
+		},
+		likedGames: async () => {
+			const { data } = await apiClient.dashboard.getApiV1MeLiked();
+			return data;
+		},
 	},
 
-	// ユーザー関連
 	users: {
-		get: (userId: number) =>
-			callApi(() =>
-				client.users[":userId"].$get({
-					param: { userId },
-				}),
-			),
+		get: async (userId: number) => {
+			const { data } = await apiClient.users.getApiV1Users(userId);
+			return data as UserResponse;
+		},
 
-		updateProfile: (userId: number, data: UpdateProfileRequest) =>
-			callApi(() =>
-				client.users[":userId"].profile.$put({
-					param: { userId },
-					json: data,
-				}),
-			),
+		getGames: async (userId: number) => {
+			const { data } = await apiClient.users.getApiV1UsersGames(userId);
+			return data as GameDetailResponse[];
+		},
+		updateProfile: async (userId: number, params: UpdateProfileRequest) => {
+			const { data } = await apiClient.users.putApiV1UsersProfile(
+				userId,
+				params,
+			);
+			return data as UserResponse;
+		},
 	},
 
-	// ゲーム関連
 	games: {
-		// カテゴリ一覧取得
-		getCategories: () => callApi(() => client.games.categories.$get()),
+		getCategories: async () => {
+			const { data } = await apiClient.games.getApiV1GamesCategories();
+			return data as CategoryResponse[];
+		},
 
-		// ゲーム一覧取得（ページネーション）
-		list: (filter: GetGamesRequest) =>
-			callApi(() =>
-				client.games.$get({
-					query: filter,
-				}),
-			),
+		list: async (filter: GetGamesRequest) => {
+			const { data } = await apiClient.games.getApiV1Games1(
+				filter.q,
+				filter.sort,
+				filter.order,
+				filter.offset,
+				filter.limit,
+				filter.categoryId,
+			);
+			return {
+				items: data.items as GameListResponse[],
+				total: data.total,
+			};
+		},
 
-		// 特定のゲームを取得
-		get: (gameId: number) =>
-			callApi(() =>
-				client.games[":gameId"].$get({
-					param: { gameId },
-				}),
-			),
+		// ゲーム取得
+		get: async (gameId: number) => {
+			const { data } = await apiClient.games.getApiV1Games(gameId);
+			return data as GameDetailResponse;
+		},
 
 		// ゲーム作成
-		create: (data: CreateGameRequest) =>
-			callApi(() =>
-				client.games.$post({
-					json: data,
-				}),
-			),
+		create: async (params: CreateGameRequest) => {
+			const { data } = await apiClient.games.postApiV1Games(params);
+			return data as GameDetailResponse;
+		},
 
 		// ゲームアセット取得
-		getAssets: (gameId: number) =>
-			callApi(() =>
-				client.games[":gameId"].assets.$get({
-					param: { gameId },
-				}),
-			),
+		getAssets: async (gameId: number) => {
+			const { data } = await apiClient.games.getApiV1GamesAssets(gameId);
+			return data as ResourceResponse;
+		},
 
 		// ゲーム更新
-		update: (gameId: number, data: UpdateGameRequest) =>
-			callApi(() =>
-				client.games[":gameId"].$put({
-					param: { gameId },
-					json: data,
-				}),
-			),
+		update: async (gameId: number, params: UpdateGameRequest) => {
+			const { data } = await apiClient.games.putApiV1Games(gameId, params);
+			return data as GameDetailResponse;
+		},
 
 		// ゲームステータス更新
-		updateStatus: (gameId: number, data: UpdateGameStatusRequest) =>
-			callApi(() =>
-				client.games[":gameId"].status.$put({
-					param: { gameId },
-					json: data,
-				}),
-			),
+		updateStatus: async (gameId: number, params: UpdateGameStatusRequest) => {
+			const { data } = await apiClient.games.putApiV1GamesStatus(
+				gameId,
+				params,
+			);
+			return data as GameDetailResponse;
+		},
 
 		// ゲーム削除
-		delete: (gameId: number) =>
-			callApi(() =>
-				client.games[":gameId"].$delete({
-					param: { gameId },
-				}),
-			),
+		delete: async (gameId: number) => {
+			const { success } = await apiClient.games.deleteApiV1Games(gameId);
+			return success;
+		},
 
 		// プレイ回数増加
-		incrementPlayCount: (gameId: number) =>
-			callApi(() =>
-				client.games[":gameId"].play.$post({
-					param: { gameId },
-				}),
-			),
+		incrementPlayCount: async (gameId: number) => {
+			const { data } = await apiClient.games.postApiV1GamesPlay(gameId);
+			return data;
+		},
 
 		// いいね追加
-		like: (gameId: number) =>
-			callApi(() =>
-				client.games[":gameId"].likes.$post({
-					param: { gameId },
-				}),
-			),
+		like: async (gameId: number) => {
+			const { data } = await apiClient.games.postApiV1GamesLikes(gameId);
+			return data;
+		},
 
 		// いいね取り消し
-		unlike: (gameId: number) =>
-			callApi(() =>
-				client.games[":gameId"].likes.$delete({
-					param: { gameId },
-				}),
-			),
+		unlike: async (gameId: number) => {
+			const { data } = await apiClient.games.deleteApiV1GamesLikes(gameId);
+			return data;
+		},
 
-		// コメント一覧取得（ページネーション）
-		getComments: (gameId: number) =>
-			callApi(() =>
-				client.games[":gameId"].comments.$get({
-					param: { gameId },
-				}),
-			),
+		getComments: async (gameId: number) => {
+			const { data } = await apiClient.games.getApiV1GamesComments(gameId);
+			return data as CommentResponse[];
+		},
 
 		// コメント投稿
-		createComment: (gameId: number, data: CreateCommentRequest) =>
-			callApi(() =>
-				client.games[":gameId"].comments.$post({
-					param: { gameId },
-					json: data,
-				}),
-			),
+		createComment: async (gameId: number, data: CreateCommentRequest) => {
+			const { data: comment } = await apiClient.games.postApiV1GamesComments(
+				gameId,
+				data,
+			);
+			return comment as CommentResponse;
+		},
 
 		// コメント削除
-		deleteComment: (gameId: number, commentId: number) =>
-			callApi(() =>
-				client.games[":gameId"].comments[":commentId"].$delete({
-					param: { gameId, commentId },
-				}),
-			),
+		deleteComment: async (gameId: number, commentId: number) => {
+			const { success } = await apiClient.games.deleteApiV1GamesComments(
+				gameId,
+				commentId,
+			);
+			return success;
+		},
 
 		// シーン関連
 		scenes: {
 			// シーン作成
-			create: (gameId: number, data: CreateSceneRequest) =>
-				callApi(() =>
-					client.games[":gameId"].scenes.$post({
-						param: { gameId },
-						json: data,
-					}),
-				),
+			create: async (gameId: number, params: CreateSceneRequest) => {
+				const { data } = await apiClient.games.postApiV1GamesScenes(
+					gameId,
+					params,
+				);
+				return data as SceneResponse;
+			},
 
 			// シーン更新
-			update: (gameId: number, sceneId: number, data: UpdateSceneRequest) =>
-				callApi(() =>
-					client.games[":gameId"].scenes[":sceneId"].$put({
-						param: { gameId, sceneId },
-						json: data,
-					}),
-				),
+			update: async (
+				gameId: number,
+				sceneId: number,
+				params: UpdateSceneRequest,
+			) => {
+				const { data } = await apiClient.games.putApiV1GamesScenes(
+					gameId,
+					sceneId,
+					params,
+				);
+				return data as SceneResponse;
+			},
 
 			// シーン削除
-			delete: (gameId: number, sceneId: number) =>
-				callApi(() =>
-					client.games[":gameId"].scenes[":sceneId"].$delete({
-						param: { gameId, sceneId },
-					}),
-				),
+			delete: async (gameId: number, sceneId: number) => {
+				const { success } = await apiClient.games.deleteApiV1GamesScenes(
+					gameId,
+					sceneId,
+				);
+				return success;
+			},
 
 			// イベント関連
 			events: {
 				// イベント作成
-				create: (gameId: number, sceneId: number, data: CreateEventRequest) =>
-					callApi(() =>
-						client.games[":gameId"].scenes[":sceneId"].events.$post({
-							param: { gameId, sceneId },
-							json: data,
-						}),
-					),
+				create: async (
+					gameId: number,
+					sceneId: number,
+					data: CreateEventRequest,
+				) => {
+					const { data: event } =
+						await apiClient.games.postApiV1GamesScenesEvents(
+							gameId,
+							sceneId,
+							data,
+						);
+					return event as EventResponse;
+				},
 
 				// イベント順序変更
-				move: (gameId: number, sceneId: number, data: MoveEventRequest) =>
-					callApi(() =>
-						client.games[":gameId"].scenes[":sceneId"].events.move.$put({
-							param: { gameId, sceneId },
-							json: data,
-						}),
-					),
+				move: async (
+					gameId: number,
+					sceneId: number,
+					params: MoveEventRequest,
+				) => {
+					const { success } =
+						await apiClient.games.putApiV1GamesScenesEventsMove(
+							gameId,
+							sceneId,
+							params,
+						);
+					return success;
+				},
 
 				// イベント更新
-				update: (
+				update: async (
 					gameId: number,
 					sceneId: number,
 					eventId: number,
-					data: UpdateEventRequest,
-				) =>
-					callApi(() =>
-						client.games[":gameId"].scenes[":sceneId"].events[":eventId"].$put({
-							param: { gameId, sceneId, eventId },
-							json: data,
-						}),
-					),
+					params: UpdateEventRequest,
+				) => {
+					const { data } = await apiClient.games.putApiV1GamesScenesEvents(
+						gameId,
+						sceneId,
+						eventId,
+						params,
+					);
+					return data as EventResponse;
+				},
 
 				// イベント削除
-				delete: (gameId: number, sceneId: number, eventId: number) =>
-					callApi(() =>
-						client.games[":gameId"].scenes[":sceneId"].events[
-							":eventId"
-						].$delete({
-							param: { gameId, sceneId, eventId },
-						}),
-					),
+				delete: async (gameId: number, sceneId: number, eventId: number) => {
+					const { success } =
+						await apiClient.games.deleteApiV1GamesScenesEvents(
+							gameId,
+							sceneId,
+							eventId,
+						);
+					return success;
+				},
 			},
 		},
 	},
 
 	// アセット関連
 	assets: {
-		upload: (data: CreateAssetRequest) => {
-			return callApi(() =>
-				client.assets.$post({
-					form: {
-						file: data.file,
-						assetType: data.assetType,
-						name: data.name,
-						metadata: JSON.stringify(data.metadata),
-					},
-				}),
-			);
+		upload: async (params: CreateAssetRequest) => {
+			const { data } = await apiClient.assets.postApiV1Assets({
+				file: params.file,
+				assetType: params.assetType,
+				name: params.name,
+				metadata: JSON.stringify(params.metadata),
+			});
+			return data as AssetResponse;
 		},
 
 		// アセット更新
-		update: (assetId: number, data: UpdateAssetRequest) =>
-			callApi(() =>
-				client.assets[":assetId"].$put({
-					param: { assetId },
-					json: data,
-				}),
-			),
+		update: async (assetId: number, data: UpdateAssetRequest) => {
+			const { data: asset } = await apiClient.assets.putApiV1Assets(
+				assetId,
+				data,
+			);
+			return asset as AssetResponse;
+		},
 
 		// アセット削除
-		delete: (assetId: number) =>
-			callApi(() =>
-				client.assets[":assetId"].$delete({
-					param: { assetId },
-				}),
-			),
+		delete: async (assetId: number) => {
+			const { success } = await apiClient.assets.deleteApiV1Assets(assetId);
+			return success;
+		},
 	},
 
 	// キャラクター関連
 	characters: {
 		// キャラクター作成
-		create: (data: CreateCharacterRequest) =>
-			callApi(() =>
-				client.characters.$post({
-					json: data,
-				}),
-			),
+		create: async (params: CreateCharacterRequest) => {
+			const { data } = await apiClient.characters.postApiV1Characters(params);
+			return data as CharacterResponse;
+		},
 
 		// キャラクター更新
-		update: (characterId: number, data: UpdateCharacterRequest) =>
-			callApi(() =>
-				client.characters[":characterId"].$put({
-					param: { characterId },
-					json: data,
-				}),
-			),
+		update: async (characterId: number, data: UpdateCharacterRequest) => {
+			const { data: character } = await apiClient.characters.putApiV1Characters(
+				characterId,
+				data,
+			);
+			return character as CharacterResponse;
+		},
 
 		// キャラクター削除
-		delete: (characterId: number) =>
-			callApi(() =>
-				client.characters[":characterId"].$delete({
-					param: { characterId },
-				}),
-			),
+		delete: async (characterId: number) => {
+			const { success } =
+				await apiClient.characters.deleteApiV1Characters(characterId);
+			return success;
+		},
 
-		linkAsset: (characterId: number, data: AssetCharacterLinkRequest) =>
-			callApi(() =>
-				client.characters[":characterId"].assets.$post({
-					param: { characterId },
-					json: data,
-				}),
-			),
+		linkAsset: async (characterId: number, data: AssetCharacterLinkRequest) => {
+			const { success } = await apiClient.characters.postApiV1CharactersAssets(
+				characterId,
+				data,
+			);
+			return success;
+		},
 
-		unlinkAsset: (characterId: number, assetId: number) =>
-			callApi(() =>
-				client.characters[":characterId"].assets[":assetId"].$delete({
-					param: { characterId, assetId },
-				}),
-			),
+		unlinkAsset: async (characterId: number, assetId: number) => {
+			const { success } =
+				await apiClient.characters.deleteApiV1CharactersAssets(
+					characterId,
+					assetId,
+				);
+			return success;
+		},
 	},
 };

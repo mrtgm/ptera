@@ -5,8 +5,8 @@ import {
 	FormLabel,
 } from "@/client/components/shadcn/form";
 import { Separator } from "@/client/components/shadcn/separator";
-import type { GameResources } from "@/client/schema";
 import { useStore } from "@/client/stores";
+import type { ResourceResponse } from "@/schemas/games/dto";
 import type { useForm } from "react-hook-form";
 
 export const SoundEffectSelect = ({
@@ -16,7 +16,7 @@ export const SoundEffectSelect = ({
 }: {
 	label: string;
 	form: ReturnType<typeof useForm>;
-	resources: GameResources;
+	resources: ResourceResponse;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
 

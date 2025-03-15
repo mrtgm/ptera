@@ -1,15 +1,15 @@
 import { SideBarSettings } from "@/client/features/editor/constants";
+
+import { findFirstObjectValue } from "@/client/utils";
 import type {
 	AppearCGEvent,
 	AppearCharacterEvent,
 	CharacterEffectEvent,
-	GameEvent,
-	GameResources,
 	HideCharacterEvent,
 	MoveCharacterEvent,
 	TextRenderEvent,
-} from "@/client/schema";
-import { findFirstObjectValue } from "@/client/utils";
+} from "@/schemas/games/domain/event";
+import type { EventResponse, ResourceResponse } from "@/schemas/games/dto";
 import { useDroppable } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { Pen } from "lucide-react";
@@ -22,9 +22,9 @@ export const EventItem = ({
 	selectedEvent,
 	onClickEvent,
 }: {
-	event: GameEvent;
-	resources: GameResources;
-	selectedEvent: GameEvent | undefined | null;
+	event: EventResponse;
+	resources: ResourceResponse;
+	selectedEvent: EventResponse | undefined | null;
 	onClickEvent: (eventId: number) => void;
 }) => {
 	const {
@@ -83,7 +83,10 @@ export const EventItem = ({
 	);
 };
 
-const renderEventContent = (event: GameEvent, resources: GameResources) => {
+const renderEventContent = (
+	event: EventResponse,
+	resources: ResourceResponse,
+) => {
 	if (event.eventType === "textRender") {
 		return `${event.characterName ? `${event.characterName}:` : ""}${(event as TextRenderEvent).text}`;
 	}
@@ -101,7 +104,7 @@ const renderEventContent = (event: GameEvent, resources: GameResources) => {
 			| CharacterEffectEvent;
 
 		const characterData = resources.character[characterEvent.characterId];
-		const imageUrl = findFirstObjectValue(characterData.images)?.url;
+		const imageUrl = findFirstObjectValue(characterData.images ?? {})?.url;
 
 		return (
 			<div className="flex items-center gap-2">

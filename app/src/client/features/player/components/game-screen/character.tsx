@@ -1,4 +1,4 @@
-import type { GameEvent, ResourceCache, Stage } from "@/client/schema";
+import type { ResourceCache, Stage } from "@/client/schema";
 import {
 	blackOff,
 	blackOn,
@@ -8,6 +8,7 @@ import {
 	sway,
 	wobble,
 } from "@/client/utils/transition";
+import type { EventResponse } from "@/schemas/games/dto";
 import { forwardRef, useEffect, useState } from "react";
 import type { EventManager } from "../../utils/event";
 import { AnimatePresence } from "./animate-presence";
@@ -18,7 +19,7 @@ const Character = forwardRef<
 		key: string;
 		character: Stage["characters"]["items"][0];
 		resourceCache: ResourceCache["character"];
-		currentEvent: GameEvent;
+		currentEvent: EventResponse;
 		manager: EventManager;
 	}
 >(({ character, key, resourceCache, manager }, ref) => {
@@ -90,7 +91,7 @@ export const CharacterList = ({
 	manager,
 }: {
 	characters: Stage["characters"];
-	currentEvent: GameEvent | null;
+	currentEvent: EventResponse | null;
 	resourceCache: ResourceCache["character"];
 	manager: EventManager;
 }) => {

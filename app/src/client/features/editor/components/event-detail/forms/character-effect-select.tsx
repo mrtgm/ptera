@@ -12,7 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/client/components/shadcn/select";
-import { characterEffectType } from "@/client/schema";
+import { characterEffectType } from "@/schemas/games/domain/event";
 import type { useForm } from "react-hook-form";
 
 export const CharacterEffectSelect = ({

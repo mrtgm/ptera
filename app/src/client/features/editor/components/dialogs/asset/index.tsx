@@ -14,13 +14,14 @@ import {
 	TabsTrigger,
 } from "@/client/components/shadcn/tabs";
 import { FILE_VALIDATION_SETTING } from "@/client/features/editor/constants";
-import type { Game, GameResources, MediaAsset } from "@/client/schema";
 import { useStore } from "@/client/stores";
 import type {
 	AssetManageParams,
 	AssetSelectParams,
 	ModalState,
 } from "@/client/stores/modal";
+import type { AssetResponse } from "@/schemas/assets/dto";
+import type { GameDetailResponse, ResourceResponse } from "@/schemas/games/dto";
 import { Film, Image, Music, Volume2 } from "lucide-react";
 import { type ReactElement, useEffect, useState } from "react";
 import AssetValidator from "../../../utils/resource-validator";
@@ -29,7 +30,7 @@ import { AssetUpload } from "../asset-upload";
 import { useDeleteConfirmationDialog } from "../delete-confirmation-dialog";
 import { AssetCard } from "./asset-card";
 
-type resources = Omit<GameResources, "character">;
+type resources = Omit<ResourceResponse, "character">;
 export type AssetDialogKeyType = keyof resources;
 
 export const AssetDialogContainer = ({
@@ -39,8 +40,8 @@ export const AssetDialogContainer = ({
 	onUploadAsset,
 	onNavigateToScene,
 }: {
-	game: Game | null;
-	resources: GameResources | null;
+	game: GameDetailResponse | null;
+	resources: ResourceResponse | null;
 	onDeleteAsset: (assetId: number, type: AssetDialogKeyType) => void;
 	onUploadAsset: (file: File, type: AssetDialogKeyType) => void;
 	onNavigateToScene: (sceneId: number) => void;
@@ -88,8 +89,8 @@ const AssetDialog = ({
 	params,
 }: {
 	type: "asset.manage" | "asset.select";
-	resources: GameResources;
-	game: Game;
+	resources: ResourceResponse;
+	game: GameDetailResponse;
 	onDeleteAsset: (assetId: number, type: AssetDialogKeyType) => void;
 	onUploadAsset: (file: File, type: AssetDialogKeyType) => void;
 	onNavigateToScene: (sceneId: number) => void;
@@ -233,10 +234,12 @@ const AssetDialog = ({
 		return null;
 	}
 
-	const currentAssetsList = Object.values(resources[activeTab]) as MediaAsset[];
+	const currentAssetsList = Object.values(
+		resources[activeTab],
+	) as AssetResponse[];
 	const deleteAssetTitle = `${AssetModalSideBarSettings[activeTab].label}の削除`;
 	const selectedAssetForDelete = assetToDelete
-		? (resources[activeTab][assetToDelete] as MediaAsset)
+		? (resources[activeTab][assetToDelete] as AssetResponse)
 		: null;
 
 	return (

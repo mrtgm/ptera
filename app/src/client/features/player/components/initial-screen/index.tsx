@@ -1,10 +1,10 @@
-import type { Game } from "@/client/schema";
+import type { GameDetailResponse } from "@/schemas/games/dto";
 
 export const InitialScreen = ({
 	game,
 	handleTapInitialScreen,
 }: {
-	game: Game | null;
+	game: GameDetailResponse | null;
 	handleTapInitialScreen: () => void;
 }) => {
 	return (

@@ -5,9 +5,9 @@ import {
 	FormLabel,
 } from "@/client/components/shadcn/form";
 import { Separator } from "@/client/components/shadcn/separator";
-import type { GameResources } from "@/client/schema";
 import { useStore } from "@/client/stores";
 import { findFirstObjectValue } from "@/client/utils";
+import type { ResourceResponse } from "@/schemas/games/dto";
 import type { useForm } from "react-hook-form";
 
 export const CharacterSelect = ({
@@ -17,7 +17,7 @@ export const CharacterSelect = ({
 }: {
 	form: ReturnType<typeof useForm>;
 	label: string;
-	resources: GameResources;
+	resources: ResourceResponse;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
 
@@ -39,7 +39,7 @@ export const CharacterSelect = ({
 										src={
 											findFirstObjectValue(
 												resources.character[form.getValues().characterId]
-													.images,
+													.images ?? {},
 											)?.url
 										}
 										alt="character"

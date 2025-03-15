@@ -6,12 +6,13 @@ import {
 	CardTitle,
 } from "@/client/components/shadcn/card";
 import { Label } from "@/client/components/shadcn/label";
-import type { Game, GotoScene } from "@/client/schema";
+import type { GotoScene } from "@/schemas/games/domain/scene";
+import type { GameDetailResponse } from "@/schemas/games/dto";
 import { SceneSelector } from "./scene-selector";
 
 interface GotoSceneContentProps {
 	scene: GotoScene;
-	game: Game | null;
+	game: GameDetailResponse | null;
 	currentSceneId: number;
 	onNextSceneChange: (nextSceneId: number) => void;
 	onNavigateToScene: (sceneId: number) => void;

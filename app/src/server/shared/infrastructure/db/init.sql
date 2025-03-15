@@ -88,11 +88,13 @@ CREATE TABLE "game_play" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     game_id INT NOT NULL,
     user_id INT,
-    guest_id UUID UNIQUE,
+    guest_id UUID,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_game_play_game FOREIGN KEY (game_id) REFERENCES "game"(id) ON DELETE CASCADE,
-    CONSTRAINT fk_game_play_user FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE
+    CONSTRAINT fk_game_play_user FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,
+    CONSTRAINT uq_game_play_user_id UNIQUE (game_id, user_id),
+    CONSTRAINT uq_game_play_guest_id UNIQUE (game_id, guest_id)
 );
 CREATE INDEX game_play_game_id_idx ON "game_play"(game_id);
 CREATE INDEX game_play_user_id_idx ON "game_play"(user_id);

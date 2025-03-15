@@ -1,14 +1,14 @@
-import type { GameEvent, GameResources } from "@/client/schema";
+import type { EventResponse, ResourceResponse } from "@/schemas/games/dto";
 import type { StateCreator } from "zustand";
 import type { State } from "./";
 
 export interface AssetSelectParams {
-	target: keyof Omit<GameResources, "character">;
+	target: keyof Omit<ResourceResponse, "character">;
 	callback: (assetId: number) => void;
 }
 
 export interface AssetManageParams {
-	target: keyof Omit<GameResources, "character">;
+	target: keyof Omit<ResourceResponse, "character">;
 }
 
 export interface CharacterSelectParams {
@@ -31,7 +31,7 @@ export interface AdjustSizeParams {
 export interface PreviewParams {
 	currentSceneId: number;
 	currentEventId: number;
-	formValues: Partial<GameEvent>;
+	formValues: Partial<EventResponse>;
 }
 
 type ModalConfig = {

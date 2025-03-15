@@ -13,12 +13,11 @@ import {
 	PopoverTrigger,
 } from "@/client/components/shadcn/popover";
 import { Slider } from "@/client/components/shadcn/slider";
-import { CircleHelp } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-
-import type { GameResources } from "@/client/schema";
 import { useStore } from "@/client/stores";
 import type { AdjustSizeParams } from "@/client/stores/modal";
+import type { ResourceResponse } from "@/schemas/games/dto";
+import { CircleHelp } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface Point {
 	x: number;
@@ -28,7 +27,7 @@ interface Point {
 export const AdjustSizeDialogContainer = ({
 	resources,
 }: {
-	resources: GameResources | null;
+	resources: ResourceResponse | null;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
 
@@ -57,7 +56,7 @@ export const AdjustSizeDialog = ({
 	params,
 }: {
 	params: AdjustSizeParams;
-	resources: GameResources;
+	resources: ResourceResponse;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
 
@@ -90,7 +89,7 @@ export const AdjustSizeDialog = ({
 
 	const assetResource =
 		params.target === "character"
-			? resources.character[params.characterId].images[params.assetId]
+			? resources.character[params.characterId].images?.[params.assetId]
 			: resources.backgroundImage[params.assetId];
 
 	if (!assetResource) return null;

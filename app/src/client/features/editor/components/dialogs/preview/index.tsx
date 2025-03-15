@@ -15,15 +15,15 @@ import {
 import { INITIAL_STAGE } from "@/client/features/player/constants";
 import GamePlayer from "@/client/features/player/player";
 import { EventManager } from "@/client/features/player/utils/event";
-import type {
-	Game,
-	GameEvent,
-	GameResources,
-	Scene,
-	Stage,
-} from "@/client/schema";
+import type { Stage } from "@/client/schema";
 import { useStore } from "@/client/stores";
 import type { PreviewParams } from "@/client/stores/modal";
+import type {
+	EventResponse,
+	GameDetailResponse,
+	ResourceResponse,
+	SceneResponse,
+} from "@/schemas/games/dto";
 import { Laptop, PlayCircle, Rewind, Smartphone } from "lucide-react";
 import { memo, useEffect, useRef, useState } from "react";
 
@@ -44,8 +44,8 @@ export const PreviewDialogContainer = ({
 	game,
 	resources,
 }: {
-	game: Game | null;
-	resources: GameResources | null;
+	game: GameDetailResponse | null;
+	resources: ResourceResponse | null;
 }) => {
 	const modalSlice = useStore.useSlice.modal();
 
@@ -75,8 +75,8 @@ const PreviewDialog = memo(
 		resources,
 		params,
 	}: {
-		game: Game;
-		resources: GameResources;
+		game: GameDetailResponse;
+		resources: ResourceResponse;
 		params: PreviewParams;
 	}) => {
 		const modalSlice = useStore.useSlice.modal();
@@ -209,14 +209,14 @@ const PreviewFromStart = ({
 	game,
 	resources,
 }: {
-	game: Game;
-	resources: GameResources;
+	game: GameDetailResponse;
+	resources: ResourceResponse;
 }) => {
 	const managerRef = useRef<EventManager | null>(null);
 
 	const [initialStage] = useState<Stage>(INITIAL_STAGE);
-	const [initialScene, setIntialScene] = useState<Scene | null>(null);
-	const [initialEvent, setIntialEvent] = useState<GameEvent | null>(null);
+	const [initialScene, setIntialScene] = useState<SceneResponse | null>(null);
+	const [initialEvent, setIntialEvent] = useState<EventResponse | null>(null);
 
 	if (!managerRef.current) managerRef.current = new EventManager();
 
@@ -259,15 +259,15 @@ const PreviewFromGivenEvent = ({
 	resources,
 	params,
 }: {
-	game: Game;
-	resources: GameResources;
+	game: GameDetailResponse;
+	resources: ResourceResponse;
 	params: PreviewParams;
 }) => {
 	const managerRef = useRef<EventManager | null>(null);
 
 	const [initialStage, setInitialStage] = useState<Stage>(INITIAL_STAGE);
-	const [initialScene, setIntialScene] = useState<Scene | null>(null);
-	const [initialEvent, setIntialEvent] = useState<GameEvent | null>(null);
+	const [initialScene, setIntialScene] = useState<SceneResponse | null>(null);
+	const [initialEvent, setIntialEvent] = useState<EventResponse | null>(null);
 
 	if (!managerRef.current) managerRef.current = new EventManager();
 

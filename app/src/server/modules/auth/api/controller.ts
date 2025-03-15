@@ -20,7 +20,9 @@ function isValidPagePath(path: string): boolean {
 	return pathRegex.test(path);
 }
 
-const authRoutes = honoWithHook()
+const authRoutes = honoWithHook();
+
+authRoutes
 	.openapi(authRouteConfigs.me, async (c) => {
 		const user = c.get("user");
 		if (!user) {
