@@ -31,6 +31,7 @@ import {
 import {
 	type GameEvent,
 	createEvent,
+	getEventCategory,
 	sortEvent,
 } from "../../../../../schemas/games/domain/event";
 import { ResourceRepository } from "../../../assets/infrastructure/repositories/resource";
@@ -114,6 +115,8 @@ export class EventRepository extends BaseRepository {
 			eventMap[id] = (eventMap[id] || []).sort(sortEvent);
 		}
 
+		console.log("eventMap", eventMap);
+
 		return eventMap;
 	}
 
@@ -126,7 +129,7 @@ export class EventRepository extends BaseRepository {
 			sceneId: number;
 			type: GameEvent["eventType"];
 			userId: number;
-			orderIndex?: string | null;
+			orderIndex?: string | undefined;
 		};
 		tx?: Transaction;
 	}): Promise<GameEvent> {
@@ -145,13 +148,15 @@ export class EventRepository extends BaseRepository {
 				throw new SceneNotFoundError(sceneId);
 			}
 
+			console.log("orderIndex", orderIndex);
+
 			const eventData = createEvent(type, orderIndex, resource);
 			const createdEventBase = await txLocal
 				.insert(event)
 				.values({
-					eventType: eventData.eventType,
-					category: eventData.category,
-					orderIndex: eventData.orderIndex,
+					eventType: type,
+					category: getEventCategory(type),
+					orderIndex: orderIndex ?? generateKeyBetween(null, null),
 					sceneId: sceneData[0].id,
 				})
 				.returning();
@@ -508,7 +513,14 @@ export class EventRepository extends BaseRepository {
 			const eventType = eventData[0].eventType;
 			await this.deleteEventDetail(eventId, eventType, txLocal);
 			await txLocal.delete(event).where(eq(event.id, eventId));
+
+			// TODO: すべてのイベントとアセットに関連がもう存在しない場合、ゲームとアセットの関連を削除
+			// await this.unlinkEventAssets(eventId, txLocal);
 		}, tx);
+	}
+
+	async unlinkEventAssets(eventId: number, tx: Transaction): Promise<void> {
+		await tx.delete(assetGame).where(eq(assetGame.assetId, eventId));
 	}
 
 	async moveEvent({

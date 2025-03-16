@@ -151,27 +151,7 @@ export const SideBarSettings: Record<
 					},
 				],
 			},
-			// TODO: 実装
-			// {
-			// 	id: "moveCharacter",
-			// 	type: "moveCharacter",
-			// 	icon: <Move />,
-			// 	label: "キャラクターを移動",
-			// 	parameters: [
-			// 		{
-			// 			label: "キャラクター",
-			// 			component: "character-select",
-			// 		},
-			// 		{
-			// 			label: "位置",
-			// 			component: "position-select",
-			// 		},
-			// 		{
-			// 			label: "移動時間（秒）",
-			// 			component: "transition-duration",
-			// 		},
-			// 	],
-			// },
+
 			{
 				id: "characterEffect",
 				type: "characterEffect",

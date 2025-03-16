@@ -53,13 +53,13 @@ export interface EditorState {
 		index: number,
 		item: SidebarItem,
 		selectedSceneId: number,
-	) => EventResponse | null;
+	) => Promise<EventResponse | null>;
 	moveEvent: (
 		oldIndex: number,
 		newIndex: number,
 		selectedSceneId: number,
 	) => void;
-	deleteEvent: (eventId: number, selectedSceneId: number) => void;
+	deleteEvent: (eventId: number, selectedSceneId: number) => Promise<void>;
 	saveEvent: (event: EventResponse, selectedSceneId: number) => void;
 
 	saveProjectSettings: (data: UpdateGameRequest) => void;
@@ -221,38 +221,62 @@ export const createEditorSlice: StateCreator<
 	},
 
 	// イベント追加
-	addEvent: (index, item, selectedSceneId) => {
-		const { editingGame, editingResources, markAsDirty } = get();
+	addEvent: async (index, item, selectedSceneId) => {
+		const { editingGame, editingResources } = get();
 		if (!editingGame || !editingResources) return null;
 
+		const targetScene = editingGame.scenes.find(
+			(scene) => scene.id === selectedSceneId,
+		);
+
+		if (!targetScene) return null;
+
+		const newEvents = [...targetScene.events];
 		const newEvent = createEvent(item.type, "a0", editingResources);
+		newEvents.splice(index, 0, newEvent);
+		newEvents[index] = {
+			...newEvents[index],
+			orderIndex: generateKeyBetween(
+				newEvents[index - 1]?.orderIndex ?? null,
+				newEvents[index + 1]?.orderIndex ?? null,
+			),
+		};
 
-		const updatedScenes = editingGame.scenes.map((scene) => {
-			if (scene.id === selectedSceneId) {
-				const newEvents = [...scene.events];
-				newEvents.splice(index, 0, newEvent);
-
-				newEvents[index] = {
-					...newEvents[index],
-					orderIndex: generateKeyBetween(
-						newEvents[index - 1]?.orderIndex ?? null,
-						newEvents[index + 1]?.orderIndex ?? null,
-					),
-				};
-
-				return { ...scene, events: newEvents };
-			}
-			return scene;
-		});
-
-		set({
-			editingGame: {
-				...editingGame,
-				scenes: updatedScenes,
+		await performUpdate({
+			api: () =>
+				api.games.scenes.events.create(editingGame.id, selectedSceneId, {
+					type: item.type,
+					orderIndex: newEvents[index].orderIndex,
+				}),
+			optimisticUpdate: () => {
+				set({
+					editingGame: {
+						...editingGame,
+						scenes: editingGame.scenes.map((scene) =>
+							scene.id === selectedSceneId
+								? { ...scene, events: newEvents }
+								: scene,
+						),
+					},
+				});
+			},
+			rollback: () => {
+				set({
+					editingGame: {
+						...editingGame,
+						scenes: editingGame.scenes.map((scene) =>
+							scene.id === selectedSceneId
+								? {
+										...scene,
+										events: newEvents.filter((e) => e.id !== newEvent.id),
+									}
+								: scene,
+						),
+					},
+				});
 			},
 		});
 
-		markAsDirty();
 		return newEvent;
 	},
 
@@ -292,8 +316,8 @@ export const createEditorSlice: StateCreator<
 	},
 
 	// イベント削除
-	deleteEvent: (eventId, selectedSceneId) => {
-		const { editingGame, markAsDirty } = get();
+	deleteEvent: async (eventId, selectedSceneId) => {
+		const { editingGame } = get();
 		if (!editingGame) return;
 
 		const currentScene = editingGame.scenes.find(
@@ -306,24 +330,29 @@ export const createEditorSlice: StateCreator<
 			throw new Error("最後のイベントは削除不能");
 		}
 
-		const updatedScenes = editingGame.scenes.map((scene) => {
-			if (scene.id === selectedSceneId) {
-				return {
-					...scene,
-					events: scene.events.filter((event) => event.id !== eventId),
-				};
-			}
-			return scene;
-		});
-
-		set({
-			editingGame: {
-				...editingGame,
-				scenes: updatedScenes,
+		await performUpdate({
+			api: () =>
+				api.games.scenes.events.delete(
+					editingGame.id,
+					selectedSceneId,
+					eventId,
+				),
+			optimisticUpdate: () => {
+				set({
+					editingGame: {
+						...editingGame,
+						scenes: editingGame.scenes.map((scene) =>
+							scene.id === selectedSceneId
+								? {
+										...scene,
+										events: scene.events.filter((e) => e.id !== eventId),
+									}
+								: scene,
+						),
+					},
+				});
 			},
 		});
-
-		markAsDirty();
 	},
 
 	// イベント保存

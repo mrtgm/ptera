@@ -269,6 +269,8 @@ export class CharacterRepository extends BaseRepository {
 								id: cur.asset.id,
 								name: cur.asset.name,
 								assetType: "characterImage",
+								ownerId: cur.asset.ownerId as number,
+								isPublic: cur.asset.isPublic,
 								url: cur.asset.url,
 								metadata: cur.asset.metadata as Record<string, unknown>,
 							};

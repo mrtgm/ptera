@@ -233,27 +233,29 @@ export const createCommand = ({
 		},
 
 		executeDeleteComment: async (commentId: number, userId: number) => {
-			// ユーザーが所有者か確認
-			const comment = await commentRepository.getCommentById(commentId);
+			return await db.transaction(async (tx) => {
+				// ユーザーが所有者か確認
+				const comment = await commentRepository.getCommentById(commentId);
+				if (!comment) {
+					throw new CommentNotFoundError(commentId);
+				}
 
-			if (!comment) {
-				throw new CommentNotFoundError(commentId);
-			}
+				const user = await userRepository.getById(userId);
+				if (!user) {
+					throw new UserNotFoundError(userId);
+				}
 
-			const user = await userRepository.getById(userId);
-			if (!user) {
-				throw new UserNotFoundError(userId);
-			}
+				if (comment.userId !== user.id) {
+					throw new UserUnauthorizedError();
+				}
 
-			if (comment.userId !== user.id) {
-				throw new UserUnauthorizedError();
-			}
+				await commentRepository.deleteComment({
+					params: { commentId },
+					tx,
+				});
 
-			await commentRepository.deleteComment({
-				params: { commentId },
+				return { success: true };
 			});
-
-			return { success: true };
 		},
 
 		executeCreateScene: async (

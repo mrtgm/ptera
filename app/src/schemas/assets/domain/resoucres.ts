@@ -18,6 +18,8 @@ export const mediaAssetSchema = z.object({
 	assetType: assetTypeSchema,
 	name: z.string().max(255),
 	url: z.string(),
+	ownerId: z.number().nullable(),
+	isPublic: z.boolean(),
 	metadata: z.any().optional(),
 });
 export type MediaAsset = z.infer<typeof mediaAssetSchema>;
@@ -52,6 +54,8 @@ export type BGM = z.infer<typeof bgmSchema>;
 ------------------------------------------------------ */
 export const characterSchema = z.object({
 	id: z.number(),
+	ownerId: z.number().nullable(),
+	isPublic: z.boolean(),
 	name: z.string().min(1).max(100),
 	images: z.record(z.string(), characterImageSchema).optional(),
 });
@@ -69,9 +73,14 @@ export const gameResourcesSchema = z.object({
 });
 export type GameResources = z.infer<typeof gameResourcesSchema>;
 
-export const createCharacter = (name: string): Character => ({
+export const createCharacter = (
+	name: string,
+	userId?: number | null,
+): Character => ({
 	id: randomIntId(),
 	name,
+	ownerId: userId ?? null,
+	isPublic: false,
 	images: {},
 });
 
@@ -79,11 +88,14 @@ export const createAsset = (
 	assetType: AssetType,
 	name: string,
 	url: string,
+	userId?: number | null,
 	metadata?: Record<string, Record<string, unknown>>,
 ): MediaAsset => ({
 	id: randomIntId(),
 	assetType,
 	name,
+	ownerId: userId ?? null,
+	isPublic: false,
 	url,
 	metadata,
 });

@@ -255,7 +255,7 @@ export const createEvent = (
 		id: randomIntId(),
 		eventType,
 		category: getEventCategory(eventType),
-		orderIndex: generateKeyBetween(orderIndex, null),
+		orderIndex,
 		...getDefaultValueForType(eventType, resources),
 	} as GameEvent;
 	return event;

@@ -67,8 +67,7 @@ export const createQuery = ({
 				throw new GameNotFoundError(gameId);
 			}
 
-			// TODO: ゲームに紐づくリソースのみ取得するエンドポイントを分ける
-			const resources = await resourceRepository.getResource(game.userId);
+			const resources = await resourceRepository.getResourceByGameId(gameId);
 			return mapDomainToResourceResponse(resources);
 		},
 

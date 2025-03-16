@@ -93,7 +93,7 @@ export class CommentRepository extends BaseRepository {
 				username: user.name,
 				avatarUrl: user.avatarUrl,
 			};
-		});
+		}, tx);
 	}
 
 	async deleteComment({

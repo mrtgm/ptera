@@ -101,7 +101,7 @@ export type UpdateSceneRequest = z.infer<typeof updateSceneRequestSchema>;
 
 export const createEventRequestSchema = z.object({
 	type: gameEventTypeSchema,
-	orderIndex: z.string().optional(),
+	orderIndex: z.string(),
 });
 
 export type CreateEventRequest = z.infer<typeof createEventRequestSchema>;

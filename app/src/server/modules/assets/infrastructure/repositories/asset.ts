@@ -86,7 +86,7 @@ export class AssetRepository extends BaseRepository {
 	}
 
 	async deleteAsset({
-		params,
+		params: { assetId },
 		tx,
 	}: {
 		params: {
@@ -95,27 +95,21 @@ export class AssetRepository extends BaseRepository {
 		tx?: Transaction;
 	}): Promise<{ success: boolean }> {
 		return await this.executeTransaction(async (txLocal) => {
-			const assetToDelete = await this.getAssetById(params.assetId, txLocal);
-			if (!assetToDelete) {
-				throw new AssetNotFoundError(params.assetId);
-			}
+			// ゲームとの関連を削除
+			// TODO: 本来はゲームとの関連が残ってる場合、エラーを通知しなければならない
 
-			// 関連付けを削除
 			await txLocal
 				.delete(assetGame)
-				.where(eq(assetGame.assetId, assetToDelete.id))
+				.where(eq(assetGame.assetId, assetId))
 				.execute();
 
 			await txLocal
 				.delete(characterAsset)
-				.where(eq(characterAsset.assetId, assetToDelete.id))
+				.where(eq(characterAsset.assetId, assetId))
 				.execute();
 
 			// アセット自体を削除
-			await txLocal
-				.delete(asset)
-				.where(eq(asset.id, assetToDelete.id))
-				.execute();
+			await txLocal.delete(asset).where(eq(asset.id, assetId)).execute();
 
 			return { success: true };
 		}, tx);

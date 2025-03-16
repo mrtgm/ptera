@@ -46,6 +46,8 @@ export const createAssetCharacterCommands = ({
 				id: asset.id,
 				assetType: asset.assetType,
 				name: asset.name,
+				ownerId: asset.ownerId,
+				isPublic: asset.isPublic,
 				url: asset.url,
 				metadata: asset.metadata,
 			};
@@ -71,6 +73,8 @@ export const createAssetCharacterCommands = ({
 				assetType: asset.assetType,
 				name: asset.name,
 				url: asset.url,
+				isPublic: asset.isPublic,
+				ownerId: userId,
 				metadata: asset.metadata,
 			};
 		},
@@ -79,6 +83,12 @@ export const createAssetCharacterCommands = ({
 			const asset = await assetRepository.getAssetById(assetId);
 			if (!asset) {
 				throw new Error("Asset not found");
+			}
+			if (asset.ownerId !== userId) {
+				throw new Error("Unauthorized");
+			}
+			if (asset.isPublic) {
+				throw new Error("Cannot delete public asset");
 			}
 
 			await fileUploadService.deleteFile(asset.url);
@@ -112,18 +122,40 @@ export const createAssetCharacterCommands = ({
 			params: UpdateCharacterRequest,
 			userId: number,
 		) => {
-			const character = await characterRepository.updateCharacter({
+			const character = await characterRepository.getCharacterById(characterId);
+			if (!character) {
+				throw new Error("Character not found");
+			}
+			if (character.ownerId !== userId) {
+				throw new Error("Unauthorized");
+			}
+			if (character.isPublic) {
+				throw new Error("Cannot update public character");
+			}
+
+			const updatedCharacter = await characterRepository.updateCharacter({
 				params: {
 					characterId,
 					name: params.name,
 				},
 			});
 
-			return character;
+			return updatedCharacter;
 		},
 
 		// キャラクター削除
 		executeDeleteCharacter: async (characterId: number, userId: number) => {
+			const character = await characterRepository.getCharacterById(characterId);
+			if (!character) {
+				throw new Error("Character not found");
+			}
+			if (character.ownerId !== userId) {
+				throw new Error("Unauthorized");
+			}
+			if (character.isPublic) {
+				throw new Error("Cannot delete public character");
+			}
+
 			await characterRepository.deleteCharacter({
 				params: { characterId },
 			});

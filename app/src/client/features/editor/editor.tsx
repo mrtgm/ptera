@@ -1,5 +1,8 @@
 "use client";
 
+import dummyAssets from "@/client/__mocks__/dummy-assets.json";
+import dummyGame from "@/client/__mocks__/dummy-game.json";
+
 import { Toaster } from "@/client/components/shadcn/sonner";
 import { useStore } from "@/client/stores";
 import type { AssetType } from "@/schemas/assets/domain/resoucres";
@@ -14,7 +17,8 @@ import type {
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { Loader2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+// import { useRouter } from "next/router";
+import { memo, useEffect } from "react";
 import { toast } from "sonner";
 import {
 	AdjustSizeDialogContainer,
@@ -41,15 +45,7 @@ import {
 } from "./constants";
 import { useTimelineDrag } from "./hooks/use-timeline-drag";
 
-export const Editor = ({
-	game,
-	categories,
-	resources,
-}: {
-	game: GameDetailResponse | null;
-	categories: CategoryResponse[];
-	resources: ResourceResponse | null;
-}) => {
+export const Editor = memo(() => {
 	const editorSlice = useStore.useSlice.editor();
 	const modalSlice = useStore.useSlice.modal();
 
@@ -57,10 +53,14 @@ export const Editor = ({
 	const pathparams = useParams();
 
 	const gameId = pathparams.gameId;
-	const selectedSceneId =
-		pathparams.sceneId !== undefined ? Number(pathparams.sceneId) : undefined;
-	const selectedEventId =
-		pathparams.eventId !== undefined ? Number(pathparams.eventId) : undefined;
+	const selectedSceneId = Array.isArray(pathparams.slug)
+		? Number(pathparams.slug[1])
+		: undefined;
+	const selectedEventId = Array.isArray(pathparams.slug)
+		? Number(pathparams.slug[3])
+		: undefined;
+
+	console.log(pathparams);
 
 	const isOpenEnding = selectedEventId === 0;
 	const selectedScene = editorSlice.editingGame?.scenes?.find(
@@ -71,12 +71,13 @@ export const Editor = ({
 	);
 
 	useEffect(() => {
+		console.log("Editor mounted");
 		// TODO: ロード
 		editorSlice.initializeEditor(
-			game as GameDetailResponse,
-			resources as ResourceResponse,
+			dummyGame as GameDetailResponse,
+			dummyAssets as ResourceResponse,
 		);
-	}, [editorSlice.initializeEditor, game, resources]);
+	}, [editorSlice.initializeEditor]);
 
 	const handleNavigateToScene = (sceneId: number) => {
 		router.push(`/dashboard/games/${gameId}/edit/scenes/${sceneId}`);
@@ -202,14 +203,14 @@ export const Editor = ({
 		toast.success("シーン終了設定を保存しました");
 	};
 
-	const handleAddEvent = (
+	const handleAddEvent = async (
 		index: number,
 		item: SidebarItem,
 		sceneId: number,
 	) => {
 		// TODO: 実装
 		console.log("Add event", index, item, sceneId);
-		editorSlice.addEvent(index, item, sceneId);
+		await editorSlice.addEvent(index, item, sceneId);
 		toast.success("イベントを追加しました");
 	};
 
@@ -341,7 +342,7 @@ export const Editor = ({
 							<div className="p-4">
 								<ProjectSettings
 									game={editorSlice.editingGame}
-									categories={categories}
+									categories={[]}
 									onSaveSettings={handleSaveProjectSettings}
 								/>
 							</div>
@@ -381,4 +382,4 @@ export const Editor = ({
 			</div>
 		</div>
 	);
-};
+});
