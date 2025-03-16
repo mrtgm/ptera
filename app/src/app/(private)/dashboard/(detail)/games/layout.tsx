@@ -1,6 +1,5 @@
 import "@fontsource/dotgothic16";
 import "../../../../globals.css";
-import { NavigationGuardProvider } from "next-navigation-guard";
 
 export default function RootLayout({
 	children,
@@ -9,9 +8,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="ja">
-			<body>
-				<NavigationGuardProvider>{children}</NavigationGuardProvider>
-			</body>
+			<body>{children}</body>
 		</html>
 	);
 }

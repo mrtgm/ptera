@@ -1,5 +1,3 @@
-"use client";
-
 import dummyAssets from "@/client/__mocks__/dummy-assets.json";
 import dummyGame from "@/client/__mocks__/dummy-game.json";
 
@@ -16,9 +14,8 @@ import type {
 } from "@/schemas/games/dto";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { Loader2 } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
-// import { useRouter } from "next/router";
 import { memo, useEffect } from "react";
+import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import {
 	AdjustSizeDialogContainer,
@@ -45,22 +42,20 @@ import {
 } from "./constants";
 import { useTimelineDrag } from "./hooks/use-timeline-drag";
 
-export const Editor = memo(() => {
+export default function Editor() {
 	const editorSlice = useStore.useSlice.editor();
 	const modalSlice = useStore.useSlice.modal();
 
-	const router = useRouter();
 	const pathparams = useParams();
+	const navigate = useNavigate();
 
 	const gameId = pathparams.gameId;
-	const selectedSceneId = Array.isArray(pathparams.slug)
-		? Number(pathparams.slug[1])
+	const selectedSceneId = pathparams.sceneId
+		? Number(pathparams.sceneId)
 		: undefined;
-	const selectedEventId = Array.isArray(pathparams.slug)
-		? Number(pathparams.slug[3])
+	const selectedEventId = pathparams.eventId
+		? Number(pathparams.eventId)
 		: undefined;
-
-	console.log(pathparams);
 
 	const isOpenEnding = selectedEventId === 0;
 	const selectedScene = editorSlice.editingGame?.scenes?.find(
@@ -80,21 +75,21 @@ export const Editor = memo(() => {
 	}, [editorSlice.initializeEditor]);
 
 	const handleNavigateToScene = (sceneId: number) => {
-		router.push(`/dashboard/games/${gameId}/edit/scenes/${sceneId}`);
+		navigate(`/dashboard/games/${gameId}/edit/scenes/${sceneId}`);
 	};
 
 	const handleNavigateToEvent = (eventId: number) => {
-		router.push(
+		navigate(
 			`/dashboard/games/${gameId}/edit/scenes/${selectedSceneId}/events/${eventId}`,
 		);
 	};
 
 	const handleNavigateToScenesList = () => {
-		router.push(`/dashboard/games/${gameId}/edit`);
+		navigate(`/dashboard/games/${gameId}/edit`);
 	};
 
 	const handleClickSceneEnding = () => {
-		router.push(
+		navigate(
 			`/dashboard/games/${gameId}/edit/scenes/${selectedSceneId}/events/0`,
 		);
 	};
@@ -382,4 +377,4 @@ export const Editor = memo(() => {
 			</div>
 		</div>
 	);
-});
+}
