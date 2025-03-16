@@ -1,3 +1,4 @@
+import { db } from "@/server/shared/infrastructure/db";
 import {
 	choice,
 	choiceScene,
@@ -8,6 +9,8 @@ import {
 	scene,
 } from "@/server/shared/infrastructure/db/schema";
 import { and, eq, inArray, sql } from "drizzle-orm";
+import { unionAll } from "drizzle-orm/pg-core";
+import { generateKeyBetween } from "fractional-indexing";
 import {
 	InitialSceneCannotBeDeletedError,
 	SceneNotFoundError,
@@ -21,6 +24,7 @@ import type {
 	CreateEventRequest,
 	CreateSceneRequest,
 	UpdateSceneRequest,
+	UpdateSceneSettingRequest,
 } from "~/schemas/games/dto";
 import { BaseRepository, type Transaction } from "./base";
 import { EventRepository } from "./event";
@@ -37,6 +41,9 @@ export class SceneRepository extends BaseRepository {
 		if (sceneData.length === 0) {
 			throw new SceneNotFoundError(sceneId);
 		}
+
+		const eventRepository = new EventRepository();
+		const events = await eventRepository.getEventsBySceneId(sceneId, tx);
 
 		const choiceSceneData = await (tx ?? this.db)
 			.select()
@@ -67,7 +74,7 @@ export class SceneRepository extends BaseRepository {
 					text: c.text,
 					nextSceneId: c.nextSceneId,
 				})),
-				events: [],
+				events,
 			};
 		}
 
@@ -76,14 +83,14 @@ export class SceneRepository extends BaseRepository {
 				...sceneData[0],
 				sceneType: "goto",
 				nextSceneId: gotoSceneData[0].nextSceneId,
-				events: [],
+				events,
 			};
 		}
 
 		return {
 			...sceneData[0],
 			sceneType: "end",
-			events: [],
+			events,
 		};
 	}
 
@@ -161,10 +168,16 @@ export class SceneRepository extends BaseRepository {
 	}
 
 	async createScene({
-		params: { name, fromScene, gameId, userId },
+		params: { name, fromScene, gameId, userId, choiceId },
 		tx,
 	}: {
-		params: CreateSceneRequest & { gameId: number; userId: number };
+		params: {
+			gameId: number;
+			userId: number;
+			name: string;
+			fromScene?: CreateSceneRequest["fromScene"];
+			choiceId?: number;
+		};
 		tx?: Transaction;
 	}): Promise<Scene> {
 		return await this.executeTransaction(async (txLocal) => {
@@ -186,7 +199,7 @@ export class SceneRepository extends BaseRepository {
 					gameId,
 					sceneId: createdScene[0].id,
 					type: "textRender",
-					orderIndex: "a0", //TODO: 関数に
+					orderIndex: generateKeyBetween(null, null),
 					userId,
 				},
 				tx,
@@ -199,34 +212,50 @@ export class SceneRepository extends BaseRepository {
 			});
 
 			if (fromScene) {
-				if (fromScene.type === "choice" && fromScene.choiceId) {
-					// 選択肢シーンの場合、選択肢の遷移先を更新
-					await txLocal
-						.update(choice)
-						.set({
-							nextSceneId: createdScene[0].id,
-							updatedAt: sql.raw("NOW()"),
+				// まず削除
+				await Promise.all([
+					txLocal
+						.delete(choiceScene)
+						.where(eq(choiceScene.sceneId, fromScene.id)),
+					txLocal.delete(gotoScene).where(eq(gotoScene.sceneId, fromScene.id)),
+					txLocal.delete(endScene).where(eq(endScene.sceneId, fromScene.id)),
+				]);
+
+				if (fromScene.sceneType === "choice" && choiceId) {
+					const updatedChoices = fromScene.choices?.map((c) => {
+						if (c.id === choiceId) {
+							return {
+								...c,
+								nextSceneId: createdScene[0].id,
+							};
+						}
+						return c;
+					});
+					if (!updatedChoices) {
+						throw new Error("choiceId is not found in choices");
+					}
+					const choiceSceneData = await txLocal
+						.insert(choiceScene)
+						.values({
+							sceneId: fromScene.id,
 						})
-						.where(
-							and(
-								eq(choice.id, fromScene.choiceId),
-								eq(choice.choiceSceneId, fromScene.id),
-							),
-						);
-				} else if (fromScene.type === "goto") {
-					// Gotoシーンの場合、遷移先を更新
-					await txLocal
-						.update(gotoScene)
-						.set({
-							nextSceneId: createdScene[0].id,
-							updatedAt: sql.raw("NOW()"),
-						})
-						.where(eq(gotoScene.sceneId, fromScene.id));
-				} else if (fromScene.type === "end") {
-					// Endシーンの場合、Gotoシーンに変換
-					await txLocal
-						.delete(endScene)
-						.where(eq(endScene.sceneId, fromScene.id));
+						.returning();
+					for (const choiceData of updatedChoices) {
+						if (!choiceData.nextSceneId) {
+							throw new Error("nextSceneId is required for choice");
+						}
+						await txLocal.insert(choice).values({
+							text: choiceData.text,
+							nextSceneId: choiceData.nextSceneId,
+							choiceSceneId: choiceSceneData[0].id,
+						});
+					}
+				} else if (fromScene.sceneType === "goto") {
+					await txLocal.insert(gotoScene).values({
+						sceneId: fromScene.id,
+						nextSceneId: createdScene[0].id,
+					});
+				} else if (fromScene.sceneType === "end") {
 					await txLocal.insert(gotoScene).values({
 						sceneId: fromScene.id,
 						nextSceneId: createdScene[0].id,
@@ -245,9 +274,31 @@ export class SceneRepository extends BaseRepository {
 		}, tx);
 	}
 
+	async updateSceneSetting({
+		sceneId,
+		params,
+		tx,
+	}: {
+		sceneId: number;
+		params: UpdateSceneSettingRequest;
+		tx?: Transaction;
+	}): Promise<Scene> {
+		return await this.executeTransaction(async (txLocal) => {
+			const updatedScene = await txLocal
+				.update(scene)
+				.set({
+					name: params.name,
+					updatedAt: sql.raw("NOW()"),
+				})
+				.where(eq(scene.id, sceneId))
+				.returning();
+			return await this.getSceneById(sceneId, txLocal);
+		}, tx);
+	}
+
 	async updateScene({
 		sceneId,
-		params: { name, sceneType, nextSceneId, choices },
+		params: { sceneType, nextSceneId, choices },
 		tx,
 	}: {
 		sceneId: number;
@@ -255,15 +306,6 @@ export class SceneRepository extends BaseRepository {
 		tx?: Transaction;
 	}): Promise<Scene> {
 		return await this.executeTransaction(async (txLocal) => {
-			const sceneData = await txLocal
-				.update(scene)
-				.set({
-					name,
-					updatedAt: sql.raw("NOW()"),
-				})
-				.where(eq(scene.id, sceneId))
-				.returning();
-
 			// 関連するすべての派生タイプのレコードを削除
 			const choiceSceneRecord = await txLocal
 				.select()
@@ -329,7 +371,7 @@ export class SceneRepository extends BaseRepository {
 				}
 			}
 
-			return this.getSceneById(sceneId, txLocal);
+			return await this.getSceneById(sceneId, txLocal);
 		}, tx);
 	}
 

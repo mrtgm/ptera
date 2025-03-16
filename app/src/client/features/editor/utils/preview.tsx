@@ -1,6 +1,5 @@
 import type { Stage } from "@/client/schema";
-import { sortByFractionalIndex } from "@/client/utils/sort";
-import type { GameEvent } from "@/schemas/games/domain/event";
+import { type GameEvent, sortEvent } from "@/schemas/games/domain/event";
 import type {
 	GameDetailResponse,
 	ResourceResponse,
@@ -22,6 +21,8 @@ export const getAllNodesPosition = ({
 	if (!game) return {};
 	const result: PositionMap = {};
 
+	console.log(game);
+
 	// 各深さでのノードを追跡
 	const nodesByDepth: { [depth: number]: number[] } = {};
 
@@ -38,6 +39,8 @@ export const getAllNodesPosition = ({
 
 			const { id: cur, depth } = now;
 
+			if (cur === undefined) continue; //シーンが未作成の場合
+
 			if (!nodesByDepth[depth]) {
 				nodesByDepth[depth] = [];
 			}
@@ -50,12 +53,12 @@ export const getAllNodesPosition = ({
 			const currentScene = game.scenes.find((s) => s.id === cur);
 
 			if (!currentScene) {
-				throw new Error(`Scene not found: ${cur} ${typeof cur}`);
+				throw new Error(`依存先のシーンが存在していません: ${cur}`);
 			}
 
 			if (currentScene.sceneType === "choice") {
 				for (const choice of currentScene.choices) {
-					if (!visited.has(choice.nextSceneId)) {
+					if (!visited.has(choice.nextSceneId) && choice.nextSceneId) {
 						queue.push({
 							id: choice.nextSceneId,
 							depth: depth + 1,
@@ -66,7 +69,10 @@ export const getAllNodesPosition = ({
 			}
 
 			if (currentScene.sceneType === "goto") {
-				if (!visited.has(currentScene.nextSceneId)) {
+				if (
+					!visited.has(currentScene.nextSceneId) &&
+					currentScene.nextSceneId
+				) {
 					queue.push({
 						id: currentScene.nextSceneId,
 						depth: depth + 1,
@@ -132,8 +138,7 @@ export const transfromToNodes = (
 ): Node[] => {
 	if (!game) return [];
 
-	// TODO: 開始ノードは配列の最初にしない
-	const startId = game.scenes[0]?.id;
+	const startId = game.initialSceneId;
 	const endIds = game.scenes
 		.filter((scene) => scene.sceneType === "end")
 		.map((scene) => scene.id);
@@ -186,6 +191,7 @@ export const getAllEdges = ({
 
 		if (scene.sceneType === "choice") {
 			for (const choice of scene.choices) {
+				if (choice.nextSceneId === undefined) continue;
 				result.push({
 					id: `${newSceneId}-${choice.nextSceneId}-${choice.id}`,
 					source: newSceneId.toString(),
@@ -199,7 +205,7 @@ export const getAllEdges = ({
 			}
 		}
 
-		if (scene.sceneType === "goto") {
+		if (scene.sceneType === "goto" && scene.nextSceneId) {
 			result.push({
 				id: `${newSceneId}-${scene.nextSceneId}-goto`,
 				source: newSceneId.toString(),
@@ -290,11 +296,7 @@ export const buildCurrentStageFromScenes = ({
 	resources: ResourceResponse | null;
 	eventId?: number;
 }): Stage => {
-	const events = scenes.flatMap((scene) =>
-		scene.events.sort((a, b) => {
-			return sortByFractionalIndex(a.orderIndex, b.orderIndex);
-		}),
-	);
+	const events = scenes.flatMap((scene) => scene.events.sort(sortEvent));
 
 	// 選択肢の直後のイベントにはテキストを表示しない
 	let index = 0;
@@ -428,8 +430,6 @@ export const handleEvent = (
 				cg: {
 					item: {
 						id: event.cgImageId,
-						scale: event.scale,
-						position: event.position,
 					},
 					transitionDuration: event.transitionDuration,
 				},
@@ -470,9 +470,5 @@ export const handleEvent = (
 };
 
 export const getFirstEvent = (events: GameEvent[]): GameEvent | null => {
-	return (
-		events.sort((a, b) =>
-			sortByFractionalIndex(a.orderIndex, b.orderIndex),
-		)[0] || null
-	);
+	return events.sort(sortEvent)[0] || null;
 };

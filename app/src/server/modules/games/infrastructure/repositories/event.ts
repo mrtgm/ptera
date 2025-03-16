@@ -39,11 +39,86 @@ import { domainToPersitence } from "../mapper";
 import { BaseRepository, type Transaction } from "./base";
 import { getEventAssetId } from "./utils";
 
+const EVENT_DB_SCHEMA = [
+	textRenderEvent,
+	appearMessageWindowEvent,
+	hideMessageWindowEvent,
+	appearCharacterEvent,
+	hideCharacterEvent,
+	hideAllCharactersEvent,
+	moveCharacterEvent,
+	bgmStartEvent,
+	bgmStopEvent,
+	soundEffectEvent,
+	changeBackgroundEvent,
+	effectEvent,
+	characterEffectEvent,
+	appearCgEvent,
+	hideCgEvent,
+];
+
 export class EventRepository extends BaseRepository {
-	async getEvents(sceneIds: number[]): Promise<Record<number, GameEvent[]>> {
+	async getEventsBySceneId(
+		sceneId: number,
+		tx?: Transaction,
+	): Promise<GameEvent[]> {
+		const dbToUse = tx || this.db;
+		const events = await dbToUse
+			.select()
+			.from(event)
+			.where(eq(event.sceneId, sceneId))
+			.execute();
+
+		if (events.length === 0) {
+			throw new EventsNotFoundError(sceneId);
+		}
+
+		const eventIds = events.map((v) => v.id);
+
+		const eventDetailMap = (
+			await Promise.all(
+				EVENT_DB_SCHEMA.map(async (schema) => {
+					const events = await dbToUse
+						.select()
+						.from(schema)
+						.where(inArray(schema.eventId, eventIds))
+						.execute();
+					return events;
+				}),
+			).then((v) => v.flat())
+		).reduce(
+			(acc, cur) => {
+				acc[cur.eventId] = cur;
+				return acc;
+			},
+			{} as Record<
+				number,
+				Omit<GameEvent, "eventType" | "category" | "orderIndex">
+			>,
+		);
+
+		const gameEvents = events.map((event) => {
+			const eventDetail = eventDetailMap[event.id];
+			return {
+				...eventDetail,
+				id: event.id,
+				eventType: event.eventType as GameEvent["eventType"],
+				category: event.category,
+				orderIndex: event.orderIndex,
+			} as GameEvent;
+		});
+
+		return gameEvents.sort(sortEvent);
+	}
+
+	async getEventsBySceneIds(
+		sceneIds: number[],
+		tx?: Transaction,
+	): Promise<Record<number, GameEvent[]>> {
 		// シーン ID に紐づくすべてのイベントを取得
 
-		const events = await this.db
+		const dbToUse = tx || this.db;
+		const events = await dbToUse
 			.select()
 			.from(event)
 			.where(inArray(event.sceneId, sceneIds))
@@ -51,29 +126,11 @@ export class EventRepository extends BaseRepository {
 
 		const eventIds = events.map((v) => v.id);
 
-		const eventDbSchemas = [
-			textRenderEvent,
-			appearMessageWindowEvent,
-			hideMessageWindowEvent,
-			appearCharacterEvent,
-			hideCharacterEvent,
-			hideAllCharactersEvent,
-			moveCharacterEvent,
-			bgmStartEvent,
-			bgmStopEvent,
-			soundEffectEvent,
-			changeBackgroundEvent,
-			effectEvent,
-			characterEffectEvent,
-			appearCgEvent,
-			hideCgEvent,
-		];
-
 		// イベントの詳細情報を取得、Event ID をキーにしたマップを作成
 		const eventDetailMap = (
 			await Promise.all(
-				eventDbSchemas.map(async (schema) => {
-					const events = await this.db
+				EVENT_DB_SCHEMA.map(async (schema) => {
+					const events = await dbToUse
 						.select()
 						.from(schema)
 						.where(inArray(schema.eventId, eventIds))
@@ -147,8 +204,6 @@ export class EventRepository extends BaseRepository {
 			if (sceneData.length === 0) {
 				throw new SceneNotFoundError(sceneId);
 			}
-
-			console.log("orderIndex", orderIndex);
 
 			const eventData = createEvent(type, orderIndex, resource);
 			const createdEventBase = await txLocal
@@ -524,10 +579,10 @@ export class EventRepository extends BaseRepository {
 	}
 
 	async moveEvent({
-		params: { oldIndex, newIndex, sceneId },
+		params: { eventId, newOrderIndex },
 		tx,
 	}: {
-		params: { oldIndex: number; newIndex: number; sceneId: number };
+		params: { eventId: number; newOrderIndex: string };
 		tx?: Transaction;
 	}): Promise<boolean> {
 		return await this.executeTransaction(async (txLocal) => {
@@ -537,29 +592,13 @@ export class EventRepository extends BaseRepository {
 					orderIndex: event.orderIndex,
 				})
 				.from(event)
-				.innerJoin(scene, eq(event.sceneId, scene.id))
-				.where(eq(scene.id, sceneId))
-				.orderBy(event.orderIndex)
+				.where(eq(event.id, eventId))
+				.limit(1)
 				.execute();
 
 			if (events.length === 0) {
-				throw new EventsNotFoundError(sceneId);
+				throw new EventNotFoundError(eventId);
 			}
-
-			// 移動するイベント
-			const movedEvent = events[oldIndex];
-			if (!movedEvent) {
-				throw new EventNotFoundError(oldIndex);
-			}
-
-			// 新しい順序インデックスを生成
-			const prevEvent = newIndex > 0 ? events[newIndex - 1] : null;
-			const nextEvent = newIndex < events.length ? events[newIndex] : null;
-
-			const newOrderIndex = generateKeyBetween(
-				prevEvent?.orderIndex || null,
-				nextEvent?.orderIndex || null,
-			);
 
 			await txLocal
 				.update(event)
@@ -567,7 +606,7 @@ export class EventRepository extends BaseRepository {
 					orderIndex: newOrderIndex,
 					updatedAt: sql.raw("NOW()"),
 				})
-				.where(eq(event.id, movedEvent.id));
+				.where(eq(event.id, eventId));
 
 			return true;
 		}, tx);

@@ -20,12 +20,16 @@ export class CharactersService {
         success: boolean;
         data: {
             id: number;
+            ownerId: number | null;
+            isPublic: boolean;
             name: string;
             images?: Record<string, {
                 id: number;
                 assetType: 'characterImage';
                 name: string;
                 url: string;
+                ownerId: number | null;
+                isPublic: boolean;
                 metadata?: any;
             }>;
         };
@@ -61,12 +65,16 @@ export class CharactersService {
         success: boolean;
         data: {
             id: number;
+            ownerId: number | null;
+            isPublic: boolean;
             name: string;
             images?: Record<string, {
                 id: number;
                 assetType: 'characterImage';
                 name: string;
                 url: string;
+                ownerId: number | null;
+                isPublic: boolean;
                 metadata?: any;
             }>;
         };

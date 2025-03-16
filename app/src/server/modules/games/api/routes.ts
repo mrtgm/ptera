@@ -27,6 +27,7 @@ import {
 	updateGameRequestSchema,
 	updateGameStatusRequestSchema,
 	updateSceneRequestSchema,
+	updateSceneSettingRequestSchema,
 } from "~/schemas/games/dto";
 import {
 	commentParamSchema,
@@ -396,6 +397,28 @@ export const gameRouteCongfigs = {
 		},
 	}),
 
+	getScene: createRouteConfig({
+		method: "get",
+		path: "/{gameId}/scenes/{sceneId}",
+		guard: [isPublicAccess],
+		tags: ["games"],
+		summary: "シーンを取得します。",
+		request: {
+			params: sceneParamSchema,
+		},
+		responses: {
+			200: {
+				description: "Scene",
+				content: {
+					"application/json": {
+						schema: successWithDataSchema(sceneResponseSchema),
+					},
+				},
+			},
+			...errorResponses,
+		},
+	}),
+
 	createScene: createRouteConfig({
 		method: "post",
 		path: "/{gameId}/scenes",
@@ -415,6 +438,35 @@ export const gameRouteCongfigs = {
 		responses: {
 			200: {
 				description: "Created Scene",
+				content: {
+					"application/json": {
+						schema: successWithDataSchema(sceneResponseSchema),
+					},
+				},
+			},
+			...errorResponses,
+		},
+	}),
+
+	updateSceneSetting: createRouteConfig({
+		method: "put",
+		path: "/{gameId}/scenes/{sceneId}/setting",
+		guard: [isAuthenticated],
+		tags: ["games"],
+		summary: "シーンの設定を更新します。",
+		request: {
+			params: sceneParamSchema,
+			body: {
+				content: {
+					"application/json": {
+						schema: updateSceneSettingRequestSchema,
+					},
+				},
+			},
+		},
+		responses: {
+			200: {
+				description: "Updated Scene",
 				content: {
 					"application/json": {
 						schema: successWithDataSchema(sceneResponseSchema),

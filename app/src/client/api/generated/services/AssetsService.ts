@@ -26,6 +26,8 @@ export class AssetsService {
             assetType: ('bgm' | 'soundEffect' | 'backgroundImage' | 'cgImage' | 'characterImage');
             name: string;
             url: string;
+            ownerId: number | null;
+            isPublic: boolean;
             metadata?: any;
         };
     }> {
@@ -64,6 +66,8 @@ export class AssetsService {
             assetType: ('bgm' | 'soundEffect' | 'backgroundImage' | 'cgImage' | 'characterImage');
             name: string;
             url: string;
+            ownerId: number | null;
+            isPublic: boolean;
             metadata?: any;
         };
     }> {
@@ -100,6 +104,36 @@ export class AssetsService {
             method: 'DELETE',
             url: '/api/v1/assets/{assetId}',
             path: {
+                'assetId': assetId,
+            },
+            errors: {
+                400: `Bad request: problem processing request.`,
+                401: `Unauthorized: authentication required.`,
+                403: `Forbidden: insufficient permissions.`,
+                404: `Not found: resource does not exist.`,
+                429: `Rate limit: too many requests.`,
+                500: `Internal server error: unexpected error.`,
+            },
+        });
+    }
+    /**
+     * アセットからゲームの関連付けを解除します。
+     * @param gameId
+     * @param assetId
+     * @returns any Success
+     * @throws ApiError
+     */
+    public deleteApiV1AssetsGames(
+        gameId: (number | string),
+        assetId: (number | string),
+    ): CancelablePromise<{
+        success: boolean;
+    }> {
+        return this.httpRequest.request({
+            method: 'DELETE',
+            url: '/api/v1/assets/{assetId}/games/{gameId}',
+            path: {
+                'gameId': gameId,
                 'assetId': assetId,
             },
             errors: {

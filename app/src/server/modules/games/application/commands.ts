@@ -20,6 +20,7 @@ import {
 	type UpdateEventRequest,
 	type UpdateGameRequest,
 	type UpdateSceneRequest,
+	type UpdateSceneSettingRequest,
 	mapDomainToCommentResponse,
 	mapDomainToEventResponse,
 	mapDomainToGameDetailResponse,
@@ -96,18 +97,6 @@ export const createCommand = ({
 					},
 					tx,
 				});
-
-				const event = await eventRepository.createEvent({
-					params: {
-						gameId: game.id,
-						sceneId: scene.id,
-						type: "textRender",
-						userId,
-					},
-					tx,
-				});
-
-				scene.events = [event];
 
 				const user = await userRepository.getById(userId);
 
@@ -282,10 +271,10 @@ export const createCommand = ({
 			});
 		},
 
-		executeUpdateScene: async (
+		executeUpdateSceneSetting: async (
 			gameId: number,
 			sceneId: number,
-			dto: UpdateSceneRequest,
+			dto: UpdateSceneSettingRequest,
 			userId: number,
 		) => {
 			return await db.transaction(async (tx) => {
@@ -302,6 +291,39 @@ export const createCommand = ({
 					throw new SceneNotFoundError(sceneId);
 				}
 
+				const sceneToUpdate = scenes.find((s) => s.id === sceneId);
+				if (!sceneToUpdate) {
+					throw new SceneNotFoundError(sceneId);
+				}
+
+				const updatedScene = await sceneRepository.updateSceneSetting({
+					sceneId,
+					params: { ...dto },
+					tx,
+				});
+
+				return mapDomainToSceneResponse(updatedScene);
+			});
+		},
+
+		executeUpdateScene: async (
+			gameId: number,
+			sceneId: number,
+			dto: UpdateSceneRequest,
+			userId: number,
+		) => {
+			return await db.transaction(async (tx) => {
+				const game = await gameRepository.getGameById(gameId);
+				if (!game) {
+					throw new GameNotFoundError(gameId);
+				}
+				if (game.userId !== userId) {
+					throw new UserUnauthorizedError();
+				}
+				const scenes = await sceneRepository.getScenes(gameId);
+				if (!scenes) {
+					throw new SceneNotFoundError(sceneId);
+				}
 				const sceneToUpdate = scenes.find((s) => s.id === sceneId);
 				if (!sceneToUpdate) {
 					throw new SceneNotFoundError(sceneId);
@@ -396,7 +418,7 @@ export const createCommand = ({
 					throw new SceneNotFoundError(sceneId);
 				}
 
-				const eventMap = await eventRepository.getEvents([scene.id]);
+				const eventMap = await eventRepository.getEventsBySceneIds([scene.id]);
 				const events = eventMap[scene.id] || [];
 				const eventToUpdate = events.find((e) => e.id === eventId);
 
@@ -469,9 +491,8 @@ export const createCommand = ({
 
 				const result = await eventRepository.moveEvent({
 					params: {
-						oldIndex: dto.oldIndex,
-						newIndex: dto.newIndex,
-						sceneId,
+						eventId: dto.eventId,
+						newOrderIndex: dto.newOrderIndex,
 					},
 					tx,
 				});

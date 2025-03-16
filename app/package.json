@@ -11,7 +11,7 @@
 		"db:migrate": "./src/server/shared/infrastructure/db/migrate.sh",
 		"db:clear": "bun ./src/server/shared/infrastructure/db/clear.ts",
 		"db:reset": "bun ./src/server/shared/infrastructure/db/reset.ts",
-		"db:seed": "bun ./src/server/shared/infrastructure/db/seed.ts",
+		"db:seed": "bun ./src/server/shared/infrastructure/db/seed/index.ts",
 		"lint": "biome lint . --write",
 		"format": "biome format . --write",
 		"typecheck": "tsc --noEmit"

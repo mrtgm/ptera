@@ -61,14 +61,6 @@ CREATE INDEX idx_character_asset_character_id ON "character_asset"(character_id)
 CREATE INDEX idx_character_asset_asset_id ON "character_asset"(asset_id);
 
 -- ゲーム関連テーブル
-CREATE TABLE "scene" (
-    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    game_id INT NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE INDEX idx_scene_game_id ON "scene"(game_id);
 
 CREATE TABLE "game" (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -99,6 +91,16 @@ CREATE TABLE "game_play" (
 CREATE INDEX game_play_game_id_idx ON "game_play"(game_id);
 CREATE INDEX game_play_user_id_idx ON "game_play"(user_id);
 
+CREATE TABLE "scene" (
+    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    game_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_scene_game FOREIGN KEY (game_id) REFERENCES "game"(id) ON DELETE CASCADE
+);
+CREATE INDEX idx_scene_game_id ON "scene"(game_id);
+
 CREATE TABLE "game_initial_scene" (
     game_id INT PRIMARY KEY,
     scene_id INT NOT NULL,
@@ -109,10 +111,6 @@ CREATE TABLE "game_initial_scene" (
 );
 CREATE INDEX idx_game_initial_scene_scene_id ON "game_initial_scene"(scene_id);
 
-
--- sceneテーブルの外部キー制約
-ALTER TABLE "scene" ADD CONSTRAINT fk_scene_game
-    FOREIGN KEY (game_id) REFERENCES "game"(id) ON DELETE CASCADE;
 
 -- シーン派生テーブル
 CREATE TABLE "choice_scene" (
@@ -152,7 +150,7 @@ CREATE TABLE "choice" (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_choice_choice_scene FOREIGN KEY (choice_scene_id) REFERENCES "choice_scene"(id) ON DELETE CASCADE,
-    CONSTRAINT fk_choice_next_scene FOREIGN KEY (next_scene_id) REFERENCES "scene"(id) ON DELETE SET NULL
+    CONSTRAINT fk_choice_next_scene FOREIGN KEY (next_scene_id) REFERENCES "scene"(id) ON DELETE CASCADE
 );
 CREATE INDEX idx_choice_next_scene_id ON "choice"(next_scene_id);
 CREATE INDEX idx_choice_choice_scene_id ON "choice"(choice_scene_id);

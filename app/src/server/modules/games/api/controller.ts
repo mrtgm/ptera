@@ -181,6 +181,11 @@ gameRoutes
 		await commands.executeDeleteComment(commentId, userId);
 		return successWithoutDataResponse(c);
 	})
+	.openapi(gameRouteCongfigs.getScene, async (c) => {
+		const { gameId, sceneId } = c.req.valid("param");
+		const result = await queries.executeGetScene(sceneId);
+		return successWithDataResponse(c, result);
+	})
 	.openapi(gameRouteCongfigs.createScene, async (c) => {
 		const gameId = c.req.valid("param").gameId;
 		const dto = c.req.valid("json");
@@ -189,6 +194,21 @@ gameRoutes
 			return errorResponse(c, 401, "unauthorized", "error");
 		}
 		const result = await commands.executeCreateScene(gameId, dto, userId);
+		return successWithDataResponse(c, result);
+	})
+	.openapi(gameRouteCongfigs.updateSceneSetting, async (c) => {
+		const { gameId, sceneId } = c.req.valid("param");
+		const dto = c.req.valid("json");
+		const userId = c.get("user")?.id;
+		if (!userId) {
+			return errorResponse(c, 401, "unauthorized", "error");
+		}
+		const result = await commands.executeUpdateSceneSetting(
+			gameId,
+			sceneId,
+			dto,
+			userId,
+		);
 		return successWithDataResponse(c, result);
 	})
 	.openapi(gameRouteCongfigs.updateScene, async (c) => {

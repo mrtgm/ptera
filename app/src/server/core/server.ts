@@ -89,9 +89,11 @@ app.notFound((c) =>
 	errorResponse(c, 404, "notFound", "warn", undefined, { path: c.req.path }),
 );
 
-app.onError((err, ctx) =>
-	errorResponse(ctx, 500, "internalServerError", "error", undefined, { err }),
-);
+app.onError((err, ctx) => {
+	return errorResponse(ctx, 500, "internalServerError", "error", undefined, {
+		err,
+	});
+});
 
 export { nestedRoutes };
 export type AppType = typeof nestedRoutes;

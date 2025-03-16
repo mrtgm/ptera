@@ -9,16 +9,16 @@ import {
 
 export type AvatarProps = {
 	avatarUrl: string | null | undefined;
-	username: string;
+	username: string | null | undefined;
 	className?: string;
 };
 
 export const Avatar = ({ avatarUrl, username, className }: AvatarProps) => {
 	return (
 		<ShadcnAvatar className={clsx("h-8 w-8", className)}>
-			<AvatarImage src={avatarUrl} alt={username} />
+			<AvatarImage src={avatarUrl} alt={username ?? "user-avatar"} />
 			<AvatarFallback className="text-xs">
-				{getInitials(username)}
+				{getInitials(username ?? "")}
 			</AvatarFallback>
 		</ShadcnAvatar>
 	);

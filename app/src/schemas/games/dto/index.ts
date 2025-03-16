@@ -70,21 +70,14 @@ export const createCommentRequestSchema = z.object({
 
 export type CreateCommentRequest = z.infer<typeof createCommentRequestSchema>;
 
-export const createSceneRequestSchema = z.object({
+export const updateSceneSettingRequestSchema = z.object({
 	name: z.string().min(1).max(100),
-	fromScene: z
-		.object({
-			type: z.enum(["choice", "goto", "end"]),
-			id: z.number(),
-			choiceId: z.number().optional(),
-		})
-		.optional(),
 });
-
-export type CreateSceneRequest = z.infer<typeof createSceneRequestSchema>;
+export type UpdateSceneSettingRequest = z.infer<
+	typeof updateSceneSettingRequestSchema
+>;
 
 export const updateSceneRequestSchema = z.object({
-	name: z.string().min(1).max(100),
 	sceneType: z.enum(["choice", "goto", "end"]),
 	choices: z
 		.array(
@@ -99,6 +92,27 @@ export const updateSceneRequestSchema = z.object({
 
 export type UpdateSceneRequest = z.infer<typeof updateSceneRequestSchema>;
 
+export const createSceneRequestSchema = z.object({
+	name: z.string().min(1).max(100),
+	fromScene: z.object({
+		id: z.number(),
+		sceneType: z.enum(["choice", "goto", "end"]),
+		choices: z
+			.array(
+				z.object({
+					id: z.number(),
+					text: z.string(),
+					nextSceneId: z.number().optional(),
+				}),
+			)
+			.optional(),
+		nextSceneId: z.number().optional(),
+	}),
+	choiceId: z.number().optional(),
+});
+
+export type CreateSceneRequest = z.infer<typeof createSceneRequestSchema>;
+
 export const createEventRequestSchema = z.object({
 	type: gameEventTypeSchema,
 	orderIndex: z.string(),
@@ -111,8 +125,8 @@ export const updateEventRequestSchema = gameEventSchema;
 export type UpdateEventRequest = z.infer<typeof updateEventRequestSchema>;
 
 export const moveEventRequestSchema = z.object({
-	oldIndex: z.number().int().min(0),
-	newIndex: z.number().int().min(0),
+	eventId: z.number(),
+	newOrderIndex: z.string(),
 });
 
 export type MoveEventRequest = z.infer<typeof moveEventRequestSchema>;
@@ -185,6 +199,7 @@ export const sceneResponseSchema = sceneSchema;
 export type SceneResponse = z.infer<typeof sceneResponseSchema>;
 
 export const mapDomainToSceneResponse = (scene: Scene): SceneResponse => {
+	console.log(scene);
 	return sceneResponseSchema.parse(scene);
 };
 

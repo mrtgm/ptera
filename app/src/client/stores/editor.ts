@@ -1,4 +1,3 @@
-import type { SceneSettingsFormData } from "@/client/features/editor/components/scene-detail/scene-settings";
 import type { SidebarItem } from "@/client/features/editor/constants";
 import { isChoiceScene, isEndScene, isGotoScene } from "@/client/schema";
 
@@ -6,23 +5,34 @@ import { generateKeyBetween } from "fractional-indexing";
 import type { StateCreator } from "zustand";
 
 import {
-	type AssetType,
 	type MediaAsset,
 	createAsset,
 	createCharacter,
 } from "@/schemas/assets/domain/resoucres";
 import type { CharacterResponse } from "@/schemas/assets/dto";
-import { createEvent } from "@/schemas/games/domain/event";
+import {
+	EventNotFoundError,
+	LastEventCannotBeDeletedError,
+	SceneNotFoundError,
+} from "@/schemas/games/domain/error";
+import {
+	type GameEvent,
+	createEvent,
+	gameEventSchema,
+} from "@/schemas/games/domain/event";
 import { createEndScene } from "@/schemas/games/domain/scene";
 import type {
+	CreateSceneRequest,
 	EventResponse,
 	GameDetailResponse,
 	ResourceResponse,
 	SceneResponse,
 	UpdateGameRequest,
+	UpdateSceneSettingRequest,
 } from "@/schemas/games/dto";
 import { api } from "../api";
 import type { AssetDialogKeyType } from "../features/editor/components/dialogs";
+import { ResourceValidator } from "../features/editor/utils/resource-validator";
 import { performUpdate } from "../utils/optimistic-update";
 import type { State } from "./";
 
@@ -41,13 +51,14 @@ export interface EditorState {
 	publishGame: (gameId: number, isPublic: boolean) => Promise<boolean>;
 
 	addScene: (
-		sceneTitle: string,
-		fromScene?: SceneResponse,
-		choiceId?: number | null,
-	) => SceneResponse | null;
-	deleteScene: (sceneId: number) => void;
-	saveSceneSettings: (data: SceneSettingsFormData) => void;
-	saveEnding: (endingScene: SceneResponse) => void;
+		data: CreateSceneRequest,
+	) => Promise<SceneResponse | null | undefined>;
+	deleteScene: (sceneId: number) => Promise<void>;
+	saveSceneSettings: (
+		sceneId: number,
+		data: UpdateSceneSettingRequest,
+	) => Promise<void>;
+	saveEnding: (endingScene: SceneResponse) => Promise<void>;
 
 	addEvent: (
 		index: number,
@@ -96,124 +107,109 @@ export const createEditorSlice: StateCreator<
 	},
 
 	// シーン追加
-	addScene: (sceneTitle, fromScene, choiceId) => {
-		const { editingGame, editingResources, markAsDirty } = get();
-		if (!editingGame || !editingResources) return null;
+	addScene: async ({ name, fromScene, choiceId }) => {
+		const { editingGame, editingResources } = get();
+		if (!editingGame || !editingResources) return;
 
-		const newScene: SceneResponse = createEndScene({ name: sceneTitle });
-		newScene.events = [
-			createEvent(
-				"textRender",
-				generateKeyBetween(null, null),
-				editingResources,
-			),
-		];
-
-		let updatedScene = fromScene;
-		let updatedScenes = [...editingGame.scenes];
-
-		if (fromScene) {
-			if (isChoiceScene(fromScene)) {
-				updatedScene = {
-					...fromScene,
-					choices: fromScene.choices.map((choice) => {
-						if (choice.id === choiceId) {
-							return {
-								...choice,
-								nextSceneId: newScene.id,
-							};
-						}
-						return choice;
-					}),
-				};
-			} else if (isGotoScene(fromScene)) {
-				updatedScene = {
-					...fromScene,
-					nextSceneId: newScene.id,
-				};
-			} else if (isEndScene(fromScene)) {
-				updatedScene = {
-					...fromScene,
-					sceneType: "goto",
-					nextSceneId: newScene.id,
-				};
-			}
-
-			updatedScenes = updatedScenes.map((s) =>
-				s.id === updatedScene?.id ? updatedScene : s,
-			);
-		}
-
-		set({
-			editingGame: {
-				...editingGame,
-				scenes: [...updatedScenes, newScene],
+		const res = await performUpdate({
+			api: () =>
+				api.games.scenes.create(editingGame.id, {
+					name,
+					fromScene,
+					choiceId,
+				}),
+			onSuccess: async (newScene) => {
+				if (newScene) {
+					const savedFromScene = await api.games.scenes.get(
+						editingGame.id,
+						fromScene.id,
+					);
+					if (!savedFromScene) {
+						throw new SceneNotFoundError(fromScene.id);
+					}
+					set({
+						editingGame: {
+							...editingGame,
+							scenes: [
+								...editingGame.scenes.map((scene) =>
+									scene.id === fromScene.id ? savedFromScene : scene,
+								),
+								newScene,
+							],
+						},
+					});
+				}
 			},
 		});
 
-		markAsDirty();
-		return newScene;
+		return res;
 	},
 
 	// シーン削除
-	deleteScene: (sceneId) => {
-		const { editingGame, markAsDirty } = get();
+	deleteScene: async (sceneId) => {
+		const { editingGame } = get();
 		if (!editingGame) return;
 
 		if (editingGame.initialSceneId === sceneId) {
 			throw new Error("初期シーンは削除不能");
 		}
 
-		// 依存関係の更新（他シーンからの参照を削除）
-		const updatedScenes = editingGame.scenes.map((scene) => {
-			if (isChoiceScene(scene)) {
-				const updatedChoices = scene.choices.filter(
-					(choice) => choice.nextSceneId !== sceneId,
+		await performUpdate({
+			api: () => api.games.scenes.delete(editingGame.id, sceneId),
+			optimisticUpdate: () => {
+				const updatedScenes = editingGame.scenes.map((scene) => {
+					if (isChoiceScene(scene)) {
+						const updatedChoices = scene.choices.filter(
+							(choice) => choice.nextSceneId !== sceneId,
+						);
+						return {
+							...scene,
+							choices: updatedChoices,
+						};
+					}
+
+					if (isGotoScene(scene) && scene.nextSceneId === sceneId) {
+						return {
+							...scene,
+							sceneType: "end",
+						};
+					}
+
+					return scene;
+				});
+
+				// シーン削除
+				const filteredScenes = updatedScenes.filter(
+					(scene) => scene.id !== sceneId,
 				);
-				return {
-					...scene,
-					choices: updatedChoices,
-				};
-			}
 
-			if (isGotoScene(scene) && scene.nextSceneId === sceneId) {
-				return {
-					...scene,
-					sceneType: "end",
-				};
-			}
-
-			return scene;
+				set({
+					editingGame: {
+						...editingGame,
+						scenes: filteredScenes,
+					} as GameDetailResponse,
+				});
+			},
 		});
-
-		// シーン削除
-		const filteredScenes = updatedScenes.filter(
-			(scene) => scene.id !== sceneId,
-		);
-
-		set({
-			editingGame: {
-				...editingGame,
-				scenes: filteredScenes,
-			} as GameDetailResponse,
-		});
-
-		markAsDirty();
 	},
 
 	// エンディング設定保存
-	saveEnding: (endingScene) => {
+	saveEnding: async (endingScene) => {
 		const { editingGame, markAsDirty } = get();
 		if (!editingGame) return;
 
-		const updatedScenes = editingGame.scenes.map((scene) =>
-			scene.id === endingScene.id ? endingScene : scene,
-		);
-
-		set({
-			editingGame: {
-				...editingGame,
-				scenes: updatedScenes,
+		await performUpdate({
+			api: () =>
+				api.games.scenes.update(editingGame.id, endingScene.id, endingScene),
+			optimisticUpdate: () => {
+				set({
+					editingGame: {
+						...editingGame,
+						scenes: editingGame.scenes.map((scene) =>
+							scene.id === endingScene.id ? endingScene : scene,
+						),
+					},
+				});
 			},
 		});
 
@@ -229,7 +225,9 @@ export const createEditorSlice: StateCreator<
 			(scene) => scene.id === selectedSceneId,
 		);
 
-		if (!targetScene) return null;
+		if (!targetScene) {
+			throw new SceneNotFoundError(selectedSceneId);
+		}
 
 		const newEvents = [...targetScene.events];
 		const newEvent = createEvent(item.type, "a0", editingResources);
@@ -275,44 +273,70 @@ export const createEditorSlice: StateCreator<
 					},
 				});
 			},
+			onSuccess: (event) => {
+				newEvents[index] = event as GameEvent;
+				if (event) {
+					set({
+						editingGame: {
+							...editingGame,
+							scenes: editingGame.scenes.map((scene) =>
+								scene.id === selectedSceneId
+									? { ...scene, events: newEvents }
+									: scene,
+							),
+						},
+					});
+				}
+			},
 		});
 
 		return newEvent;
 	},
 
 	// イベント移動
-	moveEvent: (oldIndex, newIndex, selectedSceneId) => {
+	moveEvent: async (oldIndex, newIndex, selectedSceneId) => {
 		const { editingGame, markAsDirty } = get();
 		if (!editingGame) return;
 
-		const updatedScenes = editingGame.scenes.map((scene) => {
-			if (scene.id === selectedSceneId) {
-				const newEvents = [...scene.events];
-				const [movedEvent] = newEvents.splice(oldIndex, 1);
-				newEvents.splice(newIndex, 0, movedEvent);
+		const targetScene = editingGame.scenes.find(
+			(scene) => scene.id === selectedSceneId,
+		);
 
-				newEvents[newIndex] = {
-					...newEvents[newIndex],
-					orderIndex: generateKeyBetween(
-						newEvents[newIndex - 1]?.orderIndex ?? null,
-						newEvents[newIndex + 1]?.orderIndex ?? null,
-					),
-				};
+		if (!targetScene) {
+			throw new SceneNotFoundError(selectedSceneId);
+		}
 
-				return { ...scene, events: newEvents };
-			}
+		const newEvents = [...targetScene.events];
+		const [movedEvent] = newEvents.splice(oldIndex, 1);
+		newEvents.splice(newIndex, 0, movedEvent);
 
-			return scene;
-		});
+		newEvents[newIndex] = {
+			...newEvents[newIndex],
+			orderIndex: generateKeyBetween(
+				newEvents[newIndex - 1]?.orderIndex ?? null,
+				newEvents[newIndex + 1]?.orderIndex ?? null,
+			),
+		};
 
-		set({
-			editingGame: {
-				...editingGame,
-				scenes: updatedScenes,
+		await performUpdate({
+			api: () =>
+				api.games.scenes.events.move(editingGame.id, selectedSceneId, {
+					eventId: movedEvent.id,
+					newOrderIndex: newEvents[newIndex].orderIndex,
+				}),
+			optimisticUpdate: () => {
+				set({
+					editingGame: {
+						...editingGame,
+						scenes: editingGame.scenes.map((scene) =>
+							scene.id === selectedSceneId
+								? { ...scene, events: newEvents }
+								: scene,
+						),
+					},
+				});
 			},
 		});
-
-		markAsDirty();
 	},
 
 	// イベント削除
@@ -327,7 +351,12 @@ export const createEditorSlice: StateCreator<
 		if (!currentScene) return;
 
 		if (currentScene.events.length === 1) {
-			throw new Error("最後のイベントは削除不能");
+			throw new LastEventCannotBeDeletedError(selectedSceneId);
+		}
+
+		const deletedEvent = currentScene.events.find((e) => e.id === eventId);
+		if (!deletedEvent) {
+			throw new EventNotFoundError(eventId);
 		}
 
 		await performUpdate({
@@ -353,31 +382,54 @@ export const createEditorSlice: StateCreator<
 				});
 			},
 		});
+
+		const res = ResourceValidator.getAssetFromEvent(deletedEvent);
+		if (
+			res &&
+			ResourceValidator.canDeleteAsset(res.type, res.id, editingGame)
+		) {
+			await api.assets.unlinkGame(res.id, editingGame.id);
+		}
 	},
 
 	// イベント保存
-	saveEvent: (event, selectedSceneId) => {
-		const { editingGame, markAsDirty } = get();
+	saveEvent: async (event, selectedSceneId) => {
+		const { editingGame } = get();
 		if (!editingGame) return;
 
-		const updatedScenes = editingGame.scenes.map((scene) => {
-			if (scene.id === selectedSceneId) {
-				return {
-					...scene,
-					events: scene.events.map((e) => (e.id === event.id ? event : e)),
-				};
-			}
-			return scene;
-		});
+		try {
+			gameEventSchema.parse(event);
+		} catch (err) {
+			console.error("Failed to save event:", err);
+			return;
+		}
 
-		set({
-			editingGame: {
-				...editingGame,
-				scenes: updatedScenes as SceneResponse[],
+		await performUpdate({
+			api: () =>
+				api.games.scenes.events.update(
+					editingGame.id,
+					selectedSceneId,
+					event.id,
+					event as GameEvent,
+				),
+			optimisticUpdate: () => {
+				set({
+					editingGame: {
+						...editingGame,
+						scenes: editingGame.scenes.map((scene) =>
+							scene.id === selectedSceneId
+								? {
+										...scene,
+										events: scene.events.map((e) =>
+											e.id === event.id ? (event as GameEvent) : e,
+										),
+									}
+								: scene,
+						),
+					},
+				});
 			},
 		});
-
-		markAsDirty();
 	},
 
 	// キャラクター追加
@@ -543,9 +595,23 @@ export const createEditorSlice: StateCreator<
 	},
 
 	// シーン設定保存
-	saveSceneSettings: (data) => {
-		console.log("Scene settings saved", data);
-		// TODO: 実装
+	saveSceneSettings: async (sceneId, data) => {
+		const { editingGame } = get();
+		if (!editingGame) return;
+
+		await performUpdate({
+			api: () => api.games.scenes.updateSetting(editingGame.id, sceneId, data),
+			optimisticUpdate: () => {
+				set({
+					editingGame: {
+						...editingGame,
+						scenes: editingGame.scenes.map((scene) =>
+							scene.id === sceneId ? { ...scene, ...data } : scene,
+						),
+					},
+				});
+			},
+		});
 	},
 
 	// プロジェクト設定保存

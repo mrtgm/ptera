@@ -1,16 +1,14 @@
 import { SideBar } from "@/client/features/game/components/side-bar";
-import { ChevronRight } from "lucide-react";
-import { NavigationGuardProvider } from "next-navigation-guard";
-import Link from "next/link";
 import { Header } from "~/client/features/dashboard/components/header";
 import "../../../globals.css";
 import "@fontsource/dotgothic16";
+import { AuthProvider } from "@/client/features/auth/providers/auth-provider";
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="ja">
 			<body>
-				<NavigationGuardProvider>
+				<AuthProvider>
 					<div className="min-h-screen flex flex-col">
 						<Header />
 
@@ -22,7 +20,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 							</div>
 						</div>
 					</div>
-				</NavigationGuardProvider>
+				</AuthProvider>
 			</body>
 		</html>
 	);

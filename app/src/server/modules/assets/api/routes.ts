@@ -20,6 +20,7 @@ import {
 	assetCharacterLinkParamSchema,
 	assetParamSchema,
 	characterParamSchema,
+	unlinkGameAssetSchema,
 } from "./validator";
 
 // アセット関連のルート設定
@@ -91,6 +92,28 @@ export const assetRouteConfigs = {
 		summary: "アセットを削除します。",
 		request: {
 			params: assetParamSchema,
+		},
+		responses: {
+			200: {
+				description: "Success",
+				content: {
+					"application/json": {
+						schema: successWithoutDataSchema,
+					},
+				},
+			},
+			...errorResponses,
+		},
+	}),
+
+	unlinkGameFromAsset: createRouteConfig({
+		method: "delete",
+		path: "/{assetId}/games/{gameId}",
+		guard: [isAuthenticated],
+		tags: ["assets"],
+		summary: "アセットからゲームの関連付けを解除します。",
+		request: {
+			params: unlinkGameAssetSchema,
 		},
 		responses: {
 			200: {

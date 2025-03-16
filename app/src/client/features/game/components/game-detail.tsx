@@ -6,16 +6,26 @@ import { Avatar } from "@/client/components/avatar";
 import type { Category } from "@/schemas/games/domain/category";
 import { AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { guard } from "../../auth/guard";
 import { GameActionButtons } from "./game-action-buttons";
 import { GameCommentSection } from "./game-comment-section";
 import { GamePlayerWrapper } from "./game-wrapper";
 
 export const GameDetail = async ({ gameId }: { gameId: number }) => {
-	const [game, comments, categories] = await Promise.all([
+	const [game, comments = [], categories = []] = await Promise.all([
 		api.games.get(gameId),
 		api.games.getComments(gameId),
 		api.games.getCategories(),
 	]);
+
+	// 未公開のゲームは作成者のみ閲覧可能
+	if (game.status === "draft") {
+		const user = await guard();
+		if (user.id !== game.userId) {
+			return redirect("/games");
+		}
+	}
 
 	if (!game) {
 		return (
@@ -27,7 +37,7 @@ export const GameDetail = async ({ gameId }: { gameId: number }) => {
 	}
 
 	const getCategoryName = (categoryId: number) => {
-		const category = categories?.find((cat: Category) => cat.id === categoryId);
+		const category = categories.find((cat: Category) => cat.id === categoryId);
 		return category ? category.name : `カテゴリ ${categoryId}`;
 	};
 

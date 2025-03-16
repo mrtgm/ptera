@@ -150,8 +150,6 @@ export class GamesService {
                     category: 'cg';
                     orderIndex: string;
                     cgImageId: number;
-                    position: any[];
-                    scale: (number | string);
                     transitionDuration: (number | string);
                 } | {
                     id: number;
@@ -267,8 +265,6 @@ export class GamesService {
                     category: 'cg';
                     orderIndex: string;
                     cgImageId: number;
-                    position: any[];
-                    scale: (number | string);
                     transitionDuration: (number | string);
                 } | {
                     id: number;
@@ -388,8 +384,6 @@ export class GamesService {
                     category: 'cg';
                     orderIndex: string;
                     cgImageId: number;
-                    position: any[];
-                    scale: (number | string);
                     transitionDuration: (number | string);
                 } | {
                     id: number;
@@ -528,12 +522,16 @@ export class GamesService {
         data: {
             character: Record<string, {
                 id: number;
+                ownerId: number | null;
+                isPublic: boolean;
                 name: string;
                 images?: Record<string, {
                     id: number;
                     assetType: 'characterImage';
                     name: string;
                     url: string;
+                    ownerId: number | null;
+                    isPublic: boolean;
                     metadata?: any;
                 }>;
             }>;
@@ -542,6 +540,8 @@ export class GamesService {
                 assetType: 'backgroundImage';
                 name: string;
                 url: string;
+                ownerId: number | null;
+                isPublic: boolean;
                 metadata?: any;
             }>;
             soundEffect: Record<string, {
@@ -549,6 +549,8 @@ export class GamesService {
                 assetType: 'soundEffect';
                 name: string;
                 url: string;
+                ownerId: number | null;
+                isPublic: boolean;
                 metadata?: any;
             }>;
             bgm: Record<string, {
@@ -556,6 +558,8 @@ export class GamesService {
                 assetType: 'bgm';
                 name: string;
                 url: string;
+                ownerId: number | null;
+                isPublic: boolean;
                 metadata?: any;
             }>;
             cgImage: Record<string, {
@@ -563,6 +567,8 @@ export class GamesService {
                 assetType: 'cgImage';
                 name: string;
                 url: string;
+                ownerId: number | null;
+                isPublic: boolean;
                 metadata?: any;
             }>;
         };
@@ -765,8 +771,6 @@ export class GamesService {
                     category: 'cg';
                     orderIndex: string;
                     cgImageId: number;
-                    position: any[];
-                    scale: (number | string);
                     transitionDuration: (number | string);
                 } | {
                     id: number;
@@ -882,8 +886,6 @@ export class GamesService {
                     category: 'cg';
                     orderIndex: string;
                     cgImageId: number;
-                    position: any[];
-                    scale: (number | string);
                     transitionDuration: (number | string);
                 } | {
                     id: number;
@@ -1003,8 +1005,6 @@ export class GamesService {
                     category: 'cg';
                     orderIndex: string;
                     cgImageId: number;
-                    position: any[];
-                    scale: (number | string);
                     transitionDuration: (number | string);
                 } | {
                     id: number;
@@ -1308,22 +1308,15 @@ export class GamesService {
         });
     }
     /**
-     * シーンを作成します。
+     * シーンを取得します。
      * @param gameId
-     * @param requestBody
-     * @returns any Created Scene
+     * @param sceneId
+     * @returns any Scene
      * @throws ApiError
      */
-    public postApiV1GamesScenes(
+    public getApiV1GamesScenes(
         gameId: (number | string),
-        requestBody?: {
-            name: string;
-            fromScene?: {
-                type: 'choice' | 'goto' | 'end';
-                id: number;
-                choiceId?: number;
-            };
-        },
+        sceneId: (number | string),
     ): CancelablePromise<{
         success: boolean;
         data: ({
@@ -1432,8 +1425,6 @@ export class GamesService {
                 category: 'cg';
                 orderIndex: string;
                 cgImageId: number;
-                position: any[];
-                scale: (number | string);
                 transitionDuration: (number | string);
             } | {
                 id: number;
@@ -1549,8 +1540,6 @@ export class GamesService {
                 category: 'cg';
                 orderIndex: string;
                 cgImageId: number;
-                position: any[];
-                scale: (number | string);
                 transitionDuration: (number | string);
             } | {
                 id: number;
@@ -1670,8 +1659,6 @@ export class GamesService {
                 category: 'cg';
                 orderIndex: string;
                 cgImageId: number;
-                position: any[];
-                scale: (number | string);
                 transitionDuration: (number | string);
             } | {
                 id: number;
@@ -1683,13 +1670,12 @@ export class GamesService {
         });
     }> {
         return this.httpRequest.request({
-            method: 'POST',
-            url: '/api/v1/games/{gameId}/scenes',
+            method: 'GET',
+            url: '/api/v1/games/{gameId}/scenes/{sceneId}',
             path: {
                 'gameId': gameId,
+                'sceneId': sceneId,
             },
-            body: requestBody,
-            mediaType: 'application/json',
             errors: {
                 400: `Bad request: problem processing request.`,
                 401: `Unauthorized: authentication required.`,
@@ -1712,7 +1698,6 @@ export class GamesService {
         gameId: (number | string),
         sceneId: (number | string),
         requestBody?: {
-            name: string;
             sceneType: 'choice' | 'goto' | 'end';
             choices?: Array<{
                 text: string;
@@ -1828,8 +1813,6 @@ export class GamesService {
                 category: 'cg';
                 orderIndex: string;
                 cgImageId: number;
-                position: any[];
-                scale: (number | string);
                 transitionDuration: (number | string);
             } | {
                 id: number;
@@ -1945,8 +1928,6 @@ export class GamesService {
                 category: 'cg';
                 orderIndex: string;
                 cgImageId: number;
-                position: any[];
-                scale: (number | string);
                 transitionDuration: (number | string);
             } | {
                 id: number;
@@ -2066,8 +2047,6 @@ export class GamesService {
                 category: 'cg';
                 orderIndex: string;
                 cgImageId: number;
-                position: any[];
-                scale: (number | string);
                 transitionDuration: (number | string);
             } | {
                 id: number;
@@ -2132,6 +2111,784 @@ export class GamesService {
         });
     }
     /**
+     * シーンを作成します。
+     * @param gameId
+     * @param requestBody
+     * @returns any Created Scene
+     * @throws ApiError
+     */
+    public postApiV1GamesScenes(
+        gameId: (number | string),
+        requestBody?: {
+            name: string;
+            fromScene: {
+                id: number;
+                sceneType: 'choice' | 'goto' | 'end';
+                choices?: Array<{
+                    id: number;
+                    text: string;
+                    nextSceneId?: number;
+                }>;
+                nextSceneId?: number;
+            };
+            choiceId?: number;
+        },
+    ): CancelablePromise<{
+        success: boolean;
+        data: ({
+            id: number;
+            name: string;
+            sceneType: 'goto';
+            events: Array<({
+                id: number;
+                eventType: 'textRender';
+                category: 'message';
+                orderIndex: string;
+                text: string;
+                characterName?: string | null;
+            } | {
+                id: number;
+                eventType: 'appearMessageWindow';
+                category: 'message';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideMessageWindow';
+                category: 'message';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'appearCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                characterImageId: number;
+                position: any[];
+                scale: (number | string);
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideAllCharacters';
+                category: 'character';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'moveCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                position: any[];
+                scale: (number | string);
+            } | {
+                id: number;
+                eventType: 'bgmStart';
+                category: 'media';
+                orderIndex: string;
+                bgmId: number;
+                loop: boolean;
+                volume: (number | string);
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'bgmStop';
+                category: 'media';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'soundEffect';
+                category: 'media';
+                orderIndex: string;
+                volume: (number | string);
+                loop: boolean;
+                soundEffectId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'changeBackground';
+                category: 'background';
+                orderIndex: string;
+                backgroundId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'effect';
+                category: 'effect';
+                orderIndex: string;
+                effectType: 'fadeIn' | 'fadeOut' | 'shake';
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'characterEffect';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                effectType: 'shake' | 'flash' | 'bounce' | 'sway' | 'wobble' | 'blackOn' | 'blackOff';
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'appearCG';
+                category: 'cg';
+                orderIndex: string;
+                cgImageId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideCG';
+                category: 'cg';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            })>;
+            nextSceneId: number;
+        } | {
+            id: number;
+            name: string;
+            sceneType: 'choice';
+            events: Array<({
+                id: number;
+                eventType: 'textRender';
+                category: 'message';
+                orderIndex: string;
+                text: string;
+                characterName?: string | null;
+            } | {
+                id: number;
+                eventType: 'appearMessageWindow';
+                category: 'message';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideMessageWindow';
+                category: 'message';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'appearCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                characterImageId: number;
+                position: any[];
+                scale: (number | string);
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideAllCharacters';
+                category: 'character';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'moveCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                position: any[];
+                scale: (number | string);
+            } | {
+                id: number;
+                eventType: 'bgmStart';
+                category: 'media';
+                orderIndex: string;
+                bgmId: number;
+                loop: boolean;
+                volume: (number | string);
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'bgmStop';
+                category: 'media';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'soundEffect';
+                category: 'media';
+                orderIndex: string;
+                volume: (number | string);
+                loop: boolean;
+                soundEffectId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'changeBackground';
+                category: 'background';
+                orderIndex: string;
+                backgroundId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'effect';
+                category: 'effect';
+                orderIndex: string;
+                effectType: 'fadeIn' | 'fadeOut' | 'shake';
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'characterEffect';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                effectType: 'shake' | 'flash' | 'bounce' | 'sway' | 'wobble' | 'blackOn' | 'blackOff';
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'appearCG';
+                category: 'cg';
+                orderIndex: string;
+                cgImageId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideCG';
+                category: 'cg';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            })>;
+            choices: Array<{
+                id: number;
+                text: string;
+                nextSceneId: number;
+            }>;
+        } | {
+            id: number;
+            name: string;
+            sceneType: 'end';
+            events: Array<({
+                id: number;
+                eventType: 'textRender';
+                category: 'message';
+                orderIndex: string;
+                text: string;
+                characterName?: string | null;
+            } | {
+                id: number;
+                eventType: 'appearMessageWindow';
+                category: 'message';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideMessageWindow';
+                category: 'message';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'appearCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                characterImageId: number;
+                position: any[];
+                scale: (number | string);
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideAllCharacters';
+                category: 'character';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'moveCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                position: any[];
+                scale: (number | string);
+            } | {
+                id: number;
+                eventType: 'bgmStart';
+                category: 'media';
+                orderIndex: string;
+                bgmId: number;
+                loop: boolean;
+                volume: (number | string);
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'bgmStop';
+                category: 'media';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'soundEffect';
+                category: 'media';
+                orderIndex: string;
+                volume: (number | string);
+                loop: boolean;
+                soundEffectId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'changeBackground';
+                category: 'background';
+                orderIndex: string;
+                backgroundId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'effect';
+                category: 'effect';
+                orderIndex: string;
+                effectType: 'fadeIn' | 'fadeOut' | 'shake';
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'characterEffect';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                effectType: 'shake' | 'flash' | 'bounce' | 'sway' | 'wobble' | 'blackOn' | 'blackOff';
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'appearCG';
+                category: 'cg';
+                orderIndex: string;
+                cgImageId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideCG';
+                category: 'cg';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            })>;
+        });
+    }> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/api/v1/games/{gameId}/scenes',
+            path: {
+                'gameId': gameId,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Bad request: problem processing request.`,
+                401: `Unauthorized: authentication required.`,
+                403: `Forbidden: insufficient permissions.`,
+                404: `Not found: resource does not exist.`,
+                429: `Rate limit: too many requests.`,
+                500: `Internal server error: unexpected error.`,
+            },
+        });
+    }
+    /**
+     * シーンの設定を更新します。
+     * @param gameId
+     * @param sceneId
+     * @param requestBody
+     * @returns any Updated Scene
+     * @throws ApiError
+     */
+    public putApiV1GamesScenesSetting(
+        gameId: (number | string),
+        sceneId: (number | string),
+        requestBody?: {
+            name: string;
+        },
+    ): CancelablePromise<{
+        success: boolean;
+        data: ({
+            id: number;
+            name: string;
+            sceneType: 'goto';
+            events: Array<({
+                id: number;
+                eventType: 'textRender';
+                category: 'message';
+                orderIndex: string;
+                text: string;
+                characterName?: string | null;
+            } | {
+                id: number;
+                eventType: 'appearMessageWindow';
+                category: 'message';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideMessageWindow';
+                category: 'message';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'appearCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                characterImageId: number;
+                position: any[];
+                scale: (number | string);
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideAllCharacters';
+                category: 'character';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'moveCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                position: any[];
+                scale: (number | string);
+            } | {
+                id: number;
+                eventType: 'bgmStart';
+                category: 'media';
+                orderIndex: string;
+                bgmId: number;
+                loop: boolean;
+                volume: (number | string);
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'bgmStop';
+                category: 'media';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'soundEffect';
+                category: 'media';
+                orderIndex: string;
+                volume: (number | string);
+                loop: boolean;
+                soundEffectId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'changeBackground';
+                category: 'background';
+                orderIndex: string;
+                backgroundId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'effect';
+                category: 'effect';
+                orderIndex: string;
+                effectType: 'fadeIn' | 'fadeOut' | 'shake';
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'characterEffect';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                effectType: 'shake' | 'flash' | 'bounce' | 'sway' | 'wobble' | 'blackOn' | 'blackOff';
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'appearCG';
+                category: 'cg';
+                orderIndex: string;
+                cgImageId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideCG';
+                category: 'cg';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            })>;
+            nextSceneId: number;
+        } | {
+            id: number;
+            name: string;
+            sceneType: 'choice';
+            events: Array<({
+                id: number;
+                eventType: 'textRender';
+                category: 'message';
+                orderIndex: string;
+                text: string;
+                characterName?: string | null;
+            } | {
+                id: number;
+                eventType: 'appearMessageWindow';
+                category: 'message';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideMessageWindow';
+                category: 'message';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'appearCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                characterImageId: number;
+                position: any[];
+                scale: (number | string);
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideAllCharacters';
+                category: 'character';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'moveCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                position: any[];
+                scale: (number | string);
+            } | {
+                id: number;
+                eventType: 'bgmStart';
+                category: 'media';
+                orderIndex: string;
+                bgmId: number;
+                loop: boolean;
+                volume: (number | string);
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'bgmStop';
+                category: 'media';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'soundEffect';
+                category: 'media';
+                orderIndex: string;
+                volume: (number | string);
+                loop: boolean;
+                soundEffectId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'changeBackground';
+                category: 'background';
+                orderIndex: string;
+                backgroundId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'effect';
+                category: 'effect';
+                orderIndex: string;
+                effectType: 'fadeIn' | 'fadeOut' | 'shake';
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'characterEffect';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                effectType: 'shake' | 'flash' | 'bounce' | 'sway' | 'wobble' | 'blackOn' | 'blackOff';
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'appearCG';
+                category: 'cg';
+                orderIndex: string;
+                cgImageId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideCG';
+                category: 'cg';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            })>;
+            choices: Array<{
+                id: number;
+                text: string;
+                nextSceneId: number;
+            }>;
+        } | {
+            id: number;
+            name: string;
+            sceneType: 'end';
+            events: Array<({
+                id: number;
+                eventType: 'textRender';
+                category: 'message';
+                orderIndex: string;
+                text: string;
+                characterName?: string | null;
+            } | {
+                id: number;
+                eventType: 'appearMessageWindow';
+                category: 'message';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideMessageWindow';
+                category: 'message';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'appearCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                characterImageId: number;
+                position: any[];
+                scale: (number | string);
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideAllCharacters';
+                category: 'character';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'moveCharacter';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                position: any[];
+                scale: (number | string);
+            } | {
+                id: number;
+                eventType: 'bgmStart';
+                category: 'media';
+                orderIndex: string;
+                bgmId: number;
+                loop: boolean;
+                volume: (number | string);
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'bgmStop';
+                category: 'media';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'soundEffect';
+                category: 'media';
+                orderIndex: string;
+                volume: (number | string);
+                loop: boolean;
+                soundEffectId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'changeBackground';
+                category: 'background';
+                orderIndex: string;
+                backgroundId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'effect';
+                category: 'effect';
+                orderIndex: string;
+                effectType: 'fadeIn' | 'fadeOut' | 'shake';
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'characterEffect';
+                category: 'character';
+                orderIndex: string;
+                characterId: number;
+                effectType: 'shake' | 'flash' | 'bounce' | 'sway' | 'wobble' | 'blackOn' | 'blackOff';
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'appearCG';
+                category: 'cg';
+                orderIndex: string;
+                cgImageId: number;
+                transitionDuration: (number | string);
+            } | {
+                id: number;
+                eventType: 'hideCG';
+                category: 'cg';
+                orderIndex: string;
+                transitionDuration: (number | string);
+            })>;
+        });
+    }> {
+        return this.httpRequest.request({
+            method: 'PUT',
+            url: '/api/v1/games/{gameId}/scenes/{sceneId}/setting',
+            path: {
+                'gameId': gameId,
+                'sceneId': sceneId,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Bad request: problem processing request.`,
+                401: `Unauthorized: authentication required.`,
+                403: `Forbidden: insufficient permissions.`,
+                404: `Not found: resource does not exist.`,
+                429: `Rate limit: too many requests.`,
+                500: `Internal server error: unexpected error.`,
+            },
+        });
+    }
+    /**
      * イベントを作成します。
      * @param gameId
      * @param sceneId
@@ -2144,13 +2901,13 @@ export class GamesService {
         sceneId: (number | string),
         requestBody?: {
             type: 'textRender' | 'appearMessageWindow' | 'hideMessageWindow' | 'appearCharacter' | 'hideCharacter' | 'hideAllCharacters' | 'moveCharacter' | 'bgmStart' | 'bgmStop' | 'soundEffect' | 'changeBackground' | 'effect' | 'characterEffect' | 'appearCG' | 'hideCG';
-            orderIndex?: string;
+            orderIndex: string;
         },
     ): CancelablePromise<{
         success: boolean;
         data: {
             id: number;
-            eventType: string;
+            eventType: 'textRender' | 'appearMessageWindow' | 'hideMessageWindow' | 'appearCharacter' | 'hideCharacter' | 'hideAllCharacters' | 'moveCharacter' | 'bgmStart' | 'bgmStop' | 'soundEffect' | 'changeBackground' | 'effect' | 'characterEffect' | 'appearCG' | 'hideCG';
             category: string;
             orderIndex: string;
         };
@@ -2186,8 +2943,8 @@ export class GamesService {
         gameId: (number | string),
         sceneId: (number | string),
         requestBody?: {
-            oldIndex: number;
-            newIndex: number;
+            eventId: number;
+            newOrderIndex: string;
         },
     ): CancelablePromise<{
         success: boolean;
@@ -2326,8 +3083,6 @@ export class GamesService {
             category: 'cg';
             orderIndex: string;
             cgImageId: number;
-            position: any[];
-            scale: (number | string);
             transitionDuration: (number | string);
         } | {
             id: number;
@@ -2340,7 +3095,7 @@ export class GamesService {
         success: boolean;
         data: {
             id: number;
-            eventType: string;
+            eventType: 'textRender' | 'appearMessageWindow' | 'hideMessageWindow' | 'appearCharacter' | 'hideCharacter' | 'hideAllCharacters' | 'moveCharacter' | 'bgmStart' | 'bgmStop' | 'soundEffect' | 'changeBackground' | 'effect' | 'characterEffect' | 'appearCG' | 'hideCG';
             category: string;
             orderIndex: string;
         };

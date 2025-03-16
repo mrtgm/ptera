@@ -8,7 +8,7 @@ export function getEventAssetId(eventData: GameEvent): number | null {
 		return eventData.soundEffectId;
 	}
 	if (eventData.eventType === "appearCharacter") {
-		return eventData.characterId;
+		return eventData.characterImageId;
 	}
 	if (eventData.eventType === "appearCG") {
 		return eventData.cgImageId;

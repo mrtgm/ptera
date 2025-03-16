@@ -1,14 +1,7 @@
 import { api } from "@/client/api";
 import { DashboardGamesList } from "./game-list";
 
-export const DashboardGamesContent = async ({
-	userId,
-}: {
-	userId: number | null;
-}) => {
-	if (userId === null) {
-		return <DashboardGamesList userGames={[]} />;
-	}
-	const userGames = await api.users.getGames(userId);
+export const DashboardGamesContent = async () => {
+	const userGames = (await api.auth.getMyGames()) ?? [];
 	return <DashboardGamesList userGames={userGames} />;
 };

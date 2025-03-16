@@ -8,6 +8,7 @@ import { useStore } from "@/client/stores";
 import { HomeIcon, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { NavLinks } from "../../dashboard/components/nav-link";
+import { UserNav } from "./user-nav";
 
 export const SideBar = () => {
 	const userSlice = useStore.useSlice.user();
@@ -60,23 +61,6 @@ export const SideBar = () => {
 						</button>
 					</Button>
 				</div>
-			</div>
-		</div>
-	);
-};
-
-export const UserNav = () => {
-	const userSlice = useStore.useSlice.user();
-	return (
-		<div className="flex items-center gap-2 mb-8">
-			<Avatar username="Game Creator" avatarUrl="" />
-			<div className="space-y-1">
-				<p className="text-sm font-medium leading-none">
-					{userSlice?.currentUser?.name || "No Name"}
-				</p>
-				<p className="text-xs text-muted-foreground truncate">
-					{userSlice?.currentUser?.bio || ""}
-				</p>
 			</div>
 		</div>
 	);

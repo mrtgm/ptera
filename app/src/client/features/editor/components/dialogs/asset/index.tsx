@@ -24,7 +24,7 @@ import type { AssetResponse } from "@/schemas/assets/dto";
 import type { GameDetailResponse, ResourceResponse } from "@/schemas/games/dto";
 import { Film, Image, Music, Volume2 } from "lucide-react";
 import { type ReactElement, useEffect, useState } from "react";
-import AssetValidator from "../../../utils/resource-validator";
+import { ResourceValidator } from "../../../utils/resource-validator";
 import { ValidationErrorAlert } from "../../validtion-error-alert";
 import { AssetUpload } from "../asset-upload";
 import { useDeleteConfirmationDialog } from "../delete-confirmation-dialog";
@@ -144,7 +144,7 @@ const AssetDialog = ({
 		e.stopPropagation();
 
 		// アセットが使用されているかチェック
-		const validationResult = AssetValidator.canDeleteAsset(
+		const validationResult = ResourceValidator.canDeleteAsset(
 			activeTab,
 			assetId,
 			game,
@@ -305,6 +305,7 @@ const AssetDialog = ({
 									<AssetCard
 										key={asset.id}
 										id={asset.id}
+										showDeleteButton={!asset.isPublic}
 										selected={selectedAsset === asset.id}
 										onSelect={handleAssetSelect}
 										onDelete={handleDeleteAssetClick}

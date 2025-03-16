@@ -2,7 +2,7 @@ import { Logo } from "@/client/components/logo";
 import { Button } from "@/client/components/shadcn/button";
 import { Menubar } from "@/client/components/shadcn/menubar";
 import { useStore } from "@/client/stores";
-import { sortByFractionalIndex } from "@/client/utils/sort";
+import { sortEvent } from "@/schemas/games/domain/event";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -24,14 +24,10 @@ export const Header = () => {
 		selectedEventId ?? //選択中のイベントがある
 		editorSlice.editingGame.scenes
 			.find((scene) => scene.id === previewSceneId)
-			?.events.sort((a, b) =>
-				sortByFractionalIndex(a.orderIndex, b.orderIndex),
-			)[0]?.id ?? //選択中のシーンの最初のイベントがある
+			?.events.sort(sortEvent)[0]?.id ?? //選択中のシーンの最初のイベントがある
 		editorSlice.editingGame.scenes
 			.find((scene) => scene.id === editorSlice.editingGame?.initialSceneId)
-			?.events.sort((a, b) =>
-				sortByFractionalIndex(a.orderIndex, b.orderIndex),
-			)[0]?.id ?? //初期シーンの最初のイベントがある
+			?.events.sort(sortEvent)[0]?.id ?? //初期シーンの最初のイベントがある
 		null;
 
 	return (

@@ -128,6 +128,30 @@ export const ResourceValidator = {
 		};
 	},
 
+	getAssetFromEvent: (
+		event: GameEvent,
+	): {
+		type: keyof Omit<ResourceResponse, "characters">;
+		id: number;
+	} | null => {
+		if (event.eventType === "appearCharacter") {
+			return { type: "character", id: event.characterImageId };
+		}
+		if (event.eventType === "changeBackground") {
+			return { type: "backgroundImage", id: event.backgroundId };
+		}
+		if (event.eventType === "soundEffect") {
+			return { type: "soundEffect", id: event.soundEffectId };
+		}
+		if (event.eventType === "bgmStart") {
+			return { type: "bgm", id: event.bgmId };
+		}
+		if (event.eventType === "appearCG") {
+			return { type: "cgImage", id: event.cgImageId };
+		}
+		return null;
+	},
+
 	isEventUsingAsset: (
 		event: GameEvent,
 		type: keyof Omit<ResourceResponse, "characters">,
@@ -210,5 +234,3 @@ export const ResourceValidator = {
 		};
 	},
 };
-
-export default ResourceValidator;

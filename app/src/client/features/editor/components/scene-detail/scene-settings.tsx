@@ -8,35 +8,37 @@ import {
 	FormMessage,
 } from "@/client/components/shadcn/form";
 import { Input } from "@/client/components/shadcn/input";
-import type { SceneResponse } from "@/schemas/games/dto";
+import {
+	type SceneResponse,
+	type UpdateSceneSettingRequest,
+	updateSceneSettingRequestSchema,
+} from "@/schemas/games/dto";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-
-export type SceneSettingsFormData = {
-	sceneTitle: string;
-};
 
 export const SceneSettings = ({
 	scene,
 	onSaveSettings,
 }: {
 	scene: SceneResponse | null;
-	onSaveSettings: (data: SceneSettingsFormData) => void;
+	onSaveSettings: (data: UpdateSceneSettingRequest) => void;
 }) => {
-	const form = useForm<SceneSettingsFormData>({
+	const form = useForm<UpdateSceneSettingRequest>({
 		defaultValues: {
-			sceneTitle: scene?.name || "",
+			name: scene?.name || "",
 		},
+		resolver: zodResolver(updateSceneSettingRequestSchema),
 	});
 
-	const handleSubmit = (data: SceneSettingsFormData) => {
+	const handleSubmit = (data: UpdateSceneSettingRequest) => {
 		onSaveSettings(data);
 	};
 
 	useEffect(() => {
 		if (scene) {
 			form.reset({
-				sceneTitle: scene.name || "",
+				name: scene.name || "",
 			});
 		}
 	}, [scene, form.reset]);
@@ -48,7 +50,7 @@ export const SceneSettings = ({
 				<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-2">
 					<FormField
 						control={form.control}
-						name="sceneTitle"
+						name="name"
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>タイトル</FormLabel>

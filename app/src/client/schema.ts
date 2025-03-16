@@ -7,6 +7,10 @@ import type {
 } from "@/schemas/games/domain/scene";
 import type { Howl } from "howler";
 
+// --------------------------------------------------
+//	ゲームエンジンのための型定義
+// --------------------------------------------------
+
 export const isGotoScene = (
 	scene: Scene,
 ): scene is GotoScene & { sceneType: "goto" } => {
@@ -31,16 +35,10 @@ export type Choice = {
 	nextSceneId: number;
 };
 
-// --------------------------------------------------
-//	以下は、ゲームエンジンのための型定義
-// --------------------------------------------------
-
 export type Stage = {
 	cg: {
 		item: {
 			id: number;
-			scale: number;
-			position: [number, number];
 		} | null;
 		transitionDuration: number;
 	};

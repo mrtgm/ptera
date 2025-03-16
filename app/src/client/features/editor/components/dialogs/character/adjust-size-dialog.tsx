@@ -196,7 +196,7 @@ export const AdjustSizeDialog = ({
 				{/* スケールスライダー */}
 				<div className="space-y-2">
 					<div className="flex justify-between">
-						<Label htmlFor="scale">拡大率: {scale.toFixed(2)}</Label>
+						<Label htmlFor="scale">拡大率: {Number(scale).toFixed(2)}</Label>
 						<div className="flex items-center space-x-2">
 							<Button
 								variant="outline"
@@ -237,8 +237,8 @@ export const AdjustSizeDialog = ({
 
 				{/* 位置情報の表示 */}
 				<div className="flex items-center space-x-2">
-					<Label>X位置: {position[0].toFixed(2)}</Label>
-					<Label>Y位置: {position[1].toFixed(2)}</Label>
+					<Label>X位置: {Number(position[0]).toFixed(2)}</Label>
+					<Label>Y位置: {Number(position[1]).toFixed(2)}</Label>
 				</div>
 			</div>
 

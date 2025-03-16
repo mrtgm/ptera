@@ -14,7 +14,7 @@ import { memo, useCallback, useEffect, useState } from "react";
 import "@xyflow/react/dist/style.css";
 
 import type { GameDetailResponse } from "@/schemas/games/dto";
-import { useParams } from "next/navigation";
+import { useParams } from "react-router";
 import {
 	getAllEdges,
 	getAllNodesPosition,

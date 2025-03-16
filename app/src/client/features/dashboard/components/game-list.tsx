@@ -21,6 +21,7 @@ import type { GameListResponse } from "@/schemas/games/dto";
 import { Gamepad2, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Toaster, toast } from "sonner";
 import { PublishStatusDialog } from "./publish-confirm-dialog";
 
 export const DashboardGamesList = ({
@@ -49,25 +50,26 @@ export const DashboardGamesList = ({
 				if (newGame) {
 					setUserGames((prev) => [newGame, ...prev]);
 					router.refresh();
+					toast.success("ゲームを作成しました");
 				}
 			},
 		});
-
 		return res?.id;
 	};
 
 	const deleteGame = async (gameId: number) => {
-		try {
-			await api.games.delete(gameId);
-
-			setUserGames((prev) => prev.filter((game) => game.id !== gameId));
-			router.refresh();
-
-			return true;
-		} catch (err) {
-			console.error("Failed to delete game:", err);
-			return false;
-		}
+		await performUpdate({
+			api: () => api.games.delete(gameId),
+			optimisticUpdate: () => {
+				setUserGames((prev) => prev.filter((game) => game.id !== gameId));
+			},
+			onSuccess: () => {
+				toast.success("ゲームを削除しました");
+			},
+			onError: () => {
+				toast.error("ゲームの削除に失敗しました");
+			},
+		});
 	};
 
 	const handlePublishToggleRequest = (game: GameListResponse) => {
@@ -110,6 +112,20 @@ export const DashboardGamesList = ({
 					prev.map((game) => (game.id === gameId ? previousGame : game)),
 				);
 			},
+			onSuccess: () => {
+				toast.success(
+					`ゲーム「${selectedGame.name}」を ${
+						shouldPublish ? "公開" : "下書き"
+					}しました`,
+				);
+			},
+			onError: () => {
+				toast.error(
+					`ゲーム「${selectedGame.name}」の ${
+						shouldPublish ? "公開" : "下書き"
+					}に失敗しました`,
+				);
+			},
 		});
 	};
 
@@ -124,6 +140,7 @@ export const DashboardGamesList = ({
 
 	return (
 		<>
+			<Toaster />
 			<div className="flex items-center mb-4">
 				<h1 className="text-2xl font-bold tracking-tight">ゲーム一覧 </h1>
 			</div>

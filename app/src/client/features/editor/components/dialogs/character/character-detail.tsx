@@ -15,7 +15,7 @@ import type { GameDetailResponse, ResourceResponse } from "@/schemas/games/dto";
 import { AlertTriangle, ArrowLeft, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import ResourceValidator from "../../../utils/resource-validator";
+import { ResourceValidator } from "../../../utils/resource-validator";
 import { AssetUpload } from "../asset-upload";
 import { useDeleteConfirmationDialog } from "../delete-confirmation-dialog";
 
@@ -184,13 +184,16 @@ export const CharacterDetail = ({
 				>
 					名前変更
 				</Button>
-				<Button
-					variant="destructive"
-					onClick={handleDeleteCharacterClick}
-					className="flex items-center gap-2"
-				>
-					削除
-				</Button>
+				{/* ユーザ投稿キャラクターのみ削除可能 */}
+				{!character.isPublic && (
+					<Button
+						variant="destructive"
+						onClick={handleDeleteCharacterClick}
+						className="flex items-center gap-2"
+					>
+						削除
+					</Button>
+				)}
 			</div>
 
 			{/* バリデーションエラー表示 */}
@@ -262,14 +265,17 @@ export const CharacterDetail = ({
 							</div>
 							<div className="text-xs text-gray-500 truncate">{image.name}</div>
 							{/* 削除ボタン - ホバー時に表示 */}
-							<button
-								className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
-								onClick={(e) => handleDeleteImageClick(e, imageIdNum)}
-								aria-label={`画像「${image.name}」を削除`}
-								type="button"
-							>
-								<X size={16} />
-							</button>
+							{/* ユーザ投稿画像のみ削除可能 */}
+							{!character.isPublic && (
+								<button
+									className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+									onClick={(e) => handleDeleteImageClick(e, imageIdNum)}
+									aria-label={`画像「${image.name}」を削除`}
+									type="button"
+								>
+									<X size={16} />
+								</button>
+							)}
 						</div>
 					);
 				})}

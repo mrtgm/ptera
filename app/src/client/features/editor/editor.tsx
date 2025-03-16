@@ -1,6 +1,7 @@
 import dummyAssets from "@/client/__mocks__/dummy-assets.json";
 import dummyGame from "@/client/__mocks__/dummy-game.json";
 
+import { api } from "@/client/api";
 import { Toaster } from "@/client/components/shadcn/sonner";
 import { useStore } from "@/client/stores";
 import type { AssetType } from "@/schemas/assets/domain/resoucres";
@@ -11,6 +12,8 @@ import type {
 	ResourceResponse,
 	SceneResponse,
 	UpdateGameRequest,
+	UpdateSceneRequest,
+	UpdateSceneSettingRequest,
 } from "@/schemas/games/dto";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { Loader2 } from "lucide-react";
@@ -31,7 +34,6 @@ import { Graph } from "./components/graph";
 import { Header } from "./components/header";
 import { SceneDetail } from "./components/scene-detail";
 import { EndingEditor } from "./components/scene-detail/ending-editor";
-import type { SceneSettingsFormData } from "./components/scene-detail/scene-settings";
 import { ScenesList } from "./components/scene-list";
 import { ProjectSettings } from "./components/scene-list/project-settings";
 import { Sidebar, SidebarItemCore } from "./components/sidebar";
@@ -42,6 +44,19 @@ import {
 } from "./constants";
 import { useTimelineDrag } from "./hooks/use-timeline-drag";
 
+const initialize = async (gameId: number) => {
+	const [games, assets] = await Promise.all([
+		api.games.get(gameId),
+		api.games.getAssets(gameId),
+	]);
+	return {
+		game: games as GameDetailResponse,
+		assets: assets as ResourceResponse,
+	};
+};
+
+const toNumber = (id: string | undefined) => (id ? Number(id) : undefined);
+
 export default function Editor() {
 	const editorSlice = useStore.useSlice.editor();
 	const modalSlice = useStore.useSlice.modal();
@@ -49,13 +64,9 @@ export default function Editor() {
 	const pathparams = useParams();
 	const navigate = useNavigate();
 
-	const gameId = pathparams.gameId;
-	const selectedSceneId = pathparams.sceneId
-		? Number(pathparams.sceneId)
-		: undefined;
-	const selectedEventId = pathparams.eventId
-		? Number(pathparams.eventId)
-		: undefined;
+	const gameId = toNumber(pathparams.gameId);
+	const selectedSceneId = toNumber(pathparams.sceneId);
+	const selectedEventId = toNumber(pathparams.eventId);
 
 	const isOpenEnding = selectedEventId === 0;
 	const selectedScene = editorSlice.editingGame?.scenes?.find(
@@ -66,13 +77,11 @@ export default function Editor() {
 	);
 
 	useEffect(() => {
-		console.log("Editor mounted");
-		// TODO: ロード
-		editorSlice.initializeEditor(
-			dummyGame as GameDetailResponse,
-			dummyAssets as ResourceResponse,
-		);
-	}, [editorSlice.initializeEditor]);
+		if (!gameId) return;
+		initialize(gameId).then(({ game, assets }) => {
+			editorSlice.initializeEditor(game, assets);
+		});
+	}, [editorSlice.initializeEditor, gameId]);
 
 	const handleNavigateToScene = (sceneId: number) => {
 		navigate(`/dashboard/games/${gameId}/edit/scenes/${sceneId}`);
@@ -94,19 +103,21 @@ export default function Editor() {
 		);
 	};
 
-	const handleAddScene = (
-		sceneTitle: string,
-		scene: SceneResponse,
-		choiceId?: number | null,
+	const handleAddScene = async (
+		name: string,
+		fromScene: SceneResponse,
+		choiceId?: number | undefined,
 	) => {
-		// TODO: 実装
+		const newScene = await editorSlice.addScene({
+			name,
+			fromScene,
+			choiceId,
+		});
 		toast.success("シーンを追加しました");
-		return editorSlice.addScene(sceneTitle, scene, choiceId);
+		return newScene;
 	};
 
 	const handleDeleteScene = () => {
-		// TODO: 実装
-		console.log("Delete scene clicked");
 		if (!selectedSceneId) return;
 		editorSlice.deleteScene(selectedSceneId as number);
 		handleNavigateToScenesList();
@@ -114,32 +125,26 @@ export default function Editor() {
 	};
 
 	const handleSaveProjectSettings = async (data: UpdateGameRequest) => {
-		console.log("Save settings", data);
 		await editorSlice.saveProjectSettings(data);
 		toast.success("プロジェクト設定を保存しました");
 	};
 
-	const handleSaveSceneSettings = (data: SceneSettingsFormData) => {
-		// TODO: 実装
-		console.log("Save scene settings", data);
-		editorSlice.saveSceneSettings(data);
+	const handleSaveSceneSettings = async (data: UpdateSceneSettingRequest) => {
+		if (!selectedSceneId) return;
+		await editorSlice.saveSceneSettings(selectedSceneId, data);
 		toast.success("シーン設定を保存しました");
 	};
 
-	const handleDeleteEvent = () => {
-		// TODO: 実装
-		console.log("Delete event clicked");
+	const handleDeleteEvent = async () => {
 		if (!selectedSceneId || !selectedEventId) return;
-		editorSlice.deleteEvent(selectedEventId, selectedSceneId);
+		await editorSlice.deleteEvent(selectedEventId, selectedSceneId);
 		handleNavigateToScene(selectedSceneId);
 		toast.success("イベントを削除しました");
 	};
 
-	const handleSaveEvent = (event: EventResponse) => {
-		// TODO: 実装
-		console.log("Save event clicked");
+	const handleSaveEvent = async (event: EventResponse) => {
 		if (!selectedSceneId) return;
-		editorSlice.saveEvent(event, selectedSceneId);
+		await editorSlice.saveEvent(event, selectedSceneId);
 		toast.success("イベントを保存しました");
 	};
 
@@ -157,6 +162,7 @@ export default function Editor() {
 	};
 
 	const handleUploadCharacterImage = (characterId: number, file: File) => {
+		// TODO: 実装
 		console.log("Upload image", characterId, file);
 		editorSlice.uploadCharacterImage(characterId, file);
 		toast.success("キャラクター画像をアップロードしました");
@@ -192,8 +198,6 @@ export default function Editor() {
 	const handleSaveEnding = (
 		endingScene: GameDetailResponse["scenes"][number],
 	) => {
-		// TODO: 実装
-		console.log("Save ending", endingScene);
 		editorSlice.saveEnding(endingScene);
 		toast.success("シーン終了設定を保存しました");
 	};
@@ -203,8 +207,6 @@ export default function Editor() {
 		item: SidebarItem,
 		sceneId: number,
 	) => {
-		// TODO: 実装
-		console.log("Add event", index, item, sceneId);
 		await editorSlice.addEvent(index, item, sceneId);
 		toast.success("イベントを追加しました");
 	};
@@ -214,8 +216,6 @@ export default function Editor() {
 		newIndex: number,
 		sceneId: number,
 	) => {
-		// TODO: 実装
-		console.log("Move event", oldIndex, newIndex, sceneId);
 		editorSlice.moveEvent(oldIndex, newIndex, sceneId);
 		toast.success("イベントを移動しました");
 	};

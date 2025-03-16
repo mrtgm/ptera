@@ -1,4 +1,4 @@
-import { isChoiceScene, isGotoScene } from "@/client/schema";
+import { type Choice, isChoiceScene, isGotoScene } from "@/client/schema";
 import type React from "react";
 import { useRef, useState } from "react";
 
@@ -30,8 +30,8 @@ interface EndingEditorProps {
 	onAddScene: (
 		sceneTitle: string,
 		fromScene: SceneResponse,
-		choiceId?: number | null,
-	) => SceneResponse | null;
+		choiceId?: number | undefined,
+	) => Promise<SceneResponse | null | undefined>;
 }
 
 export const EndingEditor: React.FC<EndingEditorProps> = ({
@@ -45,7 +45,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 	const [localGame, setLocalGame] = useState<GameDetailResponse | null>(game);
 	const [hasChanges, setHasChanges] = useState(false);
 	const [isNewSceneDialogOpen, setIsNewSceneDialogOpen] = useState(false);
-	const activeChoiceId = useRef<number | null>(null);
+	const activeChoiceId = useRef<number | undefined>(undefined);
 
 	const currentScene = localGame?.scenes.find(
 		(scene) => scene.id === selectedScene.id,
@@ -59,14 +59,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 		setLocalGame((prevGame) => {
 			if (!prevGame) return prevGame;
 
-			const initialScene = prevGame.scenes.find(
-				(scene) => scene.id === prevGame.initialSceneId,
-			);
-
-			if (!initialScene) {
-				throw new Error("Initial scene not found");
-			}
-
+			// シーンのタイプ変更時に初期値を設定
 			const updatedScenes = prevGame.scenes.map((scene) => {
 				if (scene.id !== selectedScene.id) return scene;
 
@@ -77,7 +70,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 					return {
 						...scene,
 						sceneType: "goto",
-						nextSceneId: initialScene.id,
+						nextSceneId: undefined,
 						...(isGotoScene(selectedScene) && {
 							nextSceneId: selectedScene.nextSceneId,
 						}),
@@ -101,6 +94,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 				scenes: updatedScenes,
 			};
 		});
+
 		setHasChanges(true);
 	};
 
@@ -127,8 +121,8 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 						{
 							id: randomIntId(),
 							text: "",
-							nextSceneId: initialScene.id,
-						},
+							nextSceneId: undefined,
+						} as unknown as Choice, // 一時的に undefined を許容
 					],
 				};
 			});
@@ -236,17 +230,19 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 		setHasChanges(true);
 	};
 
-	const handleOpenNewSceneDialog = (choiceId: number | null = null) => {
+	const handleOpenNewSceneDialog = (
+		choiceId: number | undefined = undefined,
+	) => {
 		activeChoiceId.current = choiceId;
 		setIsNewSceneDialogOpen(true);
 	};
 
-	const handleCreateNewScene = (newSceneTitle: string) => {
+	const handleCreateNewScene = async (newSceneTitle: string) => {
 		if (!newSceneTitle.trim() || !currentScene) {
 			return;
 		}
 
-		const newScene = onAddScene(
+		const newScene = await onAddScene(
 			newSceneTitle,
 			currentScene,
 			activeChoiceId.current,
@@ -254,21 +250,25 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 
 		if (!newScene) return;
 
+		let updatedScene = null;
+
 		setLocalGame((prevGame) => {
 			if (!prevGame) return prevGame;
 
 			const updatedScenes = prevGame.scenes.map((scene) => {
 				if (scene.id !== selectedScene.id) return scene;
 
+				updatedScene = scene;
+
 				if (isGotoScene(scene)) {
-					return {
+					updatedScene = {
 						...scene,
 						nextSceneId: newScene.id,
 					};
 				}
 
 				if (isChoiceScene(scene) && activeChoiceId.current) {
-					return {
+					updatedScene = {
 						...scene,
 						choices: scene.choices.map((choice) => {
 							if (choice.id === activeChoiceId.current) {
@@ -282,7 +282,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 					};
 				}
 
-				return scene;
+				return updatedScene;
 			});
 
 			return {
@@ -291,8 +291,9 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 			};
 		});
 
-		activeChoiceId.current = null;
+		activeChoiceId.current = undefined;
 		setIsNewSceneDialogOpen(false);
+
 		setHasChanges(false);
 	};
 
@@ -310,7 +311,14 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 				(choice) => choice.text.trim() !== "" && choice.nextSceneId !== 0,
 			);
 			if (validChoices.length === 0) {
-				alert("少なくとも1つの有効な選択肢が必要です");
+				alert("選択肢のテキストを入力してください");
+				return;
+			}
+			const undefinedNextScene = validChoices.find(
+				(choice) => choice.nextSceneId === undefined,
+			);
+			if (undefinedNextScene) {
+				alert("選択肢の遷移先を選択してください");
 				return;
 			}
 		}
@@ -374,7 +382,9 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 										currentSceneId={currentScene.id}
 										onNextSceneChange={handleNextSceneChange}
 										onNavigateToScene={onNavigateToScene}
-										onOpenNewSceneDialog={() => handleOpenNewSceneDialog(null)}
+										onOpenNewSceneDialog={() =>
+											handleOpenNewSceneDialog(undefined)
+										}
 									/>
 								</TabsContent>
 							)}
@@ -402,7 +412,7 @@ export const EndingEditor: React.FC<EndingEditorProps> = ({
 					isOpen={isNewSceneDialogOpen}
 					onClose={() => {
 						setIsNewSceneDialogOpen(false);
-						activeChoiceId.current = null;
+						activeChoiceId.current = undefined;
 					}}
 					onCreateScene={handleCreateNewScene}
 				/>

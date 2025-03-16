@@ -59,7 +59,6 @@ export default function CreateGameDialog({
 			setIsSubmitting(true);
 			setError("");
 			const gameId = await onCreate(values.name, values.description || "");
-
 			if (gameId) {
 				form.reset();
 				onOpenChange(false);

@@ -1,14 +1,14 @@
 import { Card } from "@/client/components/shadcn/card";
 import { Separator } from "@/client/components/shadcn/separator";
-import type { SceneResponse } from "@/schemas/games/dto";
+import type {
+	SceneResponse,
+	UpdateSceneSettingRequest,
+} from "@/schemas/games/dto";
 import { useDraggable } from "@dnd-kit/core";
 import type { LucideProps } from "lucide-react";
 import { cloneElement } from "react";
 import type { SideBarSettings, SidebarItem } from "../constants";
-import {
-	SceneSettings,
-	type SceneSettingsFormData,
-} from "./scene-detail/scene-settings";
+import { SceneSettings } from "./scene-detail/scene-settings";
 
 export const Sidebar = ({
 	selectedScene,
@@ -17,7 +17,7 @@ export const Sidebar = ({
 }: {
 	selectedScene: SceneResponse | undefined | null;
 	sideBarSettings: typeof SideBarSettings;
-	onSaveSettings: (data: SceneSettingsFormData) => void;
+	onSaveSettings: (data: UpdateSceneSettingRequest) => void;
 }) => {
 	if (!selectedScene) {
 		return null;

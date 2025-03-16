@@ -10,7 +10,7 @@ export default async function GamesPage({
 }: {
 	searchParams: Promise<GetGamesRequest>;
 }) {
-	const categories = await api.games.getCategories();
+	const categories = (await api.games.getCategories()) ?? [];
 	const params = await searchParams;
 
 	return (

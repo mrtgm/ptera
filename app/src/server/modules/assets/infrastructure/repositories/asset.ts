@@ -4,7 +4,7 @@ import {
 	assetGame,
 	characterAsset,
 } from "@/server/shared/infrastructure/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { AssetNotFoundError } from "~/schemas/assets/domain/error";
 import type { MediaAsset } from "~/schemas/assets/domain/resoucres";
 import { BaseRepository, type Transaction } from "./base";
@@ -85,6 +85,46 @@ export class AssetRepository extends BaseRepository {
 		}, tx);
 	}
 
+	async hasGameAsset({
+		params: { assetId },
+		tx,
+	}: {
+		params: {
+			assetId: number;
+		};
+		tx?: Transaction;
+	}): Promise<boolean> {
+		const dbToUse = tx || this.db;
+		const assetData = await dbToUse
+			.select()
+			.from(assetGame)
+			.where(eq(assetGame.assetId, assetId))
+			.limit(1)
+			.execute();
+
+		return assetData.length > 0;
+	}
+
+	async unlinkGameFromAsset({
+		params: { assetId, gameId },
+		tx,
+	}: {
+		params: {
+			assetId: number;
+			gameId: number;
+		};
+		tx?: Transaction;
+	}): Promise<void> {
+		return await this.executeTransaction(async (txLocal) => {
+			await txLocal
+				.delete(assetGame)
+				.where(
+					and(eq(assetGame.assetId, assetId), eq(assetGame.gameId, gameId)),
+				)
+				.execute();
+		}, tx);
+	}
+
 	async deleteAsset({
 		params: { assetId },
 		tx,
@@ -95,14 +135,6 @@ export class AssetRepository extends BaseRepository {
 		tx?: Transaction;
 	}): Promise<{ success: boolean }> {
 		return await this.executeTransaction(async (txLocal) => {
-			// ゲームとの関連を削除
-			// TODO: 本来はゲームとの関連が残ってる場合、エラーを通知しなければならない
-
-			await txLocal
-				.delete(assetGame)
-				.where(eq(assetGame.assetId, assetId))
-				.execute();
-
 			await txLocal
 				.delete(characterAsset)
 				.where(eq(characterAsset.assetId, assetId))
@@ -110,7 +142,6 @@ export class AssetRepository extends BaseRepository {
 
 			// アセット自体を削除
 			await txLocal.delete(asset).where(eq(asset.id, assetId)).execute();
-
 			return { success: true };
 		}, tx);
 	}

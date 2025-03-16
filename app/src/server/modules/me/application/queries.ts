@@ -18,7 +18,7 @@ export const createDashboardQuery = ({
 		executeGetMyGames: async (
 			currentUserId: number,
 		): Promise<GameListResponse[]> => {
-			const games = await gameRepository.getGamesByUserId(currentUserId);
+			const games = await gameRepository.getGamesByUserId(currentUserId, false);
 			const user = await userRepository.getById(currentUserId);
 
 			if (!user) {

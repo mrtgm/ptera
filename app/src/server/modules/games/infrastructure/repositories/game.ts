@@ -196,7 +196,16 @@ export class GameRepository extends BaseRepository {
 		}, tx);
 	}
 
-	async getGamesByUserId(userId: number): Promise<Game[]> {
+	async getGamesByUserId(
+		userId: number,
+		onlyPublished = true,
+	): Promise<Game[]> {
+		const conditions = [eq(game.userId, userId)];
+
+		if (onlyPublished) {
+			conditions.push(eq(game.status, "published"));
+		}
+
 		const items = await this.db
 			.select({
 				id: game.id,
@@ -210,7 +219,7 @@ export class GameRepository extends BaseRepository {
 				updatedAt: game.updatedAt,
 			})
 			.from(game)
-			.where(eq(game.userId, userId))
+			.where(and(...conditions))
 			.execute()
 			.then((v) =>
 				v.map((game) => ({

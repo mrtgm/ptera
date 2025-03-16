@@ -40,8 +40,8 @@ import type {
 	SceneResponse,
 } from "@/schemas/games/dto";
 import { MonitorPlay, Trash } from "lucide-react";
+import { useUnsavedFormWarning } from "../../hooks/use-unsaved-form-warning";
 import { useDeleteConfirmationDialog } from "../dialogs";
-import { UnsavedChangeDialog } from "../dialogs/unsaved-change";
 import {
 	BGMSelect,
 	BackgroundSelect,
@@ -114,13 +114,12 @@ export const EventDetail = ({
 	});
 
 	useEffect(() => {
-		console.log("selectedEvent", selectedEvent);
 		if (selectedEvent) {
 			form.reset(selectedEvent);
 		}
 	}, [selectedEvent, form]);
 
-	// useUnsavedFormWarning(form.formState);
+	useUnsavedFormWarning(form.formState);
 
 	const handleSubmit = (data: Partial<EventResponse>) => {
 		const updatedEvent = {
@@ -161,8 +160,6 @@ export const EventDetail = ({
 					setEventDeleteDialogOpen(false);
 				}}
 			/>
-
-			<UnsavedChangeDialog isDirty={form.formState.isDirty} />
 
 			<Card className="w-full">
 				<CardHeader className="flex flex-row justify-between items-center">

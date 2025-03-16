@@ -67,7 +67,6 @@ assetRoutes
 				userId: "required",
 			});
 		}
-
 		const result = await commands.executeUpdateAsset(assetId, dto, userId);
 		return successWithDataResponse(c, result);
 	})
@@ -75,10 +74,23 @@ assetRoutes
 		const assetId = c.req.valid("param").assetId;
 		const userId = c.get("user")?.id;
 		if (!userId) {
-			return errorResponse(c, 401, "unauthorized", "error");
+			return errorResponse(c, 401, "unauthorized", "warn", "user", {
+				userId: "required",
+			});
 		}
 
 		await commands.executeDeleteAsset(assetId, userId);
+		return successWithoutDataResponse(c);
+	})
+	.openapi(assetRouteConfigs.unlinkGameFromAsset, async (c) => {
+		const { assetId, gameId } = c.req.valid("param");
+		const userId = c.get("user")?.id;
+		if (!userId) {
+			return errorResponse(c, 401, "unauthorized", "warn", "user", {
+				userId: "required",
+			});
+		}
+		await commands.executeUnlinkGameFromAsset(assetId, gameId);
 		return successWithoutDataResponse(c);
 	});
 
@@ -91,7 +103,9 @@ characterRoutes
 		const dto = c.req.valid("json");
 		const userId = c.get("user")?.id;
 		if (!userId) {
-			return errorResponse(c, 401, "unauthorized", "error");
+			return errorResponse(c, 401, "unauthorized", "warn", "user", {
+				userId: "required",
+			});
 		}
 		const result = await commands.executeCreateCharacter(dto, userId);
 		return successWithDataResponse(c, result);
@@ -101,7 +115,9 @@ characterRoutes
 		const dto = c.req.valid("json");
 		const userId = c.get("user")?.id;
 		if (!userId) {
-			return errorResponse(c, 401, "unauthorized", "error");
+			return errorResponse(c, 401, "unauthorized", "warn", "user", {
+				userId: "required",
+			});
 		}
 
 		const result = await commands.executeUpdateCharacter(
@@ -115,7 +131,9 @@ characterRoutes
 		const characterId = c.req.valid("param").characterId;
 		const userId = c.get("user")?.id;
 		if (!userId) {
-			return errorResponse(c, 401, "unauthorized", "error");
+			return errorResponse(c, 401, "unauthorized", "warn", "user", {
+				userId: "required",
+			});
 		}
 
 		await commands.executeDeleteCharacter(characterId, userId);
@@ -126,7 +144,9 @@ characterRoutes
 		const dto = c.req.valid("json");
 		const userId = c.get("user")?.id;
 		if (!userId) {
-			return errorResponse(c, 401, "unauthorized", "error");
+			return errorResponse(c, 401, "unauthorized", "warn", "user", {
+				userId: "required",
+			});
 		}
 
 		await commands.executeLinkAssetToCharacter(characterId, dto, userId);
@@ -136,7 +156,9 @@ characterRoutes
 		const { characterId, assetId } = c.req.valid("param");
 		const userId = c.get("user")?.id;
 		if (!userId) {
-			return errorResponse(c, 401, "unauthorized", "error");
+			return errorResponse(c, 401, "unauthorized", "warn", "user", {
+				userId: "required",
+			});
 		}
 
 		await commands.executeUnlinkAssetFromCharacter(

@@ -1,3 +1,6 @@
+import { toast } from "sonner";
+import { rethrowApiError } from "../api";
+
 export const performUpdate = async <T>({
 	api,
 	optimisticUpdate,
@@ -24,9 +27,8 @@ export const performUpdate = async <T>({
 		rollback?.();
 		if (onError) {
 			onError(error);
-			console.error("Update error:", error);
-		} else {
-			console.error("Optimistic update error:", error);
 		}
+		const res = rethrowApiError(error);
+		toast.error(res.error.message);
 	}
 };

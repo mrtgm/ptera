@@ -43,21 +43,34 @@ export const GamePlayer = ({
 
 	const stageRef = useRef<Stage>(initialStage);
 
+	const [error, setError] = useState<{
+		title: string;
+		message: string;
+	} | null>();
+
 	const [history, setHistory] = useState<MessageHistory[]>([]);
 	const [currentScene, setCurrentScene] = useState<SceneResponse | null>(null);
 	const [currentEvent, setCurrentEvent] = useState<EventResponse | null>(null);
 	const [isResourcesLoaded, setIsResourcesLoaded] = useState(false);
 
 	useEffect(() => {
-		resourceManager.loadResources(resources).then(() => {
-			setIsResourcesLoaded(true);
+		resourceManager
+			.loadResources(resources)
+			.then(() => {
+				setIsResourcesLoaded(true);
 
-			if (isPreviewMode) {
-				startGame();
-			} else {
-				setState("beforeStart");
-			}
-		});
+				if (isPreviewMode) {
+					startGame();
+				} else {
+					setState("beforeStart");
+				}
+			})
+			.catch((error) => {
+				setError({
+					title: "リソースの読み込みに失敗しました。URLが無効かもしれません。",
+					message: error.message,
+				});
+			});
 	}, [resources, isPreviewMode]);
 
 	const resetGame = useCallback(() => {
@@ -129,6 +142,11 @@ export const GamePlayer = ({
 					goToNextEvent();
 				} catch (error) {
 					console.error("イベント処理エラー:", error);
+					setError({
+						title:
+							"イベント処理中にエラーが発生しました。設定を確認してください。",
+						message: JSON.stringify(error),
+					});
 				}
 			};
 
@@ -227,6 +245,12 @@ export const GamePlayer = ({
 	return (
 		<>
 			<>
+				{error && (
+					<div className="w-full h-full bg-blue-800 flex-col justify-center items-center select-none">
+						<div className="text-white text-2xl">{error.title}</div>
+						<div className="text-white text-sm">{error.message}</div>
+					</div>
+				)}
 				{state === "loading" && (
 					<div className="w-full h-full bg-black flex justify-center items-center select-none">
 						<div className="text-white text-2xl">読み込み中...</div>

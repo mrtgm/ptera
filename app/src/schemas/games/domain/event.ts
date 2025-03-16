@@ -178,8 +178,6 @@ export const appearCGEventSchema = z.object({
 	category: z.literal("cg"),
 	orderIndex: z.string(),
 	cgImageId: z.number(),
-	position: z.tuple([z.number(), z.number()]),
-	scale: z.union([z.number(), z.string().transform(Number)]),
 	transitionDuration: z.union([z.number(), z.string().transform(Number)]),
 });
 
@@ -317,6 +315,7 @@ export const getDefaultValueForType = (
 			const characterImageId = resources.character[characterId].images
 				? Object.values(resources.character[characterId].images)[0].id
 				: undefined;
+
 			return {
 				characterId,
 				characterImageId,
@@ -391,7 +390,7 @@ export const getDefaultValueForType = (
 // fractional-indexing
 export const sortEvent = (ag: GameEvent, bg: GameEvent) => {
 	const EXTENDED_ALPHABET =
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 	const a = ag.orderIndex;
 	const b = bg.orderIndex;

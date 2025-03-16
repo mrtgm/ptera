@@ -2,6 +2,7 @@ import type { UserRepository } from "@/server/modules/users/infrastructure/repos
 import {
 	GameNotFoundError,
 	InitialSceneNotFoundError,
+	SceneNotFoundError,
 	ScenesNotFoundError,
 } from "~/schemas/games/domain/error";
 import type { GameWithScene } from "~/schemas/games/domain/game";
@@ -95,7 +96,9 @@ export const createQuery = ({
 				throw new UserNotFoundError(game.userId);
 			}
 
-			const eventMap = await eventRepository.getEvents(scenes.map((v) => v.id));
+			const eventMap = await eventRepository.getEventsBySceneIds(
+				scenes.map((v) => v.id),
+			);
 
 			for (const scene of scenes) {
 				scene.events = eventMap[scene.id] || [];
@@ -108,6 +111,14 @@ export const createQuery = ({
 			};
 
 			return mapDomainToGameDetailResponse(gameWithScene, user);
+		},
+
+		executeGetScene: async (sceneId: number) => {
+			const scene = await sceneRepository.getSceneById(sceneId);
+			if (!scene) {
+				throw new SceneNotFoundError(sceneId);
+			}
+			return scene;
 		},
 
 		executeGetComments: async (gameId: number): Promise<CommentResponse[]> => {

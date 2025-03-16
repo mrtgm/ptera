@@ -1,36 +1,22 @@
 import { api } from "@/client/api";
+import { guard } from "@/client/features/auth/guard";
 import { ProfileForm } from "@/client/features/dashboard/components/profile-form";
-import { ENV } from "@/configs/env";
-import { AUTH_TOKEN_COOKIE_NAME } from "@/server/core/middleware/auth";
-import { verify } from "hono/jwt";
+import { AUTH_TOKEN_COOKIE_NAME } from "@/configs/constants";
 import { cookies } from "next/headers";
 
-const getUser = async () => {
-	const cookieStore = await cookies();
-	const signedCookie = cookieStore.get(AUTH_TOKEN_COOKIE_NAME)?.value;
-	if (signedCookie) {
-		const parsedToken = await verify(signedCookie, ENV.JWT_SECRET);
-		return await api.users.get(parsedToken.userId as number);
-	}
-	return null;
-};
-
-export function ProfileSectionSkeleton() {
-	return (
-		<div className="space-y-6">
-			<div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
-			<div className="space-y-4">
-				<div className="h-64 bg-gray-200 rounded animate-pulse" />
-			</div>
-		</div>
-	);
-}
-
 export default async function DashboardGamesPage() {
-	const user = await getUser();
+	await guard();
+	const user = await api.auth.me();
 
 	if (!user) {
-		return <ProfileSectionSkeleton />;
+		return (
+			<div className="space-y-6">
+				<div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
+				<div className="space-y-4">
+					<div className="h-64 bg-gray-200 rounded animate-pulse" />
+				</div>
+			</div>
+		);
 	}
 
 	return (

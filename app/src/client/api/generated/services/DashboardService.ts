@@ -74,12 +74,16 @@ export class DashboardService {
         data: {
             character: Record<string, {
                 id: number;
+                ownerId: number | null;
+                isPublic: boolean;
                 name: string;
                 images?: Record<string, {
                     id: number;
                     assetType: 'characterImage';
                     name: string;
                     url: string;
+                    ownerId: number | null;
+                    isPublic: boolean;
                     metadata?: any;
                 }>;
             }>;
@@ -88,6 +92,8 @@ export class DashboardService {
                 assetType: 'backgroundImage';
                 name: string;
                 url: string;
+                ownerId: number | null;
+                isPublic: boolean;
                 metadata?: any;
             }>;
             soundEffect: Record<string, {
@@ -95,6 +101,8 @@ export class DashboardService {
                 assetType: 'soundEffect';
                 name: string;
                 url: string;
+                ownerId: number | null;
+                isPublic: boolean;
                 metadata?: any;
             }>;
             bgm: Record<string, {
@@ -102,6 +110,8 @@ export class DashboardService {
                 assetType: 'bgm';
                 name: string;
                 url: string;
+                ownerId: number | null;
+                isPublic: boolean;
                 metadata?: any;
             }>;
             cgImage: Record<string, {
@@ -109,6 +119,8 @@ export class DashboardService {
                 assetType: 'cgImage';
                 name: string;
                 url: string;
+                ownerId: number | null;
+                isPublic: boolean;
                 metadata?: any;
             }>;
         };

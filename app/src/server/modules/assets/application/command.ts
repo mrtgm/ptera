@@ -1,3 +1,10 @@
+import {
+	AssetNotFoundError,
+	CannotDeletePublicAssetError,
+	CannotDeletePublicCharacterError,
+	CharacterNotFoundError,
+	StillInUseError,
+} from "@/schemas/assets/domain/error";
 import type {
 	AssetCharacterLinkRequest,
 	AssetResponse,
@@ -6,6 +13,8 @@ import type {
 	UpdateAssetRequest,
 	UpdateCharacterRequest,
 } from "@/schemas/assets/dto";
+import { UserUnauthorizedError } from "@/schemas/users/domain/error";
+import { db } from "@/server/shared/infrastructure/db";
 import type { FileUploadService } from "../infrastructure/file-upload";
 import type {
 	AssetRepository,
@@ -80,26 +89,49 @@ export const createAssetCharacterCommands = ({
 		},
 
 		executeDeleteAsset: async (assetId: number, userId: number) => {
-			const asset = await assetRepository.getAssetById(assetId);
-			if (!asset) {
-				throw new Error("Asset not found");
-			}
-			if (asset.ownerId !== userId) {
-				throw new Error("Unauthorized");
-			}
-			if (asset.isPublic) {
-				throw new Error("Cannot delete public asset");
-			}
+			return await db.transaction(async (tx) => {
+				const asset = await assetRepository.getAssetById(assetId, tx);
+				if (!asset) {
+					throw new AssetNotFoundError(assetId);
+				}
+				if (asset.ownerId !== userId) {
+					throw new UserUnauthorizedError();
+				}
+				if (asset.isPublic) {
+					throw new CannotDeletePublicAssetError(assetId);
+				}
 
-			await fileUploadService.deleteFile(asset.url);
+				// ゲームとの関連が残ってる場合、エラーを通知する
+				// TODO: フロントでエラーを表示する
+				const games = await assetRepository.hasGameAsset({
+					params: { assetId },
+					tx,
+				});
+				if (games) {
+					throw new StillInUseError(assetId);
+				}
 
-			await assetRepository.deleteAsset({
-				params: { assetId },
+				await fileUploadService.deleteFile(asset.url);
+
+				await assetRepository.deleteAsset({
+					params: { assetId },
+					tx,
+				});
+
+				return { success: true };
+			});
+		},
+
+		executeUnlinkGameFromAsset: async (assetId: number, gameId: number) => {
+			await assetRepository.unlinkGameFromAsset({
+				params: {
+					assetId,
+					gameId,
+				},
 			});
 
 			return { success: true };
 		},
-
 		// キャラクター作成
 		executeCreateCharacter: async (
 			params: CreateCharacterRequest,
@@ -122,45 +154,57 @@ export const createAssetCharacterCommands = ({
 			params: UpdateCharacterRequest,
 			userId: number,
 		) => {
-			const character = await characterRepository.getCharacterById(characterId);
-			if (!character) {
-				throw new Error("Character not found");
-			}
-			if (character.ownerId !== userId) {
-				throw new Error("Unauthorized");
-			}
-			if (character.isPublic) {
-				throw new Error("Cannot update public character");
-			}
-
-			const updatedCharacter = await characterRepository.updateCharacter({
-				params: {
+			return await db.transaction(async (tx) => {
+				const character = await characterRepository.getCharacterById(
 					characterId,
-					name: params.name,
-				},
-			});
+					tx,
+				);
+				if (!character) {
+					throw new CharacterNotFoundError(characterId);
+				}
+				if (character.ownerId !== userId) {
+					throw new UserUnauthorizedError();
+				}
+				if (character.isPublic) {
+					throw new CannotDeletePublicCharacterError(characterId);
+				}
 
-			return updatedCharacter;
+				const updatedCharacter = await characterRepository.updateCharacter({
+					params: {
+						characterId,
+						name: params.name,
+					},
+					tx,
+				});
+
+				return updatedCharacter;
+			});
 		},
 
 		// キャラクター削除
 		executeDeleteCharacter: async (characterId: number, userId: number) => {
-			const character = await characterRepository.getCharacterById(characterId);
-			if (!character) {
-				throw new Error("Character not found");
-			}
-			if (character.ownerId !== userId) {
-				throw new Error("Unauthorized");
-			}
-			if (character.isPublic) {
-				throw new Error("Cannot delete public character");
-			}
+			return await db.transaction(async (tx) => {
+				const character = await characterRepository.getCharacterById(
+					characterId,
+					tx,
+				);
+				if (!character) {
+					throw new CharacterNotFoundError(characterId);
+				}
+				if (character.ownerId !== userId) {
+					throw new UserUnauthorizedError();
+				}
+				if (character.isPublic) {
+					throw new CannotDeletePublicCharacterError(characterId);
+				}
 
-			await characterRepository.deleteCharacter({
-				params: { characterId },
+				await characterRepository.deleteCharacter({
+					params: { characterId },
+					tx,
+				});
+
+				return { success: true };
 			});
-
-			return { success: true };
 		},
 
 		// キャラクターにアセットを関連付け

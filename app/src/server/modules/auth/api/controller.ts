@@ -1,8 +1,8 @@
-import { ENV } from "@/configs/env";
 import {
 	AUTH_TOKEN_COOKIE_NAME,
 	AUTH_TOKEN_LIFETIME,
-} from "@/server/core/middleware/auth";
+} from "@/configs/constants";
+import { ENV } from "@/configs/env";
 import { log } from "@/server/core/middleware/logger";
 import { honoWithHook } from "@/server/lib/hono";
 import {
@@ -14,11 +14,6 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { sign } from "hono/jwt";
 import { userRepository } from "../../users/infrastructure/repository";
 import { authRouteConfigs } from "./routes";
-
-function isValidPagePath(path: string): boolean {
-	const pathRegex = /^\/[a-zA-Z0-9\-_\/]*$/;
-	return pathRegex.test(path);
-}
 
 const authRoutes = honoWithHook();
 
@@ -35,7 +30,6 @@ authRoutes
 	})
 	.openapi(authRouteConfigs.logout, async (c) => {
 		deleteCookie(c, AUTH_TOKEN_COOKIE_NAME);
-		deleteCookie(c, "redirectUrl");
 		deleteCookie(c, "state");
 		return successWithoutDataResponse(c);
 	})
@@ -91,24 +85,12 @@ authRoutes
 			}
 		}
 
-		const redirectUrl = await getCookie(c, "redirectUrl");
-
 		log.info({
 			prefix: "res",
 			url: c.req.raw.url,
 			status: c.res.status,
 			user: c.get("user")?.id || "na",
 		});
-
-		if (redirectUrl && typeof redirectUrl === "string") {
-			if (!isValidPagePath(redirectUrl)) {
-				console.error("無効なリダイレクトURL", redirectUrl);
-				return c.redirect("/dashboard");
-			}
-
-			deleteCookie(c, "redirectUrl");
-			return c.redirect(redirectUrl);
-		}
 
 		return c.redirect("/dashboard");
 	});

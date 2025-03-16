@@ -10,3 +10,8 @@ export const assetCharacterLinkParamSchema = z.object({
 	characterId: z.union([z.number(), z.string().transform(Number)]),
 	assetId: z.union([z.number(), z.string().transform(Number)]),
 });
+
+export const unlinkGameAssetSchema = z.object({
+	gameId: z.union([z.number(), z.string().transform(Number)]),
+	assetId: z.union([z.number(), z.string().transform(Number)]),
+});
