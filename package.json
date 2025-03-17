@@ -1,0 +1,12 @@
+{
+  "name": "ptera-monorepo",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "workspaces": [
+    "packages/*",
+    "app/*"
+  ]
+}
