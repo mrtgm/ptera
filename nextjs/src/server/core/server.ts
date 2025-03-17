@@ -6,14 +6,14 @@ import { cors } from "hono/cors";
 import { csrf } from "hono/csrf";
 import { secureHeaders } from "hono/secure-headers";
 import { env } from "std-env";
-import { docs } from "../../server/lib/doc";
-import { honoWithHook } from "../../server/lib/hono";
-import { gameRoutes } from "../../server/modules/games/api/controller";
-import { errorResponse } from "../../server/shared/schema/response";
+import { docs } from "../lib/doc";
+import { honoWithHook } from "../lib/hono";
 import { assetRoutes, characterRoutes } from "../modules/assets/api/controller";
 import { authRoutes } from "../modules/auth/api/controller";
+import { gameRoutes } from "../modules/games/api/controller";
 import { dashboardRoutes } from "../modules/me/api/controller";
 import { userRoutes } from "../modules/users/api/controller";
+import { errorResponse } from "../shared/schema/response";
 import { logger } from "./middleware/logger";
 
 const isDevelopment = !env.isCI;

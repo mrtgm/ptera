@@ -4,9 +4,9 @@ import type { Context, Next } from "hono";
 import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 import { verify } from "hono/jwt";
-import { userRepository } from "../../../server/modules/users/infrastructure/repository";
-import { errorResponse } from "../../../server/shared/schema/response";
 import type { Env } from "../../lib/context";
+import { userRepository } from "../../modules/users/infrastructure/repository";
+import { errorResponse } from "../../shared/schema/response";
 
 export const isAuthenticated = createMiddleware<Env>(async (c, next) => {
   const signedCookie = await getCookie(c, CONSTANTS.AUTH_TOKEN_COOKIE_NAME);

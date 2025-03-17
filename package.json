@@ -1,12 +1,19 @@
 {
   "name": "ptera-monorepo",
   "private": true,
-  "workspaces": ["packages/*", "next"],
+  "workspaces": ["packages/*", "nextjs"],
   "scripts": {
-    "dev": "bun --cwd next dev",
-    "build": "bun --cwd next build",
+    "dev": "bun --cwd nextjs dev",
+    "build": "bun --cwd nextjs build",
     "format": "biome format --write .",
     "lint": "biome lint .",
-    "check": "biome check --apply ."
+    "check": "biome check --apply .",
+    "env": "bunx vercel env pull",
+    "terraform:init": "cd ./terraform && terragrunt init --terragrunt-config ./root.hcl",
+    "terraform:plan": "cd ./terraform && terragrunt plan --terragrunt-config ./root.hcl",
+    "terraform:apply": "cd ./terraform && terragrunt apply --terragrunt-config ./root.hcl"
+  },
+  "dependencies": {
+    "@types/aria-query": "^5.0.4"
   }
 }
