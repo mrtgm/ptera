@@ -476,8 +476,6 @@ export class EventManager {
 						transitionDuration: event.transitionDuration,
 						item: {
 							id: event.cgImageId,
-							scale: event.scale,
-							position: event.position,
 						},
 					},
 				};
