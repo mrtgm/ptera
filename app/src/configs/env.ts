@@ -19,9 +19,9 @@ export const ENV = createEnv({
 		NEXT_PUBLIC_ENV: z.string(),
 	},
 	runtimeEnv: {
-		NEXT_PUBLIC_API_VERSION: process.env.API_VERSION,
-		NEXT_PUBLIC_DOMAIN_NAME: process.env.DOMAIN_NAME,
-		NEXT_PUBLIC_ENV: process.env.ENV,
+		NEXT_PUBLIC_API_VERSION: process.env.NEXT_PUBLIC_API_VERSION,
+		NEXT_PUBLIC_DOMAIN_NAME: process.env.NEXT_PUBLIC_DOMAIN_NAME,
+		NEXT_PUBLIC_ENV: process.env.NEXT_PUBLIC_ENV,
 
 		DATABASE_HOST: process.env.DATABASE_HOST,
 		DATABASE_PORT: process.env.DATABASE_PORT,
