@@ -236,7 +236,7 @@ export default function Editor() {
 	if (!editorSlice.editingGame || !editorSlice.editingResources) {
 		return (
 			<div className="w-full h-full flex items-center justify-center">
-				<Loader2 size={64} />
+				<Loader2 size={64} className="animate-spin text-primary" />
 			</div>
 		);
 	}
