@@ -50,8 +50,8 @@ export type ApiResponse<T = unknown> = {
 
 export const BASE_URL =
 	process.env.NODE_ENV === "production"
-		? `https://${ENV.NEXT_PUBLIC_DOMAIN_NAME}/`
-		: "http://localhost:3000/";
+		? `https://${ENV.NEXT_PUBLIC_DOMAIN_NAME}`
+		: "http://localhost:3000";
 
 export const apiClient = new PteraApiClient({
 	BASE: BASE_URL,
