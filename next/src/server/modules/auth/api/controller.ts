@@ -1,8 +1,3 @@
-import {
-	AUTH_TOKEN_COOKIE_NAME,
-	AUTH_TOKEN_LIFETIME,
-} from "@/configs/constants";
-import { ENV } from "@/configs/env";
 import { log } from "@/server/core/middleware/logger";
 import { honoWithHook } from "@/server/lib/hono";
 import {
@@ -10,6 +5,8 @@ import {
 	successWithDataResponse,
 	successWithoutDataResponse,
 } from "@/server/shared/schema/response";
+import { CONSTANTS } from "@ptera/config";
+import { ENV } from "@ptera/config";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { sign } from "hono/jwt";
 import { userRepository } from "../../users/infrastructure/repository";
@@ -29,7 +26,7 @@ authRoutes
 		return successWithDataResponse(c, user);
 	})
 	.openapi(authRouteConfigs.logout, async (c) => {
-		deleteCookie(c, AUTH_TOKEN_COOKIE_NAME);
+		deleteCookie(c, CONSTANTS.AUTH_TOKEN_COOKIE_NAME);
 		deleteCookie(c, "state");
 		return successWithoutDataResponse(c);
 	})
@@ -60,12 +57,12 @@ authRoutes
 
 				c.set("user", foundUser);
 
-				setCookie(c, AUTH_TOKEN_COOKIE_NAME, token, {
+				setCookie(c, CONSTANTS.AUTH_TOKEN_COOKIE_NAME, token, {
 					httpOnly: true,
 					secure: process.env.NODE_ENV === "production",
 					sameSite: "strict",
 					path: "/",
-					expires: new Date(Date.now() + AUTH_TOKEN_LIFETIME * 1000),
+					expires: new Date(Date.now() + CONSTANTS.AUTH_TOKEN_LIFETIME * 1000),
 				});
 			} else {
 				const newUser = await userRepository.create(
@@ -75,12 +72,12 @@ authRoutes
 
 				c.set("user", newUser);
 				const token = await sign({ userId: newUser.id }, ENV.JWT_SECRET);
-				setCookie(c, AUTH_TOKEN_COOKIE_NAME, token, {
+				setCookie(c, CONSTANTS.AUTH_TOKEN_COOKIE_NAME, token, {
 					httpOnly: true,
 					secure: process.env.NODE_ENV === "production",
 					sameSite: "strict",
 					path: "/",
-					expires: new Date(Date.now() + AUTH_TOKEN_LIFETIME * 1000),
+					expires: new Date(Date.now() + CONSTANTS.AUTH_TOKEN_LIFETIME * 1000),
 				});
 			}
 		}

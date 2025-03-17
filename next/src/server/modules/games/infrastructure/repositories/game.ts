@@ -1,4 +1,3 @@
-import { ENV } from "@/configs/env";
 import {
 	game,
 	gameCategory,
@@ -8,6 +7,7 @@ import {
 	user,
 	userProfile,
 } from "@/server/shared/infrastructure/db/schema";
+import { ENV } from "@ptera/config";
 import {
 	type Game,
 	GameNotFoundError,

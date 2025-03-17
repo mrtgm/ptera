@@ -1,4 +1,3 @@
-import { ENV } from "@/configs/env";
 import { isAuthenticated, isPublicAccess } from "@/server/core/middleware/auth";
 import { createRouteConfig } from "@/server/lib/doc";
 import {
@@ -7,6 +6,7 @@ import {
 	successWithoutDataSchema,
 } from "@/server/shared/schema/response";
 import { googleAuth } from "@hono/oauth-providers/google";
+import { ENV } from "@ptera/config";
 import { userResponseSchema } from "@ptera/schema";
 
 export const authRouteConfigs = {

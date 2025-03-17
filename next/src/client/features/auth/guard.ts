@@ -1,13 +1,13 @@
 import { api } from "@/client/api";
-import { AUTH_TOKEN_COOKIE_NAME } from "@/configs/constants";
-import { ENV } from "@/configs/env";
+import { CONSTANTS } from "@ptera/config";
+import { ENV } from "@ptera/config";
 import { verify } from "hono/jwt";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const guard = async () => {
 	const cookieStore = await cookies();
-	const signedCookie = cookieStore.get(AUTH_TOKEN_COOKIE_NAME)?.value;
+	const signedCookie = cookieStore.get(CONSTANTS.AUTH_TOKEN_COOKIE_NAME)?.value;
 	if (!signedCookie) {
 		return redirect("/login");
 	}

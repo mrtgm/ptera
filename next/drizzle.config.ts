@@ -1,5 +1,5 @@
+import { ENV } from "@ptera/config";
 import { defineConfig } from "drizzle-kit";
-import { ENV } from "./src/configs/env";
 
 const connectionString = `postgresql://${ENV.DATABASE_USER}:${ENV.DATABASE_PASSWORD}@${ENV.DATABASE_HOST}:${ENV.DATABASE_PORT}/${ENV.DATABASE_NAME}`;
 

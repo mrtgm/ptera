@@ -1,7 +1,7 @@
-import { ENV } from "@/configs/env";
 import { swaggerUI } from "@hono/swagger-ui";
 import type { OpenAPIHono } from "@hono/zod-openapi";
 import { createRoute } from "@hono/zod-openapi";
+import { ENV } from "@ptera/config";
 import type { MiddlewareHandler } from "hono";
 import type { Env } from "./context";
 

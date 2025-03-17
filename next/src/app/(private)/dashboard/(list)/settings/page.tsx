@@ -1,8 +1,6 @@
 import { api } from "@/client/api";
 import { guard } from "@/client/features/auth/guard";
 import { ProfileForm } from "@/client/features/dashboard/components/profile-form";
-import { AUTH_TOKEN_COOKIE_NAME } from "@/configs/constants";
-import { cookies } from "next/headers";
 
 export default async function DashboardGamesPage() {
 	await guard();

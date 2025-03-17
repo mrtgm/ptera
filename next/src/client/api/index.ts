@@ -1,4 +1,4 @@
-import { ENV } from "@/configs/env";
+import { ENV } from "@ptera/config";
 import { ApiError } from "./generated/core/ApiError";
 
 import type {
