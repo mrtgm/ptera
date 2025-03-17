@@ -1,7 +1,7 @@
 export default function Policy() {
-	return (
-		<div>
-			<h1>Policy</h1>
-		</div>
-	);
+  return (
+    <div>
+      <h1>Policy</h1>
+    </div>
+  );
 }

@@ -5,13 +5,13 @@ import { useStore } from "@/client/stores";
 import Link from "next/link";
 
 export const Header = () => {
-	return (
-		<Menubar className="rounded-none flex justify-between bg-[#1E1E1E] text-[#8D8D8D] w-full">
-			<div className="p-2">
-				<Link href="/dashboard">
-					<Logo variant="small" />
-				</Link>
-			</div>
-		</Menubar>
-	);
+  return (
+    <Menubar className="rounded-none flex justify-between bg-[#1E1E1E] text-[#8D8D8D] w-full">
+      <div className="p-2">
+        <Link href="/dashboard">
+          <Logo variant="small" />
+        </Link>
+      </div>
+    </Menubar>
+  );
 };

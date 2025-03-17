@@ -6,15 +6,15 @@
 import nextDynamic from "next/dynamic";
 
 const Editor = nextDynamic(() => import("~/client/features/editor"), {
-	ssr: false,
+  ssr: false,
 });
 
 export const dynamic = "force-static";
 
 export default function SceneList() {
-	return (
-		<div className="w-full h-dvh flex justify-center">
-			<Editor />
-		</div>
-	);
+  return (
+    <div className="w-full h-dvh flex justify-center">
+      <Editor />
+    </div>
+  );
 }

@@ -5,24 +5,24 @@ import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
 
 export type Transaction = PgTransaction<
-	PostgresJsQueryResultHKT,
-	typeof schema,
-	ExtractTablesWithRelations<typeof schema>
+  PostgresJsQueryResultHKT,
+  typeof schema,
+  ExtractTablesWithRelations<typeof schema>
 >;
 
 export class BaseRepository {
-	protected db = db;
+  protected db = db;
 
-	protected async executeTransaction<T>(
-		fn: (tx: Transaction) => Promise<T>,
-		providedTx?: Transaction,
-	): Promise<T> {
-		if (providedTx) {
-			return await fn(providedTx);
-		}
+  protected async executeTransaction<T>(
+    fn: (tx: Transaction) => Promise<T>,
+    providedTx?: Transaction,
+  ): Promise<T> {
+    if (providedTx) {
+      return await fn(providedTx);
+    }
 
-		return await this.db.transaction(async (tx) => {
-			return await fn(tx);
-		});
-	}
+    return await this.db.transaction(async (tx) => {
+      return await fn(tx);
+    });
+  }
 }

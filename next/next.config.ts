@@ -5,18 +5,18 @@ import type { NextConfig } from "next";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
-	async rewrites() {
-		return [
-			{
-				source: "/dashboard/games/:first/edit/:path*",
-				destination: "/dashboard/games/:first/edit",
-			},
-		];
-	},
+  async rewrites() {
+    return [
+      {
+        source: "/dashboard/games/:first/edit/:path*",
+        destination: "/dashboard/games/:first/edit",
+      },
+    ];
+  },
 
-	transpilePackages: ["@ptera/schema", "@ptera/config"],
+  transpilePackages: ["@ptera/schema", "@ptera/config"],
 
-	outputFileTracingRoot: path.join(__dirname, "../"),
+  outputFileTracingRoot: path.join(__dirname, "../"),
 };
 
 export default nextConfig;

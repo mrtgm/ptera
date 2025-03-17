@@ -1,8 +1,12 @@
 {
   "name": "ptera-monorepo",
   "private": true,
-  "workspaces": [
-    "packages/*",
-    "next"
-  ]
+  "workspaces": ["packages/*", "next"],
+  "scripts": {
+    "dev": "bun --cwd next dev",
+    "build": "bun --cwd next build",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check --apply ."
+  }
 }

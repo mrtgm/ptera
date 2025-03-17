@@ -11,57 +11,57 @@ import { NavLinks } from "../../dashboard/components/nav-link";
 import { UserNav } from "./user-nav";
 
 export const SideBar = () => {
-	const userSlice = useStore.useSlice.user();
+  const userSlice = useStore.useSlice.user();
 
-	const handleLogout = async () => {
-		await api.auth.logout();
-		window.location.href = "/";
-	};
+  const handleLogout = async () => {
+    await api.auth.logout();
+    window.location.href = "/";
+  };
 
-	return (
-		<div className="w-64 border-r bg-background p-4 hidden md:block">
-			<div className="space-y-4">
-				<UserNav />
+  return (
+    <div className="w-64 border-r bg-background p-4 hidden md:block">
+      <div className="space-y-4">
+        <UserNav />
 
-				<div className="space-y-1">
-					<NavLinks />
-				</div>
+        <div className="space-y-1">
+          <NavLinks />
+        </div>
 
-				<Separator />
+        <Separator />
 
-				<div className="space-y-1">
-					<Link
-						href="/"
-						className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-					>
-						<HomeIcon className="h-4 w-4" />
-						<span>トップへ</span>
-					</Link>
+        <div className="space-y-1">
+          <Link
+            href="/"
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            <HomeIcon className="h-4 w-4" />
+            <span>トップへ</span>
+          </Link>
 
-					<Link
-						href={`/users/${userSlice?.currentUser?.id}`}
-						className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-					>
-						<User className="h-4 w-4" />
-						<span>プロフィールへ</span>
-					</Link>
+          <Link
+            href={`/users/${userSlice?.currentUser?.id}`}
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            <User className="h-4 w-4" />
+            <span>プロフィールへ</span>
+          </Link>
 
-					<Button
-						variant="ghost"
-						className="w-full justify-start px-3 text-destructive hover:text-destructive"
-						asChild
-					>
-						<button
-							onClick={handleLogout}
-							type="button"
-							className="cursor-pointer"
-						>
-							<LogOut className="mr-3 h-4 w-4" />
-							<span>ログアウト</span>
-						</button>
-					</Button>
-				</div>
-			</div>
-		</div>
-	);
+          <Button
+            variant="ghost"
+            className="w-full justify-start px-3 text-destructive hover:text-destructive"
+            asChild
+          >
+            <button
+              onClick={handleLogout}
+              type="button"
+              className="cursor-pointer"
+            >
+              <LogOut className="mr-3 h-4 w-4" />
+              <span>ログアウト</span>
+            </button>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 };
