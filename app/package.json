@@ -8,7 +8,7 @@
 		"start": "next start",
 		"compile": "tsup ./src/server/core/server.ts --dts --format esm",
 		"codegen": "bun bin/generate-api-types.ts",
-		"db:migrate": "./src/server/shared/infrastructure/db/migrate.sh",
+		"db:migrate": "bun ./src/server/shared/infrastructure/db/migrate.ts",
 		"db:clear": "bun ./src/server/shared/infrastructure/db/clear.ts",
 		"db:reset": "bun ./src/server/shared/infrastructure/db/reset.ts",
 		"db:seed": "bun ./src/server/shared/infrastructure/db/seed/index.ts",
