@@ -18,7 +18,7 @@ import { StatisticsRepository } from "./statistic";
 export class GameRepository extends BaseRepository {
 	async getGameById(gameId: number, tx?: Transaction): Promise<Game> {
 		return await this.executeTransaction(async (txLocal) => {
-			const gameData = await txLocal
+			const gameWithCounts = await txLocal
 				.select({
 					id: game.id,
 					name: game.name,
@@ -29,52 +29,48 @@ export class GameRepository extends BaseRepository {
 					status: game.status,
 					createdAt: game.createdAt,
 					updatedAt: game.updatedAt,
+					likeCount: sql<number>`count(distinct ${like.id})`,
+					playCount: sql<number>`count(distinct ${gamePlay.id})`,
 				})
 				.from(game)
+				.leftJoin(like, eq(like.gameId, game.id))
+				.leftJoin(gamePlay, eq(gamePlay.gameId, game.id))
 				.where(eq(game.id, gameId))
-				.limit(1)
+				.groupBy(
+					game.id,
+					game.name,
+					game.userId,
+					game.description,
+					game.releaseDate,
+					game.coverImageUrl,
+					game.status,
+					game.createdAt,
+					game.updatedAt,
+				)
 				.execute();
 
-			if (gameData.length === 0) {
+			if (gameWithCounts.length === 0) {
 				throw new GameNotFoundError(gameId);
 			}
 
-			const categoryIds = (
-				await txLocal
-					.select({
-						id: gameCategory.id,
-						name: gameCategory.name,
-					})
-					.from(gameCategory)
-					.innerJoin(
-						gameCategoryRelation,
-						eq(gameCategory.id, gameCategoryRelation.gameCategoryId),
-					)
-					.where(eq(gameCategoryRelation.gameId, gameData[0].id))
-					.execute()
-			).map((v) => v.id);
+			const categories = await txLocal
+				.select({
+					id: gameCategory.id,
+				})
+				.from(gameCategoryRelation)
+				.innerJoin(
+					gameCategory,
+					eq(gameCategory.id, gameCategoryRelation.gameCategoryId),
+				)
+				.where(eq(gameCategoryRelation.gameId, gameId))
+				.execute();
 
-			const likeCount = (
-				await txLocal
-					.select({ count: count() })
-					.from(like)
-					.where(eq(like.gameId, gameData[0].id))
-			)[0].count;
-
-			const playCount = (
-				await txLocal
-					.select({ count: count() })
-					.from(gamePlay)
-					.where(eq(gamePlay.gameId, gameData[0].id))
-					.limit(1)
-			)[0].count;
+			const categoryIds = categories.map((category) => category.id);
 
 			return {
-				...gameData[0],
-				status: gameData[0].status as Game["status"],
+				...gameWithCounts[0],
+				status: gameWithCounts[0].status as Game["status"],
 				schemaVersion: ENV.NEXT_PUBLIC_API_VERSION,
-				likeCount,
-				playCount,
 				categoryIds,
 			};
 		}, tx);

@@ -31,7 +31,7 @@ export const docs = (app: OpenAPIHono<Env>) => {
 
 	// OpenAPI
 	app.doc31("/api/openapi.json", {
-		servers: [{ url: "/api/v1" }],
+		servers: [{ url: "/" }],
 		info: {
 			title: "Ptera API",
 			version: ENV.NEXT_PUBLIC_API_VERSION,

@@ -110,71 +110,70 @@ export class EventRepository extends BaseRepository {
 
 		return gameEvents.sort(sortEvent);
 	}
-
 	async getEventsBySceneIds(
 		sceneIds: number[],
 		tx?: Transaction,
 	): Promise<Record<number, GameEvent[]>> {
-		// シーン ID に紐づくすべてのイベントを取得
+		return await this.executeTransaction(async (dbToUse) => {
+			// シーン ID に紐づくすべてのイベントを一度に取得
+			const events = await dbToUse
+				.select()
+				.from(event)
+				.where(inArray(event.sceneId, sceneIds))
+				.execute();
 
-		const dbToUse = tx || this.db;
-		const events = await dbToUse
-			.select()
-			.from(event)
-			.where(inArray(event.sceneId, sceneIds))
-			.execute();
+			const eventIds = events.map((e) => e.id);
 
-		const eventIds = events.map((v) => v.id);
+			// 全イベントタイプを一度に処理するためのクエリを準備
+			const detailQueries = EVENT_DB_SCHEMA.map((schema) =>
+				dbToUse.select().from(schema).where(inArray(schema.eventId, eventIds)),
+			);
 
-		// イベントの詳細情報を取得、Event ID をキーにしたマップを作成
-		const eventDetailMap = (
-			await Promise.all(
-				EVENT_DB_SCHEMA.map(async (schema) => {
-					const events = await dbToUse
-						.select()
-						.from(schema)
-						.where(inArray(schema.eventId, eventIds))
-						.execute();
-					return events;
-				}),
-			).then((v) => v.flat())
-		).reduce(
-			(acc, cur) => {
-				acc[cur.eventId] = cur;
-				return acc;
-			},
-			{} as Record<
+			// すべてのクエリを並列実行
+			const allDetails = await Promise.all(
+				detailQueries.map((q) => q.execute()),
+			);
+
+			// イベント詳細をイベントIDでインデックス化
+			const eventDetailMap: Record<
 				number,
 				Omit<GameEvent, "eventType" | "category" | "orderIndex">
-			>,
-		);
-
-		// シーン ID をキーにしたイベントのマップを作成
-		const eventMap: Record<number, GameEvent[]> = {};
-		for (const event of events) {
-			if (!eventMap[event.sceneId]) {
-				eventMap[event.sceneId] = [];
+			> = {};
+			for (const detail of allDetails.flat()) {
+				eventDetailMap[detail.eventId] = detail;
 			}
 
-			const eventDetail = eventDetailMap[event.id];
-			const gameEvent = {
-				...eventDetail,
-				id: event.id,
-				eventType: event.eventType as GameEvent["eventType"],
-				category: event.category,
-				orderIndex: event.orderIndex,
-			} as GameEvent;
+			// 結果をシーンIDでグループ化して返す
+			const eventMap: Record<number, GameEvent[]> = {};
 
-			eventMap[event.sceneId].push(gameEvent);
-		}
+			// 初期化: すべてのシーンIDに空の配列を設定
+			for (const id of sceneIds) {
+				eventMap[id] = [];
+			}
 
-		for (const id of sceneIds) {
-			eventMap[id] = (eventMap[id] || []).sort(sortEvent);
-		}
+			// イベントをシーンIDごとに格納
+			for (const event of events) {
+				const eventDetail = eventDetailMap[event.id];
+				if (eventDetail) {
+					const gameEvent = {
+						...eventDetail,
+						id: event.id,
+						eventType: event.eventType as GameEvent["eventType"],
+						category: event.category,
+						orderIndex: event.orderIndex,
+					} as GameEvent;
 
-		console.log("eventMap", eventMap);
+					eventMap[event.sceneId].push(gameEvent);
+				}
+			}
 
-		return eventMap;
+			// 各シーンのイベントをソート
+			for (const sceneId of Object.keys(eventMap)) {
+				eventMap[Number(sceneId)].sort(sortEvent);
+			}
+
+			return eventMap;
+		}, tx);
 	}
 
 	async createEvent({

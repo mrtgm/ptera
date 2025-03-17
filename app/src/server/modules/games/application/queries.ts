@@ -73,7 +73,11 @@ export const createQuery = ({
 		},
 
 		executeGetGame: async (gameId: number): Promise<GameDetailResponse> => {
+			console.log("---executeGetGame---");
+
 			const game = await gameRepository.getGameById(gameId);
+
+			console.log("---game---");
 
 			if (!game) {
 				throw new GameNotFoundError(gameId);
@@ -83,8 +87,15 @@ export const createQuery = ({
 				[game.id],
 			);
 
+			console.log("---initialSceneIdMap---");
+
 			const scenes = await sceneRepository.getScenes(gameId);
+
+			console.log("---scenes---");
+
 			const user = await userRepository.getById(game.userId);
+
+			console.log("---user---");
 
 			if (initialSceneIdMap === null) {
 				throw new InitialSceneNotFoundError(gameId);
@@ -99,6 +110,8 @@ export const createQuery = ({
 			const eventMap = await eventRepository.getEventsBySceneIds(
 				scenes.map((v) => v.id),
 			);
+
+			console.log("---eventMap---");
 
 			for (const scene of scenes) {
 				scene.events = eventMap[scene.id] || [];
