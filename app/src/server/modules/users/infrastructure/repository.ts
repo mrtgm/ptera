@@ -10,6 +10,7 @@ export interface UserRepository {
 	getUsersByIds(userIds: number[]): Promise<Record<number, User>>;
 	getByJwtSub(jwtSub: string): Promise<User | null>;
 
+	updateUserAvatar(id: number, avatarUrl: string): Promise<void>;
 	updateUserProfile(
 		id: number,
 		name: string,
@@ -121,7 +122,15 @@ export const userRepository: UserRepository = {
 			{} as Record<number, User>,
 		);
 	},
-
+	updateUserAvatar: async (id: number, avatarUrl: string) => {
+		return db.transaction(async (tx) => {
+			await tx
+				.update(userProfile)
+				.set({ avatarUrl })
+				.where(eq(userProfile.id, id))
+				.execute();
+		});
+	},
 	updateUserProfile: async (
 		id: number,
 		name: string,

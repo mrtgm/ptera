@@ -8,8 +8,10 @@ import {
 	errorResponses,
 	successWithDataSchema,
 } from "@/server/shared/schema/response";
+import { z } from "zod";
 import {
 	updateProfileRequestSchema,
+	userAvatarUploadRequestSchema,
 	userResponseSchema,
 } from "../../../../schemas/users/dto";
 import { userParamsSchema } from "./validator";
@@ -52,6 +54,35 @@ export const userRouteConfigs = {
 				content: {
 					"application/json": {
 						schema: successWithDataSchema(gameListResponseSchema.array()),
+					},
+				},
+			},
+			...errorResponses,
+		},
+	}),
+
+	uploadUserAvatar: createRouteConfig({
+		method: "post",
+		path: "/{userId}/avatar",
+		guard: [isAuthenticated],
+		tags: ["users"],
+		summary: "ユーザーのアバター画像をアップロードします。",
+		request: {
+			params: userParamsSchema,
+			body: {
+				content: {
+					"multipart/form-data": {
+						schema: userAvatarUploadRequestSchema,
+					},
+				},
+			},
+		},
+		responses: {
+			200: {
+				description: "Uploaded User Avatar",
+				content: {
+					"application/json": {
+						schema: successWithDataSchema(z.string()),
 					},
 				},
 			},

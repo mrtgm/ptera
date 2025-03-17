@@ -6,8 +6,9 @@ import {
 	gamePlay,
 	like,
 	user,
+	userProfile,
 } from "@/server/shared/infrastructure/db/schema";
-import { and, count, eq, ilike, sql } from "drizzle-orm";
+import { and, count, eq, ilike, or, sql } from "drizzle-orm";
 import { GameNotFoundError } from "~/schemas/games/domain/error";
 import { type Game, createGame } from "~/schemas/games/domain/game";
 import type { GetGamesRequest, UpdateGameRequest } from "~/schemas/games/dto";
@@ -253,7 +254,12 @@ export class GameRepository extends BaseRepository {
 	): Promise<{ items: Game[]; total: number }> {
 		const filters = [];
 		if (filter.q) {
-			filters.push(ilike(game.name, `%${filter.q}%`));
+			filters.push(
+				or(
+					ilike(game.name, `%${filter.q}%`),
+					ilike(userProfile.name, `%${filter.q}%`),
+				),
+			);
 		}
 		if (filter.categoryId) {
 			filters.push(eq(gameCategoryRelation.gameCategoryId, filter.categoryId));
@@ -269,18 +275,21 @@ export class GameRepository extends BaseRepository {
 				status: game.status,
 				coverImageUrl: game.coverImageUrl,
 				releaseDate: game.releaseDate,
+				userName: userProfile.name,
 				userId: game.userId,
 				updatedAt: game.updatedAt,
 				createdAt: game.createdAt,
 			})
 			.from(game)
+			.leftJoin(user, eq(user.id, game.userId))
+			.leftJoin(userProfile, eq(userProfile.userId, user.id))
 			.leftJoin(gameCategoryRelation, eq(gameCategoryRelation.gameId, game.id))
 			.leftJoin(
 				gameCategory,
 				eq(gameCategory.id, gameCategoryRelation.gameCategoryId),
 			)
 			.where(and(...filters))
-			.groupBy(game.id);
+			.groupBy(game.id, userProfile.name);
 
 		const [{ total }] = await this.db
 			.select({ total: count() })

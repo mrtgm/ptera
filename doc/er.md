@@ -3,8 +3,8 @@ erDiagram
     User {
         string id PK
         string jwtSub "UNIQUE"
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     UserProfile {
@@ -14,8 +14,8 @@ erDiagram
         string bio
         string avatarUrl
         string userId FK
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
         %% User の id 参照
     }
 
@@ -32,8 +32,8 @@ erDiagram
         string url
         json metadata
         %% mimetype, サイズなど
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     %% リレーション (User 0..1 - 0..* Asset)
@@ -46,8 +46,8 @@ erDiagram
         %% null の場合はパブリック
         boolean isPublic
         string name
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     %% リレーション (User 0..1 - 0..* Character)
@@ -57,8 +57,8 @@ erDiagram
         string id PK
         string characterId FK
         string assetId FK
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     Character ||--|{ CharacterAsset : "1 to many"
@@ -72,8 +72,8 @@ erDiagram
         string id PK
         string gameId FK
         string assetId FK
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     CharacterGame ||--|{ Character : "many to 1"
@@ -83,8 +83,8 @@ erDiagram
         string id PK
         string gameId FK
         string characterId FK
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
 
@@ -95,11 +95,11 @@ erDiagram
         string name
         string description
         string coverImageUrl
-        date releaseDate
+        timestamptz releaseDate
         enum status
         %% draft, published, archived
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     %% プレイ履歴
@@ -107,9 +107,9 @@ erDiagram
         string id PK
         string gameId FK
         string userId FK "NULL"
-        date playedAt
-        date updatedAt
-        date createdAt
+        timestamptz playedAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     Game ||--|{ GamePlay : "1 to many"
@@ -121,8 +121,8 @@ erDiagram
     GameInitialScene {
         string gameId FK
         string sceneId FK
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     %% drizzle kit の吐く型が循環参照すると any になるので、中間テーブルに分離
@@ -134,8 +134,8 @@ erDiagram
         string gameId FK
         string userId FK
         string content
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     Game ||--|{ Comment : "1 to many"
@@ -146,8 +146,8 @@ erDiagram
         string id PK
         string gameId FK
         string userId FK
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     Game ||--|{ Like : "1 to many"
@@ -157,16 +157,16 @@ erDiagram
     GameCategory {
         string id PK
         string name
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     GameCategoryRelation {
         string id PK
         string gameId FK
         string gameCategoryId FK
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     Game ||--|{ GameCategoryRelation : "1 to many"
@@ -177,8 +177,8 @@ erDiagram
         string id PK
         string gameId FK
         string title
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     %% Game 1 - n Scene
@@ -192,8 +192,8 @@ erDiagram
         %% = Scene.id
         string sceneId FK
         %% ex. ChoiceScene特有のカラム
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     Scene ||--|| ChoiceScene : "1 to 1 (inherit)"
@@ -202,8 +202,8 @@ erDiagram
         string id PK
         string sceneId FK
         string nextSceneId
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     Scene ||--|| GotoScene : "1 to 1 (inherit)"
@@ -213,8 +213,8 @@ erDiagram
         %% = Scene.id
         string sceneId FK
         %% EndScene固有のカラムがあれば
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     Scene ||--|| EndScene : "1 to 1 (inherit)"
@@ -225,8 +225,8 @@ erDiagram
         string choiceSceneId FK
         string text
         string nextSceneId
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     ChoiceScene ||--|{ Choice : "1 to many"
@@ -239,8 +239,8 @@ erDiagram
         %% (ChangeBackground, AppearCharacter, etc.)
 		orderIndex string
 		%% Fractional Indexing
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
         %% イベント共通のカラム
     }
 
@@ -250,16 +250,16 @@ erDiagram
     EventCategory {
         string id PK
         string name
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     EventCategoryRelation {
         string id PK
         string eventId FK
         string eventCategoryId FK
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
 
     Event ||--|{ EventCategoryRelation : "1 to many"
@@ -271,8 +271,8 @@ erDiagram
         string eventId FK
         string backgroundId FK
         int transitionDuration
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| ChangeBackgroundEvent : "1 to 1 (inherit)"
 
@@ -284,8 +284,8 @@ erDiagram
         tuple position
         number scale
         int transitionDuration
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| AppearCharacterEvent : "1 to 1 (inherit)"
 
@@ -294,8 +294,8 @@ erDiagram
         string eventId FK
         string characterId FK
         int transitionDuration
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| HideCharacterEvent : "1 to 1 (inherit)"
 
@@ -303,8 +303,8 @@ erDiagram
         string id PK
         string eventId FK
         int transitionDuration
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| HideAllCharactersEvent : "1 to 1 (inherit)"
 
@@ -314,8 +314,8 @@ erDiagram
         string characterId FK
         tuple position
         number scale
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| MoveCharacterEvent : "1 to 1 (inherit)"
 
@@ -325,8 +325,8 @@ erDiagram
         string characterId FK
         enum effectType
         int transitionDuration
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| CharacterEffectEvent : "1 to 1 (inherit)"
 
@@ -337,8 +337,8 @@ erDiagram
         boolean loop
         number volume
         int transitionDuration
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| BGMStartEvent : "1 to 1 (inherit)"
 
@@ -346,8 +346,8 @@ erDiagram
         string id PK
         string eventId FK
         int transitionDuration
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| BGMStopEvent : "1 to 1 (inherit)"
 
@@ -358,8 +358,8 @@ erDiagram
         number volume
         boolean loop
         int transitionDuration
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| SoundEffectEvent : "1 to 1 (inherit)"
 
@@ -370,8 +370,8 @@ erDiagram
         tuple position
         number scale
         int transitionDuration
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| AppearCGEvent : "1 to 1 (inherit)"
 
@@ -379,8 +379,8 @@ erDiagram
         string id PK
         string eventId FK
         int transitionDuration
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| HideCGEvent : "1 to 1 (inherit)"
 
@@ -389,8 +389,8 @@ erDiagram
         string eventId FK
         string text
         string characterName
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| TextRenderEvent : "1 to 1 (inherit)"
 
@@ -398,8 +398,8 @@ erDiagram
         string id PK
         string eventId FK
         int transitionDuration
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| AppearMessageWindowEvent : "1 to 1 (inherit)"
 
@@ -407,8 +407,8 @@ erDiagram
         string id PK
         string eventId FK
         int transitionDuration
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| HideMessageWindowEvent : "1 to 1 (inherit)"
 
@@ -417,8 +417,8 @@ erDiagram
         string eventId FK
         enum effectType
         int transitionDuration
-        date updatedAt
-        date createdAt
+        timestamptz updatedAt
+        timestamptz createdAt
     }
     Event ||--|| EffectEvent : "1 to 1 (inherit)"
 

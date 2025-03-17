@@ -46,16 +46,18 @@ export const ProjectSettings = ({
 	};
 
 	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				const result = reader.result as string;
-				setPreviewImage(result);
-				form.setValue("coverImageUrl", result);
-			};
-			reader.readAsDataURL(file);
-		}
+		alert("ファイルアップロードは現在開発中です。");
+
+		// const file = e.target.files?.[0];
+		// if (file) {
+		// 	const reader = new FileReader();
+		// 	reader.onloadend = () => {
+		// 		const result = reader.result as string;
+		// 		setPreviewImage(result);
+		// 		form.setValue("coverImageUrl", result);
+		// 	};
+		// 	reader.readAsDataURL(file);
+		// }
 	};
 
 	const handleCategoryChange = (

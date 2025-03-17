@@ -7,14 +7,37 @@ import type {
 	UpdateProfileRequest,
 	UserResponse,
 } from "../../../../schemas/users/dto";
+import type { FileUploadService } from "../../assets/infrastructure/file-upload";
 import type { UserRepository } from "../infrastructure/repository";
 
 export const createUserCommand = ({
 	userRepository,
+	fileUploadService,
 }: {
 	userRepository: UserRepository;
+	fileUploadService: FileUploadService;
 }) => {
 	return {
+		executeUploadAvatar: async (
+			userId: number,
+			file: File,
+			currentUserId: number,
+		): Promise<string> => {
+			const user = await userRepository.getById(userId);
+			if (!user) {
+				throw new UserNotFoundError(userId);
+			}
+
+			if (user.id !== currentUserId) {
+				throw new UserUnauthorizedError();
+			}
+
+			const avatarUrl = await fileUploadService.uploadFile(file, "avatar");
+
+			await userRepository.updateUserAvatar(user.id, avatarUrl);
+			return avatarUrl;
+		},
+
 		executeUpdateProfile: async (
 			userId: number,
 			params: UpdateProfileRequest,

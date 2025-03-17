@@ -27,10 +27,7 @@ export const GameActionButtons = ({
 	const router = useRouter();
 	const userSlice = useStore.useSlice.user();
 
-	const [isLiked, setIsLiked] = useState(
-		userSlice.likedGamesId.includes(gameId),
-	);
-	const [currentLikeCount, setCurrentLikeCount] = useState(likeCount);
+	const [currentLikeCount, setCurrentLikeCount] = useState(Number(likeCount));
 
 	const {
 		AuthDialog: LikeAuthDialog,
@@ -42,7 +39,6 @@ export const GameActionButtons = ({
 		setAuthDialogOpen: setReportAuthDialogOpen,
 	} = useAuthDialog();
 
-	// いいねの処理
 	const handleLike = async () => {
 		if (!userSlice.isAuthenticated) {
 			setLikeAuthDialogOpen(true);
@@ -50,19 +46,17 @@ export const GameActionButtons = ({
 		}
 
 		try {
-			// 楽観的UI更新
-			setIsLiked(!isLiked);
-			setCurrentLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
-
-			if (isLiked) {
-				await api.games.unlike(gameId);
+			setCurrentLikeCount((prev) =>
+				userSlice.isLiked(gameId) ? prev - 1 : prev + 1,
+			);
+			if (userSlice.isLiked(gameId)) {
+				await userSlice.unlikeGame(gameId);
 			} else {
-				await api.games.like(gameId);
+				await userSlice.likeGame(gameId);
 			}
 			router.refresh();
 		} catch (err) {
 			console.error("Failed to toggle like:", err);
-			setIsLiked(isLiked);
 			setCurrentLikeCount(likeCount);
 		}
 	};
@@ -94,12 +88,6 @@ export const GameActionButtons = ({
 		alert("この機能は現在開発中です");
 	};
 
-	useEffect(() => {
-		if (userSlice.isInitialized) {
-			setIsLiked(userSlice.likedGamesId.includes(gameId));
-		}
-	}, [userSlice.isInitialized, userSlice.likedGamesId, gameId]);
-
 	return (
 		<div className="flex flex-wrap gap-2 mb-6">
 			<LikeAuthDialog message="いいねするにはログインが必要です" />
@@ -109,18 +97,18 @@ export const GameActionButtons = ({
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<Button
-							variant={isLiked ? "default" : "outline"}
+							variant={userSlice.isLiked(gameId) ? "default" : "outline"}
 							size="sm"
 							onClick={handleLike}
 						>
 							<Heart
-								className={`mr-2 h-4 w-4 ${isLiked ? "fill-white" : ""}`}
+								className={`mr-2 h-4 w-4 ${userSlice.isLiked(gameId) ? "fill-white" : ""}`}
 							/>
 							いいね {currentLikeCount}
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>
-						{isLiked ? "いいねを取り消す" : "いいねする"}
+						{userSlice.isLiked(gameId) ? "いいねを取り消す" : "いいねする"}
 					</TooltipContent>
 				</Tooltip>
 			</TooltipProvider>

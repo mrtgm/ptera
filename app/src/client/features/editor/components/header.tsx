@@ -38,12 +38,7 @@ export const Header = () => {
 				</Link>
 			</div>
 			<div className="flex-1 flex gap-3 justify-end p-2">
-				{/* TODO: 実装 */}
-				{/* <Button variant="ghost" onClick={() => {}}>
-					プロジェクト設定
-				</Button> */}
 				<>
-					{/* イベントがない場合プレビュー不能 */}
 					{previewEventId && (
 						<Button
 							variant="ghost"

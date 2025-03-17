@@ -10,7 +10,7 @@ export const SearchForm = () => {
 	const handleSearch = (e: React.FormEvent) => {
 		e.preventDefault();
 		if (searchQuery.trim()) {
-			window.location.href = `/games?search=${encodeURIComponent(searchQuery)}`;
+			window.location.href = `/games?q=${encodeURIComponent(searchQuery)}`;
 		}
 	};
 

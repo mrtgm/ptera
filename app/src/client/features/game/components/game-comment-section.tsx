@@ -3,6 +3,16 @@
 import { api } from "@/client/api";
 import { Avatar } from "@/client/components/avatar";
 import { useAuthDialog } from "@/client/components/diaogs/auth-dialog";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/client/components/shadcn/alert-dialog";
 
 import { Button } from "@/client/components/shadcn/button";
 import { Textarea } from "@/client/components/shadcn/textarea";
@@ -10,7 +20,7 @@ import { useStore } from "@/client/stores";
 import type { Comment } from "@/schemas/games/domain/comment";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
-import { Loader2, MessageSquare } from "lucide-react";
+import { Loader2, MessageSquare, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -25,6 +35,8 @@ export const GameCommentSection = ({
 	const [commentText, setCommentText] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
+	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
 	const { AuthDialog, setAuthDialogOpen } = useAuthDialog();
@@ -56,9 +68,7 @@ export const GameCommentSection = ({
 		try {
 			setIsLoading(true);
 			setError(null);
-
 			const comment = await api.games.getComments(gameId);
-
 			if (comment) {
 				setComments(comment || []);
 			}
@@ -70,7 +80,28 @@ export const GameCommentSection = ({
 		}
 	};
 
+	const handleDeleteClick = (commentId: number) => {
+		setCommentToDelete(commentId);
+		setIsDeleteDialogOpen(true);
+	};
+
+	const deleteComment = async () => {
+		if (!commentToDelete) return;
+		try {
+			await api.games.deleteComment(gameId, commentToDelete);
+			await fetchComments();
+			router.refresh();
+		} catch (err) {
+			console.error("Failed to delete comment:", err);
+			setError("コメントの削除に失敗しました");
+		} finally {
+			setIsDeleteDialogOpen(false);
+			setCommentToDelete(null);
+		}
+	};
+
 	const formatRelativeTime = (timestamp: string) => {
+		console.log("timestamp", timestamp);
 		return formatDistanceToNow(new Date(timestamp), {
 			addSuffix: true,
 			locale: ja,
@@ -80,6 +111,28 @@ export const GameCommentSection = ({
 	return (
 		<div>
 			<AuthDialog message="コメントするにはログインしてください" />
+			<AlertDialog
+				open={isDeleteDialogOpen}
+				onOpenChange={setIsDeleteDialogOpen}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>コメントを削除しますか？</AlertDialogTitle>
+						<AlertDialogDescription>
+							この操作は取り消せません。コメントを完全に削除してもよろしいですか？
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>キャンセル</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={deleteComment}
+							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+						>
+							削除する
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 
 			<h2 className="text-xl font-bold mb-4">コメント</h2>
 
@@ -128,27 +181,47 @@ export const GameCommentSection = ({
 						</p>
 					</div>
 				) : (
-					comments.map((comment) => (
-						<div key={comment.id} className="border rounded-lg p-4">
-							<div className="flex items-center mb-2">
-								<Avatar
-									className="h-6 w-6 mr-2"
-									username={comment.username}
-									avatarUrl={comment.avatarUrl}
-								/>
-								<Link
-									href={`/users/${comment.userId}`}
-									className="text-sm font-medium hover:underline"
-								>
-									{comment.username}
-								</Link>
-								<span className="text-xs text-muted-foreground ml-2">
-									{formatRelativeTime(comment.createdAt)}
-								</span>
+					comments
+						.sort((a, b) => {
+							return (
+								new Date(b.createdAt).getTime() -
+								new Date(a.createdAt).getTime()
+							);
+						})
+						.map((comment) => (
+							<div key={comment.id} className="border rounded-lg p-4 relative">
+								<div className="flex items-center mb-2">
+									<Avatar
+										className="h-6 w-6 mr-2"
+										username={comment.username}
+										avatarUrl={comment.avatarUrl}
+									/>
+									<Link
+										href={`/users/${comment.userId}`}
+										className="text-sm font-medium hover:underline"
+									>
+										{comment.username}
+									</Link>
+									<span className="text-xs text-muted-foreground ml-2">
+										{formatRelativeTime(comment.createdAt)}
+									</span>
+								</div>
+								<p className="text-sm">{comment.content}</p>
+
+								{userSlice.isAuthenticated &&
+									userSlice.currentUser?.id === comment.userId && (
+										<Button
+											variant="ghost"
+											size="icon"
+											onClick={() => handleDeleteClick(comment.id)}
+											className="absolute top-2 right-2 text-muted-foreground hover:text-destructive transition-colors"
+											aria-label="コメントを削除"
+										>
+											<Trash2 className="h-4 w-4" />
+										</Button>
+									)}
 							</div>
-							<p className="text-sm">{comment.content}</p>
-						</div>
-					))
+						))
 				)}
 			</div>
 		</div>

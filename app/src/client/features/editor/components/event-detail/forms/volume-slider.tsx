@@ -27,7 +27,7 @@ export const VolumeSlider = ({
 					<FormLabel>{label}</FormLabel>
 					<FormControl>
 						<div>
-							<Input type="range" {...field} min={0} max={5} step={0.05} />
+							<Input type="range" {...field} min={0} max={1} step={0.05} />
 							<p className="text-sm text-gray-500">{field.value}</p>
 						</div>
 					</FormControl>

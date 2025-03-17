@@ -46,6 +46,8 @@ export const AssetUpload = ({
 	};
 
 	const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+		alert("ファイルアップロードは現在開発中です。");
+
 		e.preventDefault();
 		e.stopPropagation();
 		setDragActive(false);

@@ -14,6 +14,9 @@ export interface UserState {
 	logout: () => void;
 	fetchCurrentUser: () => void;
 	updateProfile: (profile: UserResponse) => Promise<void>;
+	likeGame: (gameId: number) => void;
+	unlikeGame: (gameId: number) => void;
+	isLiked(gameId: number): boolean;
 }
 
 export const createUserSlice: StateCreator<
@@ -44,9 +47,8 @@ export const createUserSlice: StateCreator<
 	likeGame: async (gameId: number) => {
 		const { likedGamesId } = get();
 
-		if (likedGamesId.includes(gameId)) {
-			return;
-		}
+		const updatedLikedGamesId = [...likedGamesId, gameId];
+		console.log("likedGamesId", updatedLikedGamesId);
 		await performUpdate({
 			api: () => api.games.like(gameId),
 			optimisticUpdate: () => {
@@ -60,10 +62,10 @@ export const createUserSlice: StateCreator<
 
 	unlikeGame: async (gameId: number) => {
 		const { likedGamesId } = get();
-		if (!likedGamesId.includes(gameId)) {
-			return;
-		}
+
 		const updatedLikedGamesId = likedGamesId.filter((id) => id !== gameId);
+
+		console.log("unlikedGamesId", updatedLikedGamesId);
 
 		await performUpdate({
 			api: () => api.games.unlike(gameId),
@@ -74,6 +76,11 @@ export const createUserSlice: StateCreator<
 				set({ likedGamesId });
 			},
 		});
+	},
+
+	isLiked: (gameId: number) => {
+		const { likedGamesId } = get();
+		return likedGamesId.includes(gameId);
 	},
 
 	fetchCurrentUser: async () => {

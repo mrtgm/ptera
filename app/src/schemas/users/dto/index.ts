@@ -14,5 +14,11 @@ export const updateProfileRequestSchema = z.object({
 	bio: z.string().max(500).optional().nullable(),
 	avatarUrl: z.string().url().optional().nullable(),
 });
-
 export type UpdateProfileRequest = z.infer<typeof updateProfileRequestSchema>;
+
+export const userAvatarUploadRequestSchema = z.object({
+	file: z.instanceof(File),
+});
+export type UserAvatarUploadRequest = z.infer<
+	typeof userAvatarUploadRequestSchema
+>;

@@ -18,6 +18,7 @@ import { EventManager } from "@/client/features/player/utils/event";
 import type { Stage } from "@/client/schema";
 import { useStore } from "@/client/stores";
 import type { PreviewParams } from "@/client/stores/modal";
+import type { GameEvent } from "@/schemas/games/domain/event";
 import type {
 	EventResponse,
 	GameDetailResponse,
@@ -25,7 +26,7 @@ import type {
 	SceneResponse,
 } from "@/schemas/games/dto";
 import { Laptop, PlayCircle, Rewind, Smartphone } from "lucide-react";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 
 type DevicePreset = {
 	id: string;
@@ -271,6 +272,27 @@ const PreviewFromGivenEvent = ({
 
 	if (!managerRef.current) managerRef.current = new EventManager();
 
+	const updatedGame = useMemo(() => {
+		return {
+			...game,
+			scenes: game.scenes.map((scene) =>
+				scene.id === params.currentSceneId
+					? {
+							...scene,
+							events: scene.events.map((event) =>
+								event.id === params.currentEventId
+									? ({
+											...event,
+											...params.formValues,
+										} as GameEvent)
+									: event,
+							),
+						}
+					: scene,
+			),
+		};
+	}, [game, params]);
+
 	useEffect(() => {
 		const currentScene = game.scenes.find(
 			(scene) => scene.id === params.currentSceneId,
@@ -284,7 +306,7 @@ const PreviewFromGivenEvent = ({
 		}
 
 		const result = findAllPaths({
-			game,
+			game: updatedGame,
 			targetSceneId: currentScene.id,
 		});
 
@@ -298,14 +320,14 @@ const PreviewFromGivenEvent = ({
 		setIntialScene(currentScene);
 		setIntialEvent(currentEvent);
 		setInitialStage(currentStage);
-	}, [game, resources, params]);
+	}, [game, resources, params, updatedGame]);
 
 	return (
 		<>
 			{initialEvent && initialScene && initialStage && (
 				<GamePlayer
 					key="preview-from-given-event"
-					game={game}
+					game={updatedGame}
 					resources={resources}
 					initialEvent={initialEvent}
 					initialScene={initialScene}

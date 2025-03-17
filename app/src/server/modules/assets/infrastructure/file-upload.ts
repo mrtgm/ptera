@@ -2,7 +2,13 @@ import { FileUploadError } from "../../../../schemas/assets/domain/error";
 
 export class FileUploadService {
 	// ファイルをアップロードしてURLを返す
-	async uploadFile(file: File, type: string): Promise<string> {
+	async uploadFile(
+		file: File,
+		type: string,
+		options?: {
+			fileName?: string;
+		},
+	): Promise<string> {
 		try {
 			// const s3 = new AWS.S3();
 			// const uploadResult = await s3.upload({

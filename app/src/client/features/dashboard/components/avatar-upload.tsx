@@ -5,7 +5,6 @@ import { Button } from "@/client/components/shadcn/button";
 import { Camera } from "lucide-react";
 import { useRef, useState } from "react";
 
-// TODO: Implement avatar upload
 const uploadAvatar = async (userId: number, file: File) => {
 	const formData = new FormData();
 	formData.append("avatar", file);
@@ -34,7 +33,8 @@ export function AvatarUpload({
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const handleAvatarClick = () => {
-		fileInputRef.current?.click();
+		alert("ファイルアップロードは現在開発中です。");
+		//fileInputRef.current?.click();
 	};
 
 	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
