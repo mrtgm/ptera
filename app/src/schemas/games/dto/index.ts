@@ -199,7 +199,6 @@ export const sceneResponseSchema = sceneSchema;
 export type SceneResponse = z.infer<typeof sceneResponseSchema>;
 
 export const mapDomainToSceneResponse = (scene: Scene): SceneResponse => {
-	console.log(scene);
 	return sceneResponseSchema.parse(scene);
 };
 

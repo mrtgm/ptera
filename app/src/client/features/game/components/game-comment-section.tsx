@@ -101,7 +101,6 @@ export const GameCommentSection = ({
 	};
 
 	const formatRelativeTime = (timestamp: string) => {
-		console.log("timestamp", timestamp);
 		return formatDistanceToNow(new Date(timestamp), {
 			addSuffix: true,
 			locale: ja,

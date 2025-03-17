@@ -306,7 +306,6 @@ export const api = {
 			// シーン作成
 			create: async (gameId: number, params: CreateSceneRequest) => {
 				createSceneRequestSchema.parse(params);
-				console.log(params);
 				const response = await handleApiResponse<SceneResponse>(() =>
 					api.client.games.postApiV1GamesScenes(gameId, {
 						name: params.name,

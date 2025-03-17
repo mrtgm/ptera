@@ -43,7 +43,14 @@ export const GameDetail = async ({ gameId }: { gameId: number }) => {
 
 	return (
 		<>
-			<h1 className="text-3xl font-bold">{game.name}</h1>
+			<h1 className="text-3xl font-bold">
+				{game.status === "draft" && (
+					<Badge variant="destructive" className="mr-2">
+						✏️下書き
+					</Badge>
+				)}
+				{game.name}
+			</h1>
 
 			<div className="flex flex-wrap gap-2 mt-4">
 				{game.categoryIds?.map((categoryId) => (

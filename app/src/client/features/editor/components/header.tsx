@@ -56,7 +56,6 @@ export const Header = () => {
 					<Button
 						variant="ghost"
 						onClick={() => {
-							console.log("fired?");
 							modalSlice.openModal("asset.manage", {
 								target: "backgroundImage",
 							});

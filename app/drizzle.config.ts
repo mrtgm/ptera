@@ -5,7 +5,7 @@ const connectionString = `postgresql://${ENV.DATABASE_USER}:${ENV.DATABASE_PASSW
 
 export default defineConfig({
 	schema: "./src/server/shared/infrastructure/db/schema.ts",
-	out: "./src/server/shared/infrastructure/db/migrations",
+	out: "./src/server/shared/infrastructure/db",
 	dialect: "postgresql",
 	dbCredentials: {
 		url: connectionString,

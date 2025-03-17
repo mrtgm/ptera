@@ -22,8 +22,8 @@ export const gameSchema = z.object({
 	schemaVersion: z.string(),
 	status: gameStatusSchema,
 	categoryIds: z.array(z.number()),
-	likeCount: z.number(),
-	playCount: z.number(),
+	likeCount: z.union([z.number(), z.string().transform(Number)]),
+	playCount: z.union([z.number(), z.string().transform(Number)]),
 	createdAt: z.string(),
 	updatedAt: z.string(),
 });

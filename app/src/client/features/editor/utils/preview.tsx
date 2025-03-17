@@ -21,8 +21,6 @@ export const getAllNodesPosition = ({
 	if (!game) return {};
 	const result: PositionMap = {};
 
-	console.log(game);
-
 	// 各深さでのノードを追跡
 	const nodesByDepth: { [depth: number]: number[] } = {};
 
