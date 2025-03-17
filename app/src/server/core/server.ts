@@ -27,7 +27,7 @@ app.use(contextStorage());
 app.use("*", secureHeaders());
 
 const corsOptions: Parameters<typeof cors>[0] = {
-	origin: isDevelopment ? "*" : `https://${ENV.DOMAIN_NAME}`,
+	origin: isDevelopment ? "*" : `https://${ENV.NEXT_PUBLIC_DOMAIN_NAME}`,
 	credentials: true,
 	allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE"],
 	allowHeaders: [],
@@ -39,7 +39,7 @@ app.use("*", async (c, next) => {
 		if (isDevelopment) {
 			await next();
 		} else {
-			await csrf({ origin: `https://${ENV.DOMAIN_NAME}` })(c, next);
+			await csrf({ origin: `https://${ENV.NEXT_PUBLIC_DOMAIN_NAME}` })(c, next);
 		}
 	} catch (error) {
 		console.error("[CSRF-ERROR]", error);
@@ -83,7 +83,7 @@ const nestedRoutes = honoWithHook()
 	.route("/me", dashboardRoutes)
 	.route("/assets", assetRoutes);
 
-app.route(`/api/${ENV.API_VERSION}`, nestedRoutes);
+app.route(`/api/${ENV.NEXT_PUBLIC_API_VERSION}`, nestedRoutes);
 
 app.notFound((c) =>
 	errorResponse(c, 404, "notFound", "warn", undefined, { path: c.req.path }),

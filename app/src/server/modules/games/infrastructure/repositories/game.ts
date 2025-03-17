@@ -72,7 +72,7 @@ export class GameRepository extends BaseRepository {
 			return {
 				...gameData[0],
 				status: gameData[0].status as Game["status"],
-				schemaVersion: ENV.API_VERSION,
+				schemaVersion: ENV.NEXT_PUBLIC_API_VERSION,
 				likeCount,
 				playCount,
 				categoryIds,
@@ -228,7 +228,7 @@ export class GameRepository extends BaseRepository {
 					categoryIds: [] as number[],
 					playCount: 0,
 					likeCount: 0,
-					schemaVersion: ENV.API_VERSION,
+					schemaVersion: ENV.NEXT_PUBLIC_API_VERSION,
 				})),
 			);
 
@@ -301,7 +301,7 @@ export class GameRepository extends BaseRepository {
 					categoryIds: [],
 					playCount: 0,
 					likeCount: 0,
-					schemaVersion: ENV.API_VERSION,
+					schemaVersion: ENV.NEXT_PUBLIC_API_VERSION,
 				})),
 			);
 

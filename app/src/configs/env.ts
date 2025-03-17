@@ -3,11 +3,6 @@ import { z } from "zod";
 
 export const ENV = createEnv({
 	server: {
-		API_VERSION: z.string().default("v1"),
-		DOMAIN_NAME: z.string(),
-		ENV: z.string(),
-		PORT: z.string().default("8000"),
-
 		DATABASE_HOST: z.string(),
 		DATABASE_PORT: z.string(),
 		DATABASE_NAME: z.string(),
@@ -18,11 +13,15 @@ export const ENV = createEnv({
 		GOOGLE_CLIENT_SECRET: z.string(),
 		JWT_SECRET: z.string(),
 	},
+	client: {
+		NEXT_PUBLIC_API_VERSION: z.string().default("v1"),
+		NEXT_PUBLIC_DOMAIN_NAME: z.string(),
+		NEXT_PUBLIC_ENV: z.string(),
+	},
 	runtimeEnv: {
-		API_VERSION: process.env.API_VERSION,
-		DOMAIN_NAME: process.env.DOMAIN_NAME,
-		ENV: process.env.ENV,
-		PORT: process.env.PORT,
+		NEXT_PUBLIC_API_VERSION: process.env.API_VERSION,
+		NEXT_PUBLIC_DOMAIN_NAME: process.env.DOMAIN_NAME,
+		NEXT_PUBLIC_ENV: process.env.ENV,
 
 		DATABASE_HOST: process.env.DATABASE_HOST,
 		DATABASE_PORT: process.env.DATABASE_PORT,

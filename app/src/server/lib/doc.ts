@@ -34,7 +34,7 @@ export const docs = (app: OpenAPIHono<Env>) => {
 		servers: [{ url: "/api/v1" }],
 		info: {
 			title: "Ptera API",
-			version: ENV.API_VERSION,
+			version: ENV.NEXT_PUBLIC_API_VERSION,
 			description: "PteraのAPIドキュメント",
 		},
 		openapi: "3.1.0",
