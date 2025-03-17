@@ -5,6 +5,8 @@ import type { GetGamesRequest } from "@/schemas/games/dto";
 import { Loader2 } from "lucide-react";
 import { Suspense } from "react";
 
+export const dynamic = "force-dynamic";
+
 export default async function GamesPage({
 	searchParams,
 }: {

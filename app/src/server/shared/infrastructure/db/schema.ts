@@ -887,44 +887,6 @@ export const appearCharacterEvent = pgTable(
 	],
 );
 
-export const hideCharacterEvent = pgTable(
-	"hide_character_event",
-	{
-		id: integer()
-			.primaryKey()
-			.generatedAlwaysAsIdentity({
-				name: "hide_character_event_id_seq",
-				startWith: 1,
-				increment: 1,
-				minValue: 1,
-				maxValue: 2147483647,
-				cache: 1,
-			}),
-		eventId: integer("event_id").notNull(),
-		characterId: integer("character_id").notNull(),
-		transitionDuration: integer("transition_duration").default(0).notNull(),
-		updatedAt: timestamp("updated_at", { mode: "string" })
-			.default(sql`CURRENT_TIMESTAMP`)
-			.notNull(),
-		createdAt: timestamp("created_at", { mode: "string" })
-			.default(sql`CURRENT_TIMESTAMP`)
-			.notNull(),
-	},
-	(table) => [
-		foreignKey({
-			columns: [table.characterId],
-			foreignColumns: [character.id],
-			name: "fk_hide_character_event_character",
-		}).onDelete("cascade"),
-		foreignKey({
-			columns: [table.eventId],
-			foreignColumns: [event.id],
-			name: "fk_hide_character_event_event",
-		}).onDelete("cascade"),
-		unique("hide_character_event_event_id_key").on(table.eventId),
-	],
-);
-
 export const hideAllCharactersEvent = pgTable(
 	"hide_all_characters_event",
 	{
@@ -993,6 +955,44 @@ export const moveCharacterEvent = pgTable(
 			name: "fk_move_character_event_event",
 		}).onDelete("cascade"),
 		unique("move_character_event_event_id_key").on(table.eventId),
+	],
+);
+
+export const hideCharacterEvent = pgTable(
+	"hide_character_event",
+	{
+		id: integer()
+			.primaryKey()
+			.generatedAlwaysAsIdentity({
+				name: "hide_character_event_id_seq",
+				startWith: 1,
+				increment: 1,
+				minValue: 1,
+				maxValue: 2147483647,
+				cache: 1,
+			}),
+		eventId: integer("event_id").notNull(),
+		characterId: integer("character_id").notNull(),
+		transitionDuration: integer("transition_duration").default(0).notNull(),
+		updatedAt: timestamp("updated_at", { mode: "string" })
+			.default(sql`CURRENT_TIMESTAMP`)
+			.notNull(),
+		createdAt: timestamp("created_at", { mode: "string" })
+			.default(sql`CURRENT_TIMESTAMP`)
+			.notNull(),
+	},
+	(table) => [
+		foreignKey({
+			columns: [table.characterId],
+			foreignColumns: [character.id],
+			name: "fk_hide_character_event_character",
+		}).onDelete("cascade"),
+		foreignKey({
+			columns: [table.eventId],
+			foreignColumns: [event.id],
+			name: "fk_hide_character_event_event",
+		}).onDelete("cascade"),
+		unique("hide_character_event_event_id_key").on(table.eventId),
 	],
 );
 

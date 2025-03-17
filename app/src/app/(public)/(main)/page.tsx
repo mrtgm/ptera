@@ -5,6 +5,8 @@ import type { GameListResponse } from "@/schemas/games/dto";
 import { ArrowRight, Clock, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
 	const [newGamesResponse, popularGamesResponse] = await Promise.all([
 		api.games.list({ limit: 4, offset: 0, sort: "createdAt", order: "desc" }),

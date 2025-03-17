@@ -22,9 +22,9 @@ import {
 	event,
 	changeBackgroundEvent,
 	appearCharacterEvent,
-	hideCharacterEvent,
 	hideAllCharactersEvent,
 	moveCharacterEvent,
+	hideCharacterEvent,
 	characterEffectEvent,
 	bgmStartEvent,
 	bgmStopEvent,
@@ -76,8 +76,8 @@ export const characterRelations = relations(character, ({ one, many }) => ({
 	characterAssets: many(characterAsset),
 	characterGames: many(characterGame),
 	appearCharacterEvents: many(appearCharacterEvent),
-	hideCharacterEvents: many(hideCharacterEvent),
 	moveCharacterEvents: many(moveCharacterEvent),
+	hideCharacterEvents: many(hideCharacterEvent),
 	characterEffectEvents: many(characterEffectEvent),
 }));
 
@@ -258,9 +258,9 @@ export const eventRelations = relations(event, ({ one, many }) => ({
 	}),
 	changeBackgroundEvents: many(changeBackgroundEvent),
 	appearCharacterEvents: many(appearCharacterEvent),
-	hideCharacterEvents: many(hideCharacterEvent),
 	hideAllCharactersEvents: many(hideAllCharactersEvent),
 	moveCharacterEvents: many(moveCharacterEvent),
+	hideCharacterEvents: many(hideCharacterEvent),
 	characterEffectEvents: many(characterEffectEvent),
 	bgmStartEvents: many(bgmStartEvent),
 	bgmStopEvents: many(bgmStopEvent),
@@ -305,20 +305,6 @@ export const appearCharacterEventRelations = relations(
 	}),
 );
 
-export const hideCharacterEventRelations = relations(
-	hideCharacterEvent,
-	({ one }) => ({
-		character: one(character, {
-			fields: [hideCharacterEvent.characterId],
-			references: [character.id],
-		}),
-		event: one(event, {
-			fields: [hideCharacterEvent.eventId],
-			references: [event.id],
-		}),
-	}),
-);
-
 export const hideAllCharactersEventRelations = relations(
 	hideAllCharactersEvent,
 	({ one }) => ({
@@ -338,6 +324,20 @@ export const moveCharacterEventRelations = relations(
 		}),
 		event: one(event, {
 			fields: [moveCharacterEvent.eventId],
+			references: [event.id],
+		}),
+	}),
+);
+
+export const hideCharacterEventRelations = relations(
+	hideCharacterEvent,
+	({ one }) => ({
+		character: one(character, {
+			fields: [hideCharacterEvent.characterId],
+			references: [character.id],
+		}),
+		event: one(event, {
+			fields: [hideCharacterEvent.eventId],
 			references: [event.id],
 		}),
 	}),
