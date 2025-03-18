@@ -1,6 +1,29 @@
+import { api } from "@/client/api";
 import { UserProfileDetail } from "@/client/features/user/components/user-detail";
 import { Loader2 } from "lucide-react";
 import { Suspense, use } from "react";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{
+    userId: string;
+  }>;
+}) {
+  const p = await params;
+  if (!p.userId) {
+    return {
+      title: "ユーザープロフィール | Ptera",
+      description: "ユーザープロフィールページです。",
+    };
+  }
+  const userId = Number.parseInt(p.userId, 10);
+  const user = await api.users.get(userId);
+  return {
+    title: `${user.name}のプロフィール | Ptera`,
+    description: `${user.name}のプロフィールページです。`,
+  };
+}
 
 export default function UserProfilePage({
   params,

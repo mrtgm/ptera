@@ -3,6 +3,10 @@ import { DashboardGamesContent } from "@/client/features/dashboard/components/ga
 import { Loader2 } from "lucide-react";
 import { Suspense } from "react";
 
+export const metadata = {
+  title: "ゲーム一覧 | Ptera",
+};
+
 export default async function DashboardGamesPage() {
   await guard();
 

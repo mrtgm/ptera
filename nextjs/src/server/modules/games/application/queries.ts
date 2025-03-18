@@ -13,6 +13,7 @@ import {
   mapDomainToCommentResponse,
   mapDomainToGameDetailResponse,
   mapDomainToGameListResponse,
+  mapDomainToGameMetaDataResponse,
   mapDomainToResourceResponse,
 } from "@ptera/schema";
 import type { ResourceRepository } from "../../assets/infrastructure/repositories/resource";
@@ -67,6 +68,14 @@ export const createQuery = ({
 
       const resources = await resourceRepository.getResourceByGameId(gameId);
       return mapDomainToResourceResponse(resources);
+    },
+
+    executeGetGameMetaData: async (gameId: number) => {
+      const game = await gameRepository.getGameMetadataById(gameId);
+      if (!game) {
+        throw new GameNotFoundError(gameId);
+      }
+      return mapDomainToGameMetaDataResponse(game);
     },
 
     executeGetGame: async (gameId: number): Promise<GameDetailResponse> => {

@@ -2,6 +2,10 @@ import { api } from "@/client/api";
 import { guard } from "@/client/features/auth/guard";
 import { ProfileForm } from "@/client/features/dashboard/components/profile-form";
 
+export const metadata = {
+  title: "アカウント設定 | Ptera",
+};
+
 export default async function DashboardGamesPage() {
   await guard();
   const user = await api.auth.me();

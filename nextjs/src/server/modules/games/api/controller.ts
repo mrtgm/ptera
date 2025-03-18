@@ -74,6 +74,11 @@ gameRoutes
     const result = await queries.executeGetGame(gameId);
     return successWithDataResponse(c, result);
   })
+  .openapi(gameRouteCongfigs.getGameMetadata, async (c) => {
+    const gameId = c.req.valid("param").gameId;
+    const result = await queries.executeGetGameMetaData(gameId);
+    return successWithDataResponse(c, result);
+  })
   .openapi(gameRouteCongfigs.getAsset, async (c) => {
     const gameId = c.req.valid("param").gameId;
     const result = await queries.executeGetAsset(gameId);

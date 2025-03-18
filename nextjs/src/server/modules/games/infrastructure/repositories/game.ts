@@ -10,6 +10,7 @@ import {
 import { ENV } from "@ptera/config";
 import {
   type Game,
+  type GameMetaDataResponse,
   GameNotFoundError,
   type GetGamesRequest,
   type UpdateGameRequest,
@@ -21,6 +22,30 @@ import { BaseRepository, type Transaction } from "./base";
 import { StatisticsRepository } from "./statistic";
 
 export class GameRepository extends BaseRepository {
+  async getGameMetadataById(
+    gameId: number,
+    tx?: Transaction,
+  ): Promise<GameMetaDataResponse | null> {
+    return await this.executeTransaction(async (txLocal) => {
+      const gameData = await txLocal
+        .select({
+          id: game.id,
+          name: game.name,
+          description: game.description,
+          coverImageUrl: game.coverImageUrl,
+        })
+        .from(game)
+        .where(eq(game.id, gameId))
+        .execute();
+      if (gameData.length === 0) {
+        return null;
+      }
+      return {
+        ...gameData[0],
+      };
+    }, tx);
+  }
+
   async getGameById(gameId: number, tx?: Transaction): Promise<Game> {
     return await this.executeTransaction(async (txLocal) => {
       const gameWithCounts = await txLocal

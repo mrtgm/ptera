@@ -7,6 +7,11 @@ import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "ゲーム一覧 | Ptera",
+  description: "ゲーム一覧ページです。",
+};
+
 export default async function GamesPage({
   searchParams,
 }: {

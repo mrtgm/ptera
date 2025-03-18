@@ -201,6 +201,13 @@ export const api = {
       return response.data as GameDetailResponse;
     },
 
+    getMetadata: async (gameId: number) => {
+      const response = await handleApiResponse<GameDetailResponse>(() =>
+        api.client.games.getApiV1GamesMetadata(gameId),
+      );
+      return response.data as GameDetailResponse;
+    },
+
     // ゲーム作成
     create: async (params: CreateGameRequest) => {
       const response = await handleApiResponse<GameDetailResponse>(() =>

@@ -1,8 +1,31 @@
+import { api } from "@/client/api";
 import { Button } from "@/client/components/shadcn/button";
 import { GameDetail } from "@/client/features/game/components/game-detail";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Suspense, use } from "react";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{
+    gameId: string;
+  }>;
+}) {
+  const p = await params;
+  if (!p.gameId) {
+    return {
+      title: "ゲーム詳細 | Ptera",
+      description: "ゲーム詳細ページです。",
+    };
+  }
+  const gameId = Number.parseInt(p.gameId, 10);
+  const game = await api.games.getMetadata(gameId);
+  return {
+    title: `${game.name}の詳細 | Ptera`,
+    description: `${game.name}の詳細ページです。`,
+  };
+}
 
 export default function GameDetailPage({
   params,

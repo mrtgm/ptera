@@ -17,6 +17,7 @@ import {
   eventResponseSchema,
   gameDetailResponseSchema,
   gameListResponseSchema,
+  gameMetaDataResponseSchema,
   gameResponseSchema,
   getCommentsRequestSchema,
   getGamesRequestSchema,
@@ -71,6 +72,28 @@ export const gameRouteCongfigs = {
         content: {
           "application/json": {
             schema: successWithDataSchema(gameDetailResponseSchema),
+          },
+        },
+      },
+      ...errorResponses,
+    },
+  }),
+
+  getGameMetadata: createRouteConfig({
+    method: "get",
+    path: "/{gameId}/metadata",
+    guard: [isPublicAccess],
+    tags: ["games"],
+    summary: "ゲームメタデータを取得します。",
+    request: {
+      params: gameParamSchema,
+    },
+    responses: {
+      200: {
+        description: "Game Metadata",
+        content: {
+          "application/json": {
+            schema: successWithDataSchema(gameMetaDataResponseSchema),
           },
         },
       },

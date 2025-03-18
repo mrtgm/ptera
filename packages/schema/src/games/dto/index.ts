@@ -185,6 +185,19 @@ export const mapDomainToGameResponse = (game: Game): Game => {
   return gameResponseSchema.parse(game);
 };
 
+export const gameMetaDataResponseSchema = gameSchema.pick({
+  id: true,
+  name: true,
+  description: true,
+  coverImageUrl: true,
+});
+export type GameMetaDataResponse = z.infer<typeof gameMetaDataResponseSchema>;
+export const mapDomainToGameMetaDataResponse = (
+  game: GameMetaDataResponse,
+): GameMetaDataResponse => {
+  return gameMetaDataResponseSchema.parse(game);
+};
+
 export const gameDetailResponseSchema = gameWithSceneSchema.merge(
   z.object({
     userId: z.number(),
