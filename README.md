@@ -1,4 +1,12 @@
-# Ptera
+<div align="center">
+  <table border="0">
+    <tr>
+      <td><img src="./doc/logo.png" alt="Ptera Logo" height="50"></td>
+      <td><h1>Ptera</h1></td>
+    </tr>
+  </table>
+  <p>Pteraは、ノベルゲームをブラウザで作成、公開できるサービスです。（現在開発中）</p>
+</div>
 
 <img src="./doc/screenshot-top.png" alt="スクリーンショット・トップページ" width="800">
 <img src="./doc/screenshot-player.jpeg" alt="スクリーンショット・詳細ページ" width="800">
@@ -8,7 +16,7 @@
 
 ```
 ptera/
-├── packages # クライアント/サーバで共用するコード
+├── packages # クライアント/サーバで共用するコード類
 │   ├── schema # スキーマ定義
 │   └── config # 定数
 ├── nextjs
@@ -53,3 +61,4 @@ ptera/
 
 - https://ranuking.ko-me.com/
 - https://musmus.main.jp
+- https://soundeffect-lab.info/
