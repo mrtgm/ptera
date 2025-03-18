@@ -5,7 +5,9 @@ export const formatFileSize = (bytes: number): string => {
 };
 
 export const getFileExtension = (filename: string): string => {
-  return filename.split(".").pop()?.toLowerCase() || "";
+  return filename.includes(".")
+    ? filename.split(".").pop()?.toLowerCase() || ""
+    : "";
 };
 
 export const getAcceptAttributeValue = (

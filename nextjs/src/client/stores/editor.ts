@@ -30,7 +30,6 @@ import { performUpdate } from "../utils/optimistic-update";
 export interface EditorState {
   editingGame: GameDetailResponse | null;
   editingResources: ResourceResponse | null;
-  isDirty: boolean;
 
   initializeEditor: (
     game: GameDetailResponse,
@@ -74,9 +73,6 @@ export interface EditorState {
 
   deleteAsset: (assetId: number, type: AssetDialogKeyType) => void;
   uploadAsset: (file: File, type: AssetDialogKeyType) => void;
-
-  markAsDirty: () => void;
-  markAsClean: () => void;
 }
 
 export const createEditorSlice: StateCreator<
@@ -93,7 +89,6 @@ export const createEditorSlice: StateCreator<
     set({
       editingGame: game,
       editingResources: resources,
-      isDirty: false,
     });
   },
 
@@ -186,7 +181,7 @@ export const createEditorSlice: StateCreator<
 
   // エンディング設定保存
   saveEnding: async (endingScene) => {
-    const { editingGame, markAsDirty } = get();
+    const { editingGame } = get();
     if (!editingGame) return;
 
     await performUpdate({
@@ -203,8 +198,6 @@ export const createEditorSlice: StateCreator<
         });
       },
     });
-
-    markAsDirty();
   },
 
   // イベント追加
@@ -286,7 +279,7 @@ export const createEditorSlice: StateCreator<
 
   // イベント移動
   moveEvent: async (oldIndex, newIndex, selectedSceneId) => {
-    const { editingGame, markAsDirty } = get();
+    const { editingGame } = get();
     if (!editingGame) return;
 
     const targetScene = editingGame.scenes.find(
@@ -425,7 +418,7 @@ export const createEditorSlice: StateCreator<
 
   // キャラクター追加
   addCharacter: (name) => {
-    const { editingResources, markAsDirty } = get();
+    const { editingResources } = get();
     if (!editingResources) return;
 
     const newCharacter = createCharacter(name);
@@ -439,13 +432,11 @@ export const createEditorSlice: StateCreator<
         },
       },
     });
-
-    markAsDirty();
   },
 
   // キャラクター名更新
   updateCharacterName: (characterId, name) => {
-    const { editingResources, markAsDirty } = get();
+    const { editingResources } = get();
     if (!editingResources) return;
 
     set({
@@ -460,12 +451,10 @@ export const createEditorSlice: StateCreator<
         },
       },
     });
-
-    markAsDirty();
   },
 
   uploadCharacterImage: (characterId, file) => {
-    const { editingResources, markAsDirty } = get();
+    const { editingResources } = get();
     if (!editingResources) return;
 
     const character = editingResources.character[characterId];
@@ -496,7 +485,7 @@ export const createEditorSlice: StateCreator<
 
   // キャラクター削除
   deleteCharacter: (characterId) => {
-    const { editingResources, markAsDirty } = get();
+    const { editingResources } = get();
     if (!editingResources) return;
 
     const { [characterId]: _, ...remainingCharacters } =
@@ -508,13 +497,11 @@ export const createEditorSlice: StateCreator<
         character: remainingCharacters,
       },
     });
-
-    markAsDirty();
   },
 
   // キャラクター画像削除
   deleteCharacterImage: (characterId, imageId) => {
-    const { editingResources, markAsDirty } = get();
+    const { editingResources } = get();
     if (!editingResources) return;
 
     const character = editingResources.character[characterId];
@@ -540,13 +527,11 @@ export const createEditorSlice: StateCreator<
         },
       },
     });
-
-    markAsDirty();
   },
 
   // アセット削除
   deleteAsset: (assetId, type) => {
-    const { editingResources, markAsDirty } = get();
+    const { editingResources } = get();
     if (!editingResources) return;
 
     const assets = editingResources[type];
@@ -558,13 +543,11 @@ export const createEditorSlice: StateCreator<
         [type]: remainingAssets,
       },
     });
-
-    markAsDirty();
   },
 
   // アセットアップロード
   uploadAsset: (file, type) => {
-    const { editingResources, markAsDirty } = get();
+    const { editingResources } = get();
     if (!editingResources) return;
 
     const newAsset: MediaAsset = createAsset(
@@ -582,7 +565,6 @@ export const createEditorSlice: StateCreator<
         },
       },
     });
-    markAsDirty();
   },
 
   // シーン設定保存
@@ -625,15 +607,6 @@ export const createEditorSlice: StateCreator<
     });
   },
 
-  // 変更フラグ設定
-  markAsDirty: () => {
-    set({ isDirty: true });
-  },
-
-  markAsClean: () => {
-    set({ isDirty: false });
-  },
-
   createGame: async (name, description) => {
     const { editingGame, editingResources } = get();
 
@@ -648,7 +621,6 @@ export const createEditorSlice: StateCreator<
         soundEffect: {},
         bgm: {},
       },
-      isDirty: false,
     });
 
     return "gameId";

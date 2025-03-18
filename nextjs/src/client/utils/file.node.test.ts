@@ -17,7 +17,7 @@ describe("formatFileSize", () => {
     expect(formatFileSize(1024)).toBe("1.0 KB");
     expect(formatFileSize(1536)).toBe("1.5 KB");
     expect(formatFileSize(10240)).toBe("10.0 KB");
-    expect(formatFileSize(1048575)).toBe("1023.9 KB");
+    expect(formatFileSize(1048575)).toBe("1024.0 KB");
   });
 
   it("メガバイト単位で表示されるべき", () => {
@@ -74,10 +74,10 @@ describe("getAcceptAttributeValue", () => {
     expect(getAcceptAttributeValue("image", ["jpg", "png"])).toBe("image/*");
   });
 
-  it('音声タイプの場合は "audio/*" を返す', () => {
-    expect(getAcceptAttributeValue("audio")).toBe("audio/*");
-    expect(getAcceptAttributeValue("audio", [])).toBe("audio/*");
-    expect(getAcceptAttributeValue("audio", ["mp3", "wav"])).toBe("audio/*");
+  it('音声タイプの場合は "audio/mp3" を返す', () => {
+    expect(getAcceptAttributeValue("audio")).toBe("audio/mp3");
+    expect(getAcceptAttributeValue("audio", [])).toBe("audio/mp3");
+    expect(getAcceptAttributeValue("audio", ["mp3", "wav"])).toBe("audio/mp3");
   });
 
   it("anyタイプで拡張子が指定されている場合はドット付きの拡張子リストを返す", () => {

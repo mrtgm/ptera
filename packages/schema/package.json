@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "fractional-indexing": "^3.2.0",
+    "vitest": "^3.0.9",
     "zod": "^3.22.0"
   },
   "devDependencies": {

@@ -16,7 +16,7 @@ export default function UserProfilePage({
     <div className="container max-w-4xl mx-auto py-8 px-4">
       <Suspense
         fallback={
-          <div className="flex items-center justify-center h-64">
+          <div className="flex items-center justify-center h-64 select-none">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <span className="ml-2 text-muted-foreground">
               ユーザー情報を読み込み中...

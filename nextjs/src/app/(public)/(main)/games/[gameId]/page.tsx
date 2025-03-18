@@ -25,10 +25,10 @@ export default function GameDetailPage({
 
       <Suspense
         fallback={
-          <div className="flex items-center justify-center h-64">
+          <div className="flex justify-center items-center py-20 select-none">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <span className="ml-2 text-muted-foreground">
-              ゲームを読み込み中...
+              メタデータを読み込み中...
             </span>
           </div>
         }

@@ -18,6 +18,11 @@ export class ResourceManager {
 
   private constructor() {}
 
+  #completeLoad = false;
+  get completeLoad() {
+    return this.#completeLoad;
+  }
+
   static getInstance(): ResourceManager {
     if (!ResourceManager.instance) {
       ResourceManager.instance = new ResourceManager();
@@ -33,6 +38,7 @@ export class ResourceManager {
       soundEffect: {},
       bgm: {},
     };
+    this.#completeLoad = false;
   }
 
   private loadImage(url: string): Promise<HTMLImageElement> {
@@ -134,6 +140,7 @@ export class ResourceManager {
     ];
 
     await Promise.all(loadPromises);
+    this.#completeLoad = true;
   }
 
   getCacheState() {

@@ -6,6 +6,7 @@ import {
   type Stage,
   isChoiceScene,
 } from "@/client/schema";
+import { waitMs } from "@/client/utils/function";
 import { resourceManager } from "@/client/utils/preloader";
 import type {
   EventResponse,
@@ -14,6 +15,7 @@ import type {
   ResourceResponse,
   SceneResponse,
 } from "@ptera/schema";
+import { Loader2 } from "lucide-react";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { EndScreen } from "./components/end-screen";
 import { GameScreen } from "./components/game-screen";
@@ -51,23 +53,26 @@ export const GamePlayer = ({
   const [history, setHistory] = useState<MessageHistory[]>([]);
   const [currentScene, setCurrentScene] = useState<SceneResponse | null>(null);
   const [currentEvent, setCurrentEvent] = useState<EventResponse | null>(null);
-  const [isResourcesLoaded, setIsResourcesLoaded] = useState(false);
+
+  const alreadyStarted = useRef(false);
 
   useEffect(() => {
+    if (!resources) return;
+
     resourceManager
       .loadResources(resources)
-      .then(() => {
-        setIsResourcesLoaded(true);
-
+      .then(async () => {
         if (isPreviewMode) {
           startGame();
         } else {
+          if (alreadyStarted.current) return;
           setState("beforeStart");
+          alreadyStarted.current = true;
         }
       })
       .catch((error) => {
         setError({
-          title: "リソースの読み込みに失敗しました。URLが無効かもしれません。",
+          title: "リソースの読み込みに失敗しました。設定が間違ってるかも。",
           message: error.message,
         });
       });
@@ -114,9 +119,13 @@ export const GamePlayer = ({
     Howler.mute(isMute);
   };
 
+  const alreadyPlaying = useRef(false);
+
   useEffect(() => {
     if (currentEvent && eventManager) {
       const processEvent = async () => {
+        if (alreadyPlaying.current) return;
+        alreadyPlaying.current = true;
         try {
           await eventManager.processGameEvent(
             currentEvent as GameEvent,
@@ -139,6 +148,8 @@ export const GamePlayer = ({
             },
           );
 
+          alreadyPlaying.current = false;
+
           goToNextEvent();
         } catch (error) {
           console.error("イベント処理エラー:", error);
@@ -157,7 +168,6 @@ export const GamePlayer = ({
   const goToNextEvent = () => {
     if (!currentScene || !currentEvent) return;
 
-    // TODO: イベントはソートしておく
     const eventIndex = currentScene.events.findIndex(
       (e) => e.id === currentEvent.id,
     );
@@ -233,8 +243,9 @@ export const GamePlayer = ({
   };
 
   const handleTapInitialScreen = useCallback(() => {
+    if (state !== "beforeStart") return;
     startGame();
-  }, [startGame]);
+  }, [startGame, state]);
 
   const handleTapGoToInitialScreen = useCallback(() => {
     resetGame();
@@ -253,7 +264,10 @@ export const GamePlayer = ({
         )}
         {state === "loading" && (
           <div className="w-full h-full bg-black flex justify-center items-center select-none">
-            <div className="text-white text-2xl">読み込み中...</div>
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-white" />
+              <span className="ml-2 text-white">リソースを読み込み中...</span>
+            </div>
           </div>
         )}
         {state === "beforeStart" && (

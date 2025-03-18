@@ -5,40 +5,54 @@ import type { GameEvent } from "@ptera/schema";
  * キャンセル可能なイベント処理マネージャー
  */
 export class EventManager {
-  private isAutoMode = false;
-  cancelTransitionRequests: Set<number> = new Set();
-  private animationFrameIds: Map<number, number> = new Map();
-  private disposed = false;
+  #isAutoMode = false;
+  #animationFrameIds: Map<number, number> = new Map();
+  #disposed = false;
+  #cancelTransitionRequests: Set<number> = new Set();
+
+  get animationFrameIds() {
+    if (this.#disposed) return [];
+    return Array.from(this.#animationFrameIds.values());
+  }
+
+  get isAutoMode() {
+    return this.#isAutoMode;
+  }
 
   setAutoMode(isAutoMode: boolean) {
-    this.isAutoMode = isAutoMode;
+    this.#isAutoMode = isAutoMode;
   }
 
   addCancelRequest(eventId: number) {
-    if (this.disposed) return;
+    if (this.#disposed) return;
 
-    if (this.cancelTransitionRequests.size > 10) {
+    if (this.#cancelTransitionRequests.size > 10) {
       // キャンセルリクエストが多すぎる場合はクリア
-      this.cancelTransitionRequests.clear();
+      this.#cancelTransitionRequests.clear();
     }
-    this.cancelTransitionRequests.add(eventId);
+    this.#cancelTransitionRequests.add(eventId);
+  }
+
+  get cancelTransitionRequests() {
+    if (this.#disposed) return [];
+    return Array.from(this.#cancelTransitionRequests);
   }
 
   removeCancelRequest(eventId: number) {
-    if (this.disposed) return;
-    this.cancelTransitionRequests.delete(eventId);
+    if (this.#disposed) return;
+    this.#cancelTransitionRequests.delete(eventId);
   }
 
   clearCancelRequests() {
-    if (this.disposed) return;
+    if (this.#disposed) return;
 
-    this.cancelTransitionRequests.clear();
+    this.#cancelTransitionRequests.clear();
   }
 
   checkIfEventIsCanceled(eventId: number): boolean {
-    if (this.disposed) return false;
+    if (this.#disposed) return false;
 
-    return this.cancelTransitionRequests.has(eventId);
+    return this.#cancelTransitionRequests.has(eventId);
   }
 
   private tapResolve?: () => void;
@@ -55,7 +69,7 @@ export class EventManager {
   private async waitForTap(eventId: number): Promise<void> {
     return new Promise<void>((resolve) => {
       const check = () => {
-        if (this.disposed) {
+        if (this.#disposed) {
           resolve();
           this.tapResolve = undefined;
           return;
@@ -66,11 +80,11 @@ export class EventManager {
           return;
         }
         const frameId = requestAnimationFrame(check);
-        this.animationFrameIds.set(eventId, frameId);
+        this.#animationFrameIds.set(eventId, frameId);
       };
 
       const frameId = requestAnimationFrame(check);
-      this.animationFrameIds.set(eventId, frameId);
+      this.#animationFrameIds.set(eventId, frameId);
 
       this.tapResolve = resolve;
       window.addEventListener("click", this.handleTap);
@@ -78,13 +92,13 @@ export class EventManager {
   }
 
   async waitCancelable(ms: number, eventId: number): Promise<void> {
-    if (this.disposed) return;
+    if (this.#disposed) return;
 
     const startTime = performance.now();
 
     return new Promise<void>((resolve) => {
       const check = () => {
-        if (this.disposed) {
+        if (this.#disposed) {
           resolve();
           return;
         }
@@ -93,10 +107,10 @@ export class EventManager {
           performance.now() - startTime > ms ||
           this.checkIfEventIsCanceled(eventId)
         ) {
-          if (this.animationFrameIds.has(eventId)) {
-            const frameId = this.animationFrameIds.get(eventId);
+          if (this.#animationFrameIds.has(eventId)) {
+            const frameId = this.#animationFrameIds.get(eventId);
             if (frameId) cancelAnimationFrame(frameId);
-            this.animationFrameIds.delete(eventId);
+            this.#animationFrameIds.delete(eventId);
           }
 
           resolve();
@@ -104,11 +118,11 @@ export class EventManager {
         }
 
         const frameId = requestAnimationFrame(check);
-        this.animationFrameIds.set(eventId, frameId);
+        this.#animationFrameIds.set(eventId, frameId);
       };
 
       const frameId = requestAnimationFrame(check);
-      this.animationFrameIds.set(eventId, frameId);
+      this.#animationFrameIds.set(eventId, frameId);
     });
   }
 
@@ -118,7 +132,7 @@ export class EventManager {
     onUpdate: (text: string) => void,
     speed = 50,
   ): Promise<void> {
-    if (this.disposed) return;
+    if (this.#disposed) return;
 
     let currentText = "";
 
@@ -144,7 +158,7 @@ export class EventManager {
     onHistoryUpdate: (event: MessageHistory) => void,
     onEventComplete?: (event: GameEvent) => void,
   ): Promise<Stage> {
-    if (this.disposed) return initialStage;
+    if (this.#disposed) return initialStage;
 
     let currentStage = { ...initialStage };
 
@@ -176,7 +190,7 @@ export class EventManager {
     onStateUpdate: (state: GameState) => void,
     onHistoryUpdate: (event: MessageHistory) => void,
   ): Promise<Stage> {
-    if (this.disposed) return currentStage;
+    if (this.#disposed) return currentStage;
 
     let updatedStage = { ...currentStage };
 
@@ -508,22 +522,22 @@ export class EventManager {
 
   reset() {
     this.clearCancelRequests();
-    for (const frameId of this.animationFrameIds.values()) {
+    for (const frameId of this.#animationFrameIds.values()) {
       cancelAnimationFrame(frameId);
     }
   }
 
   dispose() {
-    if (this.disposed) return;
+    if (this.#disposed) return;
 
     // すべてのアニメーションフレームをキャンセル
-    for (const frameId of this.animationFrameIds.values()) {
+    for (const frameId of this.#animationFrameIds.values()) {
       cancelAnimationFrame(frameId);
     }
 
     window.removeEventListener("click", this.handleTap);
-    this.animationFrameIds.clear();
+    this.#animationFrameIds.clear();
     this.clearCancelRequests();
-    this.disposed = true;
+    this.#disposed = true;
   }
 }

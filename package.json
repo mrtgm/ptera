@@ -9,11 +9,16 @@
     "lint": "biome lint .",
     "check": "biome check --apply .",
     "env": "bunx vercel env pull",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "test:ci": "vitest --ci",
     "terraform:init": "cd ./terraform && terragrunt init --terragrunt-config ./root.hcl",
     "terraform:plan": "cd ./terraform && terragrunt plan --terragrunt-config ./root.hcl",
     "terraform:apply": "cd ./terraform && terragrunt apply --terragrunt-config ./root.hcl"
   },
   "dependencies": {
-    "@types/aria-query": "^5.0.4"
+    "@types/aria-query": "^5.0.4",
+    "jsdom": "^26.0.0"
   }
 }

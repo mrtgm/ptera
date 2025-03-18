@@ -230,7 +230,10 @@ export default function Editor() {
   if (!editorSlice.editingGame || !editorSlice.editingResources) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <Loader2 size={64} className="animate-spin text-primary" />
+        <div className="flex items-center justify-center h-64 select-none">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2 text-muted-foreground">読み込み中...</span>
+        </div>
       </div>
     );
   }

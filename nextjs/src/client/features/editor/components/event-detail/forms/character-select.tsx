@@ -6,7 +6,7 @@ import {
 } from "@/client/components/shadcn/form";
 import { Separator } from "@/client/components/shadcn/separator";
 import { useStore } from "@/client/stores";
-import { findFirstObjectValue } from "@/client/utils";
+import { findFirstObjectValue } from "@/client/utils/function";
 import type { ResourceResponse } from "@ptera/schema";
 import type { useForm } from "react-hook-form";
 

@@ -28,7 +28,7 @@ export default async function GamesPage({
 
       <Suspense
         fallback={
-          <div className="flex justify-center items-center py-20">
+          <div className="flex justify-center items-center py-20 select-none">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <span className="ml-2 text-muted-foreground">
               ゲームを読み込み中...

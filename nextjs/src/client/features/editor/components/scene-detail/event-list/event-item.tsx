@@ -1,6 +1,6 @@
 import { SideBarSettings } from "@/client/features/editor/constants";
 
-import { findFirstObjectValue } from "@/client/utils";
+import { findFirstObjectValue } from "@/client/utils/function";
 import { useDroppable } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import type {
