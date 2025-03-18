@@ -17,9 +17,6 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="text-lg font-bold mb-4">Ptera</h3>
-            <p className="text-sm text-muted-foreground">
-              オリジナルのビジュアルノベルやアドベンチャーゲームを簡単に作成して共有できるプラットフォーム
-            </p>
           </div>
 
           <div>

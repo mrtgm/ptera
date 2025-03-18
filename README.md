@@ -3,7 +3,8 @@
     <img src="./doc/logo.png" alt="Ptera Logo" width="100">
     <h1>Ptera</h1>
   </div>
-  <p>Pteraは、ノベルゲームをブラウザで作成、公開できるサービスです。（現在開発中）
+  <p>Pteraは、ノベルゲームをブラウザで作成、公開できるサービスです。（現在開発中）<br/>
+  <a href="https://ptera.morio.space">https://ptera.morio.space</a></p>
 </p>
 </div>
 
