@@ -1,50 +1,55 @@
 # Ptera
 
+<img src="./doc/screenshot-top.png" alt="スクリーンショット・トップページ" width="800">
+<img src="./doc/screenshot-player.jpeg" alt="スクリーンショット・詳細ページ" width="800">
+<img src="./doc/screenshot-editor.png" alt="スクリーンショット・編集ページ" width="800">
 
 ## プロジェクト構成
 
 ```
 ptera/
-├── .devcontainer/     # devcontainer
-├── backend/           # Node.js バックエンド
-└── frontend/          # Node.js/Reactフロントエンド
+├── packages # クライアント/サーバで共用するコード
+│   ├── schema # スキーマ定義
+│   └── config # 定数
+├── nextjs
+│   └──src
+│       ├── app # Next.jsアプリケーション
+│       ├── client # クライアントサイドのコード
+│       └── server # サーバーサイドのコード
+├── terraform # インフラ構成
+│   ├── env
+│   │   ├── dev # 開発環境
+│   │   └── prod # 本番環境
+│   └── modules # モジュール
+└── doc # ドキュメント
 ```
-
-## 開発を始める
 
 ### Prerequisite
+- [Bun](https://bun.sh/)
+- [Node.js](https://nodejs.org/)
+- [direnv](https://direnv.net/)
+- [Terraform](https://www.terraform.io/)
+- [Terragrunt](https://terragrunt.gruntwork.io/)
+- [Vercel CLI](https://vercel.com/docs/cli)
 
-- [Visual Studio Code](https://code.visualstudio.com/)
-- [Docker](https://www.docker.com/products/docker-desktop)
-- [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) VS Code拡張機能
+依存関係のバージョンは `.tool-versions` ([asdf](https://asdf-vm.com/) を使用) に記載。
 
-### 開発環境のセットアップ
+## 開発環境の構築
+1. Vercel プロジェクトにリンクして`.env.local`ファイルを取得します。
+   ```bash
+   bunx vercel link
+   bunx vercel env pull
+   ```
+2. 環境変数の設定
+   ```bash
+    direnv allow
+    ```
+3. 開発サーバーの起動
+   ```bash
+   bun run dev
+   ```
 
-1. VS Codeでプロジェクトを開く
-2. コマンドパレットを開き、「Remote-Containers: Reopen in Container」を選択
+# 素材
 
-### 開発環境での作業
-
-```bash
-# フロントエンドとバックエンドの両方を起動
-dev
-
-# バックエンドのみを起動
-cd backend
-bun run dev
-
-# フロントエンドのみを起動
-cd frontend
-bun run dev
-```
-
-- バックエンドAPI: http://localhost:8000
-- フロントエンドUI: http://localhost:3000
-
-# マイグレーション
-https://github.com/sqldef/sqldef
-
-# 素材提供
-
-https://ranuking.ko-me.com/
-https://musmus.main.jp
+- https://ranuking.ko-me.com/
+- https://musmus.main.jp
