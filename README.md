@@ -1,11 +1,10 @@
 <div align="center">
-  <table border="0">
-    <tr>
-      <td><img src="./doc/logo.png" alt="Ptera Logo" height="50"></td>
-      <td><h1>Ptera</h1></td>
-    </tr>
-  </table>
-  <p>Pteraは、ノベルゲームをブラウザで作成、公開できるサービスです。（現在開発中）</p>
+  <div>
+    <img src="./doc/logo.png" alt="Ptera Logo" width="100">
+    <h1>Ptera</h1>
+  </div>
+  <p>Pteraは、ノベルゲームをブラウザで作成、公開できるサービスです。（現在開発中）
+</p>
 </div>
 
 <img src="./doc/screenshot-top.png" alt="スクリーンショット・トップページ" width="800">
