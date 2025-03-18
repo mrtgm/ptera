@@ -34,9 +34,7 @@ export default function GameFilterBar({
     initialSearchParams.categoryId || DEFAULT_STATES.CATEGORY_ID,
   );
 
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
-    null,
-  );
+  const [searchTimeout, setSearchTimeout] = useState<number | null>(null);
 
   const updateUrlParams = useCallback(
     (newParams: GetGamesRequest) => {
@@ -67,7 +65,7 @@ export default function GameFilterBar({
       clearTimeout(searchTimeout);
     }
 
-    const timeout = setTimeout(() => {
+    const timeout = window.setTimeout(() => {
       updateUrlParams({
         ...initialSearchParams,
         q: search,

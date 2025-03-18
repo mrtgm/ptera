@@ -2,12 +2,12 @@ export const waitMs = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 export const debounce = (func: () => void, wait: number): (() => void) => {
-  let timeout: NodeJS.Timeout | number | null = null;
+  let timeout: number | null = null;
   return () => {
     if (timeout) {
       clearTimeout(timeout);
     }
-    timeout = setTimeout(() => {
+    timeout = window.setTimeout(() => {
       func();
     }, wait);
   };

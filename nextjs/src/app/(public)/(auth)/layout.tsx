@@ -9,7 +9,6 @@ export const metadata = {
     "Ptera は、オリジナルのビジュアルノベルやアドベンチャーゲームを作成するためのプラットフォームです。",
   icons: {
     icon: [
-      { rel: "icon", url: "/favicon.ico" },
       {
         rel: "icon",
         type: "image/png",
