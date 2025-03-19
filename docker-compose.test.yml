@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
       POSTGRES_DB: ${DATABASE_NAME:-ptera_test}
     ports:
-      - "${TEST_DB_PORT:-5432}:5432"
+      - "${DATABASE_PORT:-5432}:5432"
     volumes:
       - pg_test_data:/var/lib/postgresql/data
     healthcheck:
@@ -29,17 +29,19 @@ services:
     command: /bin/sh -c "/app/docker-entrypoint.sh"
     env_file:
       - .env.test
-    environment:
-      NODE_ENV: test
     volumes:
-      - ./nextjs:/app
+      - ./docker-entrypoint.sh:/app/docker-entrypoint.sh
+      - ./nextjs/test/:/app/nextjs/test
+      - ./nextjs/vitest.config.ts:/app/nextjs/vitest.config.ts
+      - ./nextjs/package.json:/app/nextjs/package.json
       - ./test-results:/app/test-results
     depends_on:
       db:
         condition: service_healthy
     networks:
       - test-network
-    working_dir: /app
+    ports:
+      - 3000:3000
 
 volumes:
   pg_test_data:

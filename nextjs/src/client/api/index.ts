@@ -43,10 +43,18 @@ export type ApiResponse<T = unknown> = {
   success: boolean;
 };
 
-export const BASE_URL =
+const BASE_URL= process.env.NEXT_PUBLIC_TEST_BUILD === 'true' || process.env.NODE_ENV === "test" ||
+process.env.NODE_ENV === "development"
+    ? `http://${ENV.NEXT_PUBLIC_DOMAIN_NAME}` :
   process.env.NODE_ENV === "production"
     ? `https://${ENV.NEXT_PUBLIC_DOMAIN_NAME}`
     : "http://localhost:3000";
+
+console.log('BUILD ENV:', {
+  NODE_ENV: process.env.NODE_ENV,
+  TEST_BUILD: process.env.NEXT_PUBLIC_TEST_BUILD,
+  NEXT_PUBLIC_DOMAIN_NAME: process.env.NEXT_PUBLIC_DOMAIN_NAME,
+});
 
 export const apiClient = new PteraApiClient({
   BASE: BASE_URL,

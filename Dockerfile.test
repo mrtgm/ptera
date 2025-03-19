@@ -3,23 +3,19 @@ WORKDIR /app
 
 RUN apk add --no-cache postgresql-client
 
-
-# Copy package definitions
-COPY package.json bun.lockb* ./
+COPY package.json bun.lock ./
 COPY packages/config/package.json ./packages/config/
 COPY packages/schema/package.json ./packages/schema/
 COPY nextjs/package.json ./nextjs/
 
 RUN bun install
 
+COPY packages ./packages
+COPY nextjs ./nextjs
 
-COPY . .
-
-
-ENV NODE_ENV test
-
+# 後でリファクタ
 RUN \
-  export DATABASE_HOST=localhost && \
+  export DATABASE_HOST=db && \
   export DATABASE_PORT=5432 && \
   export DATABASE_NAME=ptera_test && \
   export DATABASE_USER=postgres && \
@@ -27,11 +23,11 @@ RUN \
   export GOOGLE_CLIENT_ID=dummy-client-id && \
   export GOOGLE_CLIENT_SECRET=dummy-client-secret && \
   export JWT_SECRET=your-jwt-secret-key && \
-  export NEXT_PUBLIC_DOMAIN_NAME=localhost && \
+  export NEXT_PUBLIC_DOMAIN_NAME='localhost:3000' && \
   export NEXT_PUBLIC_ENV=dev && \
-  NODE_OPTIONS="--max-old-space-size=4096" SKIP_ENV_VALIDATION=1 bun run build
+  export NODE_ENV=production && \
+  export NEXT_PUBLIC_TEST_BUILD=true && \
+  NODE_OPTIONS="--max-old-space-size=4096" SKIP_ENV_VALIDATION=1 bun run build:test
 
 
-RUN chmod +x ./docker-entrypoint.sh
-RUN cd /app && bun add -d vitest
-
+EXPOSE 3000
