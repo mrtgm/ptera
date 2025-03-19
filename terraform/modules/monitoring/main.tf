@@ -4,7 +4,6 @@ resource "aws_sns_topic" "alerts" {
   tags = var.tags
 }
 
-# SNSトピックにメール登録
 resource "aws_sns_topic_subscription" "email" {
   count     = length(var.alert_emails)
   topic_arn = aws_sns_topic.alerts.arn
@@ -12,7 +11,6 @@ resource "aws_sns_topic_subscription" "email" {
   endpoint  = var.alert_emails[count.index]
 }
 
-# 予算アラート - 月間合計予算
 resource "aws_budgets_budget" "monthly" {
   name              = "${var.project_name}-monthly-budget${var.name_suffix}"
   budget_type       = "COST"
@@ -22,7 +20,7 @@ resource "aws_budgets_budget" "monthly" {
   time_period_start = "2023-01-01_00:00"
   time_unit         = "MONTHLY"
 
-  # タグによるフィルタリング
+
   cost_filter {
     name = "TagKeyValue"
     values = [
@@ -30,7 +28,6 @@ resource "aws_budgets_budget" "monthly" {
     ]
   }
 
-  # 閾値の通知
   dynamic "notification" {
     for_each = var.budget_config.alert_thresholds
     content {
@@ -43,14 +40,13 @@ resource "aws_budgets_budget" "monthly" {
   }
 }
 
-# 主要サービス別予算アラート設定
+
 locals {
   services = [
     "S3",
   ]
 }
 
-# サービス別予算アラート（1日あたり$5以上増加した場合）
 resource "aws_budgets_budget" "service_alerts" {
   count             = length(local.services)
   name              = "${var.project_name}-${lower(local.services[count.index])}-alert${var.name_suffix}"
@@ -61,7 +57,7 @@ resource "aws_budgets_budget" "service_alerts" {
   time_period_end   = "2087-06-15_00:00"
   time_unit         = "DAILY"
 
-  # サービスでフィルタリング
+
   cost_filter {
     name = "Service"
     values = [
@@ -69,7 +65,6 @@ resource "aws_budgets_budget" "service_alerts" {
     ]
   }
 
-  # タグによるフィルタリング
   cost_filter {
     name = "TagKeyValue"
     values = [
@@ -77,7 +72,6 @@ resource "aws_budgets_budget" "service_alerts" {
     ]
   }
 
-  # 閾値通知
   notification {
     comparison_operator        = "GREATER_THAN"
     threshold                  = 100

@@ -2,8 +2,9 @@ include {
   path = find_in_parent_folders("root.hcl")
 }
 
+
 terraform {
-  source = "../../../modules//iam"
+  source = "../../../modules//storage"
 }
 
 dependencies {
@@ -11,4 +12,5 @@ dependencies {
 }
 
 inputs = {
+  logs_expiration_days = 7
 }

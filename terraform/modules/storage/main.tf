@@ -5,7 +5,6 @@ resource "aws_s3_bucket" "asset" {
   tags = var.tags
 }
 
-# パブリックアクセスのブロック（すべてブロック）
 resource "aws_s3_bucket_public_access_block" "asset" {
   bucket = aws_s3_bucket.asset.id
 
