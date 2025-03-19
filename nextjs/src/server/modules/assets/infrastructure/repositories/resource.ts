@@ -1,3 +1,10 @@
+import {
+  asset,
+  assetGame,
+  character,
+  characterAsset,
+  characterGame,
+} from "@/server/shared/infrastructure/db/schema";
 import type {
   BGM,
   BackgroundImage,
@@ -8,13 +15,6 @@ import type {
   SoundEffect,
 } from "@ptera/schema";
 import { eq, inArray, or } from "drizzle-orm";
-import {
-  asset,
-  assetGame,
-  character,
-  characterAsset,
-  characterGame,
-} from "~/server/shared/infrastructure/db/schema";
 import { BaseRepository } from "../../../games/infrastructure/repositories/base";
 
 export class ResourceRepository extends BaseRepository {

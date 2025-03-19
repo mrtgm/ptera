@@ -7,7 +7,7 @@ const connectionString = `postgresql://${ENV.DATABASE_USER}:${ENV.DATABASE_PASSW
 
 const migrationClient = postgres(connectionString, { max: 1 });
 
-async function performMigration() {
+export const performMigration = async () => {
   try {
     const db = drizzle(migrationClient);
 
@@ -19,6 +19,6 @@ async function performMigration() {
   } finally {
     await migrationClient.end();
   }
-}
+};
 
 performMigration();

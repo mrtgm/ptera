@@ -1,5 +1,5 @@
+import { Header } from "@/client/features/dashboard/components/header";
 import { SideBar } from "@/client/features/game/components/side-bar";
-import { Header } from "~/client/features/dashboard/components/header";
 import "../../../globals.css";
 import "@fontsource/dotgothic16";
 import { AuthProvider } from "@/client/features/auth/providers/auth-provider";

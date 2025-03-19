@@ -17,6 +17,8 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@ptera/schema", "@ptera/config"],
 
   outputFileTracingRoot: path.join(__dirname, "../"),
+
+  output: "standalone",
 };
 
 export default nextConfig;

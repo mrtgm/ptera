@@ -5,7 +5,7 @@
 
 import nextDynamic from "next/dynamic";
 
-const Editor = nextDynamic(() => import("~/client/features/editor"), {
+const Editor = nextDynamic(() => import("@/client/features/editor"), {
   ssr: false,
 });
 

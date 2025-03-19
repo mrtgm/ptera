@@ -22,7 +22,6 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "~/*": ["./src/*"],
       "@ptera/schema": ["../packages/schema/src"],
       "@ptera/config": ["../packages/config/src"]
     }

@@ -9,6 +9,8 @@ export const metadata = {
   title: "トップページ | Ptera",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const [newGamesResponse, popularGamesResponse] = await Promise.all([
     api.games.list({ limit: 4, offset: 0, sort: "createdAt", order: "desc" }),

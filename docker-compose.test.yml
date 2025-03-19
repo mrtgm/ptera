@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    env_file:
+      - .env.test
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      POSTGRES_DB: ${DATABASE_NAME:-ptera_test}
+    ports:
+      - "${TEST_DB_PORT:-5432}:5432"
+    volumes:
+      - pg_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test-network
+
+  app:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile.test
+    command: /bin/sh -c "/app/docker-entrypoint.sh"
+    env_file:
+      - .env.test
+    environment:
+      NODE_ENV: test
+    volumes:
+      - ./nextjs:/app
+      - ./test-results:/app/test-results
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - test-network
+    working_dir: /app
+
+volumes:
+  pg_test_data:
+
+networks:
+  test-network:
+    driver: bridge

@@ -22,14 +22,14 @@ ptera/
 ├── nextjs
 │   └──src
 │       ├── app # Next.jsアプリケーション
-│       ├── client # クライアントサイドのコード
-│       └── server # サーバーサイドのコード
+│       ├── client
+│       └── server
 ├── terraform # インフラ構成
 │   ├── env
-│   │   ├── dev # 開発環境
-│   │   └── prod # 本番環境
+│   │   ├── dev
+│   │   └── prod
 │   └── modules # モジュール
-└── doc # ドキュメント
+└── doc
 ```
 
 ### Prerequisite
@@ -43,7 +43,7 @@ ptera/
 依存関係のバージョンは `.tool-versions` ([asdf](https://asdf-vm.com/) を使用) に記載。
 
 ## 開発環境の構築
-1. Vercel プロジェクトにリンクして`.env.local`ファイルを取得します。
+1. Vercel プロジェクトにリンクして`.env.local`を取得。
    ```bash
    bunx vercel link
    bunx vercel env pull

@@ -4,8 +4,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/client/components/shadcn/card";
+import { LoginButtons } from "@/client/features/auth/components/login-button";
 import Link from "next/link";
-import { LoginButtons } from "~/client/features/auth/components/login-button";
 
 export default function Login() {
   return (

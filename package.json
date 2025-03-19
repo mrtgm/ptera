@@ -9,16 +9,26 @@
     "lint": "biome lint .",
     "check": "biome check --apply .",
     "env": "bunx vercel env pull",
+    "db:migrate": "DATABASE_URL=$DATABASE_URL bun ./nextjs/src/server/shared/infrastructure/db/migrate.ts",
+    "db:clear": "DATABASE_URL=$DATABASE_URL node -r esbuild-register ./nextjs/src/server/shared/infrastructure/db/clear.ts",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
     "test:ci": "vitest --ci",
+    "test:api": "vitest run --config ./vitest.config.ts",
+    "test:docker": "npm run test:docker:up && npm run test:docker:run && npm run test:docker:down",
+    "test:docker:build": "docker build -t app -f Dockerfile.test .",
+    "test:docker:up": "docker-compose -f docker-compose.test.yml up -d",
+    "test:docker:down": "docker-compose -f docker-compose.test.yml down",
+    "test:docker:clean": "docker-compose -f docker-compose.test.yml down -v",
+    "test:docker:run": "docker-compose -f docker-compose.test.yml run --rm app bun run test:integration",
     "terraform:init": "cd ./terraform && terragrunt init --terragrunt-config ./root.hcl",
     "terraform:plan": "cd ./terraform && terragrunt plan --terragrunt-config ./root.hcl",
     "terraform:apply": "cd ./terraform && terragrunt apply --terragrunt-config ./root.hcl"
   },
   "dependencies": {
     "@types/aria-query": "^5.0.4",
-    "jsdom": "^26.0.0"
+    "jsdom": "^26.0.0",
+    "vitest": "^3.0.9"
   }
 }
