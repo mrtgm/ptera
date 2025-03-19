@@ -11,7 +11,7 @@ export const performMigration = async () => {
   try {
     const db = drizzle(migrationClient);
 
-    console.log("Starting migration...",__dirname);
+    console.log("Starting migration...", __dirname);
 
     await migrate(db, { migrationsFolder: `${__dirname}` });
 
