@@ -20,6 +20,18 @@ const commonModulesList = [
   },
 ];
 
+export const openApiSettings = {
+  servers: [{ url: "/" }],
+  info: {
+    title: "Ptera API",
+    version: ENV.NEXT_PUBLIC_API_VERSION,
+    description: "PteraのAPIドキュメント",
+  },
+  openapi: "3.1.0",
+  tags: commonModulesList,
+  security: [{ cookieAuth: [] }],
+};
+
 export const docs = (app: OpenAPIHono<Env>) => {
   const registry = app.openAPIRegistry;
 
@@ -30,17 +42,7 @@ export const docs = (app: OpenAPIHono<Env>) => {
   });
 
   // OpenAPI
-  app.doc31("/api/openapi.json", {
-    servers: [{ url: "/" }],
-    info: {
-      title: "Ptera API",
-      version: ENV.NEXT_PUBLIC_API_VERSION,
-      description: "PteraのAPIドキュメント",
-    },
-    openapi: "3.1.0",
-    tags: commonModulesList,
-    security: [{ cookieAuth: [] }],
-  });
+  app.doc31("/api/openapi.json", openApiSettings);
 
   // Swagger UI
   app.get(

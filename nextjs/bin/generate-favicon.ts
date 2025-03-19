@@ -79,7 +79,7 @@ const FAVICON_CONFIGS = [
   { name: "icon-512x512.png", sizes: [512], format: "png" },
 ];
 
-async function generateFavicons() {
+async function main() {
   try {
     await mkdir(outputDir, { recursive: true });
     console.log(`Output directory: ${outputDir}`);
@@ -186,4 +186,4 @@ export const metadata = {
   }
 }
 
-generateFavicons();
+main().catch(console.error);
