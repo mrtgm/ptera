@@ -1,7 +1,7 @@
 FROM oven/bun:alpine AS deps
 WORKDIR /app
 
-RUN apk add --no-cache postgresql-client
+RUN apk add --no-cache postgresql-client curl
 
 COPY package.json bun.lock ./
 COPY packages/config/package.json ./packages/config/

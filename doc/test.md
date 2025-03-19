@@ -29,15 +29,7 @@ Next.jsアプリケーションのルート：
 すべてをDockerで実行
 ```
 # Docker環境内でテストを実行（ビルド→起動→テスト→終了）
-npm run test:docker
-```
-もしくは
-```
-# DBコンテナのみ起動
-npm run test:docker:up
-npm run test:doekcer:run
-# 終了時
-npm run test:docker:down
+npm run test:docker:ci
 ```
 
 Docker環境を初期化：
