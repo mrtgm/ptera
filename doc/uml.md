@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
 direction RL
 
@@ -159,3 +160,4 @@ Event <|-- AppearCGEvent
 Event <|-- TextRenderEvent
 
 Scene "1"*--"1..*" Event
+```
