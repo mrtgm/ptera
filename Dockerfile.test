@@ -15,7 +15,7 @@ COPY nextjs ./nextjs
 
 COPY .env.test .env.test
 
-
+# .env.test を export して起動
 RUN \
   set -a && \
   source .env.test && \

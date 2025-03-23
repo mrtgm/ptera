@@ -66,7 +66,7 @@ export const logger = (fn: PrintFunc = console.info): MiddlewareHandler => {
     const responseTime = Date.now() - start;
 
     if (c.res.status >= 400 || responseTime > 1000) {
-      // エラーまたは遅いレスポンスのみ詳細ログを記録
+      // エラーまたは遅いレスポンスはWARN
       log.warn({
         requestId,
         prefix: LogPrefix.Error,

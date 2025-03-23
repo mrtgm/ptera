@@ -20,7 +20,7 @@ echo "Starting Next.js server for API testing..."
 bun run start:test &
 NEXT_PID=$!
 
-# Wait for Next.js server to be ready by polling the health endpoint
+# Next.js が立ち上がるまで待機
 echo "Waiting for Next.js server to be ready..."
 MAX_RETRIES=30
 RETRY_COUNT=0
@@ -42,12 +42,11 @@ if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
   exit 1
 fi
 
-# Now run the tests
+# 終了コードをキャプチャ
 echo "Running integration tests..."
 bun run test:integration
 TEST_EXIT_CODE=$?
 
-# Clean up
 echo "Shutting down Next.js server..."
 kill $NEXT_PID
 
