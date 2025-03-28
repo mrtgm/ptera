@@ -137,6 +137,12 @@ export const api = {
       );
       return response.data;
     },
+    getMyAssets: async () => {
+      const response = await handleApiResponse<ResourceResponse>(() =>
+        api.client.dashboard.getApiV1MeAssets(),
+      );
+      return response.data;
+    },
     likedGames: async () => {
       const response = await handleApiResponse<number[]>(() =>
         api.client.dashboard.getApiV1MeLiked(),

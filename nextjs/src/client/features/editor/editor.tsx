@@ -41,7 +41,7 @@ import { useTimelineDrag } from "./hooks/use-timeline-drag";
 const initialize = async (gameId: number) => {
   const [games, assets] = await Promise.all([
     api.games.get(gameId),
-    api.games.getAssets(gameId),
+    api.auth.getMyAssets(),
   ]);
   return {
     game: games as GameDetailResponse,

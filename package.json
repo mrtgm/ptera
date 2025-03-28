@@ -12,6 +12,7 @@
     "env": "bunx vercel env pull",
     "doc:openapi": " bun ./nextjs/bin/generate-openapi.ts",
     "db:migrate": "DATABASE_URL=$DATABASE_URL bun ./nextjs/src/server/shared/infrastructure/db/migrate.ts",
+    "db:seed": "DATABASE_URL=$DATABASE_URL bun ./nextjs/src/server/shared/infrastructure/db/seed/index.ts",
     "db:clear": "DATABASE_URL=$DATABASE_URL node -r esbuild-register ./nextjs/src/server/shared/infrastructure/db/clear.ts",
     "test": "vitest --run",
     "test:watch": "vitest --watch",

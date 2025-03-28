@@ -19,7 +19,6 @@ async function seedPresetAssets() {
       .values([
         // 背景画像: ファンタジー
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "backgroundImage",
           name: "バザール",
@@ -30,7 +29,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "backgroundImage",
           name: "洞窟",
@@ -41,7 +39,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "backgroundImage",
           name: "ファンタジー図書館",
@@ -52,7 +49,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "backgroundImage",
           name: "広野",
@@ -63,7 +59,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "backgroundImage",
           name: "宮殿",
@@ -76,7 +71,6 @@ async function seedPresetAssets() {
 
         // 背景画像: 個人
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "backgroundImage",
           name: "散らかった部屋",
@@ -89,7 +83,6 @@ async function seedPresetAssets() {
 
         // 背景画像: 学校生活
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "backgroundImage",
           name: "公園（昼）",
@@ -100,7 +93,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "backgroundImage",
           name: "部屋",
@@ -111,7 +103,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "backgroundImage",
           name: "通学路",
@@ -122,7 +113,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "backgroundImage",
           name: "学校",
@@ -135,7 +125,6 @@ async function seedPresetAssets() {
 
         // BGM
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "bgm",
           name: "午前2時23分",
@@ -147,7 +136,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "bgm",
           name: "猫の生活",
@@ -159,7 +147,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "bgm",
           name: "ファミポップ3",
@@ -171,7 +158,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "bgm",
           name: "昼下がり",
@@ -183,7 +169,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "bgm",
           name: "ジャジー",
@@ -195,7 +180,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "bgm",
           name: "野良猫",
@@ -207,7 +191,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "bgm",
           name: "平和な一日",
@@ -221,7 +204,6 @@ async function seedPresetAssets() {
 
         // CG
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "cgImage",
           name: "桜の下で",
@@ -235,7 +217,6 @@ async function seedPresetAssets() {
 
         // 効果音
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "soundEffect",
           name: "不安",
@@ -246,7 +227,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "soundEffect",
           name: "ビシッ",
@@ -257,7 +237,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "soundEffect",
           name: "拍手",
@@ -268,7 +247,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "soundEffect",
           name: "デデン",
@@ -279,7 +257,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "soundEffect",
           name: "ドア",
@@ -290,7 +267,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "soundEffect",
           name: "足音",
@@ -301,7 +277,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "soundEffect",
           name: "グキッ",
@@ -312,7 +287,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "soundEffect",
           name: "ポカン",
@@ -323,7 +297,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "soundEffect",
           name: "ポーン",
@@ -334,7 +307,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "soundEffect",
           name: "学校のチャイム",
@@ -345,7 +317,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "soundEffect",
           name: "正解",
@@ -356,7 +327,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "soundEffect",
           name: "シャキーン",
@@ -367,7 +337,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "soundEffect",
           name: "テンカン",
@@ -380,7 +349,6 @@ async function seedPresetAssets() {
 
         // キャラクター画像：longhair-woman
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "characterImage",
           name: "longhair-woman-happy",
@@ -391,7 +359,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "characterImage",
           name: "longhair-woman-sad",
@@ -402,7 +369,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "characterImage",
           name: "longhair-woman-smile",
@@ -415,7 +381,6 @@ async function seedPresetAssets() {
 
         // キャラクター画像：mysterious-girl
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "characterImage",
           name: "mysterious-girl-happy",
@@ -426,7 +391,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "characterImage",
           name: "mysterious-girl-sad",
@@ -437,7 +401,6 @@ async function seedPresetAssets() {
           },
         },
         {
-          ownerId: userId,
           isPublic: true,
           assetType: "characterImage",
           name: "mysterious-girl-smile",
@@ -456,12 +419,10 @@ async function seedPresetAssets() {
       .insert(schema.character)
       .values([
         {
-          ownerId: userId,
           isPublic: true,
           name: "長髪の女性",
         },
         {
-          ownerId: userId,
           isPublic: true,
           name: "ミステリアスな少女",
         },
