@@ -224,6 +224,39 @@ export class CharacterRepository extends BaseRepository {
     }, tx);
   }
 
+  async unlinkCharacterFromGame({
+    params,
+    tx,
+  }: {
+    params: {
+      characterId: number;
+      gameId: number;
+    };
+    tx?: Transaction;
+  }): Promise<{ success: boolean }> {
+    return await this.executeTransaction(async (txLocal) => {
+      const characterToUpdate = await this.getCharacterById(
+        params.characterId,
+        txLocal,
+      );
+      if (!characterToUpdate) {
+        throw new CharacterNotFoundError(params.characterId);
+      }
+      // キャラクターとゲームの関連付けを削除
+      await txLocal
+        .delete(characterGame)
+        .where(
+          and(
+            eq(characterGame.characterId, characterToUpdate.id),
+            eq(characterGame.gameId, params.gameId),
+          ),
+        )
+        .execute();
+
+      return { success: true };
+    }, tx);
+  }
+
   async getCharacterById(
     characterId: number,
     tx?: Transaction,

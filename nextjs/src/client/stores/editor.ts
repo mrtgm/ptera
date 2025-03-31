@@ -367,12 +367,19 @@ export const createEditorSlice: StateCreator<
       },
     });
 
-    const res = ResourceValidator.getAssetFromEvent(deletedEvent);
+    const asset = ResourceValidator.getAssetFromEvent(deletedEvent);
     if (
-      res &&
-      ResourceValidator.canDeleteAsset(res.type, res.id, editingGame)
+      asset &&
+      ResourceValidator.canDeleteAsset(asset.type, asset.id, editingGame)
     ) {
-      await api.assets.unlinkGame(res.id, editingGame.id);
+      await api.assets.unlinkGame(asset.id, editingGame.id);
+    }
+    const character = ResourceValidator.getCharacterFromEvent(deletedEvent);
+    if (
+      character &&
+      ResourceValidator.canDeleteCharacter(character.characterId, editingGame)
+    ) {
+      await api.characters.unlinkGame(character.characterId, editingGame.id);
     }
   },
 
@@ -381,12 +388,7 @@ export const createEditorSlice: StateCreator<
     const { editingGame } = get();
     if (!editingGame) return;
 
-    try {
-      gameEventSchema.parse(event);
-    } catch (err) {
-      console.error("Failed to save event:", err);
-      return;
-    }
+    const savedEvent = gameEventSchema.parse(event);
 
     await performUpdate({
       api: () =>
@@ -394,7 +396,7 @@ export const createEditorSlice: StateCreator<
           editingGame.id,
           selectedSceneId,
           event.id,
-          event as GameEvent,
+          savedEvent,
         ),
       optimisticUpdate: () => {
         set({
@@ -405,7 +407,7 @@ export const createEditorSlice: StateCreator<
                 ? {
                     ...scene,
                     events: scene.events.map((e) =>
-                      e.id === event.id ? (event as GameEvent) : e,
+                      e.id === event.id ? savedEvent : e,
                     ),
                   }
                 : scene,
@@ -414,6 +416,21 @@ export const createEditorSlice: StateCreator<
         });
       },
     });
+
+    const asset = ResourceValidator.getAssetFromEvent(savedEvent);
+    if (
+      asset &&
+      ResourceValidator.canDeleteAsset(asset.type, asset.id, editingGame)
+    ) {
+      await api.assets.unlinkGame(asset.id, editingGame.id);
+    }
+    const character = ResourceValidator.getCharacterFromEvent(savedEvent);
+    if (
+      character &&
+      ResourceValidator.canDeleteCharacter(character.characterId, editingGame)
+    ) {
+      await api.characters.unlinkGame(character.characterId, editingGame.id);
+    }
   },
 
   // キャラクター追加

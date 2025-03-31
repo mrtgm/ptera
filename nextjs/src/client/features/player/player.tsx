@@ -65,6 +65,7 @@ export const GamePlayer = ({
         if (isPreviewMode) {
           startGame();
         } else {
+          console.log(resources);
           if (alreadyStarted.current) return;
           setState("beforeStart");
           alreadyStarted.current = true;

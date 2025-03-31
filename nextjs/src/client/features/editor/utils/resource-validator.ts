@@ -132,6 +132,26 @@ export const ResourceValidator = {
     };
   },
 
+  getCharacterFromEvent: (
+    event: GameEvent,
+  ): {
+    type: GameEventType;
+    characterId: number;
+  } | null => {
+    if (
+      event.eventType === "appearCharacter" ||
+      event.eventType === "hideCharacter" ||
+      event.eventType === "moveCharacter" ||
+      event.eventType === "characterEffect"
+    ) {
+      return {
+        type: event.eventType,
+        characterId: event.characterId,
+      };
+    }
+    return null;
+  },
+
   getAssetFromEvent: (
     event: GameEvent,
   ): {

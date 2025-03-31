@@ -509,5 +509,12 @@ export const api = {
       );
       return response.success;
     },
+
+    unlinkGame: async (characterId: number, gameId: number) => {
+      const response = await handleApiResponse<boolean>(() =>
+        api.client.characters.deleteApiV1CharactersGames(characterId, gameId),
+      );
+      return response.success;
+    },
   },
 };

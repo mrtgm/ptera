@@ -187,4 +187,34 @@ export class CharactersService {
             },
         });
     }
+    /**
+     * キャラクターからゲームの関連付けを解除します。
+     * @param gameId
+     * @param characterId
+     * @returns any Success
+     * @throws ApiError
+     */
+    public deleteApiV1CharactersGames(
+        gameId: (number | string),
+        characterId: (number | string),
+    ): CancelablePromise<{
+        success: boolean;
+    }> {
+        return this.httpRequest.request({
+            method: 'DELETE',
+            url: '/api/v1/characters/{characterId}/games/{gameId}',
+            path: {
+                'gameId': gameId,
+                'characterId': characterId,
+            },
+            errors: {
+                400: `Bad request: problem processing request.`,
+                401: `Unauthorized: authentication required.`,
+                403: `Forbidden: insufficient permissions.`,
+                404: `Not found: resource does not exist.`,
+                429: `Rate limit: too many requests.`,
+                500: `Internal server error: unexpected error.`,
+            },
+        });
+    }
 }

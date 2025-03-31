@@ -82,7 +82,7 @@ assetRoutes
     await commands.executeDeleteAsset(assetId, userId);
     return successWithoutDataResponse(c);
   })
-  .openapi(assetRouteConfigs.unlinkGameFromAsset, async (c) => {
+  .openapi(assetRouteConfigs.unlinkAssetFromGame, async (c) => {
     const { assetId, gameId } = c.req.valid("param");
     const userId = c.get("user")?.id;
     if (!userId) {
@@ -90,7 +90,7 @@ assetRoutes
         userId: "required",
       });
     }
-    await commands.executeUnlinkGameFromAsset(assetId, gameId);
+    await commands.executeUnlinkAssetFromGame(assetId, gameId);
     return successWithoutDataResponse(c);
   });
 
@@ -166,6 +166,17 @@ characterRoutes
       assetId,
       userId,
     );
+    return successWithoutDataResponse(c);
+  })
+  .openapi(characterRouteConfigs.unlinkCharacterFromGame, async (c) => {
+    const { characterId, gameId } = c.req.valid("param");
+    const userId = c.get("user")?.id;
+    if (!userId) {
+      return errorResponse(c, 401, "unauthorized", "warn", "user", {
+        userId: "required",
+      });
+    }
+    await commands.executeUnlinkCharacterFromGame(characterId, gameId, userId);
     return successWithoutDataResponse(c);
   });
 

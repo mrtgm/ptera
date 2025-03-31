@@ -119,7 +119,7 @@ export const CharacterList = ({
       >
         {characters.items.map((character) => (
           <Character
-            key={`${character.id}`}
+            key={`${character.imageId}`}
             character={character}
             resourceCache={resourceCache}
             currentEvent={currentEvent}

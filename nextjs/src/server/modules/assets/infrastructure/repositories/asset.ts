@@ -104,7 +104,7 @@ export class AssetRepository extends BaseRepository {
     return assetData.length > 0;
   }
 
-  async unlinkGameFromAsset({
+  async unlinkAssetFromGame({
     params: { assetId, gameId },
     tx,
   }: {

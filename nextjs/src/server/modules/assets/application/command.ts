@@ -122,16 +122,19 @@ export const createAssetCharacterCommands = ({
       });
     },
 
-    executeUnlinkGameFromAsset: async (assetId: number, gameId: number) => {
-      await assetRepository.unlinkGameFromAsset({
+    executeUnlinkAssetFromGame: async (assetId: number, gameId: number) => {
+      await assetRepository.unlinkAssetFromGame({
         params: {
           assetId,
           gameId,
         },
       });
 
+      console.log("ok?");
+
       return { success: true };
     },
+
     // キャラクター作成
     executeCreateCharacter: async (
       params: CreateCharacterRequest,
@@ -233,6 +236,26 @@ export const createAssetCharacterCommands = ({
         params: {
           characterId,
           assetId,
+        },
+      });
+
+      return { success: true };
+    },
+
+    executeUnlinkCharacterFromGame: async (
+      characterId: number,
+      gameId: number,
+      userId: number,
+    ) => {
+      const character = await characterRepository.getCharacterById(characterId);
+      if (!character) {
+        throw new CharacterNotFoundError(characterId);
+      }
+
+      await characterRepository.unlinkCharacterFromGame({
+        params: {
+          characterId,
+          gameId,
         },
       });
 

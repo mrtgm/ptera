@@ -7,6 +7,7 @@ import {
   bgmStopEvent,
   changeBackgroundEvent,
   characterEffectEvent,
+  characterGame,
   effectEvent,
   event,
   hideAllCharactersEvent,
@@ -31,9 +32,7 @@ import {
 import * as changeCase from "change-case";
 import { count, eq, inArray, sql } from "drizzle-orm";
 import { generateKeyBetween } from "fractional-indexing";
-import { omit } from "remeda";
 import { ResourceRepository } from "../../../assets/infrastructure/repositories/resource";
-import { domainToPersitence } from "../mapper";
 import { BaseRepository, type Transaction } from "./base";
 import { getEventAssetId } from "./utils";
 
@@ -214,6 +213,19 @@ export class EventRepository extends BaseRepository {
         .returning();
 
       await this.createEventDetail(createdEventBase[0].id, eventData, txLocal);
+
+      // キャラクターの関連付けを更新
+      if (eventData.eventType === "appearCharacter") {
+        await txLocal
+          .insert(characterGame)
+          .values({
+            gameId,
+            characterId: eventData.characterId,
+          })
+          .onConflictDoNothing({
+            target: [characterGame.gameId, characterGame.characterId],
+          });
+      }
 
       // アセットの関連付けを更新
       await this.linkEventAssets(gameId, eventData, txLocal);
@@ -520,6 +532,19 @@ export class EventRepository extends BaseRepository {
           .where(eq(hideCgEvent.eventId, eventData.id));
       }
 
+      // キャラクターの関連付けを更新
+      if (eventData.eventType === "appearCharacter") {
+        await txLocal
+          .insert(characterGame)
+          .values({
+            gameId,
+            characterId: eventData.characterId,
+          })
+          .onConflictDoNothing({
+            target: [characterGame.gameId, characterGame.characterId],
+          });
+      }
+
       // アセットの関連付けを更新
       await this.linkEventAssets(gameId, eventData, txLocal);
 
@@ -565,9 +590,6 @@ export class EventRepository extends BaseRepository {
       const eventType = eventData[0].eventType;
       await this.deleteEventDetail(eventId, eventType, txLocal);
       await txLocal.delete(event).where(eq(event.id, eventId));
-
-      // TODO: すべてのイベントとアセットに関連がもう存在しない場合、ゲームとアセットの関連を削除
-      // await this.unlinkEventAssets(eventId, txLocal);
     }, tx);
   }
 

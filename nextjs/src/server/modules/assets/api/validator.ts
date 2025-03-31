@@ -15,3 +15,8 @@ export const unlinkGameAssetSchema = z.object({
   gameId: z.union([z.number(), z.string().transform(Number)]),
   assetId: z.union([z.number(), z.string().transform(Number)]),
 });
+
+export const unlinkGameCharacterSchema = z.object({
+  gameId: z.union([z.number(), z.string().transform(Number)]),
+  characterId: z.union([z.number(), z.string().transform(Number)]),
+});
