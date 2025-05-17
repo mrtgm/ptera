@@ -103,7 +103,7 @@
     "@storybook/addon-onboarding": "^8.6.7",
     "@storybook/blocks": "^8.6.7",
     "@storybook/experimental-addon-test": "^8.6.7",
-    "@storybook/experimental-nextjs-vite": "8.6.7",
+    "@storybook/experimental-nextjs-vite": "8.6.14",
     "@storybook/test": "^8.6.7",
     "@tailwindcss/postcss": "^4.0.14",
     "@types/node": "^20",
