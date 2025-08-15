@@ -1,4 +1,4 @@
-python 3.11.9
+python 3.13.7
 poetry 1.8.2
 bun 1.2.4
 terraform 1.9.8
