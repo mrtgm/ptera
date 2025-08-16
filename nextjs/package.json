@@ -96,7 +96,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@chromatic-com/storybook": "^3",
-    "@hey-api/openapi-ts": "^0.64.12",
+    "@hey-api/openapi-ts": "^0.80.0",
     "@ptera/config": "workspace:^",
     "@ptera/schema": "workspace:^",
     "@storybook/addon-essentials": "^8.6.7",
